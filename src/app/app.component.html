@@ -1,0 +1,68 @@
+<style>
+  #secondrow {
+    background-color: #f5f5f5;
+    color: black;
+  }
+
+  nav {
+    width: 100%;
+  }
+
+  .example-fill-remaining-space {
+    /* This fills the remaining space, by using flexbox. 
+     Every toolbar row uses a flexbox row layout. */
+    flex: 1 1 auto;
+  }
+</style>
+
+<mat-toolbar color="primary">
+  <mat-toolbar-row>
+    <button type="button" aria-label="Toggle sidenav" mat-icon-button (click)="toggleForMenuClick()">
+      <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+    </button>
+    <span> <a routerLink="/home">VirtualLabs</a></span>
+    <!-- This fills the remaining space of the current row -->
+    <span class="example-fill-remaining-space"></span>
+    <button mat-button [routerLink]="['home']" [queryParams]="{doLogin: true}" *ngIf="!isLoggedIn()">Login</button>
+    <button mat-button *ngIf="isLoggedIn()" (click)="logout()">Logout</button>
+
+  </mat-toolbar-row>
+
+  <mat-toolbar-row id="secondrow">
+    <span> Applicazioni Internet</span>
+    <span class="example-spacer"></span>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<mat-sidenav-container>
+  <mat-sidenav #sidenav mode="side">
+    <div class="container">
+      <mat-nav-list>
+        <a mat-list-item routerLink="teacher/course/applicazioni-internet/students">
+          Applicazioni Internet </a>
+        <a mat-list-item>
+          Programmazione di sistema </a>
+      </mat-nav-list>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+
+    <nav mat-tab-nav-bar>
+      <a mat-tab-link *ngFor="let link of navLinks" [routerLink]="link.path" routerLinkActive #rla="routerLinkActive"
+        [active]="rla.isActive">
+        {{link.label}}
+      </a>
+    </nav>
+    <router-outlet></router-outlet>
+    <!-- <nav mat-tab-nav-bar>
+      <a mat-tab-link
+         *ngFor="let link of navLinks"
+         [routerLink]="link.path"
+         routerLinkActive #rla="routerLinkActive"
+         [active]="rla.isActive">
+        {{link.label}}
+      </a>
+    </nav> -->
+  </mat-sidenav-content>
+</mat-sidenav-container>
