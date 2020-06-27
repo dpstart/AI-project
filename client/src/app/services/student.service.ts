@@ -29,7 +29,7 @@ export class StudentService {
 
   constructor(private http: HttpClient) { }
 
-  URL = "http://localhost:3000"
+  URL = "http://localhost:4200/API"
 
   getStudents<T>(): Observable<T> {
 

@@ -59,8 +59,8 @@ export class LoginDialogComponent {
       var sess = {};
 
       sess["email"] = this.form.value.username;
-      sess["info"] = JSON.parse(atob(data["accessToken"].split('.')[1]));
-      sess["token"] = data["accessToken"]
+      sess["info"] = JSON.parse(atob(data["token"].split('.')[1]));
+      sess["token"] = data["token"]
 
       localStorage.setItem("session", JSON.stringify(sess));
 

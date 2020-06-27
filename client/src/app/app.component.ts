@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { LoginDialogComponent } from './auth/login-dialog.component';
 import { AuthService } from './services/auth.service';
 import { Router, Event, NavigationEnd, ActivatedRoute } from '@angular/router';
+import { TeacherService } from './services/teacher.service';
 
 
 
@@ -12,10 +13,11 @@ import { Router, Event, NavigationEnd, ActivatedRoute } from '@angular/router';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   courses = ["Applicazioni Internet", "Programmazione di sistema"];
 
-  constructor(public dialog: MatDialog, private auth: AuthService, private router: Router, private route: ActivatedRoute) {
+  constructor(public dialog: MatDialog, private auth: AuthService, private router: Router, private route: ActivatedRoute,
+    private teacher: TeacherService) {
 
 
     this.router.events.subscribe((event: Event) => {
@@ -39,6 +41,13 @@ export class AppComponent {
 
 
   @ViewChild(MatSidenav) sidenav: MatSidenav;
+
+  ngOnInit() {
+
+    this.teacher.getCourses().subscribe(data =>
+      console.log(data));
+
+  }
 
 
   toggleForMenuClick() {
