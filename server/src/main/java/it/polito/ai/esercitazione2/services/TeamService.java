@@ -4,7 +4,9 @@ import it.polito.ai.esercitazione2.dtos.CourseDTO;
 import it.polito.ai.esercitazione2.dtos.ProfessorDTO;
 import it.polito.ai.esercitazione2.dtos.StudentDTO;
 import it.polito.ai.esercitazione2.dtos.TeamDTO;
+import it.polito.ai.esercitazione2.entities.Image;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Reader;
 import java.util.List;
@@ -27,6 +29,8 @@ public interface TeamService {
 
     @PreAuthorize("hasRole('ADMIN')")
     boolean addStudent(StudentDTO s,boolean notify);
+    @PreAuthorize("hasRole('ADMIN')")
+    boolean addStudent(StudentDTO s,boolean notify, MultipartFile file);
     Optional<StudentDTO> getStudent(String studentId);
     List<StudentDTO> getAllStudents();
     List<StudentDTO> getEnrolledStudents(String courseName);
@@ -77,5 +81,7 @@ public interface TeamService {
 
     boolean evictTeam(Long ID);
     List<Boolean> evictAll(Set<Long> teams);
+
+    Image getImage(String imageName);
 
 }

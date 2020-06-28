@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.opencsv.bean.CsvBindByName;
 import lombok.Data;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 
@@ -22,5 +23,8 @@ public class StudentDTO extends RepresentationModel<StudentDTO> {
     @NotBlank
     @JsonProperty("firstName")
     String firstName;
+    
+
+
 
 }

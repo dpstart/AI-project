@@ -5,6 +5,7 @@ import it.polito.ai.esercitazione2.dtos.CourseDTO;
 import it.polito.ai.esercitazione2.dtos.StudentDTO;
 import it.polito.ai.esercitazione2.dtos.TeamDTO;
 import it.polito.ai.esercitazione2.dtos.ValidStudentDTOList;
+import it.polito.ai.esercitazione2.entities.Image;
 import it.polito.ai.esercitazione2.exceptions.AuthenticationServiceException;
 import it.polito.ai.esercitazione2.exceptions.IncoherenceException;
 import it.polito.ai.esercitazione2.exceptions.StudentNotFoundException;
@@ -19,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import javax.validation.Valid;
 import java.util.*;
@@ -42,16 +44,27 @@ public class StudentController {
                 .map(x->ModelHelper.enrich(x)).collect(Collectors.toList());
     }
 
+
+
     @GetMapping("/{id}")
     StudentDTO getOne(@PathVariable String id){
         StudentDTO c=teamservice.getStudent(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,id));
+
         return ModelHelper.enrich(c);
     }
 
+    @GetMapping("/{id}/image")
+    Image getImage(@PathVariable String id){
+        Image img =teamservice.getImage(id);
+        return img;
+    }
+
+
     @PostMapping({"","/"})
-    StudentDTO addStudent(@Valid @RequestBody StudentDTO dto) {
+    StudentDTO addStudent(@Valid @RequestPart("student") StudentDTO dto, @RequestPart("image") MultipartFile file) {
+
         try {
-            if (!teamservice.addStudent(dto,true))
+            if (!teamservice.addStudent(dto,true,file))
                 throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getId());
         } catch (IncoherenceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());

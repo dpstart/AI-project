@@ -3,15 +3,9 @@ package it.polito.ai.esercitazione2.services;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import it.polito.ai.esercitazione2.dtos.*;
-import it.polito.ai.esercitazione2.entities.Course;
-import it.polito.ai.esercitazione2.entities.Professor;
-import it.polito.ai.esercitazione2.entities.Student;
-import it.polito.ai.esercitazione2.entities.Team;
+import it.polito.ai.esercitazione2.entities.*;
 import it.polito.ai.esercitazione2.exceptions.*;
-import it.polito.ai.esercitazione2.repositories.CourseRepository;
-import it.polito.ai.esercitazione2.repositories.ProfessorRepository;
-import it.polito.ai.esercitazione2.repositories.StudentRepository;
-import it.polito.ai.esercitazione2.repositories.TeamRepository;
+import it.polito.ai.esercitazione2.repositories.*;
 import net.minidev.json.JSONObject;
 import org.apache.commons.text.RandomStringGenerator;
 import org.modelmapper.ModelMapper;
@@ -21,15 +15,22 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import javax.transaction.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.Reader;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 
 @Service
@@ -62,6 +63,9 @@ public class TeamServiceImpl implements TeamService {
 
     @Autowired
     JdbcUserDetailsManager userDetailsManager;
+
+    @Autowired
+    ImageRepository imageRepository;
 
     WebClient w = WebClient.create("http://localhost:8080");
 
@@ -192,7 +196,7 @@ public class TeamServiceImpl implements TeamService {
 
     //Students
     @Override
-    public boolean addStudent(StudentDTO s,boolean notify)  {
+    public boolean addStudent(StudentDTO s, boolean notify, MultipartFile file)  {
         if (studentRepository.existsById(s.getId())) {
             if (getStudent(s.getId()).get().equals(s))
                 return false;
@@ -200,6 +204,13 @@ public class TeamServiceImpl implements TeamService {
                 throw new IncoherenceException("Student with id "+s.getId()+" already exist with different names");
         }
         studentRepository.save(modelMapper.map(s,Student.class));
+        try {
+             Image img = new Image(s.getId(), file.getContentType(), compressBytes(file.getBytes()));
+             imageRepository.save(img);
+        }
+         catch (IOException e) {
+        }
+
 
         if (notify==true) {
           String pwd = randomStringGenerator.generate(10);
@@ -208,6 +219,31 @@ public class TeamServiceImpl implements TeamService {
           if (!registerUser(s.getId(), encP, "ROLE_STUDENT"))
                   throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
           notificationService.notifyStudent(s, pwd);
+
+        }
+
+        return true;
+    }
+
+    //Students
+    @Override
+    public boolean addStudent(StudentDTO s, boolean notify)  {
+        if (studentRepository.existsById(s.getId())) {
+            if (getStudent(s.getId()).get().equals(s))
+                return false;
+            else
+                throw new IncoherenceException("Student with id "+s.getId()+" already exist with different names");
+        }
+        studentRepository.save(modelMapper.map(s,Student.class));
+
+
+        if (notify==true) {
+            String pwd = randomStringGenerator.generate(10);
+            String encP=enc.encode(pwd);
+
+            if (!registerUser(s.getId(), encP, "ROLE_STUDENT"))
+                throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
+            notificationService.notifyStudent(s, pwd);
 
         }
 
@@ -611,5 +647,48 @@ public class TeamServiceImpl implements TeamService {
                 .map(s->modelMapper.map(s,ProfessorDTO.class))
                 .collect(Collectors.toList());
     }
+
+    public static byte[] compressBytes(byte[] data) {
+        Deflater deflater = new Deflater();
+        deflater.setInput(data);
+        deflater.finish();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+        byte[] buffer = new byte[1024];
+        while (!deflater.finished()) {
+            int count = deflater.deflate(buffer);
+            outputStream.write(buffer, 0, count);
+        }
+        try {
+            outputStream.close();
+        } catch (IOException e) {
+        }
+        System.out.println("Compressed Image Byte Size - " + outputStream.toByteArray().length);
+        return outputStream.toByteArray();
+    }
+    // uncompress the image bytes before returning it to the angular application
+    public static byte[] decompressBytes(byte[] data) {
+        Inflater inflater = new Inflater();
+        inflater.setInput(data);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+        byte[] buffer = new byte[1024];
+        try {
+            while (!inflater.finished()) {
+                int count = inflater.inflate(buffer);
+                outputStream.write(buffer, 0, count);
+            }
+            outputStream.close();
+        } catch (IOException ioe) {
+        } catch (DataFormatException e) {
+        }
+        return outputStream.toByteArray();
+    }
+
+    public Image getImage(String imageName) {
+        final Optional<Image> retrievedImage = imageRepository.findByName(imageName);
+        Image img = new Image(retrievedImage.get().getName(), retrievedImage.get().getType(),
+                decompressBytes(retrievedImage.get().getPicByte()));
+        return img;
+    }
+
 
 }
