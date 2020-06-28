@@ -4,7 +4,9 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -30,6 +32,9 @@ public class Team {
     @ManyToMany(cascade={CascadeType.PERSIST,CascadeType.MERGE})
     @JoinTable(name="team_student",joinColumns = @JoinColumn(name="team_id"),inverseJoinColumns = @JoinColumn(name="student_id"))
     List<Student> members = new ArrayList<>();
+
+    @OneToMany(mappedBy="team",cascade = CascadeType.ALL, orphanRemoval = true)
+    List<VM> VMs = new ArrayList<>();
 
 
     public void setCourse(Course c){
@@ -58,6 +63,10 @@ public class Team {
         t.getTeams().remove(this);
     }
 
+    public void addVM(VM vm){
+        this.VMs.add(vm);
+        vm.setTeam(this);
+    }
 
 
 

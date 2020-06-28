@@ -10,11 +10,12 @@ public class SettingsDTO {
     @NotNull
     Integer n_cpu=0;
     @NotNull
-    Long disk_space= Long.valueOf(0);
-    Long ram=Long.valueOf(0);
+    Integer disk_space= 0;
     @NotNull
+    Integer ram=0;
+
     Integer max_active=0; //contemporary active
-    @NotNull
+
     Integer max_available=0; //active + off
 }
 

@@ -84,4 +84,9 @@ public interface TeamService {
 
     Image getImage(String imageName);
 
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    VMDTO createVM(Long teamID, SettingsDTO settings);
+
 }

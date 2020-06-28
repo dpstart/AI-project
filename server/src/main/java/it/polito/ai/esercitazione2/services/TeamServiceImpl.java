@@ -10,6 +10,8 @@ import net.minidev.json.JSONObject;
 import org.apache.commons.text.RandomStringGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -66,6 +68,9 @@ public class TeamServiceImpl implements TeamService {
 
     @Autowired
     ImageRepository imageRepository;
+
+    @Autowired
+    VMRepository vmRepository;
 
     WebClient w = WebClient.create("http://localhost:8080");
 
@@ -610,6 +615,18 @@ public class TeamServiceImpl implements TeamService {
         if (settings.getMax_active() > settings.getMax_available())
             throw new NotExpectedStatusException("It's not possible assign a maximum value for active machines greater than the available one!");
 
+        // check che siano almeno pari a quelle già occupate in caso di modifiche a runtime
+
+        if (t.getVMs().size()>settings.getMax_available() ||
+            t.getVMs().stream().map(VM::getRam).mapToInt(Integer::intValue).sum()>settings.getRam() ||
+            t.getVMs().stream().map(VM::getDisk_space).mapToInt(Integer::intValue).sum()>settings.getDisk_space() ||
+            t.getVMs().stream().map(VM::getN_cpu).mapToInt(Integer::intValue).sum()>settings.getN_cpu() ||
+            t.getVMs().stream().map(VM::getStatus).mapToInt(Integer::intValue).sum()>settings.getMax_active())
+            throw new NotExpectedStatusException("It's not possible assign less resources than already allocated!");
+
+        //AGGIUNGERE CONTROLLO RELATIVO A RIMODULAZIONE DELLE MACCHINE ATTIVE
+
+
 
         t.setN_cpu(settings.getN_cpu());
         t.setDisk_space(settings.getDisk_space());
@@ -740,6 +757,38 @@ public class TeamServiceImpl implements TeamService {
         Image img = new Image(retrievedImage.get().getName(), retrievedImage.get().getType(),
                 decompressBytes(retrievedImage.get().getPicByte()));
         return img;
+    }
+
+    @Override
+    public VMDTO createVM(Long teamId,SettingsDTO settings){
+        String creator = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (!teamRepository.existsById(teamId))
+            throw new TeamNotFoundException("Team: "+teamId + " not found!");
+
+        Team t = teamRepository.getOne(teamId);
+
+        if (!t.getMembers().stream().anyMatch(x->x.getId().equals(creator)))
+            throw new AuthorizationServiceException("Unauthorized to create VM's instances for this team");
+
+
+        if (t.getVMs().size()==t.getMax_available()||
+            t.getVMs().stream().map(VM::getRam).mapToInt(Integer::intValue).sum()+settings.getRam()>t.getRam() ||
+            t.getVMs().stream().map(VM::getDisk_space).mapToInt(Integer::intValue).sum()+settings.getDisk_space()>t.getDisk_space() ||
+            t.getVMs().stream().map(VM::getN_cpu).mapToInt(Integer::intValue).sum()+settings.getN_cpu()>t.getN_cpu())
+
+            throw new UnavailableResourcesForTeamException("The upper limit for usable resources has been exceeded");
+
+        VM vm = new VM();
+        vm.setN_cpu(settings.getN_cpu());
+        vm.setDisk_space(settings.getDisk_space());
+        vm.setRam(settings.getN_cpu());
+        vm.addOwner(studentRepository.getOne(creator));
+        t.addVM(vm);
+
+        vmRepository.save(vm);
+
+        return modelMapper.map(vm,VMDTO.class);
     }
 
 
