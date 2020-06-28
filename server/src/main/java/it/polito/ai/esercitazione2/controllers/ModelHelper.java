@@ -67,6 +67,10 @@ public class ModelHelper {
                 .getTeams()).withRel("teams");
         c.add(teams);
 
+        Link image = linkTo(methodOn(StudentController.class)
+                .getImage(c.getId())).withRel("image");
+        c.add(image);
+
         return c;
     }
 
@@ -77,6 +81,10 @@ public class ModelHelper {
         Link courses = linkTo(methodOn(ProfessorController.class)
                 .getCourses(c.getId())).withRel("courses");
         c.add(courses);
+
+        Link image = linkTo(methodOn(StudentController.class)
+                .getImage(c.getId())).withRel("image");
+        c.add(image);
 
         return c;
     }

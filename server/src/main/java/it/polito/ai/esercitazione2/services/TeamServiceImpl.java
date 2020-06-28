@@ -169,7 +169,7 @@ public class TeamServiceImpl implements TeamService {
 
     // Professors
     @Override
-    public boolean addProfessor(ProfessorDTO p) {
+    public boolean addProfessor(ProfessorDTO p,MultipartFile file) {
         if (professorRepository.existsById(p.getId())) {
             if (getProfessor(p.getId()).get().equals(p))
                 return false;
@@ -180,11 +180,18 @@ public class TeamServiceImpl implements TeamService {
 
 
 
-            String pwd = randomStringGenerator.generate(10);
-            String encP=enc.encode(pwd);
-            if (!registerUser(p.getId(),encP,"ROLE_PROFESSOR"))
-                throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
+        String pwd = randomStringGenerator.generate(10);
+        String encP=enc.encode(pwd);
+        if (!registerUser(p.getId(),encP,"ROLE_PROFESSOR"))
+            throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
         notificationService.notifyProfessor(p, pwd);
+
+        try {
+            Image img = new Image(p.getId(), file.getContentType(), compressBytes(file.getBytes()));
+            imageRepository.save(img);
+        }
+        catch (IOException e) {
+        }
 
 
         return true;

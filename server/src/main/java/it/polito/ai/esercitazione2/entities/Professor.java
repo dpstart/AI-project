@@ -13,6 +13,7 @@ public class Professor {
     String id;
     String name;
     String firstName;
+    String email;
 
     @OneToMany(mappedBy="professor",cascade = CascadeType.ALL, orphanRemoval = true)
     List<Course> courses =  new ArrayList<>();

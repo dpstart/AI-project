@@ -4,6 +4,7 @@ package it.polito.ai.esercitazione2.dtos;
 import lombok.Data;
 import org.springframework.hateoas.RepresentationModel;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 
@@ -16,5 +17,8 @@ public class ProfessorDTO extends RepresentationModel<ProfessorDTO> {
     String name;
     @NotBlank
     String firstName;
+    @Email
+    @NotBlank
+    String email;
 
 }

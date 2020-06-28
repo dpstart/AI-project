@@ -3,6 +3,7 @@ package it.polito.ai.esercitazione2.controllers;
 
 import it.polito.ai.esercitazione2.dtos.CourseDTO;
 import it.polito.ai.esercitazione2.dtos.ProfessorDTO;
+import it.polito.ai.esercitazione2.entities.Image;
 import it.polito.ai.esercitazione2.exceptions.AuthenticationServiceException;
 import it.polito.ai.esercitazione2.exceptions.IncoherenceException;
 
@@ -20,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
@@ -42,11 +44,11 @@ public class ProfessorController {
 
 
     @PostMapping({"","/"})
-   ProfessorDTO addProfessor(@Valid @RequestBody ProfessorDTO p) {
+   ProfessorDTO addProfessor(@Valid @RequestPart("professor") ProfessorDTO p,  @RequestPart("image") MultipartFile file) {
 
 
         try {
-            if (!teamservice.addProfessor(p))
+            if (!teamservice.addProfessor(p,file))
                 throw new ResponseStatusException(HttpStatus.CONFLICT, p.getId());
         } catch (IncoherenceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
@@ -111,5 +113,11 @@ public class ProfessorController {
             errors.put(fieldName, errorMessage);
         });
         return errors;
+    }
+
+    @GetMapping("/{id}/image")
+    Image getImage(@PathVariable String id){
+        Image img =teamservice.getImage(id);
+        return img;
     }
 }
