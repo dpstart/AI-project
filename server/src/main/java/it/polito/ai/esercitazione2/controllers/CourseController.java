@@ -254,7 +254,7 @@ public class CourseController {
     }
 
     @PostMapping("/{name}/teams/{id}/settings")
-    TeamDTO setSettings(@PathVariable String name, @PathVariable Long id, @Valid @RequestBody SettingsDTO settings, BindingResult br){
+    TeamDTO setSettings(@PathVariable String name, @PathVariable Long id, @Valid @RequestBody SettingsDTO settings){
         try {
             return teamservice.setSettings(name, id, settings);
         } catch(CourseNotFoundException e){
