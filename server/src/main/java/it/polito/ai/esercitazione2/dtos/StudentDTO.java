@@ -6,6 +6,7 @@ import lombok.Data;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 
@@ -24,6 +25,10 @@ public class StudentDTO extends RepresentationModel<StudentDTO> {
     @JsonProperty("firstName")
     String firstName;
 
+    @CsvBindByName
+    @JsonProperty("email")
+    @Email(regexp=".*@studenti.polito.it")
+    String email;
 
 
 

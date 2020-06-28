@@ -16,6 +16,7 @@ public class Course {
     Boolean enabled;
 
 
+
     @ManyToOne
     @JoinColumn(name="professor_id")
     Professor professor;
