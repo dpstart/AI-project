@@ -15,4 +15,10 @@ public class TeamDTO extends RepresentationModel<TeamDTO> {
     String name;
     int status;
 
+    int n_cpu=0;
+    long disk_space=0;
+    long ram=0;
+    int max_active=0;
+    int max_available=0;
+
 }

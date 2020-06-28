@@ -23,7 +23,7 @@ public class StudentDTO extends RepresentationModel<StudentDTO> {
     @NotBlank
     @JsonProperty("firstName")
     String firstName;
-    
+
 
 
 

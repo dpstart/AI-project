@@ -539,8 +539,16 @@ public class TeamServiceImpl implements TeamService {
                 })
                 .collect(Collectors.toList());
 
-        // check se già in un gruppo associato a quel corso
+
         List<Team> teams = c.getTeams();
+
+        //check se esiste un team con lo stesso nome nel corso
+        boolean nameAlreadyPresent = teams.stream().map(Team::getName).anyMatch(x->x.equals(name));
+
+        if (nameAlreadyPresent)
+            throw new TeamNameAlreadyPresentInCourse("A team with this name already exists for this course");
+
+        // check se già in un gruppo associato a quel corso
         boolean alreadyInATeam = members.stream()
                 .flatMap(x->x.getTeams().stream())
                 .anyMatch(x->teams.contains(x));
@@ -567,6 +575,43 @@ public class TeamServiceImpl implements TeamService {
         notificationService.notifyTeam(dto,memberIds);
         return dto;
 
+    }
+
+    @Override
+    public TeamDTO setSettings(String courseName, Long teamId, SettingsDTO settings){
+        String prof = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // il corso esiste?
+        if (!courseRepository.existsById(courseName))
+            throw new CourseNotFoundException("Course: "+courseName + " not found!");
+        Course c = courseRepository.getOne(courseName);
+        // il docente è il docente del corso?
+        if (!c.getProfessor().getId().equals(prof))
+            throw new CourseAuthorizationException("User "+prof+ " has not the rights to modify this course: he's not the professor for this course");
+         // il team esiste?
+        if (!teamRepository.existsById(teamId))
+           throw new TeamNotFoundException("Team: "+teamId + " not found!");
+
+        Team t = teamRepository.getOne(teamId);
+
+        //check  se il team è associato al corso
+        if (!t.getCourse().getName().equals(courseName))
+            throw new IncoherenceException("Team " +   teamId +" doens't belong to this course");
+
+        //check on the single fields
+
+        if (settings.getMax_active() > settings.getMax_available())
+            throw new NotExpectedStatusException("It's not possible assign a maximum value for active machines greater than the available one!");
+
+
+        t.setN_cpu(settings.getN_cpu());
+        t.setDisk_space(settings.getDisk_space());
+        t.setRam(settings.getRam());
+        t.setMax_active(settings.getMax_active());
+        t.setMax_available(settings.getMax_available());
+
+
+        return modelMapper.map(teamRepository.save(t),TeamDTO.class);
     }
 
 

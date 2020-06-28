@@ -17,6 +17,12 @@ public class Team {
     String name;
     int status;
 
+    int n_cpu;
+    long disk_space;
+    long ram;
+    int max_active;
+    int max_available;
+
     @ManyToOne
     @JoinColumn(name="course_id")
     Course course;

@@ -1,6 +1,7 @@
 package it.polito.ai.esercitazione2.controllers;
 
 import it.polito.ai.esercitazione2.dtos.CourseDTO;
+import it.polito.ai.esercitazione2.dtos.SettingsDTO;
 import it.polito.ai.esercitazione2.dtos.StudentDTO;
 import it.polito.ai.esercitazione2.dtos.TeamDTO;
 import it.polito.ai.esercitazione2.exceptions.*;
@@ -16,6 +17,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 
 
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -222,7 +224,10 @@ public class CourseController {
         catch (TeamSizeConstraintsException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 
-        }catch(TeamServiceException e){
+        }catch (TeamNameAlreadyPresentInCourse e){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
+        }
+        catch(TeamServiceException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }
 
@@ -246,6 +251,24 @@ public class CourseController {
         catch(TeamServiceException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }
+    }
+
+    @PostMapping("/{name}/teams/{id}/settings")
+    TeamDTO setSettings(@PathVariable String name, @PathVariable Long id, @Valid @RequestBody SettingsDTO settings, BindingResult br){
+        try {
+            return teamservice.setSettings(name, id, settings);
+        } catch(CourseNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }catch(CourseAuthorizationException e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,e.getMessage());
+        }catch (TeamNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        } catch( NotExpectedStatusException e ){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }catch (IncoherenceException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+
     }
 
     @GetMapping("/{name}/teams/{id}/members")

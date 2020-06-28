@@ -1,9 +1,6 @@
 package it.polito.ai.esercitazione2.services;
 
-import it.polito.ai.esercitazione2.dtos.CourseDTO;
-import it.polito.ai.esercitazione2.dtos.ProfessorDTO;
-import it.polito.ai.esercitazione2.dtos.StudentDTO;
-import it.polito.ai.esercitazione2.dtos.TeamDTO;
+import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.entities.Image;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
@@ -69,6 +66,9 @@ public interface TeamService {
 
     @PreAuthorize("hasRole('STUDENT')")
     TeamDTO getOneTeamForCourse(String courseName,Long TeamID);
+
+    @PreAuthorize("hasRole('PROFESSOR')")
+    TeamDTO setSettings(String courseName, Long TeamID, SettingsDTO settings);
 
 
     @PreAuthorize("hasRole('STUDENT')")
