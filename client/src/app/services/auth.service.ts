@@ -11,12 +11,12 @@ import * as moment from 'moment';
 export class AuthService {
 
 
-  URL = "http://localhost:3000"
+  URL = "http://localhost:8080"
   constructor(private http: HttpClient) { }
 
   login(email: string, password: string) {
-    const url = `${this.URL}/login`;
-    return this.http.post<string>(url, { email: email, password: password });
+    const url = `${this.URL}/authenticate`;
+    return this.http.post<string>(url, { username: email, password: password });
   }
 
   logout() {
