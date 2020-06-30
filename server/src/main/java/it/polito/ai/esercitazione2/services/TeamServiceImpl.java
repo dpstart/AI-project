@@ -893,5 +893,25 @@ public class TeamServiceImpl implements TeamService {
 
     }
 
+    @Override
+    public void removeVM(Long vmID){
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if(!vmRepository.existsById(vmID))
+            throw new VMInstanceNotFoundException("Instance "+vmID + " not found!");
+
+        VM vm = vmRepository.getOne(vmID);
+
+        if (!vm.getOwners().stream().anyMatch(x->x.getId().equals(principal))){
+            throw new TeamAuthorizationException("Current user is not an owner of this machine");
+        }
+
+        if (vm.getStatus()==1){
+            throw new RemoveRunningMachineException("Not possible to remove a running machine: please stop it first");
+        }
+        vmRepository.delete(vm);
+
+    }
+
 
 }

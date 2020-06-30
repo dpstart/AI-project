@@ -117,6 +117,20 @@ public class TeamController {
 
     //void turnoffVM(); //solo owner
 
+    @GetMapping("{id}/cancel")
+    void removeVM(@PathVariable Long id){
+        try{
+            teamservice.removeVM(id);
+        } catch(VMInstanceNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        } catch(TeamAuthorizationException e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,e.getMessage());
+        } catch (RemoveRunningMachineException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+
+    }
+
     //void shareOwnership();
 
 

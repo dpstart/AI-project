@@ -101,4 +101,6 @@ public interface TeamService {
 
     void stopVM(Long VMID);
 
+    void removeVM(Long VMID);
+
 }
