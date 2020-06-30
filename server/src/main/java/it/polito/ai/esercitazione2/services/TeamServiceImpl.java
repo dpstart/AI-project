@@ -842,5 +842,56 @@ public class TeamServiceImpl implements TeamService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void runVM(Long vmID){
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if(!vmRepository.existsById(vmID))
+            throw new VMInstanceNotFoundException("Instance "+vmID + " not found!");
+
+        VM vm = vmRepository.getOne(vmID);
+
+        if (!vm.getOwners().stream().anyMatch(x->x.getId().equals(principal))){
+            throw new TeamAuthorizationException("Current user is not an owner of this machine");
+        }
+
+        if (vm.getStatus()==1){
+            throw new VMAlreadyInExecutionException("This instance is already running");
+        }
+
+        Team t= vm.getTeam();
+
+        if (t.getVMs().stream().mapToInt(VM::getStatus).sum()==t.getMax_active())
+            throw new UnavailableResourcesForTeamException("Maximum number of contemporary active VM instances exceeded");
+
+        vm.setStatus(1);
+        vmRepository.save(vm);
+
+    }
+
+    @Override
+    public void stopVM(Long vmID){
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if(!vmRepository.existsById(vmID))
+            throw new VMInstanceNotFoundException("Instance "+vmID + " not found!");
+
+        VM vm = vmRepository.getOne(vmID);
+
+        if (!vm.getOwners().stream().anyMatch(x->x.getId().equals(principal))){
+            throw new TeamAuthorizationException("Current user is not an owner of this machine");
+        }
+
+        if (vm.getStatus()==0){
+            throw new VMAlreadyInExecutionException("It's not possible to stop a not running machine");
+        }
+
+        Team t= vm.getTeam();
+
+        vm.setStatus(0);
+        vmRepository.save(vm);
+
+    }
+
 
 }

@@ -97,5 +97,8 @@ public interface TeamService {
 
     VMDTO createVM(Long teamID, SettingsDTO settings);
 
+    void runVM(Long VMID);
+
+    void stopVM(Long VMID);
 
 }

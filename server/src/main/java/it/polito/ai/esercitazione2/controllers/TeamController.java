@@ -1,6 +1,7 @@
 package it.polito.ai.esercitazione2.controllers;
 
 import it.polito.ai.esercitazione2.dtos.SettingsDTO;
+import it.polito.ai.esercitazione2.dtos.VMDTO;
 import it.polito.ai.esercitazione2.dtos.VMModelDTO;
 import it.polito.ai.esercitazione2.exceptions.*;
 import it.polito.ai.esercitazione2.services.TeamService;
@@ -61,14 +62,14 @@ public class TeamController {
 
 
     @PostMapping("/{id}")  // ragionare su se è più logico accedere direttamente a qualuenue team perdendo il riferimento al corso oppure /APU/courses/PDS/{teamID}
-    void createVM(@PathVariable Long id, @Valid @RequestBody SettingsDTO settings){
+    VMDTO createVM(@PathVariable Long id, @Valid @RequestBody SettingsDTO settings){
         if (settings.getMax_active()==null) //contemporary active
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max active' field not expected here");
         if (settings.getMax_available()==null) //active + off
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max available' field not expected here");
 
         try{
-            teamservice.createVM(id,settings);
+            return teamservice.createVM(id,settings);
         }
         catch (AuthorizationServiceException e){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());  //DA CAMBIARE!!!!
@@ -84,9 +85,35 @@ public class TeamController {
 
     //void removeVM(); //solo owner
 
-    //void runVM();  //solo owner
+    @GetMapping("/{id}/run")
+    void runVM(@PathVariable Long id){
+            try{
+                teamservice.runVM(id);
+            } catch(VMInstanceNotFoundException e){
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+            } catch(TeamAuthorizationException e){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,e.getMessage());
+            } catch(UnavailableResourcesForTeamException e){
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
+            } catch (VMAlreadyInExecutionException e){
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
+            }
+    }
 
-   // void stopVM();
+    @GetMapping("{id}/stop")
+    void stopVM(@PathVariable Long id){
+        try{
+            teamservice.stopVM(id);
+        } catch(VMInstanceNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        } catch(TeamAuthorizationException e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,e.getMessage());
+        } catch(UnavailableResourcesForTeamException e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
+        } catch (VMAlreadyInExecutionException e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
+        }
+    }
 
     //void turnoffVM(); //solo owner
 
