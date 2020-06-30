@@ -1,11 +1,12 @@
 package it.polito.ai.esercitazione2.dtos;
 
 import lombok.Data;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.Id;
 
 @Data
-public class VMDTO {
+public class VMDTO extends RepresentationModel<VMDTO> {
 
 
     Long id;

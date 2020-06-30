@@ -24,6 +24,11 @@ public class VMModelController {
         return teamservice.getVMModels();
     }
 
+    @GetMapping("/{name}")
+    VMModelDTO getVMModel(@PathVariable String name){
+        return ModelHelper.enrich(teamservice.getVMModel(name));
+    }
+
     @PostMapping("/")
     @ResponseStatus(HttpStatus.OK)
     void createVMModel(@RequestBody Map<String,String> modelName){

@@ -23,7 +23,7 @@ public class VMController {
     TeamService teamservice;
 
 
-    @PostMapping("/{id}")  // ragionare su se è più logico accedere direttamente a qualuenue team perdendo il riferimento al corso oppure /APU/courses/PDS/{teamID}
+    @PostMapping("/{id}/createVM")  // ragionare su se è più logico accedere direttamente a qualuenue team perdendo il riferimento al corso oppure /APU/courses/PDS/{teamID}
     VMDTO createVM(@PathVariable Long id, @Valid @RequestBody SettingsDTO settings){
         if (settings.getMax_active()==null) //contemporary active
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max active' field not expected here");
@@ -45,7 +45,14 @@ public class VMController {
 
     }
 
-    //void removeVM(); //solo owner
+    @GetMapping("/{id}")
+    VMDTO getVM(@PathVariable Long id){
+        try{
+            return ModelHelper.enrich(teamservice.getVM(id));
+        }catch (TeamServiceException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }
+    }
 
     @GetMapping("/{id}/run")
     void runVM(@PathVariable Long id){

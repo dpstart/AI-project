@@ -942,5 +942,17 @@ public class TeamServiceImpl implements TeamService {
 
     }
 
+    @Override
+    public VMModelDTO getVMModel(String modelName){
+        if (!vmModelRepository.existsById(modelName))
+            throw new VMModelNotFoundException("No defined module for "+modelName);
+        return modelMapper.map(vmModelRepository.getOne(modelName),VMModelDTO.class);
+    }
 
+    @Override
+    public VMDTO getVM(Long teamID) {
+        if (vmRepository.existsById(teamID))
+            throw new VMInstanceNotFoundException("VM "+teamID+ " not found");
+        return modelMapper.map(vmRepository.getOne(teamID),VMDTO.class);
+    }
 }

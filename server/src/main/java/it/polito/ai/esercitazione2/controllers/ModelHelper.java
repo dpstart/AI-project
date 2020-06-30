@@ -1,9 +1,6 @@
 package it.polito.ai.esercitazione2.controllers;
 
-import it.polito.ai.esercitazione2.dtos.CourseDTO;
-import it.polito.ai.esercitazione2.dtos.ProfessorDTO;
-import it.polito.ai.esercitazione2.dtos.StudentDTO;
-import it.polito.ai.esercitazione2.dtos.TeamDTO;
+import it.polito.ai.esercitazione2.dtos.*;
 import org.springframework.hateoas.Link;
 
 
@@ -98,6 +95,37 @@ public class ModelHelper {
                 .getTeamMembers(course,c.getId())).withRel("members");
         c.add(members);
 
+
+        return c;
+    }
+
+    public static VMDTO enrich(VMDTO c){
+
+        Link self = linkTo(methodOn(VMController.class)
+                .getVM(c.getId())).withSelfRel();
+        c.add(self);
+
+        Link run = linkTo(methodOn(VMController.class)
+                .runVM(c.getId())).withRel("run");
+        c.add(run);
+
+        Link stop = linkTo(methodOn(VMController.class)
+                .stopVM(c.getId())).withRel("stop");
+        c.add(stop);
+
+        Link remove = linkTo(methodOn(VMController.class)
+                .removeVM(c.getId())).withRel("remove");
+        c.add(remove);
+
+
+        return c;
+    }
+
+    public static VMModelDTO enrich(VMModelDTO c){
+
+        Link self = linkTo(methodOn(VMModelController.class)
+                .getVMModel(c.getName())).withSelfRel();
+        c.add(self);
 
         return c;
     }
