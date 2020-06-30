@@ -84,9 +84,18 @@ public interface TeamService {
 
     Image getImage(String imageName);
 
+    //------------------------------------------------------------------------------------------------------------------
+    List<VMModelDTO> getVMModels();
+
+    @PreAuthorize("hasRole('ADMIN')")
+    boolean createVMModel(String modelName);
+
 
     //------------------------------------------------------------------------------------------------------------------
 
+    void defineVMModel(Long teamID,String modelName);
+
     VMDTO createVM(Long teamID, SettingsDTO settings);
+
 
 }

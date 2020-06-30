@@ -37,6 +37,11 @@ public class Team {
     List<VM> VMs = new ArrayList<>();
 
 
+    @ManyToOne
+    @JoinColumn(name="VMModel_name")
+    VMModel vm_model;
+
+
     public void setCourse(Course c){
         if (course != null) {
 
@@ -66,6 +71,20 @@ public class Team {
     public void addVM(VM vm){
         this.VMs.add(vm);
         vm.setTeam(this);
+    }
+
+    public void setVm_model(VMModel vm){
+        if (this.vm_model!=vm)
+            this.vm_model = vm;
+
+
+        if (vm!=null && !vm.getTeams().contains(this))
+            vm.getTeams().add(this);
+
+        if (vm==null){
+            vm.getTeams().remove(this);
+        }
+
     }
 
 

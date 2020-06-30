@@ -27,6 +27,8 @@ public class VM {
     Team team;
 
 
+
+
     public void addOwner(Student s){
         owners.add(s);
         s.getVMs().add(this);

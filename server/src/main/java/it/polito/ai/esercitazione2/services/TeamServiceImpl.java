@@ -72,6 +72,9 @@ public class TeamServiceImpl implements TeamService {
     @Autowired
     VMRepository vmRepository;
 
+    @Autowired
+    VMModelRepository vmModelRepository;
+
     WebClient w = WebClient.create("http://localhost:8080");
 
 
@@ -760,7 +763,18 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public VMDTO createVM(Long teamId,SettingsDTO settings){
+    public boolean createVMModel(String modelName){
+        if (vmModelRepository.existsById(modelName)){
+            return false;
+        }
+        VMModel vmm=new VMModel();
+        vmm.setName(modelName);
+        vmModelRepository.save(vmm);
+        return true;
+    }
+
+    @Override
+    public void defineVMModel(Long teamId, String modelName){
         String creator = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (!teamRepository.existsById(teamId))
@@ -770,6 +784,35 @@ public class TeamServiceImpl implements TeamService {
 
         if (!t.getMembers().stream().anyMatch(x->x.getId().equals(creator)))
             throw new AuthorizationServiceException("Unauthorized to create VM's instances for this team");
+
+        if (t.getVm_model()!=null && t.getVMs().size()>0)
+            throw new IncoherenceException("Impossible to change the VM model for a group with already instantiated VMs");
+
+        if (!vmModelRepository.existsById(modelName)){
+            throw new VMModelNotFoundException("VM model: "+modelName + " not found!");
+        }
+
+        VMModel vm=vmModelRepository.getOne(modelName);
+        t.setVm_model(vm);
+        teamRepository.save(t);
+    }
+
+    @Override
+    public VMDTO createVM(Long teamId,SettingsDTO settings){
+        String creator = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (!teamRepository.existsById(teamId))
+            throw new TeamNotFoundException("Team: "+teamId + " not found!");
+
+        Team t = teamRepository.getOne(teamId);
+
+
+
+        if (!t.getMembers().stream().anyMatch(x->x.getId().equals(creator)))
+            throw new AuthorizationServiceException("Unauthorized to create VM's instances for this team");
+
+        if (t.getVm_model()==null)
+            throw new VMModelNotDefinedException("Impossible to create an instance of VM without a defined model");
 
 
         if (t.getVMs().size()==t.getMax_available()||
@@ -789,6 +832,14 @@ public class TeamServiceImpl implements TeamService {
         vmRepository.save(vm);
 
         return modelMapper.map(vm,VMDTO.class);
+    }
+
+    @Override
+    public List<VMModelDTO> getVMModels(){
+        return vmModelRepository.findAll()
+                .stream()
+                .map(c->modelMapper.map(c,VMModelDTO.class))
+                .collect(Collectors.toList());
     }
 
 
