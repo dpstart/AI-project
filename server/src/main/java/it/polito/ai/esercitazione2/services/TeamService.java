@@ -103,4 +103,6 @@ public interface TeamService {
 
     void removeVM(Long VMID);
 
+    void shareOwnership(Long id, String studentId);
+
 }

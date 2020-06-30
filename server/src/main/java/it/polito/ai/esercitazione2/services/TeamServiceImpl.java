@@ -913,5 +913,34 @@ public class TeamServiceImpl implements TeamService {
 
     }
 
+    @Override
+    public void shareOwnership(Long vmID,String studentId){
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if(!vmRepository.existsById(vmID))
+            throw new VMInstanceNotFoundException("Instance "+vmID + " not found!");
+
+        VM vm = vmRepository.getOne(vmID);
+
+        if (!vm.getOwners().stream().anyMatch(x->x.getId().equals(principal))){
+            throw new TeamAuthorizationException("Current user is not an owner of this machine");
+        }
+
+        if (!vm.getTeam().getMembers().stream().anyMatch(x->x.getId().equals(studentId))){
+            throw new StudentNotFoundException("User "+studentId+ " is not a member of this VM's team");
+        }
+
+        if (vm.getOwners().stream().anyMatch(x->x.getId().equals(studentId))){
+            throw new TeamAuthorizationException("This user is already an owner for this machine");
+        }
+
+        Student s=studentRepository.getOne(studentId);
+
+        vm.addOwner(s);
+
+        vmRepository.save(vm);
+
+    }
+
 
 }
