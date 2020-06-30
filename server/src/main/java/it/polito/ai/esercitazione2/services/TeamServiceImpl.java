@@ -855,6 +855,9 @@ public class TeamServiceImpl implements TeamService {
             throw new TeamAuthorizationException("Current user is not an owner of this machine");
         }
 
+        if (!vm.getTeam().getCourse().getEnabled())
+            throw new CourseNotEnabledException("Impossible to use VMs of a disabled course");
+
         if (vm.getStatus()==1){
             throw new VMAlreadyInExecutionException("This instance is already running");
         }

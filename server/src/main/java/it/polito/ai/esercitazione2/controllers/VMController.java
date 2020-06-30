@@ -66,6 +66,8 @@ public class VMController {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
             } catch (VMAlreadyInExecutionException e){
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
+            } catch (CourseNotEnabledException e){
+                throw new ResponseStatusException(HttpStatus.PRECONDITION_REQUIRED,e.getMessage());
             }
     }
 
