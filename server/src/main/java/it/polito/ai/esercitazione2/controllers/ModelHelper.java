@@ -105,17 +105,32 @@ public class ModelHelper {
                 .getVM(c.getId())).withSelfRel();
         c.add(self);
 
-        Link run = linkTo(methodOn(VMController.class)
-                .runVM(c.getId())).withRel("run");
-        c.add(run);
 
-        Link stop = linkTo(methodOn(VMController.class)
-                .stopVM(c.getId())).withRel("stop");
-        c.add(stop);
+        try {
 
-        Link remove = linkTo(methodOn(VMController.class)
-                .removeVM(c.getId())).withRel("remove");
-        c.add(remove);
+            Link run = linkTo(
+                    VMController.class,
+                    VMController.class.getMethod("runVM",Long.class),
+                    c.getId())
+                    .withRel("run");
+            c.add(run);
+
+            Link stop = linkTo(
+                    VMController.class,
+                    VMController.class.getMethod("stopVM",Long.class),
+                    c.getId()).withRel("stop");
+            c.add(stop);
+
+            Link remove = linkTo(
+                    VMController.class,
+                    VMController.class.getMethod("removeVM",Long.class),
+                    c.getId()).withRel("remove");
+            c.add(remove);
+        }catch (NoSuchMethodException e){
+            //ignore
+        }
+
+
 
 
         return c;

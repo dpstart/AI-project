@@ -15,17 +15,17 @@ public class Professor {
     String firstName;
     String email;
 
-    @OneToMany(mappedBy="professor",cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(mappedBy="professors")
     List<Course> courses =  new ArrayList<>();
 
     public void addCourse(Course c){
         courses.add(c);
-        c.setProfessor(this);
+        c.getProfessors().add(this);
     }
 
     public void removeCourse(Course c){
         courses.remove(c);
-        c.setProfessor(null);
+        c.getProfessors().remove(this);
     }
 
 }

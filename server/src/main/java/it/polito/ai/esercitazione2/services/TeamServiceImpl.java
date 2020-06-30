@@ -93,7 +93,7 @@ public class TeamServiceImpl implements TeamService {
             throw new TeamSizeConstraintsException("The maximum number of team members for a course should be greater or equal to the minimum one");
         c.setEnabled(false);
         Course course = modelMapper.map(c,Course.class);
-        course.setProfessor(p);
+        course.addProfessor(p);
         courseRepository.save(course);
         return true;
     }
@@ -118,7 +118,7 @@ public class TeamServiceImpl implements TeamService {
         if (!courseRepository.existsById(courseName))
             throw new CourseNotFoundException("Course: "+courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
-        if (!c.getProfessor().getId().equals(prof) && !SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)) && !SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
             throw new CourseAuthorizationException("User "+prof+ " has not the rights to modify this course: he's not the admin or the professor for this course");
         if (!studentRepository.existsById(studentId))
             throw new StudentNotFoundException("Student: "+studentId + " not found!");
@@ -147,7 +147,7 @@ public class TeamServiceImpl implements TeamService {
         if (!courseRepository.existsById(courseName))
             throw new CourseNotFoundException("Course "+courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
-        if (!c.getProfessor().getId().equals(prof))
+        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)))
             throw new CourseAuthorizationException("Professor "+prof+ "has not the rights to modify this course");
         c.setEnabled(true);
     }
@@ -158,7 +158,7 @@ public class TeamServiceImpl implements TeamService {
         if (!courseRepository.existsById(courseName))
             throw new CourseNotFoundException("Course: "+courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
-        if (!c.getProfessor().getId().equals(prof))
+        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)))
             throw new CourseAuthorizationException("Professor "+prof+ "has not the rights to modify this course");
         c.setEnabled(false);
     }
@@ -601,7 +601,7 @@ public class TeamServiceImpl implements TeamService {
             throw new CourseNotFoundException("Course: "+courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
         // il docente è il docente del corso?
-        if (!c.getProfessor().getId().equals(prof))
+        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)))
             throw new CourseAuthorizationException("User "+prof+ " has not the rights to modify this course: he's not the professor for this course");
          // il team esiste?
         if (!teamRepository.existsById(teamId))

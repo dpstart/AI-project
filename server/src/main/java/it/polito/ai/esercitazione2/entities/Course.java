@@ -16,10 +16,9 @@ public class Course {
     Boolean enabled;
 
 
-
-    @ManyToOne
-    @JoinColumn(name="professor_id")
-    Professor professor;
+    @ManyToMany(cascade={CascadeType.PERSIST,CascadeType.MERGE})
+    @JoinTable(name="course_professor",joinColumns = @JoinColumn(name="course_name"),inverseJoinColumns = @JoinColumn(name="professor_id"))
+    List<Professor> professors = new ArrayList<>();
 
     @ManyToMany(mappedBy = "courses")
     List<Student> students = new ArrayList<>();
@@ -31,6 +30,17 @@ public class Course {
     public void addStudent(Student s){
         students.add(s);
         s.getCourses().add(this);
+
+    }
+
+    public void addProfessor(Professor p){
+        professors.add(p);
+        p.getCourses().add(this);
+
+    }
+    public void removeProfessor(Professor p){
+        professors.remove(p);
+        p.getCourses().remove(this);
 
     }
 
