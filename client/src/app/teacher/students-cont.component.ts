@@ -5,6 +5,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { StudentService } from '../services/student.service';
+import { ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -20,32 +21,30 @@ export class StudentsContComponent implements OnInit {
   // Data sources
   allStudents: Student[];
   enrolledStudents: Student[];
-
   studentsToDelete: Student[];
 
-  // This is a mock element. Ideally, this would be passwd by the parent component or through proper routing.
-  course = {
-    id: 1,
-    name: "Applicazioni Internet",
-    path: "applicazioni-internet"
-  };
+  course;
 
 
-  constructor(private http: HttpClient, private service: StudentService) {
+  constructor(private http: HttpClient, private service: StudentService, private route: ActivatedRoute) {
     // this.getJSON(this._jsonURLenrolled).subscribe(data => {
     //   this.enrolledStudents.data = data;
     // });
   }
 
+
   ngOnInit() {
 
-    this.service.getStudentsInCourse<Student[]>(0).subscribe(data => {
+    this.course = this.route.snapshot.params['course_name'];
+
+
+    this.service.getStudentsInCourse<Student[]>(this.course).subscribe(data => {
       this.allStudents = data;
       this.isAllStudentsLoaded = true;
     });
 
 
-    this.service.getStudentsInCourse<Student[]>(this.course.id).subscribe(data => {
+    this.service.getStudentsInCourse<Student[]>(this.course).subscribe(data => {
       this.enrolledStudents = data;
       this.isEnrolledStudentsLoaded = true;
     });

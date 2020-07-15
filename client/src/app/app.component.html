@@ -24,12 +24,14 @@
     <!-- This fills the remaining space of the current row -->
     <span class="example-fill-remaining-space"></span>
     <button mat-button [routerLink]="['home']" [queryParams]="{doLogin: true}" *ngIf="!isLoggedIn()">Login</button>
+    <button mat-button [routerLink]="['home']" [queryParams]="{doRegister: true}"
+      *ngIf="!isLoggedIn()">Register</button>
     <button mat-button *ngIf="isLoggedIn()" (click)="logout()">Logout</button>
 
   </mat-toolbar-row>
 
   <mat-toolbar-row id="secondrow">
-    <span> Applicazioni Internet</span>
+    <span>{{(selectedCourse?.name) || "Home"}}</span>
     <span class="example-spacer"></span>
   </mat-toolbar-row>
 </mat-toolbar>
@@ -38,10 +40,8 @@
   <mat-sidenav #sidenav mode="side">
     <div class="container">
       <mat-nav-list>
-        <a mat-list-item routerLink="teacher/course/applicazioni-internet/students">
-          Applicazioni Internet </a>
-        <a mat-list-item>
-          Programmazione di sistema </a>
+        <a mat-list-item *ngFor="let course of courses" (click)="selectCourse(course)">
+          {{course.name}} </a>
       </mat-nav-list>
     </div>
   </mat-sidenav>
@@ -49,9 +49,11 @@
   <mat-sidenav-content>
 
     <nav mat-tab-nav-bar>
-      <a mat-tab-link *ngFor="let link of navLinks" [routerLink]="link.path" routerLinkActive #rla="routerLinkActive"
-        [active]="rla.isActive">
-        {{link.label}}
+      <a mat-tab-link (click)="goToStudentsBar()" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
+        Students
+      </a>
+      <a mat-tab-link (click)="goToVMBar()" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
+        VM
       </a>
     </nav>
     <router-outlet></router-outlet>

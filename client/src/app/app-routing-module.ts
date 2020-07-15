@@ -14,8 +14,8 @@ const routes: Routes = [
 
     {
         path: "teacher/course", canActivate: [AuthGuard], children: [
-            { path: 'applicazioni-internet/students', component: StudentsContComponent },
-            { path: 'applicazioni-internet/vms', component: VMComponent },
+            { path: ':course_name/students', component: StudentsContComponent },
+            { path: ':course_name/vms', component: VMComponent },
         ]
     },
     { path: 'home', component: HomeComponent },

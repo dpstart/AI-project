@@ -5,6 +5,7 @@ import { LoginDialogComponent } from './auth/login-dialog.component';
 import { AuthService } from './services/auth.service';
 import { Router, Event, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { TeacherService } from './services/teacher.service';
+import { RegisterDialogComponent } from './auth/register-dialog.component';
 
 
 
@@ -14,7 +15,9 @@ import { TeacherService } from './services/teacher.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  courses = ["Applicazioni Internet", "Programmazione di sistema"];
+
+  courses;
+  selectedCourse;
 
   constructor(public dialog: MatDialog, private auth: AuthService, private router: Router, private route: ActivatedRoute,
     private teacher: TeacherService) {
@@ -24,29 +27,43 @@ export class AppComponent implements OnInit {
       if (event instanceof NavigationEnd) {
 
         let doLogin = this.route.snapshot.queryParams.doLogin;
+        let doRegister = this.route.snapshot.queryParams.doRegister;
         let redirect = this.route.snapshot.queryParams.redirect;
 
         if (doLogin) {
-          this.openDialog(redirect);
+          this.openLoginDialog(redirect);
+        }
+
+        if (doRegister) {
+          this.openRegisterDialog(redirect);
         }
 
       }
     });
   }
 
-  navLinks = [
-    { path: 'teacher/course/applicazioni-internet/students', label: 'Students' },
-    { path: 'teacher/course/applicazioni-internet/vms', label: 'VM' },
-  ];
+  selectCourse(course) {
 
+    this.selectedCourse = course;
+    this.router.navigate(['teacher', 'course', course.name, 'students']);
+  }
+
+  goToStudentsBar() {
+    this.router.navigate(['teacher', 'course', this.selectedCourse.name, 'students']);
+  }
+
+  goToVMBar() {
+    this.router.navigate(['teacher', 'course', this.selectedCourse.name, 'vms']);
+  }
 
   @ViewChild(MatSidenav) sidenav: MatSidenav;
 
   ngOnInit() {
+    this.teacher.getCourses().subscribe(data => {
+      this.courses = data;
+    });
 
-    this.teacher.getCourses().subscribe(data =>
-      console.log(data));
-
+    console.log("here");
   }
 
 
@@ -54,7 +71,7 @@ export class AppComponent implements OnInit {
     this.sidenav.toggle();
   }
 
-  openDialog(redirectUrl) {
+  openLoginDialog(redirectUrl) {
     const dialogRef = this.dialog.open(LoginDialogComponent);
 
     dialogRef.afterClosed().subscribe(result => {
@@ -63,6 +80,18 @@ export class AppComponent implements OnInit {
         this.router.navigate(["home"]);
       else this.router.navigate([redirectUrl]);
 
+
+    });
+  }
+
+  openRegisterDialog(redirectUrl) {
+    const dialogRef = this.dialog.open(RegisterDialogComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (redirectUrl == null || !this.auth.isLoggedIn())
+        this.router.navigate(["home"]);
+      else this.router.navigate([redirectUrl]);
 
     });
   }
