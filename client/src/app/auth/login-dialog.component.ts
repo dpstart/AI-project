@@ -7,42 +7,14 @@ import { MatDialogRef } from '@angular/material/dialog';
 @Component({
   selector: 'app-login-dialog',
   templateUrl: './login-dialog.component.html',
-  styles: [`
-  :host {
-    display: flex;
-    justify-content: center;
-    margin: 100px 0px;
-  }
-
-  .mat-form-field {
-    width: 100%;
-    min-width: 300px;
-  }
-
-  mat-card-title,
-  mat-card-content {
-    display: flex;
-    justify-content: center;
-  }
-
-  .error {
-    padding: 16px;
-    width: 300px;
-    color: white;
-    background-color: red;
-  }
-
-  .cancel{
-    margin-left:10px;
-  }
-`]
+  styleUrls: ['./shared.styles.css']
 })
 export class LoginDialogComponent {
 
   constructor(private dialogRef: MatDialogRef<LoginDialogComponent>, private auth: AuthService) { }
 
   form: FormGroup = new FormGroup({
-    username: new FormControl(''),
+    email: new FormControl(''),
     password: new FormControl(''),
   });
 
@@ -54,11 +26,11 @@ export class LoginDialogComponent {
   @Input() error: string | null;
 
   save() {
-    this.auth.login(this.form.value.username, this.form.value.password).subscribe(data => {
+    this.auth.login(this.form.value.email, this.form.value.password).subscribe(data => {
 
       var sess = {};
 
-      sess["email"] = this.form.value.username;
+      sess["email"] = this.form.value.email;
       sess["info"] = JSON.parse(atob(data["token"].split('.')[1]));
       sess["token"] = data["token"]
 
