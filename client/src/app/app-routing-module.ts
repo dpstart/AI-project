@@ -3,17 +3,17 @@ import { CommonModule } from '@angular/common';
 
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home.component';
-import { VMComponent } from 'src/vm.component';
+import { VMComponent } from 'src/app/vm/vm.component';
 import { PageNotFoundComponent } from './page-not-found.component';
 import { StudentsContComponent } from './teacher/students-cont.component';
 
-import { AuthGuard } from './auth/auth.guard';
+import { TeacherGuard } from './auth/teacher.guard';
 
 
 const routes: Routes = [
 
     {
-        path: "teacher/course", canActivate: [AuthGuard], children: [
+        path: "teacher/course", canActivate: [TeacherGuard], children: [
             { path: ':course_name/students', component: StudentsContComponent },
             { path: ':course_name/vms', component: VMComponent },
         ]

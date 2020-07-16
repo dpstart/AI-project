@@ -1,0 +1,17 @@
+<style>
+</style>
+
+<div class="container tabContainer">
+
+    <h2 class="mat-h2 tabtitle">Elenco team.</h2>
+
+
+    <table #table mat-table [dataSource]="VMDataSource" matSort class="mat-elevation-z8">
+
+
+
+        <!--<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>-->
+    </table>
+    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+</div>

@@ -3,7 +3,10 @@ import { HttpClient } from '@angular/common/http';
 
 import * as moment from 'moment';
 
-
+export enum ROLE {
+  TEACHER,
+  STUDENT
+}
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +22,11 @@ export class AuthService {
     return this.http.post<string>(url, { username: email, password: password });
   }
 
+  register(first_name: string, last_name: string, id: string, email: string, password: string) {
+    const url = `${this.URL}/API/students`;
+    return this.http.post<string>(url, { firstName: first_name, name: last_name, id: id, email: email, password: password });
+  }
+
   logout() {
     localStorage.removeItem('session');
   }
@@ -30,6 +38,26 @@ export class AuthService {
 
     session = JSON.parse(session);
     return session["token"];
+  }
+
+  isRoleStudent() {
+    return this.getRole() == ROLE.STUDENT
+  }
+
+  isRoleTeacher() {
+    return this.getRole() == ROLE.TEACHER;
+  }
+
+
+  getRole() {
+
+    if (localStorage.getItem('session') === null) return null;
+    let session = JSON.parse(localStorage.getItem('session'));
+    let role = session["info"]["AUTHORITIES"];
+
+    if (role == "ROLE_ADMIN")
+      return ROLE.TEACHER
+    return ROLE.STUDENT
   }
 
   isLoggedIn() {
