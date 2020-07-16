@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable, throwError, Subject, ReplaySubject } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Student } from '../student.model';
+import { Student } from '../model/student.model';
+import { Team } from '../model/team.model';
 import { catchError } from 'rxjs/operators';
 
 
@@ -31,8 +32,6 @@ export class TeacherService {
 
     URL = "http://localhost:4200/API"
 
-
-
     selectedCourse = new ReplaySubject(1);
 
     selectCourse(course) {
@@ -55,10 +54,17 @@ export class TeacherService {
         return this.http.get<T>(url);
     }
 
-    getTeams<T>(course: string): Observable<T> {
+    getTeams<Team>(course: string): Observable<Team[]> {
 
         const url = `${this.URL}/courses/${course}/teams`;
-        return this.http.get<T>(url);
+        return this.http.get<Team[]>(url);
+
     }
 
+    getVMs<T>(team: number): Observable<T> {
+
+        const url = `${this.URL}/vms/${team}`;
+        return this.http.get<T>(url);
+
+    }
 }
