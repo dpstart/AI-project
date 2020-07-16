@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatDialog } from '@angular/material/dialog';
 import { LoginDialogComponent } from './auth/login-dialog.component';
@@ -6,6 +6,7 @@ import { AuthService } from './services/auth.service';
 import { Router, Event, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { TeacherService } from './services/teacher.service';
 import { RegisterDialogComponent } from './auth/register-dialog.component';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -13,10 +14,13 @@ import { RegisterDialogComponent } from './auth/register-dialog.component';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
 
   courses;
   selectedCourse;
+
+  subscription: Subscription
+
 
   constructor(public dialog: MatDialog, private auth: AuthService, private router: Router, private route: ActivatedRoute,
     private teacher: TeacherService) {
@@ -62,8 +66,12 @@ export class AppComponent implements OnInit {
       this.courses = data;
     });
 
-    this.teacher.getSelectedCourse().subscribe(course => this.selectedCourse = course)
+    this.subscription = this.teacher.getSelectedCourse().subscribe(course => { this.selectedCourse = course; })
 
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 
 

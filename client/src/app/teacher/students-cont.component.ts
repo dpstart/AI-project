@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Student } from '../student.model';
+import { Student } from '../model/student.model';
 import { MatTableDataSource } from '@angular/material/table';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
