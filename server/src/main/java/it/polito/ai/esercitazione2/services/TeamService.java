@@ -101,6 +101,7 @@ public interface TeamService {
 
     VMDTO createVM(Long teamID, SettingsDTO settings);
     VMDTO getVM(Long teamID);
+    List<VMDTO> getVMByTeam(Long teamID);
 
     void runVM(Long VMID);
 

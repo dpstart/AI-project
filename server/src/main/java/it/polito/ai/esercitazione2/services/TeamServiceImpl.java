@@ -953,9 +953,18 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public VMDTO getVM(Long teamID) {
-        if (vmRepository.existsById(teamID))
-            throw new VMInstanceNotFoundException("VM "+teamID+ " not found");
-        return modelMapper.map(vmRepository.getOne(teamID),VMDTO.class);
+    public VMDTO getVM(Long vmID) {
+        if (vmRepository.existsById(vmID))
+            throw new VMInstanceNotFoundException("VM "+vmID+ " not found");
+        return modelMapper.map(vmRepository.getOne(vmID),VMDTO.class);
+    }
+
+    @Override
+    public List<VMDTO> getVMByTeam(Long teamID) {
+        if (teamRepository.existsById(teamID))
+            throw new TeamNotFoundException("Team "+teamID+ " not found");
+        Team t = teamRepository.getOne(teamID);
+        return vmRepository.getByTeam(t).stream().map(x->modelMapper.map(x,VMDTO.class))
+                .collect(Collectors.toList());
     }
 }

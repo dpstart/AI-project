@@ -115,4 +115,14 @@ public class VMController {
 
     }
 
+    @GetMapping("/teams/{team_id}")
+    List<VMDTO> getVMsByTeam(@PathVariable Long team_id){
+        try {
+            return teamservice.getVMByTeam(team_id);
+        }
+        catch(TeamNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }
+    }
+
 }
