@@ -24,14 +24,15 @@ import { StudentsContComponent } from './teacher/students-cont.component';
 import { AppRoutingModule } from './app-routing-module';
 import { HomeComponent } from './home.component';
 import { PageNotFoundComponent } from './page-not-found.component';
-import { VMComponent } from 'src/vm.component';
+import { VMComponent } from 'src/app/vm/vm.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { LoginDialogComponent } from './auth/login-dialog.component';
 import { TokenInterceptor } from './auth/token.interceptor';
-import { AuthGuard } from './auth/auth.guard';
 import { RouterStateSnapshot } from '@angular/router';
 import { RegisterDialogComponent } from './auth/register-dialog.component';
+import { TeacherGuard } from './auth/teacher.guard';
+import { StudentGuard } from './auth/student.guard';
 
 
 @NgModule({
@@ -70,7 +71,8 @@ import { RegisterDialogComponent } from './auth/register-dialog.component';
   ],
   entryComponents: [LoginDialogComponent],
   providers: [
-    AuthGuard,
+    TeacherGuard,
+    StudentGuard,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptor,

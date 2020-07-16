@@ -8,7 +8,6 @@ import { TeacherService } from './services/teacher.service';
 import { RegisterDialogComponent } from './auth/register-dialog.component';
 
 
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -44,7 +43,7 @@ export class AppComponent implements OnInit {
 
   selectCourse(course) {
 
-    this.selectedCourse = course;
+    this.teacher.selectCourse(course);
     this.router.navigate(['teacher', 'course', course.name, 'students']);
   }
 
@@ -62,6 +61,8 @@ export class AppComponent implements OnInit {
     this.teacher.getCourses().subscribe(data => {
       this.courses = data;
     });
+
+    this.teacher.getSelectedCourse().subscribe(course => this.selectedCourse = course)
 
   }
 

@@ -11,7 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-students-cont',
   templateUrl: './students-cont.component.html',
-  styleUrls: ['./students-cont.component.css']
+  styles: [``]
 })
 export class StudentsContComponent implements OnInit {
 
