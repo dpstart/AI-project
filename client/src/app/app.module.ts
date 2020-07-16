@@ -31,6 +31,7 @@ import { LoginDialogComponent } from './auth/login-dialog.component';
 import { TokenInterceptor } from './auth/token.interceptor';
 import { AuthGuard } from './auth/auth.guard';
 import { RouterStateSnapshot } from '@angular/router';
+import { RegisterDialogComponent } from './auth/register-dialog.component';
 
 
 @NgModule({
@@ -42,6 +43,7 @@ import { RouterStateSnapshot } from '@angular/router';
     PageNotFoundComponent,
     VMComponent,
     LoginDialogComponent,
+    RegisterDialogComponent,
   ],
   imports: [
     BrowserModule,

@@ -2,6 +2,25 @@
     <mat-card-title>Login</mat-card-title>
     <mat-card-content>
         <form [formGroup]="form" (ngSubmit)="submit()">
+
+            <p>
+                <mat-form-field>
+                    <input required type="text" matInput placeholder="First name" formControlName="first_name">
+                </mat-form-field>
+            </p>
+
+            <p>
+                <mat-form-field>
+                    <input required type="text" matInput placeholder="Last name" formControlName="last_name">
+                </mat-form-field>
+            </p>
+
+            <p>
+                <mat-form-field>
+                    <input required type="text" matInput placeholder="ID" formControlName="id">
+                </mat-form-field>
+            </p>
+
             <p>
                 <mat-form-field>
                     <input required type="text" matInput placeholder="Email" formControlName="email">

@@ -79,8 +79,8 @@ export class StudentService {
 
   }
 
-  getStudentsInCourse<T>(courseId: number): Observable<T> {
-    const url = `${this.URL}/course/${courseId}/students`;
+  getStudentsInCourse<T>(course_name: string): Observable<T> {
+    const url = `${this.URL}/courses/${course_name}/enrolled`;
     return this.http.get<T>(url);
   }
 

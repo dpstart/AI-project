@@ -37,4 +37,10 @@ export class TeacherService {
         return this.http.get<T>(url);
     }
 
+    getCourse<T>(name: string): Observable<T> {
+
+        const url = `${this.URL}/courses/${name}`;
+        return this.http.get<T>(url);
+    }
+
 }
