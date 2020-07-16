@@ -63,7 +63,7 @@ public class StudentController {
 
 
     @PostMapping({"","/"})
-    StudentDTO addStudent(@Valid @RequestPart("student") StudentDTO dto, @RequestPart("image",required=false) MultipartFile file) {
+    StudentDTO addStudent(@Valid @RequestPart("student") StudentDTO dto, @RequestPart(value="image",required=false) MultipartFile file) {
 
         try {
             if (file==null || file.isEmpty()) {
