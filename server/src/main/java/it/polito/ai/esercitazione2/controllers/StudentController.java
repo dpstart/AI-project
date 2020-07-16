@@ -26,6 +26,8 @@ import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.apache.logging.log4j.ThreadContext.isEmpty;
+
 
 @RestController
 @RequestMapping("/API/students")
@@ -61,11 +63,17 @@ public class StudentController {
 
 
     @PostMapping({"","/"})
-    StudentDTO addStudent(@Valid @RequestPart("student") StudentDTO dto, @RequestPart("image") MultipartFile file) {
+    StudentDTO addStudent(@Valid @RequestPart("student") StudentDTO dto, @RequestPart("image",required=false) MultipartFile file) {
 
         try {
-            if (!teamservice.addStudent(dto,true,file))
-                throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getId());
+            if (file==null || file.isEmpty()) {
+                if (!teamservice.addStudent(dto, true))
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getId());
+            }
+            else {
+                if (!teamservice.addStudent(dto, true, file))
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getId());
+            }
         } catch (IncoherenceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }catch(AuthenticationServiceException e){

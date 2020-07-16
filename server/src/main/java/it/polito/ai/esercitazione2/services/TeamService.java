@@ -25,9 +25,9 @@ public interface TeamService {
     Optional<ProfessorDTO> getProfessor(String professorId);
     List<ProfessorDTO> getAllProfessors();
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STUDENT')")
     boolean addStudent(StudentDTO s,boolean notify);
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STUDENT')")
     boolean addStudent(StudentDTO s,boolean notify, MultipartFile file);
     Optional<StudentDTO> getStudent(String studentId);
     List<StudentDTO> getAllStudents();
@@ -62,20 +62,20 @@ public interface TeamService {
     TeamDTO proposeTeam(String courseId,String name, List<String> memberIds);
 
 
-    @PreAuthorize("hasRole('STUDENT')")
+
     List<TeamDTO> getTeamForCourse(String  courseName);
 
-    @PreAuthorize("hasRole('STUDENT')")
+
     TeamDTO getOneTeamForCourse(String courseName,Long TeamID);
 
     @PreAuthorize("hasRole('PROFESSOR')")
     TeamDTO setSettings(String courseName, Long TeamID, SettingsDTO settings);
 
 
-    @PreAuthorize("hasRole('STUDENT')")
+
     List<StudentDTO> getStudentsInTeams(String courseName);
 
-    @PreAuthorize("hasRole('STUDENT')")
+
     List<StudentDTO> getAvailableStudents(String courseName);
 
     boolean activeTeam(Long ID);

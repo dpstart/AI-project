@@ -11,6 +11,8 @@ import java.util.List;
 public class Course {
     @Id
     String name;
+    @Column(unique=true)
+    String acronime;
     int min;
     int max;
     Boolean enabled;

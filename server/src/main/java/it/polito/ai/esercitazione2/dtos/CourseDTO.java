@@ -11,6 +11,8 @@ public class CourseDTO extends RepresentationModel<CourseDTO> {
 
     @NotBlank
     String name;
+    @NotBlank
+    String acronime;
     @Min(1)
     int min=1;
     int max=50;
