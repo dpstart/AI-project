@@ -53,57 +53,57 @@ public class ModelHelper {
         return c;
     }
 
-    public static StudentDTO enrich(StudentDTO c){
-        Link l=linkTo(StudentController.class).slash(c.getId()).withSelfRel();
-        c.add(l);
+    public static StudentDTO enrich(StudentDTO s){
+        Link l=linkTo(StudentController.class).slash(s.getId()).withSelfRel();
+        s.add(l);
         Link courses = linkTo(methodOn(StudentController.class)
                 .getCourses()).withRel("courses");
-        c.add(courses);
+        s.add(courses);
 
         Link teams = linkTo(methodOn(StudentController.class)
                 .getTeams()).withRel("teams");
-        c.add(teams);
+        s.add(teams);
 
         Link image = linkTo(methodOn(StudentController.class)
-                .getImage(c.getId())).withRel("image");
-        c.add(image);
+                .getImage(s.getId())).withRel("image");
+        s.add(image);
 
-        return c;
+        return s;
     }
 
-    public static ProfessorDTO enrich(ProfessorDTO c){
-        Link l=linkTo(ProfessorController.class).slash(c.getId()).withSelfRel();
-        c.add(l);
+    public static ProfessorDTO enrich(ProfessorDTO p){
+        Link l=linkTo(ProfessorController.class).slash(p.getId()).withSelfRel();
+        p.add(l);
 
         Link courses = linkTo(methodOn(ProfessorController.class)
-                .getCourses(c.getId())).withRel("courses");
-        c.add(courses);
+                .getCourses(p.getId())).withRel("courses");
+        p.add(courses);
 
         Link image = linkTo(methodOn(StudentController.class)
-                .getImage(c.getId())).withRel("image");
-        c.add(image);
+                .getImage(p.getId())).withRel("image");
+        p.add(image);
 
-        return c;
+        return p;
     }
-    public static TeamDTO enrich(TeamDTO c,String course){
+    public static TeamDTO enrich(TeamDTO t,String course){
 
         Link self = linkTo(methodOn(CourseController.class)
-                .getTeam(course,c.getId())).withSelfRel();
-        c.add(self);
+                .getTeam(course,t.getId())).withSelfRel();
+        t.add(self);
 
         Link members = linkTo(methodOn(CourseController.class)
-                .getTeamMembers(course,c.getId())).withRel("members");
-        c.add(members);
+                .getTeamMembers(course,t.getId())).withRel("members");
+        t.add(members);
 
 
-        return c;
+        return t;
     }
 
-    public static VMDTO enrich(VMDTO c){
+    public static VMDTO enrich(VMDTO vm){
 
         Link self = linkTo(methodOn(VMController.class)
-                .getVM(c.getId())).withSelfRel();
-        c.add(self);
+                .getVM(vm.getId())).withSelfRel();
+        vm.add(self);
 
 
         try {
@@ -111,21 +111,21 @@ public class ModelHelper {
             Link run = linkTo(
                     VMController.class,
                     VMController.class.getMethod("runVM",Long.class),
-                    c.getId())
+                    vm.getId())
                     .withRel("run");
-            c.add(run);
+            vm.add(run);
 
             Link stop = linkTo(
                     VMController.class,
                     VMController.class.getMethod("stopVM",Long.class),
-                    c.getId()).withRel("stop");
-            c.add(stop);
+                    vm.getId()).withRel("stop");
+            vm.add(stop);
 
             Link remove = linkTo(
                     VMController.class,
                     VMController.class.getMethod("removeVM",Long.class),
-                    c.getId()).withRel("remove");
-            c.add(remove);
+                    vm.getId()).withRel("remove");
+            vm.add(remove);
         }catch (NoSuchMethodException e){
             //ignore
         }
@@ -133,16 +133,16 @@ public class ModelHelper {
 
 
 
-        return c;
+        return vm;
     }
 
-    public static VMModelDTO enrich(VMModelDTO c){
+    public static VMModelDTO enrich(VMModelDTO vmm){
 
         Link self = linkTo(methodOn(VMModelController.class)
-                .getVMModel(c.getName())).withSelfRel();
-        c.add(self);
+                .getVMModel(vmm.getName())).withSelfRel();
+        vmm.add(self);
 
-        return c;
+        return vmm;
     }
 
 }
