@@ -57,7 +57,10 @@ public class StudentController {
 
     @GetMapping("/{id}/image")
     Image getImage(@PathVariable String id){
-        Image img =teamservice.getImage(id);
+        final Optional<StudentDTO> s = teamservice.getStudent(id);
+        if(!s.isPresent())
+            return null;
+        Image img = teamservice.getImage(s.get());
         return img;
     }
 

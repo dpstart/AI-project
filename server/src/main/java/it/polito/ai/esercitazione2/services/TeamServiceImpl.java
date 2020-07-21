@@ -184,7 +184,16 @@ public class TeamServiceImpl implements TeamService {
             else
                 throw new IncoherenceException("Professor with id "+p.getId()+" already exist with different names");
         }
-        professorRepository.save(modelMapper.map(p, Professor.class));
+        Image img = null;
+        try {
+            img = imageRepository.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
+        }
+        catch (IOException e) {
+        }
+        Professor prof = modelMapper.map(p, Professor.class);
+        if(img != null)
+            prof.setImage_id(img.getName());
+        professorRepository.save(prof);
 
 
 
@@ -193,13 +202,6 @@ public class TeamServiceImpl implements TeamService {
         if (!registerUser(p.getId(),encP,"ROLE_PROFESSOR"))
             throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
         notificationService.notifyProfessor(p, pwd);
-
-        try {
-            Image img = new Image(p.getId(), file.getContentType(), compressBytes(file.getBytes()));
-            imageRepository.save(img);
-        }
-        catch (IOException e) {
-        }
 
 
         return true;
@@ -218,13 +220,17 @@ public class TeamServiceImpl implements TeamService {
             else
                 throw new IncoherenceException("Student with id "+s.getId()+" already exist with different names");
         }
-        studentRepository.save(modelMapper.map(s,Student.class));
+        Image img = null;
         try {
-             Image img = new Image(s.getId(), file.getContentType(), compressBytes(file.getBytes()));
-             imageRepository.save(img);
+            img = new Image(file.getContentType(), compressBytes(file.getBytes()));
+            img = imageRepository.save(img);
         }
-         catch (IOException e) {
+        catch (IOException e) {
         }
+        Student stud = modelMapper.map(s,Student.class);
+        if(img!=null)
+            stud.setImage_id(img.getName());
+        studentRepository.save(stud);
 
 
         if (notify==true) {
@@ -757,10 +763,29 @@ public class TeamServiceImpl implements TeamService {
 
     public Image getImage(String imageName) {
         final Optional<Image> retrievedImage = imageRepository.findByName(imageName);
-        Image img = new Image(retrievedImage.get().getName(), retrievedImage.get().getType(),
-                decompressBytes(retrievedImage.get().getPicByte()));
+        if(!retrievedImage.isPresent())
+            return null;
+        Image img = retrievedImage.get();
+        img.setPicByte(decompressBytes(img.getPicByte()));
         return img;
     }
+
+    public Image getImage(ProfessorDTO professor) {
+        Professor p = modelMapper.map(professor, Professor.class);
+        return getImage(p.getImage_id());
+    }
+
+    public Image getImage(StudentDTO student) {
+        Student s = modelMapper.map(student, Student.class);
+        return getImage(s.getImage_id());
+    }
+
+    /*
+    public Image getImage(AssignmentDTO assignment) {
+        Assignment a = modelMapper.map(assignment, Assignment.class);
+        return getImage(a.getContentId());
+    }
+    */
 
     @Override
     public boolean createVMModel(String modelName){

@@ -9,12 +9,12 @@ public class Image {
     public Image() {
         super();
     }
-    public Image(String name, String type, byte[] picByte) {
-        this.name = name;
+    public Image(String type, byte[] picByte) {
         this.type = type;
         this.picByte = picByte;
     }
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private String name;
 
     private String type;

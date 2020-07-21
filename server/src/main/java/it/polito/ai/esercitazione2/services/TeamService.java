@@ -2,7 +2,6 @@ package it.polito.ai.esercitazione2.services;
 
 import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.entities.Image;
-import it.polito.ai.esercitazione2.entities.VMModel;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -84,6 +83,9 @@ public interface TeamService {
     List<Boolean> evictAll(Set<Long> teams);
 
     Image getImage(String imageName);
+    Image getImage(ProfessorDTO professor);
+    Image getImage(StudentDTO student);
+    //Image getImage(AssignmentDTO assignment);
 
     //------------------------------------------------------------------------------------------------------------------
     List<VMModelDTO> getVMModels();
