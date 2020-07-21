@@ -15,8 +15,12 @@ public class Professor {
     String firstName;
     String email;
 
+    String image_id;
+
     @ManyToMany(mappedBy="professors")
     List<Course> courses =  new ArrayList<>();
+    @OneToMany(mappedBy = "professor")
+    List<Assignment> assignments = new ArrayList<>();
 
     public void addCourse(Course c){
         courses.add(c);
@@ -26,6 +30,16 @@ public class Professor {
     public void removeCourse(Course c){
         courses.remove(c);
         c.getProfessors().remove(this);
+    }
+
+    public void addAssignment(Assignment a){
+        assignments.add(a);
+        a.setProfessor(this);
+    }
+
+    public void removeAssignment(Assignment a){
+        assignments.remove(a);
+        a.setProfessor(null);
     }
 
 }

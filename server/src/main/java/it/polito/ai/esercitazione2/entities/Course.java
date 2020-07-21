@@ -26,6 +26,8 @@ public class Course {
     List<Student> students = new ArrayList<>();
     @OneToMany(mappedBy="course",cascade = CascadeType.ALL, orphanRemoval = true)
     List<Team> teams =  new ArrayList<>();
+    @OneToMany(mappedBy = "course",cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Assignment> assignments = new ArrayList<>();
 
 
 
@@ -56,6 +58,15 @@ public class Course {
         t.setCourse(null);
     }
 
+    public void addAssignment(Assignment a){
+        assignments.add(a);
+        a.setCourse(this);
+    }
+
+    public void removeAssignment(Assignment a){
+        assignments.remove(a);
+        a.setCourse(null);
+    }
 
 
 }
