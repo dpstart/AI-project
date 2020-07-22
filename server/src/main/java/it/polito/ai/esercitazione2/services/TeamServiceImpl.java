@@ -780,12 +780,12 @@ public class TeamServiceImpl implements TeamService {
         return getImage(s.getImage_id());
     }
 
-    /*
+
     public Image getImage(AssignmentDTO assignment) {
         Assignment a = modelMapper.map(assignment, Assignment.class);
         return getImage(a.getContentId());
     }
-    */
+
 
     @Override
     public boolean createVMModel(String modelName){

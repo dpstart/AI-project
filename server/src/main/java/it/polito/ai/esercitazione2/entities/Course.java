@@ -1,6 +1,7 @@
 package it.polito.ai.esercitazione2.entities;
 
 import lombok.Data;
+import lombok.NonNull;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -31,41 +32,44 @@ public class Course {
 
 
 
-    public void addStudent(Student s){
+    public void addStudent(@NonNull Student s){
         students.add(s);
         s.getCourses().add(this);
 
     }
 
-    public void addProfessor(Professor p){
+    public void removeStudent(@NonNull Student s){
+        students.remove(s);
+        s.getCourses().remove(this);
+    }
+
+    public void addProfessor(@NonNull Professor p){
         professors.add(p);
         p.getCourses().add(this);
 
     }
-    public void removeProfessor(Professor p){
+    public void removeProfessor(@NonNull Professor p){
         professors.remove(p);
         p.getCourses().remove(this);
 
     }
 
-    public void addTeam(Team t){
+    public void addTeam(@NonNull Team t){
        teams.add(t);
        t.setCourse(this);
     }
 
-    public void removeTeam(Team t){
+    public void removeTeam(@NonNull Team t){
         teams.remove(t);
         t.setCourse(null);
     }
 
-    public void addAssignment(Assignment a){
+    public void addAssignment(@NonNull Assignment a){
         assignments.add(a);
-        a.setCourse(this);
     }
 
-    public void removeAssignment(Assignment a){
+    public void removeAssignment(@NonNull Assignment a){
         assignments.remove(a);
-        a.setCourse(null);
     }
 
 

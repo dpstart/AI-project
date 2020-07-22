@@ -85,7 +85,7 @@ public interface TeamService {
     Image getImage(String imageName);
     Image getImage(ProfessorDTO professor);
     Image getImage(StudentDTO student);
-    //Image getImage(AssignmentDTO assignment);
+    Image getImage(AssignmentDTO assignment);
 
     //------------------------------------------------------------------------------------------------------------------
     List<VMModelDTO> getVMModels();

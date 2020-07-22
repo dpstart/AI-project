@@ -2,6 +2,7 @@ package it.polito.ai.esercitazione2.entities;
 
 
 import lombok.Data;
+import lombok.NonNull;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -31,6 +32,9 @@ public class Student {
     @ManyToMany(mappedBy="owners")
     List<VM> VMs = new ArrayList<>();
 
+    @OneToMany(mappedBy="student")
+    List<Homework> homeworks =  new ArrayList<>();
+
     public void addCourse(Course c){
         courses.add(c);
         c.getStudents().add(this);
@@ -54,5 +58,13 @@ public class Student {
     public void removeVM(VM v){
         VMs.remove(v);
         v.getOwners().remove(this);
+    }
+
+    public void addHomework(@NonNull Homework homework){
+        this.homeworks.add(homework);
+    }
+
+    public void removeHomework(@NonNull Homework homework){
+        this.homeworks.remove(homework);
     }
 }
