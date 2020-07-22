@@ -86,6 +86,8 @@ public interface TeamService {
     Image getImage(ProfessorDTO professor);
     Image getImage(StudentDTO student);
     Image getImage(AssignmentDTO assignment);
+    Image getImage(HomeworkDTO homework);
+    Image getImage(HomeworkDTO homework, int version);
 
     //------------------------------------------------------------------------------------------------------------------
     List<VMModelDTO> getVMModels();

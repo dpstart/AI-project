@@ -37,7 +37,7 @@ public class Homework {
 
     Homework.states state = states.unread;
     Boolean isFinal = false;
-    Float mark = null;
+    Float mark = 0f;
 
     public void setStudent(@NonNull Student s){
         this.student=student;
@@ -65,5 +65,5 @@ public class Homework {
         }
         this.state=state;
     }
-    
+
 }

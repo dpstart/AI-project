@@ -10,6 +10,7 @@ import net.minidev.json.JSONObject;
 import org.apache.commons.text.RandomStringGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -784,6 +785,20 @@ public class TeamServiceImpl implements TeamService {
     public Image getImage(AssignmentDTO assignment) {
         Assignment a = modelMapper.map(assignment, Assignment.class);
         return getImage(a.getContentId());
+    }
+
+    public Image getImage(HomeworkDTO homework){
+        return getImage(homework, -1);
+    }
+
+    public Image getImage(HomeworkDTO homework, int version){
+        Homework h = modelMapper.map(homework, Homework.class);
+        List<String> ids = h.getVersionIds();
+        if(ids.size() == 0)
+            throw new IncoherenceException("This homework hasn't been delivered yet");
+        if(version > ids.size() || version == -1)
+            version = ids.size();
+        return getImage(ids.get(version-1));
     }
 
 
