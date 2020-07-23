@@ -10,8 +10,8 @@ import java.util.List;
 
 @Repository
 public interface AssignmentRepository extends JpaRepository<Assignment, AssignmentId> {
-    @Query("SELECT a FROM Assignment a WHERE a.course=:courseName")
+    @Query("SELECT a FROM Assignment a WHERE a.course.name=:courseName")
     List<Assignment> getAssignmentsForCourse(String courseName);
-    @Query("SELECT a FROM Assignment a WHERE a.professor=:professor")
-    List<Assignment> getAssignmentsForProfessor(String professor);
+    @Query("SELECT a FROM Assignment a WHERE a.professor.id=:professorId")
+    List<Assignment> getAssignmentsForProfessor(String professorId);
 }

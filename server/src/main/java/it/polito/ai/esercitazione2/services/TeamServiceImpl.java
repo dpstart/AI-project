@@ -76,6 +76,9 @@ public class TeamServiceImpl implements TeamService {
     @Autowired
     VMModelRepository vmModelRepository;
 
+    @Autowired
+    AssignmentRepository assignmentRepository;
+
     WebClient w = WebClient.create("http://localhost:8080");
 
 
@@ -1007,4 +1010,89 @@ public class TeamServiceImpl implements TeamService {
         return vmRepository.getByTeam(t).stream().map(x->modelMapper.map(x,VMDTO.class))
                 .collect(Collectors.toList());
     }
+
+    //Assignments
+    @Override
+    public boolean addAssignment(AssignmentDTO a, MultipartFile file){
+        if(!courseRepository.existsById(a.getCourse().getName()))
+            throw new CourseNotFoundException("Course " + a.getCourse().getName() + " not found");
+        AssignmentId id = new AssignmentId(a.getNumber(), courseRepository.getOne(a.getCourse().getName()));
+        if (assignmentRepository.existsById(id)) {
+            if (getAssignment(id).equals(a))
+                return false;
+            else
+                throw new IncoherenceException("Assignment with id "+ id +" already exist with different details");
+        }
+        Image img = null;
+        try {
+            img = imageRepository.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
+        }
+        catch (IOException e) {
+        }
+        Assignment assignment = modelMapper.map(a, Assignment.class);
+        if(img != null)
+            assignment.setContentId(img.getName());
+        assignmentRepository.save(assignment);
+        return true;
+    }
+
+    @Override
+    public boolean removeAssignment(AssignmentId id) {
+        if(!assignmentRepository.existsById(id))
+            return true;
+        if(assignmentRepository.getOne(id).getHomeworks().size()>0)
+            return false;
+        assignmentRepository.delete(assignmentRepository.getOne(id));
+        return true;
+    }
+
+    @Override
+    public boolean removeAssignment(Integer number, String courseId){
+        if(!courseRepository.existsById(courseId))
+            throw new CourseNotFoundException("Course " + courseId + " not found");
+        AssignmentId id = new AssignmentId(number, courseRepository.getOne(courseId));
+        return removeAssignment(id);
+    }
+
+    @Override
+    public AssignmentDTO getAssignment(AssignmentId id){
+        if(!assignmentRepository.existsById(id))
+            throw new AssignmentNotFoundException("Assignment " + id + " not found");
+        Assignment a = assignmentRepository.getOne(id);
+        return modelMapper.map(a, AssignmentDTO.class);
+
+    }
+
+    @Override
+    public AssignmentDTO getAssignment(Integer number, String courseId){
+        if(!courseRepository.existsById(courseId))
+            throw new CourseNotFoundException("Course " + courseId + " not found");
+        AssignmentId id = new AssignmentId(number, courseRepository.getOne(courseId));
+        return getAssignment(id);
+    }
+
+    @Override
+    public List<AssignmentDTO> getAllAssignments(){
+        return assignmentRepository.findAll()
+                .stream()
+                .map(a -> modelMapper.map(a, AssignmentDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AssignmentDTO> getByCourse(CourseDTO c){
+        return assignmentRepository.getAssignmentsForCourse(c.getName())
+                .stream()
+                .map(a -> modelMapper.map(a, AssignmentDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AssignmentDTO> getByProfessor(ProfessorDTO p){
+        return assignmentRepository.getAssignmentsForProfessor(p.getId())
+                .stream()
+                .map(a -> modelMapper.map(a, AssignmentDTO.class))
+                .collect(Collectors.toList());
+    }
+
 }

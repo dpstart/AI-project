@@ -14,6 +14,8 @@ public class AssignmentDTO extends RepresentationModel<AssignmentDTO> {
     Integer number;
     @Valid
     CourseDTO course;
+    @Valid
+    ProfessorDTO professor;
     @NotBlank
     Timestamp releaseDate;
     @NotBlank

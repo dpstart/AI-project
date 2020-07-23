@@ -11,4 +11,9 @@ import java.io.Serializable;
 public class AssignmentId implements Serializable {
     Integer number;
     Course course;
+
+    @Override
+    public String toString(){
+        return this.course.getName() + "/Assignments/" + this.number;
+    }
 }

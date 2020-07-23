@@ -1,6 +1,7 @@
 package it.polito.ai.esercitazione2.services;
 
 import it.polito.ai.esercitazione2.dtos.*;
+import it.polito.ai.esercitazione2.entities.AssignmentId;
 import it.polito.ai.esercitazione2.entities.Image;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,41 +48,26 @@ public interface TeamService {
     @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
     List<Boolean> enrollCSV(Reader r, String courseName);
 
+    // Students
     @PreAuthorize("hasRole('STUDENT')")
     List<CourseDTO> getCourses(String studentId);
-
     List<CourseDTO> getCoursesByProf(String profID);
-
     @PreAuthorize("hasRole('STUDENT')")
     List<TeamDTO> getTeamsforStudent(String studentId);
     List<StudentDTO> getMembers(String courseName, Long TeamId);
-
-
     @PreAuthorize("hasRole('STUDENT')")
     TeamDTO proposeTeam(String courseId,String name, List<String> memberIds);
-
-
-
     List<TeamDTO> getTeamForCourse(String  courseName);
-
-
     TeamDTO getOneTeamForCourse(String courseName,Long TeamID);
-
     @PreAuthorize("hasRole('PROFESSOR')")
     TeamDTO setSettings(String courseName, Long TeamID, SettingsDTO settings);
-
-
-
     List<StudentDTO> getStudentsInTeams(String courseName);
-
-
     List<StudentDTO> getAvailableStudents(String courseName);
-
     boolean activeTeam(Long ID);
-
     boolean evictTeam(Long ID);
     List<Boolean> evictAll(Set<Long> teams);
 
+    //Images
     Image getImage(String imageName);
     Image getImage(ProfessorDTO professor);
     Image getImage(StudentDTO student);
@@ -96,23 +82,29 @@ public interface TeamService {
     @PreAuthorize("hasRole('ADMIN')")
     boolean createVMModel(String modelName);
 
-
     //------------------------------------------------------------------------------------------------------------------
 
     void defineVMModel(Long teamID,String modelName);
-
-
-
     VMDTO createVM(Long teamID, SettingsDTO settings);
     VMDTO getVM(Long teamID);
     List<VMDTO> getVMByTeam(Long teamID);
 
     void runVM(Long VMID);
-
     void stopVM(Long VMID);
-
     void removeVM(Long VMID);
 
     void shareOwnership(Long id, String studentId);
 
+    // Assignments
+    @PreAuthorize("hasRole('PROFESSOR')")
+    boolean addAssignment(AssignmentDTO a, MultipartFile file);
+    @PreAuthorize("hasRole('PROFESSOR')")
+    boolean removeAssignment(AssignmentId id);
+    @PreAuthorize("hasRole('PROFESSOR')")
+    boolean removeAssignment(Integer number, String courseId);
+    AssignmentDTO getAssignment(AssignmentId id);
+    AssignmentDTO getAssignment(Integer number, String courseId);
+    List<AssignmentDTO> getAllAssignments();
+    List<AssignmentDTO> getByCourse(CourseDTO c);
+    List<AssignmentDTO> getByProfessor(ProfessorDTO p);
 }
