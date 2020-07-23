@@ -39,7 +39,6 @@ public class Assignment {
                       @NonNull String contentId){
         this.setCourse(course);
         this.setProfessor(professor);
-        this.professor.getAssignments().add(this);
         this.releaseDate=releaseDate;
         this.expirationDate=expirationDate;
         this.contentId=contentId;
