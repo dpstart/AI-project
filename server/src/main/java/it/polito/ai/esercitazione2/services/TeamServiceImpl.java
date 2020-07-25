@@ -236,16 +236,15 @@ public class TeamServiceImpl implements TeamService {
         Student stud = modelMapper.map(s,Student.class);
         if(img!=null)
             stud.setImage_id(img.getName());
+        stud.setPassword=enc.encode(stud.getPassword());
         studentRepository.save(stud);
 
 
         if (notify==true) {
-          String pwd = randomStringGenerator.generate(10);
-          String encP=enc.encode(pwd);
 
-          if (!registerUser(s.getId(), encP, "ROLE_STUDENT"))
+          if (!registerUser(s.getId(), s.getPassword(), "ROLE_STUDENT"))
                   throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
-          notificationService.notifyStudent(s, pwd);
+          notificationService.notifyStudent(s, s.getPassword());
 
         }
 
@@ -261,16 +260,15 @@ public class TeamServiceImpl implements TeamService {
             else
                 throw new IncoherenceException("Student with id "+s.getId()+" already exist with different names");
         }
+        stud.setPassword=enc.encode(stud.getPassword());
         studentRepository.save(modelMapper.map(s,Student.class));
 
 
         if (notify==true) {
-            String pwd = randomStringGenerator.generate(10);
-            String encP=enc.encode(pwd);
 
-            if (!registerUser(s.getId(), encP, "ROLE_STUDENT"))
+            if (!registerUser(s.getId(), s.getPassword(), "ROLE_STUDENT"))
                 throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
-            notificationService.notifyStudent(s, pwd);
+            notificationService.notifyStudent(s, s.getPassword());
 
         }
 
@@ -402,8 +400,8 @@ public class TeamServiceImpl implements TeamService {
             for (int i=0;i<students.size();i++) {
                 if(res.get(i)==true) {
 
-                    String pwd = randomStringGenerator.generate(10);
-                    pwds.put(i, pwd);
+
+                    pwds.put(i, students.get(i).getPassword());
                 }
             }
             if (!registerUsers(pwds.entrySet().stream().collect(Collectors.toMap(x->students.get(x.getKey()).getId(),x->enc.encode(x.getValue()))),"ROLE_STUDENT"))
@@ -471,13 +469,13 @@ public class TeamServiceImpl implements TeamService {
 
             if (resAdd.get(i)){
 
-                String pwd = randomStringGenerator.generate(10);
-                pwds.put(i,pwd);
+
+                pwds.put(i,users.get(i).getPassword());
             }
             resAdd.set(i, resAdd.get(i) | resEnroll.get(i));
         }
 
-        if(!registerUsers(pwds.entrySet().stream().collect(Collectors.toMap(x->users.get(x.getKey()).getId(),x->enc.encode(x.getValue()))),"ROLE_STUDENT"))
+        if(!registerUsers(pwds.entrySet().stream().collect(Collectors.toMap(x->users.get(x.getKey()).getId(),x->enc.encode())),"ROLE_STUDENT"))
             throw new AuthenticationServiceException("Some errors occurs with the registration of users in the system: retry!");
         for (Integer pos: pwds.keySet())
             notificationService.notifyStudent(users.get(pos),pwds.get(pos));
