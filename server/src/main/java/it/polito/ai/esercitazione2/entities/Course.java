@@ -9,10 +9,13 @@ import java.util.List;
 
 @Entity
 @Data
+@Table( indexes =
+        {@Index(name = "acronime", columnList = "acronime", unique = true),
+        })
 public class Course {
     @Id
     String name;
-    @Column(unique=true)
+    @Column(name = "acronime", nullable = false)
     String acronime;
     int min;
     int max;

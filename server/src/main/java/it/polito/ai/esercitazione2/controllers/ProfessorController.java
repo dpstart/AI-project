@@ -45,12 +45,18 @@ public class ProfessorController {
 
 
     @PostMapping({"","/"})
-   ProfessorDTO addProfessor(@Valid @RequestPart("professor") ProfessorDTO p,  @RequestPart("image") MultipartFile file) {
+   ProfessorDTO addProfessor(@Valid @RequestPart("professor") ProfessorDTO p,  @RequestPart(value="image",required=false) MultipartFile file) {
 
 
         try {
-            if (!teamservice.addProfessor(p,file))
-                throw new ResponseStatusException(HttpStatus.CONFLICT, p.getId());
+            if (file==null || file.isEmpty()) {
+                if (!teamservice.addProfessor(p,file))
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, p.getId());
+            }
+            else {
+                if (!teamservice.addProfessor(p))
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, p.getId());
+            }
         } catch (IncoherenceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         } catch(AuthenticationServiceException e){

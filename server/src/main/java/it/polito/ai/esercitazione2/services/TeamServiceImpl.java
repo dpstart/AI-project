@@ -91,7 +91,7 @@ public class TeamServiceImpl implements TeamService {
         if (!professorRepository.existsById(prof))
             throw new ProfessorNotFoundException("Professor "+prof+ " not found!");
         Professor p = professorRepository.findById(prof).get();
-        if (courseRepository.existsById(c.getName()))
+        if (courseRepository.existsById(c.getName()) || courseRepository.existsByAcronime(c.getAcronime()))
                 return false;
 
         if(c.getMin()>c.getMax())
@@ -105,7 +105,10 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public Optional<CourseDTO> getCourse(String name) {
-        return courseRepository.findById(name).map(x->modelMapper.map(x,CourseDTO.class));
+        Optional<Course> c = courseRepository.findById(name);
+        if (c.isEmpty() && courseRepository.existsByAcronime(name))
+            c= Optional.of(courseRepository.getOne(name));
+        return c.map(x->modelMapper.map(x,CourseDTO.class));
     }
 
     @Override
@@ -120,7 +123,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public boolean addStudentToCourse(String studentId, String courseName) {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!courseRepository.existsById(courseName))
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: "+courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
         if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)) && !SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
@@ -149,7 +152,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public void enableCourse(String courseName) {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!courseRepository.existsById(courseName))
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course "+courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
         if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)))
@@ -160,7 +163,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public void disableCourse(String courseName) {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!courseRepository.existsById(courseName))
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: "+courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
         if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)))
@@ -211,6 +214,32 @@ public class TeamServiceImpl implements TeamService {
 
         return true;
     }
+
+    @Override
+    public boolean addProfessor(ProfessorDTO p) {
+        if (professorRepository.existsById(p.getId())) {
+            if (getProfessor(p.getId()).get().equals(p))
+                return false;
+            else
+                throw new IncoherenceException("Professor with id "+p.getId()+" already exist with different names");
+        }
+
+        Professor prof = modelMapper.map(p, Professor.class);
+
+        professorRepository.save(prof);
+
+
+
+        String pwd = randomStringGenerator.generate(10);
+        String encP=enc.encode(pwd);
+        if (!registerUser(p.getId(),encP,"ROLE_PROFESSOR"))
+            throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
+        notificationService.notifyProfessor(p, pwd);
+
+
+        return true;
+    }
+
     @Override
     public Optional<ProfessorDTO> getProfessor(String professorId) {
         return professorRepository.findById(professorId).map(x->modelMapper.map(x,ProfessorDTO.class));
@@ -235,7 +264,7 @@ public class TeamServiceImpl implements TeamService {
         Student stud = modelMapper.map(s,Student.class);
         if(img!=null)
             stud.setImage_id(img.getName());
-        stud.setPassword=enc.encode(stud.getPassword());
+        stud.setPassword(enc.encode(stud.getPassword()));
         studentRepository.save(stud);
 
 
@@ -259,8 +288,9 @@ public class TeamServiceImpl implements TeamService {
             else
                 throw new IncoherenceException("Student with id "+s.getId()+" already exist with different names");
         }
-        stud.setPassword=enc.encode(stud.getPassword());
-        studentRepository.save(modelMapper.map(s,Student.class));
+        Student stud = modelMapper.map(s,Student.class);
+        stud.setPassword(enc.encode(stud.getPassword()));
+        studentRepository.save(stud);
 
 
         if (notify==true) {
@@ -377,7 +407,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public List<StudentDTO> getEnrolledStudents(String courseName) {
-        if (!courseRepository.existsById(courseName))
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: "+courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
         return c.getStudents()
@@ -474,7 +504,7 @@ public class TeamServiceImpl implements TeamService {
             resAdd.set(i, resAdd.get(i) | resEnroll.get(i));
         }
 
-        if(!registerUsers(pwds.entrySet().stream().collect(Collectors.toMap(x->users.get(x.getKey()).getId(),x->enc.encode())),"ROLE_STUDENT"))
+        if(!registerUsers(pwds.entrySet().stream().collect(Collectors.toMap(x->users.get(x.getKey()).getId(),x->enc.encode(x.getValue()))),"ROLE_STUDENT"))
             throw new AuthenticationServiceException("Some errors occurs with the registration of users in the system: retry!");
         for (Integer pos: pwds.keySet())
             notificationService.notifyStudent(users.get(pos),pwds.get(pos));
@@ -497,7 +527,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public List<StudentDTO> getMembers(String courseName,Long teamID) {
-        if (!courseRepository.existsById(courseName))
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: "+courseName+" not found!");
         Course c = courseRepository.getOne(courseName);
         Optional<Team> t = teamRepository.findById(teamID);
@@ -532,7 +562,7 @@ public class TeamServiceImpl implements TeamService {
         String proposer = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // il corso esiste?
-        if (!courseRepository.existsById(courseId))
+        if (!courseRepository.existsById(courseId) && !courseRepository.existsByAcronime(courseId))
             throw new CourseNotFoundException("Course: "+courseId + " not found!");
         Course c = courseRepository.getOne(courseId);
         // il corso è abilitato?
@@ -606,7 +636,7 @@ public class TeamServiceImpl implements TeamService {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // il corso esiste?
-        if (!courseRepository.existsById(courseName))
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: "+courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
         // il docente è il docente del corso?
@@ -653,7 +683,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public List<TeamDTO> getTeamForCourse(String courseName) {
-        if (!courseRepository.existsById(courseName))
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: "+courseName+" not found!");
         Course c = courseRepository.getOne(courseName);
         return teamRepository.getByCourse(c).stream().map(x->modelMapper.map(x,TeamDTO.class))
@@ -663,7 +693,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public TeamDTO getOneTeamForCourse(String courseName,Long teamID){
-        if (!courseRepository.existsById(courseName))
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: "+courseName+" not found!");
         Course c = courseRepository.getOne(courseName);
         Optional<Team> t = teamRepository.findById(teamID);
@@ -677,7 +707,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public List<StudentDTO> getStudentsInTeams(String courseName) {
-        if (!courseRepository.existsById(courseName))
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: "+courseName + " not found!");
 
         return courseRepository.getStudentsInTeams(courseName)
@@ -689,7 +719,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public List<StudentDTO> getAvailableStudents(String courseName) {
-        if (!courseRepository.existsById(courseName))
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: "+courseName + " not found!");
 
         return courseRepository.getStudentsNotInTeams(courseName)
@@ -1016,7 +1046,7 @@ public class TeamServiceImpl implements TeamService {
         String professor = SecurityContextHolder.getContext().getAuthentication().getName();
         if(!professorRepository.existsById(professor))
             throw new CourseNotFoundException("Professor " + professor + " not found");
-        if(!courseRepository.existsById(courseId))
+        if(!courseRepository.existsById(courseId) && !courseRepository.existsByAcronime(courseId))
             throw new CourseNotFoundException("Course " + courseId + " not found");
         Course c = courseRepository.getOne(courseId);
         // il docente è il docente del corso?
@@ -1090,7 +1120,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public List<AssignmentDTO> getByCourse(CourseDTO c){
-        if(!courseRepository.existsById(c.getName())){
+        if(!courseRepository.existsById(c.getName()) && !courseRepository.existsByAcronime(c.getAcronime())){
             throw new CourseNotFoundException("Course " + c.getName() + " not found");
         }
         Course course = courseRepository.getOne(c.getName());

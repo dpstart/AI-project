@@ -21,6 +21,8 @@ public interface TeamService {
     // Professors
     @PreAuthorize("hasRole('ADMIN')")
     boolean addProfessor(ProfessorDTO p, MultipartFile file);
+    @PreAuthorize("hasRole('ADMIN')")
+    boolean addProfessor(ProfessorDTO p);
     Optional<ProfessorDTO> getProfessor(String professorId);
     List<ProfessorDTO> getAllProfessors();
 
