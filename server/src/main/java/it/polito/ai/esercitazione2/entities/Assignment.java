@@ -14,16 +14,16 @@ import java.util.List;
 public class Assignment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Integer number;
+    Integer id;
 
-    @Id
-    @JoinColumn(name="course_id")
     @ManyToOne
+    @JoinColumn(name="course_id")
     Course course;
 
     @ManyToOne
     @JoinColumn(name="professor_id")
     Professor professor;
+
     Timestamp releaseDate;
     Timestamp expirationDate;
     String contentId;
