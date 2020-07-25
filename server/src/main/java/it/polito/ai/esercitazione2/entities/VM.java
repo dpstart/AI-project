@@ -17,10 +17,13 @@ public class VM {
     int ram;
     int status; //valutare se mettere enum;   0: spenta, 1:attiva
 
+    String imageId;
+
 
     @ManyToMany(cascade={CascadeType.PERSIST,CascadeType.MERGE})
     @JoinTable(name="VM_owner",joinColumns = @JoinColumn(name="VM_id"),inverseJoinColumns = @JoinColumn(name="student_id"))
     List<Student> owners= new ArrayList<>();
+
 
     @ManyToOne
     @JoinColumn(name="team_id")

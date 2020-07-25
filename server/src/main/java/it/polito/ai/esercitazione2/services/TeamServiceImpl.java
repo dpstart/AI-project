@@ -871,7 +871,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public VMDTO createVM(Long teamId,SettingsDTO settings){
+    public VMDTO createVM(Long teamId,MultipartFile file,SettingsDTO settings){
         String creator = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (!teamRepository.existsById(teamId))
@@ -901,6 +901,16 @@ public class TeamServiceImpl implements TeamService {
         vm.setRam(settings.getN_cpu());
         vm.addOwner(studentRepository.getOne(creator));
         t.addVM(vm);
+        Image img = null;
+        try {
+            img = imageRepository.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
+        }
+        catch (IOException e) {
+            throw new ImageException("VM image didn't load on database correctly");
+        }
+        if(img == null)
+            throw new ImageException("VM image didn't load on database correctly");
+        vm.setImageId(img.getName());
 
         vmRepository.save(vm);
 
@@ -944,6 +954,41 @@ public class TeamServiceImpl implements TeamService {
         vmRepository.save(vm);
 
     }
+    @Override
+    public Image connectToVM(Long vmID){
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if(!vmRepository.existsById(vmID))
+            throw new VMInstanceNotFoundException("Instance "+vmID + " not found!");
+
+        VM vm = vmRepository.getOne(vmID);
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+            if(!studentRepository.existsById(principal)){
+                throw new StudentNotFoundException("Student " + principal + " not found");
+            }
+            if(!studentRepository.getOne(principal).getTeams().contains(vm.getTeam())){
+                throw new StudentNotFoundException("Student " + principal + " is not part of the team owner of this machine");
+            }
+        }
+        else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+            if(!professorRepository.existsById(principal)){
+                throw new ProfessorNotFoundException("Professor " + principal + " not found");
+            }
+            if(!professorRepository.getOne(principal).getCourses().contains(vm.getTeam().getCourse())){
+                throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + vm.getTeam().getCourse().getName());
+            }
+        }
+
+
+        if (vm.getStatus()!=1){
+            throw new OffMachineException("This instance is not running");
+        }
+
+        return getImage(vm.getImageId());
+
+    }
+
 
     @Override
     public void stopVM(Long vmID){
@@ -1070,6 +1115,7 @@ public class TeamServiceImpl implements TeamService {
             throw new ImageException("Assignment content didn't load on database correctly");
         Assignment assignment = modelMapper.map(a, Assignment.class);
         assignment.setCourse(c);
+        assignment.setContentId(img.getName());
         for(Student s : assignment.getCourse().getStudents()){
             Homework h = new Homework();
             h.setAssignment(assignment);
@@ -1133,10 +1179,9 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-
-    public List<AssignmentDTO> getByCourse(CourseDTO c){
-        if(!courseRepository.existsById(c.getName()) && !courseRepository.existsByAcronime(c.getAcronime())){
-            throw new CourseNotFoundException("Course " + c.getName() + " not found");
+    public List<AssignmentDTO> getByCourse(String courseId){
+        if(!courseRepository.existsById(courseId) && !courseRepository.existsByAcronime(courseId))
+            throw new CourseNotFoundException("Course " + courseId+ " not found");
 
         Course course = courseRepository.getOne(courseId);
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();

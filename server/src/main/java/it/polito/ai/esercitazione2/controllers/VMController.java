@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
@@ -24,14 +25,14 @@ public class VMController {
 
 
     @PostMapping("/{id}/createVM")  // ragionare su se è più logico accedere direttamente a qualuenue team perdendo il riferimento al corso oppure /APU/courses/PDS/{teamID}
-    VMDTO createVM(@PathVariable Long id, @Valid @RequestBody SettingsDTO settings){
+    VMDTO createVM(@PathVariable Long id, @RequestPart(value="image") MultipartFile file, @Valid @RequestPart("settings") SettingsDTO settings){
         if (settings.getMax_active()==null) //contemporary active
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max active' field not expected here");
         if (settings.getMax_available()==null) //active + off
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max available' field not expected here");
 
         try{
-            return teamservice.createVM(id,settings);
+            return teamservice.createVM(id,file,settings);
         }
         catch (AuthorizationServiceException e){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());  //DA CAMBIARE!!!!
@@ -49,6 +50,16 @@ public class VMController {
     VMDTO getVM(@PathVariable Long id){
         try{
             return ModelHelper.enrich(teamservice.getVM(id));
+        }catch (TeamServiceException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }
+    }
+
+    //TO DO: convert image to mUltiPaertfiLE
+    @GetMapping("/{id}/connect")
+    MultipartFile connectToVM(@PathVariable Long id){
+        try{
+            return teamservice.connectToVM(id);
         }catch (TeamServiceException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }

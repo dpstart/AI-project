@@ -76,6 +76,7 @@ public interface TeamService {
     Image getImage(HomeworkDTO homework);
     Image getImage(HomeworkDTO homework, int version);
 
+
     //------------------------------------------------------------------------------------------------------------------
     List<VMModelDTO> getVMModels();
     VMModelDTO getVMModel(String modelName);
@@ -86,13 +87,15 @@ public interface TeamService {
     //------------------------------------------------------------------------------------------------------------------
 
     void defineVMModel(Long teamID,String modelName);
-    VMDTO createVM(Long teamID, SettingsDTO settings);
+    VMDTO createVM(Long teamID, MultipartFile file, SettingsDTO settings);
     VMDTO getVM(Long teamID);
     List<VMDTO> getVMByTeam(Long teamID);
 
     void runVM(Long VMID);
     void stopVM(Long VMID);
     void removeVM(Long VMID);
+    @PreAuthorize("hasRole('PROFESSOR') or hasRole('STUDENT')")
+    Image connectToVM(Long VMID);
 
     void shareOwnership(Long id, String studentId);
 
