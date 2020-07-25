@@ -11,7 +11,6 @@ import java.util.List;
 
 @Entity
 @Data
-@IdClass(AssignmentId.class)
 public class Assignment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -234,16 +234,15 @@ public class TeamServiceImpl implements TeamService {
         Student stud = modelMapper.map(s,Student.class);
         if(img!=null)
             stud.setImage_id(img.getName());
+        stud.setPassword=enc.encode(stud.getPassword());
         studentRepository.save(stud);
 
 
         if (notify==true) {
-          String pwd = randomStringGenerator.generate(10);
-          String encP=enc.encode(pwd);
 
-          if (!registerUser(s.getId(), encP, "ROLE_STUDENT"))
+          if (!registerUser(s.getId(), s.getPassword(), "ROLE_STUDENT"))
                   throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
-          notificationService.notifyStudent(s, pwd);
+          notificationService.notifyStudent(s, s.getPassword());
 
         }
 
@@ -259,16 +258,15 @@ public class TeamServiceImpl implements TeamService {
             else
                 throw new IncoherenceException("Student with id "+s.getId()+" already exist with different names");
         }
+        stud.setPassword=enc.encode(stud.getPassword());
         studentRepository.save(modelMapper.map(s,Student.class));
 
 
         if (notify==true) {
-            String pwd = randomStringGenerator.generate(10);
-            String encP=enc.encode(pwd);
 
-            if (!registerUser(s.getId(), encP, "ROLE_STUDENT"))
+            if (!registerUser(s.getId(), s.getPassword(), "ROLE_STUDENT"))
                 throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
-            notificationService.notifyStudent(s, pwd);
+            notificationService.notifyStudent(s, s.getPassword());
 
         }
 

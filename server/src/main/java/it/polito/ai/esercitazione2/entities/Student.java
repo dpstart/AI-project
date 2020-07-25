@@ -19,7 +19,7 @@ public class Student {
     String name;
     String firstName;
     String email;
-
+    String password;
     String image_id;
 
     @ManyToMany(cascade={CascadeType.PERSIST,CascadeType.MERGE})
