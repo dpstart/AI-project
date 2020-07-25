@@ -1016,12 +1016,11 @@ public class TeamServiceImpl implements TeamService {
     public boolean addAssignment(AssignmentDTO a, MultipartFile file){
         if(!courseRepository.existsById(a.getCourse().getName()))
             throw new CourseNotFoundException("Course " + a.getCourse().getName() + " not found");
-        AssignmentId id = new AssignmentId(a.getNumber(), courseRepository.getOne(a.getCourse().getName()));
-        if (assignmentRepository.existsById(id)) {
-            if (getAssignment(id).equals(a))
+        if (assignmentRepository.existsById(a.getNumber())) {
+            if (getAssignment(a.getNumber()).equals(a))
                 return false;
             else
-                throw new IncoherenceException("Assignment with id "+ id +" already exist with different details");
+                throw new IncoherenceException("Assignment with id "+ a.getNumber() +" already exist with different details");
         }
         Image img = null;
         try {
@@ -1037,7 +1036,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public boolean removeAssignment(AssignmentId id) {
+    public boolean removeAssignment(Integer id) {
         if(!assignmentRepository.existsById(id))
             return true;
         if(assignmentRepository.getOne(id).getHomeworks().size()>0)
@@ -1047,28 +1046,12 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public boolean removeAssignment(Integer number, String courseId){
-        if(!courseRepository.existsById(courseId))
-            throw new CourseNotFoundException("Course " + courseId + " not found");
-        AssignmentId id = new AssignmentId(number, courseRepository.getOne(courseId));
-        return removeAssignment(id);
-    }
-
-    @Override
-    public AssignmentDTO getAssignment(AssignmentId id){
+    public AssignmentDTO getAssignment(Integer id){
         if(!assignmentRepository.existsById(id))
             throw new AssignmentNotFoundException("Assignment " + id + " not found");
         Assignment a = assignmentRepository.getOne(id);
         return modelMapper.map(a, AssignmentDTO.class);
 
-    }
-
-    @Override
-    public AssignmentDTO getAssignment(Integer number, String courseId){
-        if(!courseRepository.existsById(courseId))
-            throw new CourseNotFoundException("Course " + courseId + " not found");
-        AssignmentId id = new AssignmentId(number, courseRepository.getOne(courseId));
-        return getAssignment(id);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package it.polito.ai.esercitazione2.services;
 
 import it.polito.ai.esercitazione2.dtos.*;
-import it.polito.ai.esercitazione2.entities.AssignmentId;
 import it.polito.ai.esercitazione2.entities.Image;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
@@ -99,11 +98,8 @@ public interface TeamService {
     @PreAuthorize("hasRole('PROFESSOR')")
     boolean addAssignment(AssignmentDTO a, MultipartFile file);
     @PreAuthorize("hasRole('PROFESSOR')")
-    boolean removeAssignment(AssignmentId id);
-    @PreAuthorize("hasRole('PROFESSOR')")
-    boolean removeAssignment(Integer number, String courseId);
-    AssignmentDTO getAssignment(AssignmentId id);
-    AssignmentDTO getAssignment(Integer number, String courseId);
+    boolean removeAssignment(Integer id);
+    AssignmentDTO getAssignment(Integer id);
     List<AssignmentDTO> getAllAssignments();
     List<AssignmentDTO> getByCourse(CourseDTO c);
     List<AssignmentDTO> getByProfessor(ProfessorDTO p);
