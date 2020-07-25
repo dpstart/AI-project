@@ -12,15 +12,18 @@ import java.util.List;
 
 @Entity
 @Data
-@IdClass(HomeworkId.class)
 public class Homework {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    Integer id;
+
+    @ManyToOne
     @JoinColumn(name="student_id")
-    @ManyToOne
     Student student;
-    @Id
-    @JoinColumn(name="assignment_id")
+
     @ManyToOne
+    @JoinColumn(name="assignment_id")
     Assignment assignment;
 
     @ElementCollection
