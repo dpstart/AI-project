@@ -980,6 +980,10 @@ public class TeamServiceImpl implements TeamService {
             }
         }
 
+        if (!vm.getCourse().getEnabled()){
+            throw new CourseNotEnabledException("Impossible to use VM of a disabled course");
+        }
+
 
         if (vm.getStatus()!=1){
             throw new OffMachineException("This instance is not running");
