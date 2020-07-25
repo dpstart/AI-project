@@ -14,7 +14,7 @@ import java.util.List;
 public class Assignment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Integer number;
+    Integer id;
 
     @ManyToOne
     @JoinColumn(name="course_id")

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -1013,24 +1014,34 @@ public class TeamServiceImpl implements TeamService {
 
     //Assignments
     @Override
-    public boolean addAssignment(AssignmentDTO a, MultipartFile file){
-        if(!courseRepository.existsById(a.getCourse().getName()))
-            throw new CourseNotFoundException("Course " + a.getCourse().getName() + " not found");
-        if (assignmentRepository.existsById(a.getNumber())) {
-            if (getAssignment(a.getNumber()).equals(a))
+    public boolean addAssignment(AssignmentDTO a, MultipartFile file, String courseId){
+        String professor = SecurityContextHolder.getContext().getAuthentication().getName();
+        if(!professorRepository.existsById(professor))
+            throw new CourseNotFoundException("Professor " + professor + " not found");
+        if(!courseRepository.existsById(courseId))
+            throw new CourseNotFoundException("Course " + courseId + " not found");
+        Course c = courseRepository.getOne(courseId);
+        // il docente è il docente del corso?
+        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(professor)))
+            throw new CourseAuthorizationException("User "+professor+ " has not the rights to modify this course: he's not the professor for this course");
+        if (assignmentRepository.existsById(a.getId())) {
+            if (getAssignment(a.getId()).equals(a))
                 return false;
             else
-                throw new IncoherenceException("Assignment with id "+ a.getNumber() +" already exist with different details");
+                throw new IncoherenceException("Assignment with id "+ a.getId() +" already exist with different details");
         }
         Image img = null;
         try {
             img = imageRepository.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
         }
         catch (IOException e) {
+            throw new ImageException("Assignment content didn't load on database correctly");
         }
+        if(img == null)
+            throw new ImageException("Assignment content didn't load on database correctly");
         Assignment assignment = modelMapper.map(a, Assignment.class);
-        if(img != null)
-            assignment.setContentId(img.getName());
+        assignment.setCourse(c);
+        assignment.setProfessor(professorRepository.getOne(professor));
         assignmentRepository.save(assignment);
         return true;
     }
@@ -1050,8 +1061,25 @@ public class TeamServiceImpl implements TeamService {
         if(!assignmentRepository.existsById(id))
             throw new AssignmentNotFoundException("Assignment " + id + " not found");
         Assignment a = assignmentRepository.getOne(id);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+            if(!studentRepository.existsById(principal)){
+                throw new StudentNotFoundException("Student " + principal + " not found");
+            }
+            if(!studentRepository.getOne(principal).getCourses().contains(a.getCourse())){
+                throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course with the requested assignment");
+            }
+        }
+        else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+            if(!professorRepository.existsById(principal)){
+                throw new ProfessorNotFoundException("Professor " + principal + " not found");
+            }
+            if(!professorRepository.getOne(principal).getCourses().contains(a.getCourse())){
+                throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course with the requested assignment");
+            }
+        }
         return modelMapper.map(a, AssignmentDTO.class);
-
     }
 
     @Override
@@ -1064,6 +1092,28 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public List<AssignmentDTO> getByCourse(CourseDTO c){
+        if(!courseRepository.existsById(c.getName())){
+            throw new CourseNotFoundException("Course " + c.getName() + " not found");
+        }
+        Course course = courseRepository.getOne(c.getName());
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+            if(!studentRepository.existsById(principal)){
+                throw new StudentNotFoundException("Student " + principal + " not found");
+            }
+            if(!studentRepository.getOne(principal).getCourses().contains(c)){
+                throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course " + course.getName());
+            }
+        }
+        else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+            if(!professorRepository.existsById(principal)){
+                throw new ProfessorNotFoundException("Professor " + principal + " not found");
+            }
+            if(!professorRepository.getOne(principal).getCourses().contains(c)){
+                throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + course.getName());
+            }
+        }
         return assignmentRepository.getAssignmentsForCourse(c.getName())
                 .stream()
                 .map(a -> modelMapper.map(a, AssignmentDTO.class))
@@ -1074,6 +1124,27 @@ public class TeamServiceImpl implements TeamService {
     public List<AssignmentDTO> getByProfessor(ProfessorDTO p){
         return assignmentRepository.getAssignmentsForProfessor(p.getId())
                 .stream()
+                .filter(a -> {
+                    String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+                    Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+                    if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+                        if(!studentRepository.existsById(principal)){
+                            throw new StudentNotFoundException("Student " + principal + " not found");
+                        }
+                        if(!studentRepository.getOne(principal).getCourses().contains(a.getCourse())){
+                            return false;
+                        }
+                    }
+                    else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+                        if(!professorRepository.existsById(principal)){
+                            throw new ProfessorNotFoundException("Professor " + principal + " not found");
+                        }
+                        if(!professorRepository.getOne(principal).getCourses().contains(a.getCourse())){
+                            return false;
+                        }
+                    }
+                    return true;
+                })
                 .map(a -> modelMapper.map(a, AssignmentDTO.class))
                 .collect(Collectors.toList());
     }

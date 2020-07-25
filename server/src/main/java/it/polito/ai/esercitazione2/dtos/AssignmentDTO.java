@@ -3,7 +3,6 @@ package it.polito.ai.esercitazione2.dtos;
 import lombok.Data;
 import org.springframework.hateoas.RepresentationModel;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.sql.Timestamp;
 
@@ -11,11 +10,7 @@ import java.sql.Timestamp;
 public class AssignmentDTO extends RepresentationModel<AssignmentDTO> {
 
     @NotBlank
-    Integer number;
-    @Valid
-    CourseDTO course;
-    @Valid
-    ProfessorDTO professor;
+    Integer id;
     @NotBlank
     Timestamp releaseDate;
     @NotBlank

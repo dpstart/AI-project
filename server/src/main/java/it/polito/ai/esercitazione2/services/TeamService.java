@@ -96,10 +96,11 @@ public interface TeamService {
 
     // Assignments
     @PreAuthorize("hasRole('PROFESSOR')")
-    boolean addAssignment(AssignmentDTO a, MultipartFile file);
+    boolean addAssignment(AssignmentDTO a, MultipartFile file, String courseId);
     @PreAuthorize("hasRole('PROFESSOR')")
     boolean removeAssignment(Integer id);
     AssignmentDTO getAssignment(Integer id);
+    @PreAuthorize("hasRole('ADMIN')")
     List<AssignmentDTO> getAllAssignments();
     List<AssignmentDTO> getByCourse(CourseDTO c);
     List<AssignmentDTO> getByProfessor(ProfessorDTO p);
