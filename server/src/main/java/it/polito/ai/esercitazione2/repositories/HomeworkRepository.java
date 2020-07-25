@@ -9,8 +9,10 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface HomeworkRepository extends JpaRepository<Homework, Integer> {
-    @Query("SELECT h FROM Homework h WHERE h.assignment=:assignment")
-    List<Homework> getHomeworkByAssignment(Assignment assignment);
-    @Query("SELECT h FROM Homework h WHERE h.student=:student")
-    List<Homework> getHomeworkByStudent(Student student);
+    @Query("SELECT h FROM Homework h WHERE h.assignment.id=:assignmentId")
+    List<Homework> getHomeworksByAssignment(Integer assignmentId);
+    @Query("SELECT h FROM Homework h WHERE h.student.id=:studentId")
+    List<Homework> getHomeworksByStudent(String studentId);
+    @Query("SELECT h FROM Homework h WHERE h.student.id=:studentId AND h.assignment.id=:assignmentId")
+    Homework getHomeworkByStudentAndAssignment(String studentId, Integer assignmentId);
 }

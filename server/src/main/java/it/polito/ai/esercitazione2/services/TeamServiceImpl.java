@@ -10,8 +10,6 @@ import net.minidev.json.JSONObject;
 import org.apache.commons.text.RandomStringGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.bind.DefaultValue;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,7 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -30,6 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Reader;
 
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
@@ -79,6 +77,9 @@ public class TeamServiceImpl implements TeamService {
 
     @Autowired
     AssignmentRepository assignmentRepository;
+    
+    @Autowired
+    HomeworkRepository homeworkRepository;
 
     WebClient w = WebClient.create("http://localhost:8080");
 
@@ -1069,6 +1070,12 @@ public class TeamServiceImpl implements TeamService {
             throw new ImageException("Assignment content didn't load on database correctly");
         Assignment assignment = modelMapper.map(a, Assignment.class);
         assignment.setCourse(c);
+        for(Student s : assignment.getCourse().getStudents()){
+            Homework h = new Homework();
+            h.setAssignment(assignment);
+            h.setStudent(s);
+            homeworkRepository.save(h);
+        }
         assignment.setProfessor(professorRepository.getOne(professor));
         assignmentRepository.save(assignment);
         return true;
@@ -1078,7 +1085,9 @@ public class TeamServiceImpl implements TeamService {
     public boolean removeAssignment(Integer id) {
         if(!assignmentRepository.existsById(id))
             return true;
-        if(assignmentRepository.getOne(id).getHomeworks().size()>0)
+        if(assignmentRepository.getOne(id).getHomeworks().stream().filter(
+                h -> h.getState()!= Homework.states.unread
+        ).collect(Collectors.toList()).size()>0)
             return false;
         assignmentRepository.delete(assignmentRepository.getOne(id));
         return true;
@@ -1097,6 +1106,11 @@ public class TeamServiceImpl implements TeamService {
             }
             if(!studentRepository.getOne(principal).getCourses().contains(a.getCourse())){
                 throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course with the requested assignment");
+            }
+            Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, a.getId());
+            if(h.getState() == Homework.states.unread) {
+                h.setState(Homework.states.read);
+                homeworkRepository.save(h);
             }
         }
         else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
@@ -1119,18 +1133,19 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+
     public List<AssignmentDTO> getByCourse(CourseDTO c){
         if(!courseRepository.existsById(c.getName()) && !courseRepository.existsByAcronime(c.getAcronime())){
             throw new CourseNotFoundException("Course " + c.getName() + " not found");
-        }
-        Course course = courseRepository.getOne(c.getName());
+
+        Course course = courseRepository.getOne(courseId);
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
         Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
             if(!studentRepository.existsById(principal)){
                 throw new StudentNotFoundException("Student " + principal + " not found");
             }
-            if(!studentRepository.getOne(principal).getCourses().contains(c)){
+            if(!studentRepository.getOne(principal).getCourses().contains(courseId)){
                 throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course " + course.getName());
             }
         }
@@ -1138,19 +1153,19 @@ public class TeamServiceImpl implements TeamService {
             if(!professorRepository.existsById(principal)){
                 throw new ProfessorNotFoundException("Professor " + principal + " not found");
             }
-            if(!professorRepository.getOne(principal).getCourses().contains(c)){
+            if(!professorRepository.getOne(principal).getCourses().contains(courseId)){
                 throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + course.getName());
             }
         }
-        return assignmentRepository.getAssignmentsForCourse(c.getName())
+        return assignmentRepository.getAssignmentsForCourse(courseId)
                 .stream()
                 .map(a -> modelMapper.map(a, AssignmentDTO.class))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<AssignmentDTO> getByProfessor(ProfessorDTO p){
-        return assignmentRepository.getAssignmentsForProfessor(p.getId())
+    public List<AssignmentDTO> getByProfessor(String professorId){
+        return assignmentRepository.getAssignmentsForProfessor(professorId)
                 .stream()
                 .filter(a -> {
                     String principal = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -1175,6 +1190,86 @@ public class TeamServiceImpl implements TeamService {
                 })
                 .map(a -> modelMapper.map(a, AssignmentDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AssignmentDTO> getByStudent(String studentId){
+        if(!studentRepository.existsById(studentId)){
+            throw new StudentNotFoundException("Student " + studentId + " not found");
+        }
+        Student s = studentRepository.getOne(studentId);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(principal != studentId && !roles.contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+            throw new UserUnathorizedException("User " + principal + " is not authorized to view assignments of student " + studentId);
+        return s.getCourses()
+                .stream()
+                .flatMap(c -> c.getAssignments().stream())
+                .map(a -> modelMapper.map(a, AssignmentDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    //Homeworks
+    @Override
+    public void uploadHomework(Integer assignmentId, MultipartFile file){
+        if(!assignmentRepository.existsById(assignmentId))
+            throw new AssignmentNotFoundException("Assignment " + assignmentId + " not found");
+        Assignment a = assignmentRepository.getOne(assignmentId);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+            if(!studentRepository.existsById(principal)){
+                throw new StudentNotFoundException("Student " + principal + " not found");
+            }
+            if(!studentRepository.getOne(principal).getCourses().contains(a.getCourse())){
+                throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course " + a.getCourse().getName());
+            }
+        }
+        else if(!roles.contains(new SimpleGrantedAuthority("ROLE_ADMIN"))){
+            throw new StudentNotFoundException("User " + principal + " is not authorized to upload homeworks for the current assignment");
+        }
+        Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, assignmentId);
+        if(h.getIsFinal())
+            throw new IllegalHomeworkStateChangeException("Homework is flagged as final, you can't upload a newer version");
+        if(h.getState() == Homework.states.delivered)
+            throw new IllegalHomeworkStateChangeException("You already delivered this homework, wait for the professor to review it");
+        Image img = null;
+        try {
+            img = imageRepository.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
+        }
+        catch (IOException e) {
+            throw new ImageException("Homework content didn't load on database correctly");
+        }
+        h.getVersionIds().add(img.getName());
+        h.getVersionDates().add(new Timestamp(System.currentTimeMillis()));
+        h.setState(Homework.states.delivered);
+        homeworkRepository.save(h);
+    }
+
+    @Override
+    public HomeworkDTO getHomework(Integer id){
+        if(!homeworkRepository.existsById(id))
+            throw new HomeworkNotFoundException("Homework " + id + " not found");
+        Homework h = homeworkRepository.getOne(id);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+            if(!studentRepository.existsById(principal)){
+                throw new StudentNotFoundException("Student " + principal + " not found");
+            }
+            if(!studentRepository.getOne(principal).equals(h.getStudent())){
+                throw new StudentNotFoundException("Student " + principal + " is not the owner of this homework");
+            }
+        }
+        else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+            if(!professorRepository.existsById(principal)){
+                throw new ProfessorNotFoundException("Professor " + principal + " not found");
+            }
+            if(!professorRepository.getOne(principal).getCourses().contains(h.getAssignment().getCourse())){
+                throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + h.getAssignment().getCourse().getName());
+            }
+        }
+        return modelMapper.map(h, HomeworkDTO.class);
     }
 
 }
