@@ -102,6 +102,13 @@ public interface TeamService {
     AssignmentDTO getAssignment(Integer id);
     @PreAuthorize("hasRole('ADMIN')")
     List<AssignmentDTO> getAllAssignments();
-    List<AssignmentDTO> getByCourse(CourseDTO c);
-    List<AssignmentDTO> getByProfessor(ProfessorDTO p);
+    List<AssignmentDTO> getByCourse(String courseId);
+    List<AssignmentDTO> getByProfessor(String professorId);
+    List<AssignmentDTO> getByStudent(String studentId);
+
+    //Homeworks
+    void uploadHomework(Integer assignmentId, MultipartFile file);
+    HomeworkDTO getHomework(Integer id);
+
+
 }
