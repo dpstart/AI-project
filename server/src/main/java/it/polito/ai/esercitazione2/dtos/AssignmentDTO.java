@@ -9,7 +9,6 @@ import java.sql.Timestamp;
 @Data
 public class AssignmentDTO extends RepresentationModel<AssignmentDTO> {
 
-    @NotBlank
     Integer id;
     @NotBlank
     Timestamp releaseDate;
