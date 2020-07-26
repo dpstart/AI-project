@@ -39,14 +39,10 @@ export class VMComponent implements OnInit {
 
     ngOnInit(): void {
 
-        this.teacher.getSelectedCourse().subscribe(course => {
-            this.teacher.getTeams(course["name"]).subscribe((data: Team[]) => {
-                this.dataSource.data = data;
-
-                this.getVMs();
-            })
-        }
-        )
+        this.teacher.getTeams(this.teacher.getSelectedCourse()).subscribe((data: Team[]) => {
+            this.dataSource.data = data;
+            this.getVMs();
+        })
     }
 
 }

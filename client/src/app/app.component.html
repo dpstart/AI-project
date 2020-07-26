@@ -17,7 +17,8 @@
 
 <mat-toolbar color="primary">
   <mat-toolbar-row>
-    <button type="button" aria-label="Toggle sidenav" mat-icon-button (click)="toggleForMenuClick()">
+    <button type="button" aria-label="Toggle sidenav" mat-icon-button *ngIf="isLoggedIn()"
+      (click)="toggleForMenuClick()">
       <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
     </button>
     <span> <a routerLink="/home">VirtualLabs</a></span>
@@ -48,15 +49,32 @@
 
   <mat-sidenav-content>
 
-    <nav mat-tab-nav-bar>
-      <a mat-tab-link (click)="goToStudentsBar()" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
-        Students
-      </a>
-      <a mat-tab-link (click)="goToVMBar()" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
-        VM
-      </a>
-    </nav>
+    <div *ngIf="isRoleTeacher() && isLoggedIn();">
+      <nav mat-tab-nav-bar>
+        <a mat-tab-link (click)="goToStudentsBar()" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
+          Students
+        </a>
+        <a mat-tab-link (click)="goToVMBar()" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
+          VM
+        </a>
+      </nav>
+  
+    </div>
+    
+
+
+    <div *ngIf="isRoleStudent() && isLoggedIn();">
+
+      <p>Sono uno studente</p>
+    </div>
+
+
+
+
+
     <router-outlet></router-outlet>
+
+
     <!-- <nav mat-tab-nav-bar>
       <a mat-tab-link
          *ngFor="let link of navLinks"

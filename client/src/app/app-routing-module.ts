@@ -8,14 +8,28 @@ import { PageNotFoundComponent } from './page-not-found.component';
 import { StudentsContComponent } from './teacher/students-cont.component';
 
 import { TeacherGuard } from './auth/teacher.guard';
+import { StudentGuard } from './auth/student.guard';
 
 
 const routes: Routes = [
 
     {
-        path: "teacher/course", canActivate: [TeacherGuard], children: [
-            { path: ':course_name/students', component: StudentsContComponent },
-            { path: ':course_name/vms', component: VMComponent },
+        path: 'student',
+        canActivate: [StudentGuard],
+        children: 
+        [
+            // { path: 'teams', component:  },
+            // { path: 'vms', component:  },
+
+        ]
+
+    },
+    {
+        path: "teacher",
+        canActivate: [TeacherGuard],
+        children: [
+            { path: 'course/:course_name/students', component: StudentsContComponent },
+            { path: 'course/:course_name/vms', component: VMComponent },
         ]
     },
     { path: 'home', component: HomeComponent },

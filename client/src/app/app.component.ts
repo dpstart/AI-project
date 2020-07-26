@@ -59,9 +59,10 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild(MatSidenav) sidenav: MatSidenav;
 
   ngOnInit() {
-    this.teacher.getCourses().subscribe(data => {
-      this.courses = data;
-    });
+    if (this.auth.isLoggedIn())
+      this.teacher.getCourses().subscribe(data => {
+        this.courses = data;
+      });
 
   }
 
@@ -78,10 +79,23 @@ export class AppComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
 
-      if (redirectUrl == null || !this.auth.isLoggedIn())
-        this.router.navigate(["home"]);
-      else this.router.navigate([redirectUrl]);
+      if (!this.auth.isLoggedIn()) {
 
+        this.router.navigate(["home"]);
+
+      }
+      else {
+        // user is logged
+        this.teacher.getCourses().subscribe(data => {
+          this.courses = data;
+        });
+
+        if (redirectUrl == null)
+          this.router.navigate(["home"]);
+        else
+          this.router.navigate([redirectUrl]);
+
+      }
 
     });
   }
@@ -104,6 +118,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
   logout() {
     this.auth.logout();
+    this.router.navigate(["home"])
+    this.sidenav.close()
+  }
+
+  isRoleTeacher() {
+    return this.auth.isRoleTeacher()
+  }
+  isRoleStudent() {
+    return this.auth.isRoleStudent()
   }
 
 }
