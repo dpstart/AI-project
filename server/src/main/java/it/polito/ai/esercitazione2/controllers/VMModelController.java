@@ -44,7 +44,7 @@ public class VMModelController {
     }
 
     @PostMapping("/{id}/model")  // ragionare su se è più logico accedere direttamente a qualuenue team perdendo il riferimento al corso oppure /APU/courses/PDS/{teamID}
-    void defineVMmodelForATeam(@PathVariable Long id, @RequestBody Map<String,String> input){
+    void defineVMmodelForACourse(@PathVariable String id, @RequestBody Map<String,String> input){
         if (!input.containsKey("model") || input.keySet().size()>1){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Expected one parameter: usage 'model':<modelName>");
         }

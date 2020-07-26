@@ -26,6 +26,10 @@ public class Course {
     @JoinTable(name="course_professor",joinColumns = @JoinColumn(name="course_name"),inverseJoinColumns = @JoinColumn(name="professor_id"))
     List<Professor> professors = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name="VMModel_name")
+    VMModel vm_model;
+
     @ManyToMany(mappedBy = "courses")
     List<Student> students = new ArrayList<>();
     @OneToMany(mappedBy="course",cascade = CascadeType.ALL, orphanRemoval = true)
@@ -74,6 +78,21 @@ public class Course {
     public void removeAssignment(@NonNull Assignment a){
         assignments.remove(a);
     }
+
+    public void setVm_model(VMModel vm){
+        if (this.vm_model!=vm)
+            this.vm_model = vm;
+
+
+        if (vm!=null && !vm.getCourses().contains(this))
+            vm.getCourses().add(this);
+
+        if (vm==null){
+            vm.getCourses().remove(this);
+        }
+
+    }
+
 
 
 }

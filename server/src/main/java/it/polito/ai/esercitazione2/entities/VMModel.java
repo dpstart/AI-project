@@ -14,17 +14,17 @@ public class VMModel {
     String name;
 
     @OneToMany(mappedBy="vm_model",cascade = CascadeType.ALL, orphanRemoval = true)
-    List<Team> teams = new ArrayList<>();
+    List<Course> courses = new ArrayList<>();
     // TO DO: add other attributes
 
-    public void addTeam(Team t){
-        teams.add(t);
-        t.setVm_model(this);
+    public void addCourse(Course c){
+        courses.add(c);
+        c.setVm_model(this);
 
     }
 
-    public void removeStudent(Team t){
-        teams.removeIf(x->x.getId().equals(t.getId()));
-        t.setVm_model(null);
+    public void removeStudent(Course c){
+        courses.removeIf(x->x.getName().equals(c.getName()));
+        c.setVm_model(null);
     }
 }

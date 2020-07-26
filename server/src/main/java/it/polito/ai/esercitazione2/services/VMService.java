@@ -17,7 +17,8 @@ public interface VMService {
     @PreAuthorize("hasRole('ADMIN')")
     boolean createVMModel(String modelName);
 
-    void defineVMModel(Long teamID,String modelName);
+    @PreAuthorize("hasRole('STUDENT')")
+    void defineVMModel(String teamID,String modelName);
     VMDTO createVM(Long teamID, MultipartFile file, SettingsDTO settings);
     VMDTO getVM(Long teamID);
     List<VMDTO> getVMByTeam(Long teamID);

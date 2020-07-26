@@ -66,18 +66,18 @@ public class VMServiceImpl implements VMService {
     }
 
     @Override
-    public void defineVMModel(Long teamId, String modelName){
+    public void defineVMModel(String courseId, String modelName){
         String creator = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        if (!teamRepository.existsById(teamId))
-            throw new TeamNotFoundException("Team: "+teamId + " not found!");
+        if (!courseRepository.existsById(courseId))
+            throw new CourseNotFoundException("course: "+courseId + " not found!");
 
-        Team t = teamRepository.getOne(teamId);
+        Course c = courseRepository.getOne(courseId);
 
-        if (!t.getMembers().stream().anyMatch(x->x.getId().equals(creator)))
-            throw new AuthorizationServiceException("Unauthorized to create VM's instances for this team");
+        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(creator)))
+            throw new AuthorizationServiceException("Unauthorized to create VM's instances for this course");
 
-        if (t.getVm_model()!=null && t.getVMs().size()>0)
+        if (c.getVm_model()!=null && c.getTeams().stream().anyMatch(x->x.getVMs().size()>0))
             throw new IncoherenceException("Impossible to change the VM model for a group with already instantiated VMs");
 
         if (!vmModelRepository.existsById(modelName)){
@@ -85,8 +85,8 @@ public class VMServiceImpl implements VMService {
         }
 
         VMModel vm=vmModelRepository.getOne(modelName);
-        t.setVm_model(vm);
-        teamRepository.save(t);
+        c.setVm_model(vm);
+        courseRepository.save(c);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class VMServiceImpl implements VMService {
         if (!t.getMembers().stream().anyMatch(x->x.getId().equals(creator)))
             throw new AuthorizationServiceException("Unauthorized to create VM's instances for this team");
 
-        if (t.getVm_model()==null)
+        if (t.getCourse().getVm_model()==null)
             throw new VMModelNotDefinedException("Impossible to create an instance of VM without a defined model");
 
 
