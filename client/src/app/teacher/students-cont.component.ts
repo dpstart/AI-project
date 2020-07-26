@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { StudentService } from '../services/student.service';
 import { ActivatedRoute } from '@angular/router';
+import { TeacherService } from '../services/teacher.service';
 
 
 @Component({
@@ -26,7 +27,7 @@ export class StudentsContComponent implements OnInit {
   course;
 
 
-  constructor(private http: HttpClient, private service: StudentService, private route: ActivatedRoute) {
+  constructor(private http: HttpClient, private service: StudentService, private route: ActivatedRoute, private teacher: TeacherService) {
     // this.getJSON(this._jsonURLenrolled).subscribe(data => {
     //   this.enrolledStudents.data = data;
     // });
@@ -35,19 +36,26 @@ export class StudentsContComponent implements OnInit {
 
   ngOnInit() {
 
-    this.course = this.route.snapshot.params['course_name'];
+
+    this.route.params.subscribe(params => {
+      if (params["course_name"]) {
+        let course = params["course_name"];
+
+        this.teacher.setCourse(course);
 
 
-    this.service.getStudentsInCourse<Student[]>(this.course).subscribe(data => {
-      this.allStudents = data;
-      this.isAllStudentsLoaded = true;
-    });
+        this.service.getStudentsInCourse<Student[]>(course).subscribe(data => {
+          this.allStudents = data;
+          this.isAllStudentsLoaded = true;
+        });
 
 
-    this.service.getStudentsInCourse<Student[]>(this.course).subscribe(data => {
-      this.enrolledStudents = data;
-      this.isEnrolledStudentsLoaded = true;
-    });
+        this.service.getStudentsInCourse<Student[]>(course).subscribe(data => {
+          this.enrolledStudents = data;
+          this.isEnrolledStudentsLoaded = true;
+        });
+      }
+    })
 
   }
 

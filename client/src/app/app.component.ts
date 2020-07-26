@@ -19,8 +19,6 @@ export class AppComponent implements OnInit, OnDestroy {
   courses;
   selectedCourse;
 
-  subscription: Subscription
-
 
   constructor(public dialog: MatDialog, private auth: AuthService, private router: Router, private route: ActivatedRoute,
     private teacher: TeacherService) {
@@ -47,16 +45,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
   selectCourse(course) {
 
-    this.teacher.selectCourse(course);
     this.router.navigate(['teacher', 'course', course.name, 'students']);
   }
 
   goToStudentsBar() {
-    this.router.navigate(['teacher', 'course', this.selectedCourse.name, 'students']);
+    this.router.navigate(['teacher', 'course', this.teacher.getSelectedCourse(), 'students']);
   }
 
   goToVMBar() {
-    this.router.navigate(['teacher', 'course', this.selectedCourse.name, 'vms']);
+    this.router.navigate(['teacher', 'course', this.teacher.getSelectedCourse(), 'vms']);
   }
 
   @ViewChild(MatSidenav) sidenav: MatSidenav;
@@ -66,12 +63,9 @@ export class AppComponent implements OnInit, OnDestroy {
       this.courses = data;
     });
 
-    this.subscription = this.teacher.getSelectedCourse().subscribe(course => { this.selectedCourse = course; })
-
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
   }
 
 
