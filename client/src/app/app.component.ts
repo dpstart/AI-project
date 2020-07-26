@@ -19,8 +19,6 @@ export class AppComponent implements OnInit, OnDestroy {
   courses;
   selectedCourse;
 
-  subscription: Subscription
-
 
   constructor(public dialog: MatDialog, private auth: AuthService, private router: Router, private route: ActivatedRoute,
     private teacher: TeacherService) {
@@ -47,31 +45,28 @@ export class AppComponent implements OnInit, OnDestroy {
 
   selectCourse(course) {
 
-    this.teacher.selectCourse(course);
     this.router.navigate(['teacher', 'course', course.name, 'students']);
   }
 
   goToStudentsBar() {
-    this.router.navigate(['teacher', 'course', this.selectedCourse.name, 'students']);
+    this.router.navigate(['teacher', 'course', this.teacher.getSelectedCourse(), 'students']);
   }
 
   goToVMBar() {
-    this.router.navigate(['teacher', 'course', this.selectedCourse.name, 'vms']);
+    this.router.navigate(['teacher', 'course', this.teacher.getSelectedCourse(), 'vms']);
   }
 
   @ViewChild(MatSidenav) sidenav: MatSidenav;
 
   ngOnInit() {
-    this.teacher.getCourses().subscribe(data => {
-      this.courses = data;
-    });
-
-    this.subscription = this.teacher.getSelectedCourse().subscribe(course => { this.selectedCourse = course; })
+    if (this.auth.isLoggedIn())
+      this.teacher.getCourses().subscribe(data => {
+        this.courses = data;
+      });
 
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
   }
 
 
@@ -84,10 +79,23 @@ export class AppComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
 
-      if (redirectUrl == null || !this.auth.isLoggedIn())
-        this.router.navigate(["home"]);
-      else this.router.navigate([redirectUrl]);
+      if (!this.auth.isLoggedIn()) {
 
+        this.router.navigate(["home"]);
+
+      }
+      else {
+        // user is logged
+        this.teacher.getCourses().subscribe(data => {
+          this.courses = data;
+        });
+
+        if (redirectUrl == null)
+          this.router.navigate(["home"]);
+        else
+          this.router.navigate([redirectUrl]);
+
+      }
 
     });
   }
@@ -110,6 +118,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
   logout() {
     this.auth.logout();
+    this.router.navigate(["home"])
+    this.sidenav.close()
+  }
+
+  isRoleTeacher() {
+    return this.auth.isRoleTeacher()
+  }
+  isRoleStudent() {
+    return this.auth.isRoleStudent()
   }
 
 }

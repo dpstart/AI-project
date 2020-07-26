@@ -32,10 +32,10 @@ export class TeacherService {
 
     URL = "http://localhost:4200/API"
 
-    selectedCourse = new ReplaySubject(1);
+    selectedCourse: string;
 
-    selectCourse(course) {
-        this.selectedCourse.next(course);
+    setCourse(course) {
+        this.selectedCourse = course;
     }
 
     getSelectedCourse() {
