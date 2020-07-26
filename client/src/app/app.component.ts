@@ -6,7 +6,7 @@ import { AuthService } from './services/auth.service';
 import { Router, Event, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { TeacherService } from './services/teacher.service';
 import { RegisterDialogComponent } from './auth/register-dialog.component';
-import { Subscription } from 'rxjs';
+import { Course } from './model/course.model';
 
 
 @Component({
@@ -16,7 +16,7 @@ import { Subscription } from 'rxjs';
 })
 export class AppComponent implements OnInit, OnDestroy {
 
-  courses;
+  courses: Course[];
   selectedCourse;
 
 
@@ -56,12 +56,18 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.navigate(['teacher', 'course', this.teacher.getSelectedCourse(), 'vms']);
   }
 
+  goToHomeworkBar() {
+    this.router.navigate(['teacher', 'course', this.teacher.getSelectedCourse(), 'homework']);
+
+  }
+
   @ViewChild(MatSidenav) sidenav: MatSidenav;
 
   ngOnInit() {
     if (this.auth.isLoggedIn())
-      this.teacher.getCourses().subscribe(data => {
+      this.teacher.getCourses().subscribe((data:Course[]) => {
         this.courses = data;
+        this.teacher.setCourse(this.courses[0].name)
       });
 
   }
@@ -86,7 +92,7 @@ export class AppComponent implements OnInit, OnDestroy {
       }
       else {
         // user is logged
-        this.teacher.getCourses().subscribe(data => {
+        this.teacher.getCourses().subscribe((data:Course[]) => {
           this.courses = data;
         });
 

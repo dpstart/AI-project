@@ -4,6 +4,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Student } from '../model/student.model';
 import { Team } from '../model/team.model';
 import { catchError } from 'rxjs/operators';
+import { Course } from '../model/course.model';
 
 
 
@@ -42,16 +43,16 @@ export class TeacherService {
         return this.selectedCourse;
     }
 
-    getCourses<T>(): Observable<T> {
+    getCourses<Course>(): Observable<Course[]> {
 
         const url = `${this.URL}/courses`;
-        return this.http.get<T>(url);
+        return this.http.get<Course[]>(url);
     }
 
-    getCourse<T>(name: string): Observable<T> {
+    getCourse<Course>(name: string): Observable<Course> {
 
         const url = `${this.URL}/courses/${name}`;
-        return this.http.get<T>(url);
+        return this.http.get<Course>(url);
     }
 
     getTeams<Team>(course: string): Observable<Team[]> {

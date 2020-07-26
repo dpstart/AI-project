@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { TeacherService } from '../services/teacher.service';
-import { Team } from '../model/team.model';
+import { TeacherService } from '../../services/teacher.service';
+import { Team } from '../../model/team.model';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 
 
 @Component({
     selector: 'app-vm',
     templateUrl: './vm.component.html',
-    styles: [],
+    styleUrls: ['./vm.component.css'],
     animations: [
         trigger('detailExpand', [
             state('collapsed', style({ height: '0px', minHeight: '0' })),
