@@ -14,8 +14,11 @@ public interface VMService {
     List<VMModelDTO> getVMModels();
     VMModelDTO getVMModel(String modelName);
 
+
     @PreAuthorize("hasRole('ADMIN')")
     boolean createVMModel(String modelName);
+    @PreAuthorize("hasRole('ADMIN')")
+    boolean removeVMModel(String modelName);
 
     @PreAuthorize("hasRole('STUDENT')")
     void defineVMModel(String teamID,String modelName);

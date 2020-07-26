@@ -66,6 +66,18 @@ public class VMServiceImpl implements VMService {
     }
 
     @Override
+    public boolean removeVMModel(String modelName) {
+        if (!vmModelRepository.existsById(modelName)){
+            return false;
+        }
+        VMModel vmModel = vmModelRepository.getOne(modelName);
+        if (vmModel.getCourses().stream().flatMap(x->x.getTeams()).anyMatch(x->x.getVms().size()>0))
+            throw new IncoherenceException("Impossible to remove a VM model for which a VM instance has already been created");
+        vmModelRepository.delete(vmModel);
+        return true;
+    }
+
+    @Override
     public void defineVMModel(String courseId, String modelName){
         String creator = SecurityContextHolder.getContext().getAuthentication().getName();
 

@@ -171,6 +171,10 @@ public class ModelHelper {
                 .getVMModel(vmm.getName())).withSelfRel();
         vmm.add(self);
 
+        Link delete = linkTo(methodOn(VMModelController.class)
+                .removeVMModel(vmm.getName())).withRel("delete");
+        vmm.add(delete);
+
         return vmm;
     }
 

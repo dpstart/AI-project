@@ -33,6 +33,15 @@ public class VMModelController {
         return ModelHelper.enrich(vmservice.getVMModel(name));
     }
 
+    @GetMapping("/{name}")
+    boolean removeVMModel(@PathVariable String name){
+        try {
+            return vmservice.removeVMModel(name);
+        }catch (IncoherenceException e){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
+    }
+
     @PostMapping("/")
     @ResponseStatus(HttpStatus.OK)
     void createVMModel(@RequestBody Map<String,String> modelName){
