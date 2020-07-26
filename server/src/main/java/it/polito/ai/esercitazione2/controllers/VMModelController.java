@@ -33,7 +33,7 @@ public class VMModelController {
         return ModelHelper.enrich(vmservice.getVMModel(name));
     }
 
-    @GetMapping("/{name}")
+    @GetMapping("/{name}/remove")
     boolean removeVMModel(@PathVariable String name){
         try {
             return vmservice.removeVMModel(name);
