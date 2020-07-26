@@ -1,0 +1,36 @@
+<mat-card>
+    <mat-card-title>Login</mat-card-title>
+    <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="submit()">
+
+            <p>
+                <mat-form-field>
+                    <input required type="text" matInput placeholder="RAM" formControlName="ram">
+                </mat-form-field>
+            </p>
+
+            <p>
+                <mat-form-field>
+                    <input required type="text" matInput placeholder="Disk space" formControlName="disk_space">
+                </mat-form-field>
+            </p>
+
+            <p>
+                <mat-form-field>
+                    <input required type="text" matInput placeholder="N. CPU" formControlName="n_cpu">
+                </mat-form-field>
+            </p>
+
+            <p *ngIf="error" class="error">
+                {{ error }}
+            </p>
+
+            <div>
+                <button mat-raised-button color="primary">Login</button>
+                <button (click)="close()" class="cancel" mat-raised-button>Cancel</button>
+            </div>
+
+
+        </form>
+    </mat-card-content>
+</mat-card>

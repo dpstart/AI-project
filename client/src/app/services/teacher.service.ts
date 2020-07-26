@@ -64,7 +64,7 @@ export class TeacherService {
 
     getVMs<T>(team: number): Observable<T> {
 
-        const url = `${this.URL}/vms/${team}`;
+        const url = `${this.URL}/vms/teams/${team}`;
         return this.http.get<T>(url);
 
     }

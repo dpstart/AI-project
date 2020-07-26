@@ -68,6 +68,7 @@ import { HomeworkComponent } from './teacher/homework/homework.component';
     AppRoutingModule,
     MatDialogModule,
     MatCardModule,
+    MatFormFieldModule
   ],
   entryComponents: [LoginDialogComponent],
   providers: [

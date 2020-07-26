@@ -1,8 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { TeacherService } from '../../services/teacher.service';
 import { Team } from '../../model/team.model';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { EditTeamDialog } from './edit.component';
+
 
 
 @Component({
@@ -20,28 +23,39 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 export class VMComponent implements OnInit {
 
     columnsToDisplay: string[] = ['actions', 'name', 'id', 'disk_space', 'ram'];
-    dataSource: MatTableDataSource<Team> = new MatTableDataSource<Team>();
+    innerDisplayedColumns = ['id', 'n_cpu', 'disk_space', 'ram', 'status'];
+    dataSourceTeams: MatTableDataSource<any> = new MatTableDataSource<any>();
 
     expandedElement: Team | null;
 
 
-    constructor(private teacher: TeacherService) { }
 
-    getVMs() {
+    constructor(private teacher: TeacherService, private dialog: MatDialog) { }
 
-        this.dataSource.data.forEach(element => {
+    openEditDialog(element, event): void {
 
-            this.teacher.getVMs(element.id).subscribe(data => console.log(data))
-
+        console.log(element);
+        const dialogRef = this.dialog.open(EditTeamDialog, {
+            width: '250px',
+            data: { team: element }
         });
-
+        event.stopPropagation();
     }
 
     ngOnInit(): void {
 
         this.teacher.getTeams(this.teacher.getSelectedCourse()).subscribe((data: Team[]) => {
-            this.dataSource.data = data;
-            this.getVMs();
+
+            data.forEach((element, i) => {
+
+                let team_id = element["id"];
+                this.teacher.getVMs(team_id).subscribe(vms => {
+                    data[i]["vms"] = vms;
+                })
+
+            });
+
+            this.dataSourceTeams.data = data;
         })
     }
 
