@@ -1,18 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Observable, throwError, Subject, ReplaySubject } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Student } from '../model/student.model';
-import { Team } from '../model/team.model';
-import { catchError } from 'rxjs/operators';
-import { Course } from '../model/course.model';
 
-
+export interface NavTeacherLinks {
+    link: String;
+    label: String;
+}
 
 @Injectable({
     providedIn: 'root'
 })
 export class TeacherService {
-
     private handleError(error: HttpErrorResponse) {
         if (error.error instanceof ErrorEvent) {
             // A client-side or network error occurred. Handle it accordingly.
@@ -29,7 +27,20 @@ export class TeacherService {
             'Something bad happened; please try again later.');
     };
 
-    constructor(private http: HttpClient) { }
+
+    //tabs of the teacher
+    private navTeacherLinks: NavTeacherLinks[];
+
+
+
+    constructor(private http: HttpClient) {
+        this.navTeacherLinks = [{ link: 'students', label: 'Students' }, { link: 'vms', label: 'VMs' }, { link: 'homework', label: 'Elaborati' }]
+    }
+
+
+    getNavTeacherLinks(){
+        return this.navTeacherLinks
+    }
 
     URL = "http://localhost:4200/API"
 
