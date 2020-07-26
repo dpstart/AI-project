@@ -170,6 +170,11 @@ public class TeamServiceImpl implements TeamService {
         Course c = courseRepository.getOne(courseName);
         if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)))
             throw new CourseAuthorizationException("Professor "+prof+ "has not the rights to modify this course");
+
+        //stop all Virtual machines of this course
+        c.getTeams().stream().flatMap(x->x.getVMs().stream()).forEach(
+                x->{x.setStatus(0); vmRepository.save(x);}
+        );
         c.setEnabled(false);
     }
 

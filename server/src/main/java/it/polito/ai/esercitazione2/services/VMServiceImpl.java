@@ -185,6 +185,7 @@ public class VMServiceImpl implements VMService {
         vmRepository.save(vm);
 
     }
+
     @Override
     public Image connectToVM(Long vmID){
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -241,8 +242,6 @@ public class VMServiceImpl implements VMService {
         if (vm.getStatus()==0){
             throw new VMAlreadyInExecutionException("It's not possible to stop a not running machine");
         }
-
-        Team t= vm.getTeam();
 
         vm.setStatus(0);
         vmRepository.save(vm);
