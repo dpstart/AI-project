@@ -58,7 +58,8 @@ public class JwtAuthenticationController {
         List<GrantedAuthority> auth = new ArrayList<>();
         auth.add(new SimpleGrantedAuthority(role));
 
-        UserDetails user = new User(id, pwd, auth);
+        //TO DO: check
+        UserDetails user = new User(id,pwd,false,true,true,true,auth);
         try {
             jdbcUserDetailsManager.createUser(user);
         }
@@ -83,13 +84,53 @@ public class JwtAuthenticationController {
             List<GrantedAuthority> auth = new ArrayList<>();
             auth.add(new SimpleGrantedAuthority(role));
 
-
-            UserDetails user = new User(id, pwd, auth);
+            //TO DO: check
+            UserDetails user = new User(id,pwd,false,true,true,true,auth);
             try {
                 jdbcUserDetailsManager.createUser(user);
             }
             catch(Exception e){
                // throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Problems with the insertion of a new user");
+                return ResponseEntity.ok(false);
+            }
+        }
+        return ResponseEntity.ok(true);
+    }
+
+    @RequestMapping(value = "/activate", method = RequestMethod.POST)
+    public ResponseEntity<?> activateUser(@RequestBody Map<String,String> input) throws InterruptedException {
+        if (!input.containsKey("id") || input.size()>1)
+            //throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.ok(false);
+        String id=input.get("id");
+
+        try {
+
+            UserDetails user=jdbcUserDetailsManager.loadUserByUsername(id);
+            jdbcUserDetailsManager.updateUser(new User(user.getUsername(),user.getPassword(),true,true,true,true,user.getAuthorities()));
+        }
+        catch(Exception e){
+
+            //throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Problems with the insertion of a new user");
+            return ResponseEntity.ok(false);
+        }
+        return ResponseEntity.ok(true);
+    }
+
+    @RequestMapping(value = "/removeMany", method = RequestMethod.POST)
+    public ResponseEntity<?> deleteUsers(@RequestBody @Valid ValidUserList users) throws InterruptedException {
+
+        for (JSONObject input:  users.getList()) {
+            if (!input.containsKey("id")  || input.size() > 1)
+                //throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                return ResponseEntity.ok(false);
+            String id = (String)input.get("id");
+
+            try {
+                jdbcUserDetailsManager.deleteUser(id);
+            }
+            catch(Exception e){
+                // throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Problems with the insertion of a new user");
                 return ResponseEntity.ok(false);
             }
         }

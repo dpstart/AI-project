@@ -10,10 +10,13 @@ public interface NotificationService {
     void sendMessage(String address, String subject, String body);
 
     boolean confirm(String token);
+
     boolean reject(String token);
     void notifyTeam(TeamDTO dto, List<String> memberIds);
-    void notifyStudent(StudentDTO s,String pwd);
-    void notifyProfessor(ProfessorDTO s, String pwd);
+
+    void notifyStudent(StudentDTO s);
+    void notifyProfessor(ProfessorDTO p);
+    boolean activate(String token);
 
 
 }

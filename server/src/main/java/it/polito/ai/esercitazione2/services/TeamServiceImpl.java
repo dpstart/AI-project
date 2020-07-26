@@ -208,15 +208,15 @@ public class TeamServiceImpl implements TeamService {
         Professor prof = modelMapper.map(p, Professor.class);
         if(img != null)
             prof.setImage_id(img.getName());
+
         professorRepository.save(prof);
 
 
 
-        String pwd = randomStringGenerator.generate(10);
-        String encP=enc.encode(pwd);
-        if (!registerUser(p.getId(),encP,"ROLE_PROFESSOR"))
+
+        if (!registerUser(p.getId(),enc.encode(p.getPassword()),"ROLE_PROFESSOR"))
             throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
-        notificationService.notifyProfessor(p, pwd);
+        notificationService.notifyProfessor(p);
 
 
         return true;
@@ -237,11 +237,10 @@ public class TeamServiceImpl implements TeamService {
 
 
 
-        String pwd = randomStringGenerator.generate(10);
-        String encP=enc.encode(pwd);
-        if (!registerUser(p.getId(),encP,"ROLE_PROFESSOR"))
+
+        if (!registerUser(p.getId(),enc.encode(p.getPassword()),"ROLE_PROFESSOR"))
             throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
-        notificationService.notifyProfessor(p, pwd);
+        notificationService.notifyProfessor(p);
 
 
         return true;
@@ -271,15 +270,15 @@ public class TeamServiceImpl implements TeamService {
         Student stud = modelMapper.map(s,Student.class);
         if(img!=null)
             stud.setImage_id(img.getName());
-        stud.setPassword(enc.encode(stud.getPassword()));
+
         studentRepository.save(stud);
 
 
         if (notify==true) {
 
-          if (!registerUser(s.getId(), s.getPassword(), "ROLE_STUDENT"))
+          if (!registerUser(stud.getId(), enc.encode(s.getPassword()), "ROLE_STUDENT"))
                   throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
-          notificationService.notifyStudent(s, s.getPassword());
+          notificationService.notifyStudent(s);
 
         }
 
@@ -296,15 +295,15 @@ public class TeamServiceImpl implements TeamService {
                 throw new IncoherenceException("Student with id "+s.getId()+" already exist with different names");
         }
         Student stud = modelMapper.map(s,Student.class);
-        stud.setPassword(enc.encode(stud.getPassword()));
+
         studentRepository.save(stud);
 
 
         if (notify==true) {
 
-            if (!registerUser(s.getId(), s.getPassword(), "ROLE_STUDENT"))
+            if (!registerUser(stud.getId(), enc.encode(s.getPassword()), "ROLE_STUDENT"))
                 throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
-            notificationService.notifyStudent(s, s.getPassword());
+            notificationService.notifyStudent(s);
 
         }
 
@@ -444,7 +443,7 @@ public class TeamServiceImpl implements TeamService {
                 throw new AuthenticationServiceException("Some errors occurs with the registration of users in the system: retry!");
 
             for (Integer pos: pwds.keySet())
-                notificationService.notifyStudent(students.get(pos),pwds.get(pos));
+                notificationService.notifyStudent(students.get(pos));
         }
         return res;
     }
@@ -514,7 +513,7 @@ public class TeamServiceImpl implements TeamService {
         if(!registerUsers(pwds.entrySet().stream().collect(Collectors.toMap(x->users.get(x.getKey()).getId(),x->enc.encode(x.getValue()))),"ROLE_STUDENT"))
             throw new AuthenticationServiceException("Some errors occurs with the registration of users in the system: retry!");
         for (Integer pos: pwds.keySet())
-            notificationService.notifyStudent(users.get(pos),pwds.get(pos));
+            notificationService.notifyStudent(users.get(pos));
 
         return resAdd;
     }
@@ -803,14 +802,99 @@ public class TeamServiceImpl implements TeamService {
 
 
 
-    public Image getImage(ProfessorDTO professor) {
-        Professor p = modelMapper.map(professor, Professor.class);
-        return imageService.getImage(p.getImage_id());
+    public Image getProfileImage() {
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        return imageService.getImage(principal);
     }
 
-    public Image getImage(StudentDTO student) {
-        Student s = modelMapper.map(student, Student.class);
-        return imageService.getImage(s.getImage_id());
+    public void activeAccount(String id){
+        //TO DO: gestire eventuali casi di errore con il reinvio
+        JSONObject personJsonObject = new JSONObject();
+        personJsonObject.put("id", id);
+
+        w.post()
+                .uri("/activate")
+                .body(Mono.just(personJsonObject), JSONObject.class)
+                .exchange()
+                .subscribe();
+                /*
+                .exchange().flatMap(x->{
+                    if (x.statusCode().is4xxClientError()||x.statusCode().is5xxServerError()) {
+                        Mono<String> msg=x.bodyToMono(String.class);
+                        return msg.flatMap(y->{
+                            throw new AuthenticationServiceException(y);
+                        });
+                    }
+                    return  x.bodyToMono(String.class);
+                })
+                .subscribe(response -> {
+                    if (dto instanceof StudentDTO)
+                        notificationService.notifyStudent((StudentDTO) dto, pwd);
+                    else if (dto instanceof ProfessorDTO)
+                        notificationService.notifyProfessor((ProfessorDTO) dto, pwd);
+                });
+
+                 */
+                /*.retrieve()
+                .bodyToMono(Boolean.class)
+                .block();
+        // .onStatus(HttpStatus::is4xxClientError, response -> Mono.error(new CustomRuntimeException("Error")));
+
+        if (a==null)
+            return false;
+        else
+            return a;
+                    /*
+                    .subscribe(response -> {
+                        if (dto instanceof StudentDTO)
+                            notificationService.notifyStudent((StudentDTO) dto, pwd);
+                        else if (dto instanceof ProfessorDTO)
+                            notificationService.notifyProfessor((ProfessorDTO) dto, pwd);
+                    });
+
+                     */
     }
+
+    public void removeAccount(String id){
+        //TO DO: gestire eventuali casi di errore con il reinvio
+        JSONObject personJsonObject = new JSONObject();
+        personJsonObject.put("id", id);
+
+        w.post()
+                .uri("/remove")
+                .body(Mono.just(personJsonObject), JSONObject.class)
+                .exchange()
+                .subscribe();
+
+    }
+
+
+    public void removeAccounts(Set<String> users){
+        //TO DO: gestire eventuali casi di errore con il reinvio
+        List<JSONObject> list=new ArrayList<>();
+        for (String key: users) {
+            JSONObject personJsonObject = new JSONObject();
+            personJsonObject.put("id", key);
+            list.add(personJsonObject);
+        }
+        ValidUserList usersList=new ValidUserList();
+        usersList.setList(list);
+        w.post()
+                .uri("/removeMany")
+                .body(Mono.just(usersList), ValidUserList.class)
+                .exchange()
+                .subscribe();
+
+    }
+
+
+
+    @Override
+    public void deleteAll(Set<String> users) {
+        studentRepository.deleteAll(users.stream().filter(x->studentRepository.existsById(x)).map(x->studentRepository.getOne(x)).collect(Collectors.toList()));
+        professorRepository.deleteAll(users.stream().filter(x->professorRepository.existsById(x)).map(x->professorRepository.getOne(x)).collect(Collectors.toList()));
+        removeAccounts(users);
+    }
+
 
 }

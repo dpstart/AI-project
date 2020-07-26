@@ -47,14 +47,13 @@ public class ProfessorController {
     @PostMapping({"","/"})
    ProfessorDTO addProfessor(@Valid @RequestPart("professor") ProfessorDTO p,  @RequestPart(value="image",required=false) MultipartFile file) {
 
-
         try {
             if (file==null || file.isEmpty()) {
-                if (!teamservice.addProfessor(p,file))
+                if (!teamservice.addProfessor(p))
                     throw new ResponseStatusException(HttpStatus.CONFLICT, p.getId());
             }
             else {
-                if (!teamservice.addProfessor(p))
+                if (!teamservice.addProfessor(p,file))
                     throw new ResponseStatusException(HttpStatus.CONFLICT, p.getId());
             }
         } catch (IncoherenceException e) {
@@ -122,12 +121,10 @@ public class ProfessorController {
         return errors;
     }
 
-    @GetMapping("/{id}/image")
-    Image getImage(@PathVariable String id){
-        final Optional<ProfessorDTO> p = teamservice.getProfessor(id);
-        if(!p.isPresent())
-            return null;
-        Image img = teamservice.getImage(p.get());
+    @GetMapping("/image")
+    Image getProfileImage(){
+
+        Image img = teamservice.getProfileImage();
         return img;
     }
 }

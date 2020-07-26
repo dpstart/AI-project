@@ -34,10 +34,10 @@ public class Esercitazione2Application {
     }
 
     @Bean
-    public SimpleMailMessage templatePasswordMessage() {
+    public SimpleMailMessage templateActivationMessage() {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setText(
-                "Hello %s, welcome on AI platform!\nYou can access to your account with the following password:\n%s");
+                "Hello %s,\nPlease  click on the following link to activate your account:\n%s\n");
         return message;
     }
 

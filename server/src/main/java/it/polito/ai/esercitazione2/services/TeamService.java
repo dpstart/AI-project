@@ -19,16 +19,16 @@ public interface TeamService {
     List<CourseDTO> getAllCourses();
 
     // Professors
-    @PreAuthorize("hasRole('ADMIN')")
+
     boolean addProfessor(ProfessorDTO p, MultipartFile file);
-    @PreAuthorize("hasRole('ADMIN')")
+
     boolean addProfessor(ProfessorDTO p);
     Optional<ProfessorDTO> getProfessor(String professorId);
     List<ProfessorDTO> getAllProfessors();
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('STUDENT')")
+
     boolean addStudent(StudentDTO s,boolean notify);
-    @PreAuthorize("hasRole('ADMIN') or hasRole('STUDENT')")
+
     boolean addStudent(StudentDTO s,boolean notify, MultipartFile file);
     Optional<StudentDTO> getStudent(String studentId);
     List<StudentDTO> getAllStudents();
@@ -69,17 +69,11 @@ public interface TeamService {
     List<Boolean> evictAll(Set<Long> teams);
 
     //Images
-    Image getImage(ProfessorDTO professor);
-    Image getImage(StudentDTO student);
+    Image getProfileImage();
 
+    void activeAccount(String ID);
 
-
-
-    //------------------------------------------------------------------------------------------------------------------
-
-
-
-
+    void deleteAll(Set<String> students);
 
 
 }

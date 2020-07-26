@@ -14,7 +14,6 @@ public class Professor {
     String name;
     String firstName;
     String email;
-
     String image_id;
 
     @ManyToMany(mappedBy="professors")

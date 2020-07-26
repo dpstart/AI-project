@@ -42,7 +42,13 @@ public class VMController {
     Image connectToVM(@PathVariable Long id){
         try{
             return vmservice.connectToVM(id);
-        }catch (TeamServiceException e){
+        }catch (CourseNotEnabledException e){
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_REQUIRED,e.getMessage());
+        }
+        catch(OffMachineException e){
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_REQUIRED,e.getMessage());
+        }
+        catch(TeamServiceException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }
     }

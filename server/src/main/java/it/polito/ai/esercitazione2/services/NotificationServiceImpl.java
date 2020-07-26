@@ -4,10 +4,12 @@ import it.polito.ai.esercitazione2.dtos.ProfessorDTO;
 import it.polito.ai.esercitazione2.dtos.StudentDTO;
 import it.polito.ai.esercitazione2.dtos.TeamDTO;
 
+import it.polito.ai.esercitazione2.entities.ConfirmAccount;
 import it.polito.ai.esercitazione2.entities.Token;
 import it.polito.ai.esercitazione2.exceptions.ExpiredTokenException;
 import it.polito.ai.esercitazione2.exceptions.TeamNotFoundException;
 import it.polito.ai.esercitazione2.exceptions.TokenNotFoundException;
+import it.polito.ai.esercitazione2.repositories.ConfirmAccountRepository;
 import it.polito.ai.esercitazione2.repositories.TokenRepository;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Autowired
     public TokenRepository tokenRepository;
     @Autowired
+    public ConfirmAccountRepository confirmAccountRepository;
+    @Autowired
     public TeamService teamService;
 
     @Autowired
@@ -42,8 +46,8 @@ public class NotificationServiceImpl implements NotificationService {
     public SimpleMailMessage template;
 
     @Autowired
-    @Qualifier("templatePasswordMessage")
-    public SimpleMailMessage pwd_template;
+    @Qualifier("templateActivationMessage")
+    public SimpleMailMessage activation_template;
 
     @Override
     @Async
@@ -129,17 +133,55 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Async
-    public void notifyStudent(StudentDTO s,String pwd) {
-        String body = String.format(pwd_template.getText(), s.getName(),pwd);
-        sendMessage("s"+s.getId()+"@studenti.polito.it","Welcome on AI platform",body);
+    public void notifyStudent(StudentDTO s){
+        Timestamp expiryDate =  new Timestamp(System.currentTimeMillis()+(60 * 60 * 1000));
+
+        String token = UUID.randomUUID().toString();
+        ConfirmAccount ca = new ConfirmAccount();
+        ca.setId(token);
+        ca.setUserId(s.getId());
+        ca.setExpiryDate(expiryDate);
+        confirmAccountRepository.save(ca);
+        String body = String.format(activation_template.getText(), s.getName(),"http://localhost:8080/notification/activate/"+token);
+        sendMessage(s.getEmail(),"Activate your account",body);
+
+    }
+    @Override
+    @Async
+    public void notifyProfessor(ProfessorDTO s){
+        Timestamp expiryDate =  new Timestamp(System.currentTimeMillis()+(60 * 60 * 1000));
+
+        String token = UUID.randomUUID().toString();
+        ConfirmAccount ca = new ConfirmAccount();
+        ca.setId(token);
+        ca.setUserId(s.getId());
+        ca.setExpiryDate(expiryDate);
+        confirmAccountRepository.save(ca);
+        String body = String.format(activation_template.getText(), s.getName(),"http://localhost:8080/notification/activate/"+token);
+        sendMessage(s.getEmail(),"Activate your account",body);
+
     }
 
     @Override
-    @Async
-    public void notifyProfessor(ProfessorDTO p, String pwd) {
-        String body = String.format(pwd_template.getText(), "Professor "+p.getName()+ "  "+p.getFirstName(),pwd);
-        sendMessage("s"+p.getId()+"@polito.it","Welcome on AI platform",body);
+    public boolean activate(String token) {
+        Timestamp today = new Timestamp(System.currentTimeMillis());
+        Optional<ConfirmAccount> t=confirmAccountRepository.findById(token);
+        if (!t.isPresent())
+            throw new TokenNotFoundException("Specified token not found");
+        ConfirmAccount ca = t.get();
+
+        if (ca.getExpiryDate().before(today))
+            throw new ExpiredTokenException("Expired token");
+
+        confirmAccountRepository.deleteById(token);
+
+        teamService.activeAccount(ca.getUserId());
+
+        return true;
     }
+
+
+
 
     @Scheduled(initialDelay = 60*60*1000, fixedRate = 10*60*60*1000)
     public void run() {
@@ -149,5 +191,16 @@ public class NotificationServiceImpl implements NotificationService {
         tokenRepository.deleteAll(expired);
         teams.stream().forEach(x->tokenRepository.deleteAll(tokenRepository.findAllByTeamId(x)));
         teamService.evictAll(teams);   // posso riportare eventualmente qualki team erano già stati cancellatio prima della scadenza del token
+
+
+        //TO DO: move on a separated file for authentication service
+        List<ConfirmAccount> expired_accounts = confirmAccountRepository.findAllByExpiryDateBefore(now);
+        Set<String> users = expired_accounts.stream().map(x->x.getUserId()).collect(Collectors.toSet());
+        confirmAccountRepository.deleteAll(expired_accounts);
+        teamService.deleteAll(users);
+
     }
+
+
+
 }

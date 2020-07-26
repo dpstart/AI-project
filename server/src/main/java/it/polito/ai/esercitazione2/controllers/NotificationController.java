@@ -55,5 +55,23 @@ public class NotificationController {
 
     }
 
+    @GetMapping("/activate/{token}")
+    public String activate(@PathVariable String token, Model m){
+
+        try{
+            if (notificationService.activate(token))
+                m.addAttribute("message","Your account has been succesfully activated!");
+
+
+        }catch(NotificationServiceException e){
+            m.addAttribute("message", e.getMessage());
+        }catch(TeamNotFoundException e){
+            m.addAttribute("message", e.getMessage());
+        }catch(HttpClientErrorException e){
+            m.addAttribute("message",e.getStatusCode()+"");
+        }
+        return "confirm";
+    }
+
 
 }

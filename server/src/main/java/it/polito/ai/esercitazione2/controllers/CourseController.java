@@ -106,6 +106,27 @@ public class CourseController {
         }
     }
 
+    @PostMapping("/{name}/model")  // ragionare su se è più logico accedere direttamente a qualuenue team perdendo il riferimento al corso oppure /APU/courses/PDS/{teamID}
+    void defineVMmodelForACourse(@PathVariable String name, @RequestBody Map<String,String> input){
+        if (!input.containsKey("model") || input.keySet().size()>1){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Expected one parameter: usage 'model':<modelName>");
+        }
+
+        try{
+            vmservice.defineVMModel(name,input.get("model"));
+        }
+        catch (AuthorizationServiceException e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());  //DA CAMBIARE!!!!
+        }
+        catch(IncoherenceException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+        catch (TeamServiceException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }
+
+    }
+
     @PostMapping("/{name}/enrollOne")
     @ResponseStatus(HttpStatus.CREATED)
     void enrollOne(@PathVariable String name, @RequestBody Map<String,String> input){

@@ -32,7 +32,6 @@ public class StudentController {
     @Autowired
     TeamService teamservice;
 
-
     @Autowired
     @Qualifier("messageSource")
     MessageSource msg;
@@ -43,8 +42,6 @@ public class StudentController {
                 .map(x->ModelHelper.enrich(x)).collect(Collectors.toList());
     }
 
-
-
     @GetMapping("/{id}")
     StudentDTO getOne(@PathVariable String id){
         StudentDTO c=teamservice.getStudent(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,id));
@@ -52,14 +49,6 @@ public class StudentController {
         return ModelHelper.enrich(c);
     }
 
-    @GetMapping("/{id}/image")
-    Image getImage(@PathVariable String id){
-        final Optional<StudentDTO> s = teamservice.getStudent(id);
-        if(!s.isPresent())
-            return null;
-        Image img = teamservice.getImage(s.get());
-        return img;
-    }
 
 
     @PostMapping({"","/"})
@@ -82,8 +71,6 @@ public class StudentController {
 
         return ModelHelper.enrich(dto);
     }
-
-
 
     @PostMapping({"/many"})
     List<StudentDTO> addStudents(@RequestBody @Valid ValidStudentDTOList students ){
@@ -151,4 +138,9 @@ public class StudentController {
         return errors;
     }
 
+    @GetMapping("/image")
+    Image getProfileImage(){
+        Image img = teamservice.getProfileImage();
+        return img;
+    }
 }

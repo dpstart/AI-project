@@ -34,7 +34,7 @@ public class StudentDTO extends RepresentationModel<StudentDTO> {
 
     @CsvBindByName
     @JsonProperty("email")
-    @Email(regexp=".*@studenti.polito.it")
+    @Email(regexp="((s[0-9]{6})|([a-z]+\\.[a-z]+))@studenti.polito.it")
     String email;
 
 
