@@ -1,13 +1,11 @@
 package it.polito.ai.esercitazione2.controllers;
 
-import it.polito.ai.esercitazione2.dtos.CourseDTO;
-import it.polito.ai.esercitazione2.dtos.SettingsDTO;
-import it.polito.ai.esercitazione2.dtos.StudentDTO;
-import it.polito.ai.esercitazione2.dtos.TeamDTO;
+import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.exceptions.*;
 
 import it.polito.ai.esercitazione2.services.TeamService;
 
+import it.polito.ai.esercitazione2.services.VMService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,6 +15,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 
 
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -39,6 +38,9 @@ import java.util.stream.Collectors;
 public class CourseController {
     @Autowired
     TeamService teamservice;
+
+    @Autowired
+    VMService vmservice;
 
 
     @Autowired
@@ -251,6 +253,28 @@ public class CourseController {
         catch(TeamServiceException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }
+    }
+
+    @PostMapping("/{name}/teams/{teamId}/settings/createVM")
+    VMDTO createVM(@PathVariable Long teamId, @RequestPart(value="image") MultipartFile file, @Valid @RequestPart("settings") SettingsDTO settings){
+        if (settings.getMax_active()==null) //contemporary active
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max active' field not expected here");
+        if (settings.getMax_available()==null) //active + off
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max available' field not expected here");
+
+        try{
+            return vmservice.createVM(teamId,file,settings);
+        }
+        catch (AuthorizationServiceException e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());  //DA CAMBIARE!!!!
+        }
+        catch ( TeamNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }
+        catch ( UnavailableResourcesForTeamException e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
+        }
+
     }
 
     @PostMapping("/{name}/teams/{id}/settings")

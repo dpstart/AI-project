@@ -22,15 +22,23 @@ public interface VMService {
 
     @PreAuthorize("hasRole('STUDENT')")
     void defineVMModel(String teamID,String modelName);
-    VMDTO createVM(Long teamID, MultipartFile file, SettingsDTO settings);
+
+
+    //TO DO: definrie autorizzazioni; per ora tutti posssono visualizzare i dettagli sulle risorse delle VM rpesenti
     VMDTO getVM(Long teamID);
     List<VMDTO> getVMByTeam(Long teamID);
 
+    @PreAuthorize("hasRole('STUDENT')")
+    VMDTO createVM(Long teamID, MultipartFile file, SettingsDTO settings);
+    @PreAuthorize("hasRole('STUDENT')")
     void runVM(Long VMID);
+    @PreAuthorize("hasRole('STUDENT')")
     void stopVM(Long VMID);
+    @PreAuthorize("hasRole('STUDENT')")
     void removeVM(Long VMID);
     @PreAuthorize("hasRole('PROFESSOR') or hasRole('STUDENT')")
     Image connectToVM(Long VMID);
 
+    @PreAuthorize("hasRole('STUDENT')")
     void shareOwnership(Long id, String studentId);
 }

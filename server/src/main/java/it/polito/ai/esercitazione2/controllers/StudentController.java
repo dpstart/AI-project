@@ -26,9 +26,6 @@ import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.logging.log4j.ThreadContext.isEmpty;
-
-
 @RestController
 @RequestMapping("/API/students")
 public class StudentController {
@@ -153,9 +150,5 @@ public class StudentController {
         });
         return errors;
     }
-
-
-
-
 
 }

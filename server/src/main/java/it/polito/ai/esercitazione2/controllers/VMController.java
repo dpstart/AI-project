@@ -29,28 +29,6 @@ public class VMController {
     VMService vmservice;
 
 
-    @PostMapping("/{id}/createVM")  // ragionare su se è più logico accedere direttamente a qualuenue team perdendo il riferimento al corso oppure /APU/courses/PDS/{teamID}
-    VMDTO createVM(@PathVariable Long id, @RequestPart(value="image") MultipartFile file, @Valid @RequestPart("settings") SettingsDTO settings){
-        if (settings.getMax_active()==null) //contemporary active
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max active' field not expected here");
-        if (settings.getMax_available()==null) //active + off
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max available' field not expected here");
-
-        try{
-            return vmservice.createVM(id,file,settings);
-        }
-        catch (AuthorizationServiceException e){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());  //DA CAMBIARE!!!!
-        }
-        catch ( TeamNotFoundException e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
-        }
-        catch ( UnavailableResourcesForTeamException e){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
-        }
-
-    }
-
     @GetMapping("/{id}")
     VMDTO getVM(@PathVariable Long id){
         try{
@@ -60,7 +38,6 @@ public class VMController {
         }
     }
 
-    //TO DO: convert image to mUltiPaertfiLE
     @GetMapping("/{id}/connect")
     Image connectToVM(@PathVariable Long id){
         try{
@@ -102,7 +79,6 @@ public class VMController {
         }
     }
 
-    //void turnoffVM(); //solo owner
 
     @GetMapping("{id}/cancel")
     void removeVM(@PathVariable Long id){

@@ -17,6 +17,6 @@ public interface HomeworkService {
     @PreAuthorize("hasRole('PROFESSOR') or hasRole('STUDENT')")
     Image getImage(HomeworkDTO homework, int version);
 
-    
+
 
 }
