@@ -58,17 +58,14 @@ public class HomeworkServiceImpl implements HomeworkService {
         Assignment a = assignmentRepository.getOne(assignmentId);
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
         Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
-            if(!studentRepository.existsById(principal)){
+
+        if(!studentRepository.existsById(principal))
                 throw new StudentNotFoundException("Student " + principal + " not found");
-            }
-            if(!studentRepository.getOne(principal).getCourses().contains(a.getCourse())){
+
+        if(!studentRepository.getOne(principal).getCourses().contains(a.getCourse())){
                 throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course " + a.getCourse().getName());
-            }
         }
-        else if(!roles.contains(new SimpleGrantedAuthority("ROLE_ADMIN"))){
-            throw new StudentNotFoundException("User " + principal + " is not authorized to upload homeworks for the current assignment");
-        }
+
         Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, assignmentId);
         if(h.getIsFinal())
             throw new IllegalHomeworkStateChangeException("Homework is flagged as final, you can't upload a newer version");
