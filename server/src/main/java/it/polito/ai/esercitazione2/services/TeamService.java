@@ -69,51 +69,17 @@ public interface TeamService {
     List<Boolean> evictAll(Set<Long> teams);
 
     //Images
-    Image getImage(String imageName);
     Image getImage(ProfessorDTO professor);
     Image getImage(StudentDTO student);
-    Image getImage(AssignmentDTO assignment);
-    Image getImage(HomeworkDTO homework);
-    Image getImage(HomeworkDTO homework, int version);
+
+
 
 
     //------------------------------------------------------------------------------------------------------------------
-    List<VMModelDTO> getVMModels();
-    VMModelDTO getVMModel(String modelName);
 
-    @PreAuthorize("hasRole('ADMIN')")
-    boolean createVMModel(String modelName);
 
-    //------------------------------------------------------------------------------------------------------------------
 
-    void defineVMModel(Long teamID,String modelName);
-    VMDTO createVM(Long teamID, MultipartFile file, SettingsDTO settings);
-    VMDTO getVM(Long teamID);
-    List<VMDTO> getVMByTeam(Long teamID);
 
-    void runVM(Long VMID);
-    void stopVM(Long VMID);
-    void removeVM(Long VMID);
-    @PreAuthorize("hasRole('PROFESSOR') or hasRole('STUDENT')")
-    Image connectToVM(Long VMID);
-
-    void shareOwnership(Long id, String studentId);
-
-    // Assignments
-    @PreAuthorize("hasRole('PROFESSOR')")
-    boolean addAssignment(AssignmentDTO a, MultipartFile file, String courseId);
-    @PreAuthorize("hasRole('PROFESSOR')")
-    boolean removeAssignment(Integer id);
-    AssignmentDTO getAssignment(Integer id);
-    @PreAuthorize("hasRole('ADMIN')")
-    List<AssignmentDTO> getAllAssignments();
-    List<AssignmentDTO> getByCourse(String courseId);
-    List<AssignmentDTO> getByProfessor(String professorId);
-    List<AssignmentDTO> getByStudent(String studentId);
-
-    //Homeworks
-    void uploadHomework(Integer assignmentId, MultipartFile file);
-    HomeworkDTO getHomework(Integer id);
 
 
 }

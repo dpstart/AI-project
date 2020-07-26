@@ -4,6 +4,7 @@ import it.polito.ai.esercitazione2.dtos.VMModelDTO;
 import it.polito.ai.esercitazione2.exceptions.IncoherenceException;
 import it.polito.ai.esercitazione2.exceptions.TeamServiceException;
 import it.polito.ai.esercitazione2.services.TeamService;
+import it.polito.ai.esercitazione2.services.VMService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AuthorizationServiceException;
@@ -19,14 +20,17 @@ public class VMModelController {
     @Autowired
     TeamService teamservice;
 
+    @Autowired
+    VMService vmservice;
+
     @GetMapping("/")
     List<VMModelDTO> getVMModels(){
-        return teamservice.getVMModels();
+        return vmservice.getVMModels();
     }
 
     @GetMapping("/{name}")
     VMModelDTO getVMModel(@PathVariable String name){
-        return ModelHelper.enrich(teamservice.getVMModel(name));
+        return ModelHelper.enrich(vmservice.getVMModel(name));
     }
 
     @PostMapping("/")
@@ -35,7 +39,7 @@ public class VMModelController {
         if (!modelName.containsKey("name") || modelName.keySet().size()>1){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Expected one parameter: usage 'name':<modelName>");
         }
-        if (!teamservice.createVMModel(modelName.get("name")))
+        if (!vmservice.createVMModel(modelName.get("name")))
             throw new ResponseStatusException(HttpStatus.CONFLICT, "already existing VM Model");
     }
 
@@ -46,7 +50,7 @@ public class VMModelController {
         }
 
         try{
-            teamservice.defineVMModel(id,input.get("model"));
+            vmservice.defineVMModel(id,input.get("model"));
         }
         catch (AuthorizationServiceException e){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());  //DA CAMBIARE!!!!

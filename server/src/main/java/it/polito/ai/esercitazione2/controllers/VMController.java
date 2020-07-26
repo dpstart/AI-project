@@ -3,8 +3,10 @@ package it.polito.ai.esercitazione2.controllers;
 import it.polito.ai.esercitazione2.dtos.SettingsDTO;
 import it.polito.ai.esercitazione2.dtos.VMDTO;
 import it.polito.ai.esercitazione2.dtos.VMModelDTO;
+import it.polito.ai.esercitazione2.entities.Image;
 import it.polito.ai.esercitazione2.exceptions.*;
 import it.polito.ai.esercitazione2.services.TeamService;
+import it.polito.ai.esercitazione2.services.VMService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AuthorizationServiceException;
@@ -23,6 +25,9 @@ public class VMController {
     @Autowired
     TeamService teamservice;
 
+    @Autowired
+    VMService vmservice;
+
 
     @PostMapping("/{id}/createVM")  // ragionare su se è più logico accedere direttamente a qualuenue team perdendo il riferimento al corso oppure /APU/courses/PDS/{teamID}
     VMDTO createVM(@PathVariable Long id, @RequestPart(value="image") MultipartFile file, @Valid @RequestPart("settings") SettingsDTO settings){
@@ -32,7 +37,7 @@ public class VMController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max available' field not expected here");
 
         try{
-            return teamservice.createVM(id,file,settings);
+            return vmservice.createVM(id,file,settings);
         }
         catch (AuthorizationServiceException e){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());  //DA CAMBIARE!!!!
@@ -49,7 +54,7 @@ public class VMController {
     @GetMapping("/{id}")
     VMDTO getVM(@PathVariable Long id){
         try{
-            return ModelHelper.enrich(teamservice.getVM(id));
+            return ModelHelper.enrich(vmservice.getVM(id));
         }catch (TeamServiceException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }
@@ -57,9 +62,9 @@ public class VMController {
 
     //TO DO: convert image to mUltiPaertfiLE
     @GetMapping("/{id}/connect")
-    MultipartFile connectToVM(@PathVariable Long id){
+    Image connectToVM(@PathVariable Long id){
         try{
-            return teamservice.connectToVM(id);
+            return vmservice.connectToVM(id);
         }catch (TeamServiceException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }
@@ -68,7 +73,7 @@ public class VMController {
     @GetMapping("/{id}/run")
     void runVM(@PathVariable Long id){
             try{
-                teamservice.runVM(id);
+                vmservice.runVM(id);
             } catch(VMInstanceNotFoundException e){
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
             } catch(TeamAuthorizationException e){
@@ -85,7 +90,7 @@ public class VMController {
     @GetMapping("{id}/stop")
     void stopVM(@PathVariable Long id){
         try{
-            teamservice.stopVM(id);
+            vmservice.stopVM(id);
         } catch(VMInstanceNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         } catch(TeamAuthorizationException e){
@@ -102,7 +107,7 @@ public class VMController {
     @GetMapping("{id}/cancel")
     void removeVM(@PathVariable Long id){
         try{
-            teamservice.removeVM(id);
+            vmservice.removeVM(id);
         } catch(VMInstanceNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         } catch(TeamAuthorizationException e){
@@ -119,7 +124,7 @@ public class VMController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Expected only one field: usage 'id':<studentName>");
         String user=input.get("id");
         try{
-            teamservice.shareOwnership(id,user);
+            vmservice.shareOwnership(id,user);
         }catch(TeamServiceException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }
@@ -129,7 +134,7 @@ public class VMController {
     @GetMapping("/teams/{team_id}")
     List<VMDTO> getVMsByTeam(@PathVariable Long team_id){
         try {
-            return teamservice.getVMByTeam(team_id);
+            return vmservice.getVMByTeam(team_id);
         }
         catch(TeamNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());

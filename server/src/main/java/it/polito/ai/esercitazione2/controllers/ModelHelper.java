@@ -12,10 +12,15 @@ public class ModelHelper {
     public static CourseDTO enrich(CourseDTO c){
         Link self=linkTo(CourseController.class).slash(c.getName()).withSelfRel();
         c.add(self);
+        Link self_alias=linkTo(CourseController.class).slash(c.getAcronime()).withSelfRel();
+        c.add(self_alias);
 
         Link enrolled = linkTo(methodOn(CourseController.class)
                 .enrolledStudents(c.getName())).withRel("enrolled");
         c.add(enrolled);
+        Link enrolled_alias = linkTo(methodOn(CourseController.class)
+                .enrolledStudents(c.getAcronime())).withRel("enrolled");
+        c.add(enrolled_alias);
         try {
             Link enable = linkTo(
                     CourseController.class,
@@ -24,6 +29,13 @@ public class ModelHelper {
                     c.getName())
                     .withRel("enable");
             c.add(enable);
+            Link enable_alias = linkTo(
+                    CourseController.class,
+                    CourseController.class
+                            .getMethod("enableCourse", String.class),
+                    c.getAcronime())
+                    .withRel("enable");
+            c.add(enable_alias);
         }catch (NoSuchMethodException e){
             //ignore
         }
@@ -35,6 +47,13 @@ public class ModelHelper {
                     c.getName())
                     .withRel("disable");
             c.add(disable);
+            Link disable_alias = linkTo(
+                    CourseController.class,
+                    CourseController.class
+                            .getMethod("disableCourse", String.class),
+                    c.getAcronime())
+                    .withRel("disable");
+            c.add(disable_alias);
         }catch (NoSuchMethodException e){
             //ignore
         }
@@ -42,14 +61,24 @@ public class ModelHelper {
         Link teams = linkTo(methodOn(CourseController.class)
                 .getTeams(c.getName())).withRel("teams");
         c.add(teams);
+        Link teams_alias = linkTo(methodOn(CourseController.class)
+                .getTeams(c.getAcronime())).withRel("teams");
+        c.add(teams_alias);
 
         Link alreadyInTeams = linkTo(methodOn(CourseController.class)
                 .getStudentsInTeams(c.getName())).withRel("alreadyInTeams");
         c.add(alreadyInTeams);
+        Link alreadyInTeams_alias = linkTo(methodOn(CourseController.class)
+                .getStudentsInTeams(c.getAcronime())).withRel("alreadyInTeams");
+        c.add(alreadyInTeams_alias);
 
         Link yetAvailable = linkTo(methodOn(CourseController.class)
                 .getAvailableStudents(c.getName())).withRel("yetAvailable");
         c.add(yetAvailable);
+
+        Link yetAvailable_alias = linkTo(methodOn(CourseController.class)
+                .getAvailableStudents(c.getAcronime())).withRel("yetAvailable");
+        c.add(yetAvailable_alias);
         return c;
     }
 
