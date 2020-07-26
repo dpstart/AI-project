@@ -33,7 +33,6 @@ import { RouterStateSnapshot } from '@angular/router';
 import { RegisterDialogComponent } from './auth/register-dialog.component';
 import { TeacherGuard } from './auth/teacher.guard';
 import { StudentGuard } from './auth/student.guard';
-import { TeacherComponent } from './teacher/teacherComponent/teacher.component';
 
 
 @NgModule({
@@ -46,7 +45,6 @@ import { TeacherComponent } from './teacher/teacherComponent/teacher.component';
     VMComponent,
     LoginDialogComponent,
     RegisterDialogComponent,
-    TeacherComponent,
   ],
   imports: [
     BrowserModule,
