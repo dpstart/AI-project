@@ -123,4 +123,22 @@ public class VMController {
         }
     }
 
+    @GetMapping({"","/"})
+    List<VMDTO> getVMs(){
+            return vmservice.getVMs();
+
+    }
+
+    @GetMapping("/courses/{course_name}")
+    List<VMDTO> getVMsByCourse(@PathVariable String course_name){
+        try {
+            return vmservice.getVMsByCourse(course_name);
+        }
+        catch(CourseNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }catch(AuthorizationServiceException e){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,e.getMessage());
+        }
+    }
+
 }

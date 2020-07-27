@@ -27,6 +27,11 @@ public interface VMService {
     //TO DO: definrie autorizzazioni; per ora tutti posssono visualizzare i dettagli sulle risorse delle VM rpesenti
     VMDTO getVM(Long teamID);
     List<VMDTO> getVMByTeam(Long teamID);
+    @PreAuthorize("hasRole('PROFESSOR')")
+    List<VMDTO> getVMs();
+    @PreAuthorize("hasRole('PROFESSOR')")
+    List<VMDTO> getVMsByCourse(String name);
+
 
     @PreAuthorize("hasRole('STUDENT')")
     VMDTO createVM(Long teamID, MultipartFile file, SettingsDTO settings);

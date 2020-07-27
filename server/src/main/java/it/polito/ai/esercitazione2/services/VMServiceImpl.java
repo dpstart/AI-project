@@ -319,4 +319,26 @@ public class VMServiceImpl implements VMService {
         return vmRepository.getByTeam(t).stream().map(x->modelMapper.map(x,VMDTO.class))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<VMDTO> getVMs(){
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        return professorRepository.getOne(principal).getCourses().stream().flatMap(x->x.getTeams().stream())
+                .flatMap(x->x.getVMs().stream()).map(x->modelMapper.map(x,VMDTO.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<VMDTO> getVMsByCourse(String name){
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (!courseRepository.existsById(name) && !courseRepository.existsByAcronime(name))
+            throw new CourseNotFoundException("Course "+name+" not found");
+
+        Course c = courseRepository.getOne(name);
+
+        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(principal)))
+            throw new AuthorizationServiceException("Connected user is not a professor for this course");
+
+        return c.getTeams().stream().flatMap(x->x.getVMs().stream()).map(x->modelMapper.map(x,VMDTO.class)).collect(Collectors.toList());
+    }
 }
