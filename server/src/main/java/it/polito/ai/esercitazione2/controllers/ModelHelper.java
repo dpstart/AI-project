@@ -190,8 +190,9 @@ public class ModelHelper {
             //ignore
         }
 
-
-
+        Link creator =  linkTo(methodOn(StudentController.class)
+                .getOne(vm.getId_creator())).withRel("creator");
+        vm.add(creator);
 
         return vm;
     }

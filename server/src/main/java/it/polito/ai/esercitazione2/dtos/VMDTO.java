@@ -14,4 +14,6 @@ public class VMDTO extends RepresentationModel<VMDTO> {
     int disk_space;
     int ram;
     int status;
+
+    String id_creator;
 }

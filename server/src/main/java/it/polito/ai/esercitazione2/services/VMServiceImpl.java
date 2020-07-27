@@ -131,6 +131,7 @@ public class VMServiceImpl implements VMService {
         vm.setDisk_space(settings.getDisk_space());
         vm.setRam(settings.getN_cpu());
         vm.addOwner(studentRepository.getOne(creator));
+        vm.setId_creator(creator);
         t.addVM(vm);
         Image img = null;
         try {

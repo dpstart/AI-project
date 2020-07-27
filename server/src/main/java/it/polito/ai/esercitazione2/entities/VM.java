@@ -19,6 +19,8 @@ public class VM {
 
     Long imageId;
 
+    String id_creator;
+
 
     @ManyToMany(cascade={CascadeType.PERSIST,CascadeType.MERGE})
     @JoinTable(name="VM_owner",joinColumns = @JoinColumn(name="VM_id"),inverseJoinColumns = @JoinColumn(name="student_id"))
