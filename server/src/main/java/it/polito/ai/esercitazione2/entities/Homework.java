@@ -27,7 +27,7 @@ public class Homework {
     Assignment assignment;
 
     @ElementCollection
-    List<String> versionIds = new ArrayList<>();
+    List<Long> versionIds = new ArrayList<>();
     @ElementCollection
     List<Timestamp> versionDates = new ArrayList<>();
 

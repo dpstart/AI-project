@@ -23,7 +23,7 @@ public class VMModelController {
     @Autowired
     VMService vmservice;
 
-    @GetMapping("/")
+    @GetMapping({"","/"})
     List<VMModelDTO> getVMModels(){
         return vmservice.getVMModels();
     }
@@ -42,9 +42,10 @@ public class VMModelController {
         }
     }
 
-    @PostMapping("/")
+    @PostMapping({"","/"})
     @ResponseStatus(HttpStatus.OK)
     void createVMModel(@RequestBody Map<String,String> modelName){
+
         if (!modelName.containsKey("name") || modelName.keySet().size()>1){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Expected one parameter: usage 'name':<modelName>");
         }

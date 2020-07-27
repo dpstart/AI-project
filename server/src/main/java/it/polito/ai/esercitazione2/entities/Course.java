@@ -30,7 +30,8 @@ public class Course {
     @JoinColumn(name="VMModel_name")
     VMModel vm_model;
 
-    @ManyToMany(mappedBy = "courses")
+    @ManyToMany
+    @JoinTable(name="student_course",joinColumns = @JoinColumn(name="course_name"),inverseJoinColumns = @JoinColumn(name="student_id"))
     List<Student> students = new ArrayList<>();
     @OneToMany(mappedBy="course",cascade = CascadeType.ALL, orphanRemoval = true)
     List<Team> teams =  new ArrayList<>();

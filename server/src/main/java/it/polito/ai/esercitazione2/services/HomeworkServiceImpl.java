@@ -116,7 +116,7 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     public Image getImage(HomeworkDTO homework, int version){
         Homework h = modelMapper.map(homework, Homework.class);
-        List<String> ids = h.getVersionIds();
+        List<Long> ids = h.getVersionIds();
         if(ids.size() == 0)
             throw new IncoherenceException("This homework hasn't been delivered yet");
         if(version > ids.size() || version == -1)

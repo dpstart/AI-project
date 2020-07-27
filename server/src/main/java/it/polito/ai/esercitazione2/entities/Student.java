@@ -19,11 +19,11 @@ public class Student {
     String name;
     String firstName;
     String email;
-    String image_id;
+    Long image_id;
     Boolean enabled=false;
 
-    @ManyToMany(cascade={CascadeType.PERSIST,CascadeType.MERGE})
-    @JoinTable(name="student_course",joinColumns = @JoinColumn(name="student_id"),inverseJoinColumns = @JoinColumn(name="course_name"))
+
+    @ManyToMany(mappedBy = "students")
     List<Course> courses = new ArrayList<>();
 
     @ManyToMany(mappedBy="members")
@@ -38,6 +38,11 @@ public class Student {
     public void addCourse(Course c){
         courses.add(c);
         c.getStudents().add(this);
+    }
+
+    public void removeCourse(Course c){
+        courses.remove(c);
+        c.getStudents().remove(this);
     }
 
     public void addTeam(Team t){

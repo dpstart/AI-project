@@ -15,17 +15,17 @@ public class Image {
     }
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String name;
+    private Long name;
 
     private String type;
     //image bytes can have large lengths so we specify a value
     //which is more than the default length for picByte column
     @Column(length=500000)
     private byte[] picByte;
-    public String getName() {
+    public Long getName() {
         return name;
     }
-    public void setName(String name) {
+    public void setName(Long name) {
         this.name = name;
     }
     public String getType() {

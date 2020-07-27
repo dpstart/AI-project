@@ -26,16 +26,16 @@ public class Assignment {
 
     Timestamp releaseDate;
     Timestamp expirationDate;
-    String contentId;
+    Long contentId;
 
-    @OneToMany(mappedBy="assignment")
+    @OneToMany(mappedBy="assignment",cascade = CascadeType.ALL, orphanRemoval = true)
     List<Homework> homeworks =  new ArrayList<>();
 
     public Assignment(@NonNull Course course,
                       @NonNull Professor professor,
                       @NonNull Timestamp releaseDate,
                       @NonNull Timestamp expirationDate,
-                      @NonNull String contentId){
+                      @NonNull Long contentId){
         this.setCourse(course);
         this.setProfessor(professor);
         this.releaseDate=releaseDate;

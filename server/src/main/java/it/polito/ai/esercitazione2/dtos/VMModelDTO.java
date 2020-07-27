@@ -7,5 +7,6 @@ import org.springframework.hateoas.RepresentationModel;
 @Data
 public class VMModelDTO extends RepresentationModel<VMModelDTO> {
 
+
     String name;
 }

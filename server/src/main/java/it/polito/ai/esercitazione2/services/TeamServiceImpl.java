@@ -11,6 +11,7 @@ import org.apache.commons.text.RandomStringGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.security.access.method.P;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -104,6 +105,32 @@ public class TeamServiceImpl implements TeamService {
         course.addProfessor(p);
         courseRepository.save(course);
         return true;
+    }
+
+    @Override
+    public void removeCourse(String courseName){
+        String prof = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
+            throw new CourseNotFoundException("Course: "+courseName + " not found!");
+        Course c = courseRepository.getOne(courseName);
+        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)))
+            throw new CourseAuthorizationException("Professor "+prof+ "has not the rights to modify this course");
+
+        if (c.getEnabled())
+            throw new CourseEnabledException("Impossible to remove an active course");
+
+
+
+
+        c.getAssignments().stream().map(x->{imageService.remove(x.getContentId());return x;}).flatMap(x->x.getHomeworks().stream()).flatMap(x->x.getVersionIds().stream()).forEach((Long x)->imageService.remove(x));
+
+
+        c.getTeams().stream().flatMap(x->x.getVMs().stream()).forEach(x->imageService.remove(x.getImageId()));
+
+
+
+       courseRepository.delete(c);
+
     }
 
     @Override
@@ -811,7 +838,11 @@ public class TeamServiceImpl implements TeamService {
 
     public Image getProfileImage() {
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
-        return imageService.getImage(principal);
+        if (studentRepository.existsById(principal))
+            return imageService.getImage(studentRepository.getOne(principal).getImage_id());
+        else if (professorRepository.existsById(principal))
+            return imageService.getImage(professorRepository.getOne(principal).getImage_id());
+        throw new UsernameNotFoundException("Can't retrieve profile image for the specified user");
     }
 
     public void activeAccount(String id){
@@ -911,6 +942,29 @@ public class TeamServiceImpl implements TeamService {
         studentRepository.deleteAll(users.stream().filter(x->studentRepository.existsById(x)).map(x->studentRepository.getOne(x)).collect(Collectors.toList()));
         professorRepository.deleteAll(users.stream().filter(x->professorRepository.existsById(x)).map(x->professorRepository.getOne(x)).collect(Collectors.toList()));
         removeAccounts(users);
+    }
+
+    @Override
+    public void shareOwnership(String courseName,String profId){
+        String prof = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!courseRepository.existsById(courseName))
+            throw new CourseNotFoundException("Course "+courseName+ " not found");
+        Course c = courseRepository.getOne(courseName);
+        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof))){
+            throw new AuthorizationServiceException("Autenticated user is not a professor for this course");
+        }
+        if (!professorRepository.existsById(profId))
+            throw new ProfessorNotFoundException("Professor "+profId+" not found");
+        Professor p = professorRepository.getOne(profId);
+        if (!p.getEnabled())
+            throw new ProfessorNotFoundException("Professor "+profId+" not found");
+
+        if (c.getProfessors().stream().anyMatch(x->x.getId().equals(profId)))
+            throw new IncoherenceException("Professor "+profId+" already a professor for this course");
+
+        c.addProfessor(p);
+        courseRepository.save(c);
+
     }
 
 

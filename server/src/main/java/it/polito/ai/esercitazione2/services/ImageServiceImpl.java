@@ -24,11 +24,10 @@ public class ImageServiceImpl implements ImageService{
     ImageRepository imageRepository;
 
     @Override
-    public Image getImage(String imageName) {
-        final Optional<Image> retrievedImage = imageRepository.findByName(imageName);
-        if(!retrievedImage.isPresent())
+    public Image getImage(Long imageName) {
+        if (!imageRepository.existsById(imageName))
             return null;
-        Image img = retrievedImage.get();
+        Image img = imageRepository.getOne(imageName);
         img.setPicByte(decompressBytes(img.getPicByte()));
         return img;
     }
@@ -37,5 +36,10 @@ public class ImageServiceImpl implements ImageService{
     public Image save(Image img) throws IOException{
         img = imageRepository.save(img);
         return img;
+    }
+
+    @Override
+    public void remove(Long imageName) {
+        imageRepository.deleteById(imageName);
     }
 }

@@ -20,7 +20,7 @@ public interface VMService {
     @PreAuthorize("hasRole('ADMIN')")
     boolean removeVMModel(String modelName);
 
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasRole('PROFESSOR')")
     void defineVMModel(String teamID,String modelName);
 
 

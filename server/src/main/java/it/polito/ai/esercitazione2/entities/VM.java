@@ -17,7 +17,7 @@ public class VM {
     int ram;
     int status; //valutare se mettere enum;   0: spenta, 1:attiva
 
-    String imageId;
+    Long imageId;
 
 
     @ManyToMany(cascade={CascadeType.PERSIST,CascadeType.MERGE})

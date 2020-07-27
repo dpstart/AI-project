@@ -59,6 +59,25 @@ public class CourseController {
         return ModelHelper.enrich(c);
     }
 
+    @PostMapping("/{name}/share")
+    void share(@PathVariable String name,@RequestBody Map<String,String> input){
+        if (!input.containsKey("id") || input.keySet().size()>1)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Expected only one field: usage 'id':<professorsId>");
+        String user=input.get("id");
+        try {
+            teamservice.shareOwnership(name,user);
+        }
+        catch(IncoherenceException e){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
+        }
+        catch(AuthorizationServiceException e){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,e.getMessage());
+        }
+        catch(TeamServiceException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }
+    }
+
     @GetMapping("/{name}/enrolled")
     List<StudentDTO> enrolledStudents(@PathVariable String name){
         try {
@@ -83,6 +102,22 @@ public class CourseController {
         }
 
         return ModelHelper.enrich(dto);
+    }
+
+    @GetMapping("/{name}/remove")
+    void removeCourse(@PathVariable String name){
+        try {
+            teamservice.removeCourse(name);
+        }
+        catch(CourseAuthorizationException e){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,e.getMessage());
+        }
+        catch(CourseEnabledException e){
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_REQUIRED,e.getMessage());
+        }
+        catch (CourseNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }
     }
 
     @GetMapping("/{name}/enable")

@@ -127,7 +127,9 @@ public class NotificationServiceImpl implements NotificationService {
             t.setExpiryDate(expiryDate);
             tokenRepository.save(t);
             String body = String.format(template.getText(), "http://localhost:8080/notification/confirm/"+token,"http://localhost:8080/notification/reject/"+token);
-            sendMessage("s"+s+"@studenti.polito.it","Invitation to join team: "+dto.getName(),body);
+            //sendMessage("s"+s+"@studenti.polito.it","Invitation to join team: "+dto.getName(),body);
+            sendMessage("giuseppe.pastore10@libero.it","Invitation to join team: "+dto.getName(),body);
+
         }
     }
 
@@ -143,7 +145,8 @@ public class NotificationServiceImpl implements NotificationService {
         ca.setExpiryDate(expiryDate);
         confirmAccountRepository.save(ca);
         String body = String.format(activation_template.getText(), s.getName(),"http://localhost:8080/notification/activate/"+token);
-        sendMessage(s.getEmail(),"Activate your account",body);
+       // sendMessage(s.getEmail(),"Activate your account",body);
+        sendMessage("giuseppe.pastore10@libero.it","Activate your account",body);
 
     }
     @Override
@@ -158,8 +161,8 @@ public class NotificationServiceImpl implements NotificationService {
         ca.setExpiryDate(expiryDate);
         confirmAccountRepository.save(ca);
         String body = String.format(activation_template.getText(), s.getName(),"http://localhost:8080/notification/activate/"+token);
-        sendMessage(s.getEmail(),"Activate your account",body);
-
+        //sendMessage(s.getEmail(),"Activate your account",body);
+        sendMessage("giusepe.pastore10@libero.it","Activate your account",body);
     }
 
     @Override
