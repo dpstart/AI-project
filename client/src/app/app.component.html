@@ -48,8 +48,18 @@
   </mat-sidenav>
 
   <mat-sidenav-content>
-
     <div *ngIf="isRoleTeacher() && isLoggedIn();">
+
+      
+
+      <nav mat-tab-nav-bar>
+        <a mat-tab-link *ngFor="let element of navTeacherLinks" (click)="onClickTab(element.link)" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive" value="link">
+          {{element.label}}
+        </a>
+      </nav>
+
+
+<!--       
       <nav mat-tab-nav-bar>
         <a mat-tab-link (click)="goToStudentsBar()" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
           Students
@@ -57,14 +67,13 @@
         <a mat-tab-link (click)="goToVMBar()" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
           VM
         </a>
-      </nav>
-  
+        <a mat-tab-link (click)="goToHomeworkBar()" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
+          Elaborati
+        </a>
+      </nav> -->
     </div>
-    
-
 
     <div *ngIf="isRoleStudent() && isLoggedIn();">
-
       <p>Sono uno studente</p>
     </div>
 

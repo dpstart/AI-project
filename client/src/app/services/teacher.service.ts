@@ -1,17 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Observable, throwError, Subject, ReplaySubject } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Student } from '../model/student.model';
-import { Team } from '../model/team.model';
-import { catchError } from 'rxjs/operators';
 
-
+export interface NavTeacherLinks {
+    link: String;
+    label: String;
+}
 
 @Injectable({
     providedIn: 'root'
 })
 export class TeacherService {
-
     private handleError(error: HttpErrorResponse) {
         if (error.error instanceof ErrorEvent) {
             // A client-side or network error occurred. Handle it accordingly.
@@ -28,7 +27,20 @@ export class TeacherService {
             'Something bad happened; please try again later.');
     };
 
-    constructor(private http: HttpClient) { }
+
+    //tabs of the teacher
+    private navTeacherLinks: NavTeacherLinks[];
+
+
+
+    constructor(private http: HttpClient) {
+        this.navTeacherLinks = [{ link: 'students', label: 'Students' }, { link: 'vms', label: 'VMs' }, { link: 'homework', label: 'Elaborati' }]
+    }
+
+
+    getNavTeacherLinks(){
+        return this.navTeacherLinks
+    }
 
     URL = "http://localhost:4200/API"
 
@@ -42,16 +54,16 @@ export class TeacherService {
         return this.selectedCourse;
     }
 
-    getCourses<T>(): Observable<T> {
+    getCourses<Course>(): Observable<Course[]> {
 
         const url = `${this.URL}/courses`;
-        return this.http.get<T>(url);
+        return this.http.get<Course[]>(url);
     }
 
-    getCourse<T>(name: string): Observable<T> {
+    getCourse<Course>(name: string): Observable<Course> {
 
         const url = `${this.URL}/courses/${name}`;
-        return this.http.get<T>(url);
+        return this.http.get<Course>(url);
     }
 
     getTeams<Team>(course: string): Observable<Team[]> {
@@ -63,7 +75,7 @@ export class TeacherService {
 
     getVMs<T>(team: number): Observable<T> {
 
-        const url = `${this.URL}/vms/${team}`;
+        const url = `${this.URL}/vms/teams/${team}`;
         return this.http.get<T>(url);
 
     }

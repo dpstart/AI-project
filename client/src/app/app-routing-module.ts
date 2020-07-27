@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home.component';
-import { VMComponent } from 'src/app/vm/vm.component';
+import { VMComponent } from 'src/app/teacher/vm/vm.component';
 import { PageNotFoundComponent } from './page-not-found.component';
 import { StudentsContComponent } from './teacher/students-cont.component';
 
 import { TeacherGuard } from './auth/teacher.guard';
 import { StudentGuard } from './auth/student.guard';
+import { HomeworkComponent } from './teacher/homework/homework.component';
 
 
 const routes: Routes = [
@@ -30,6 +31,7 @@ const routes: Routes = [
         children: [
             { path: 'course/:course_name/students', component: StudentsContComponent },
             { path: 'course/:course_name/vms', component: VMComponent },
+            { path: 'course/:course_name/homework', component: HomeworkComponent },
         ]
     },
     { path: 'home', component: HomeComponent },

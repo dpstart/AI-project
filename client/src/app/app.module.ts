@@ -3,7 +3,6 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -24,15 +23,15 @@ import { StudentsContComponent } from './teacher/students-cont.component';
 import { AppRoutingModule } from './app-routing-module';
 import { HomeComponent } from './home.component';
 import { PageNotFoundComponent } from './page-not-found.component';
-import { VMComponent } from 'src/app/vm/vm.component';
+import { VMComponent } from 'src/app/teacher/vm/vm.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { LoginDialogComponent } from './auth/login-dialog.component';
 import { TokenInterceptor } from './auth/token.interceptor';
-import { RouterStateSnapshot } from '@angular/router';
 import { RegisterDialogComponent } from './auth/register-dialog.component';
 import { TeacherGuard } from './auth/teacher.guard';
 import { StudentGuard } from './auth/student.guard';
+import { HomeworkComponent } from './teacher/homework/homework.component';
 
 
 @NgModule({
@@ -45,6 +44,7 @@ import { StudentGuard } from './auth/student.guard';
     VMComponent,
     LoginDialogComponent,
     RegisterDialogComponent,
+    HomeworkComponent,
   ],
   imports: [
     BrowserModule,
@@ -68,6 +68,7 @@ import { StudentGuard } from './auth/student.guard';
     AppRoutingModule,
     MatDialogModule,
     MatCardModule,
+    MatFormFieldModule
   ],
   entryComponents: [LoginDialogComponent],
   providers: [
