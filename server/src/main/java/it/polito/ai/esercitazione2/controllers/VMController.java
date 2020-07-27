@@ -70,6 +70,24 @@ public class VMController {
             }
     }
 
+    @GetMapping("/{id}/update")
+    void updateVM(@PathVariable Long id,@RequestPart(value="image",required=false) MultipartFile file, @Valid @RequestPart("settings") SettingsDTO settings){
+        try{
+            if (file ==null || file.isEmpty())
+                vmservice.updateVM(id,settings);
+            else
+                vmservice.updateVM(id,file,settings);
+        } catch(VMInstanceNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        } catch(TeamAuthorizationException e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,e.getMessage());
+        } catch(UnavailableResourcesForTeamException e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
+        } catch (VMAlreadyInExecutionException e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
+        }
+    }
+
     @GetMapping("{id}/stop")
     void stopVM(@PathVariable Long id){
         try{

@@ -188,6 +188,92 @@ public class VMServiceImpl implements VMService {
     }
 
     @Override
+    public void updateVM(Long vmID, MultipartFile file, SettingsDTO settings){
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if(!vmRepository.existsById(vmID))
+            throw new VMInstanceNotFoundException("Instance "+vmID + " not found!");
+
+        VM vm = vmRepository.getOne(vmID);
+
+        if (!vm.getOwners().stream().anyMatch(x->x.getId().equals(principal))){
+            throw new TeamAuthorizationException("Current user is not an owner of this machine");
+        }
+
+
+        if (vm.getStatus()==1){
+            throw new VMAlreadyInExecutionException("Running instance"); // TO DO: cambiare
+        }
+
+        Team t= vm.getTeam();
+
+        List<VM> vms=t.getVMs().stream().filter(x->!x.getId().equals(vm.getId())).collect(Collectors.toList());
+
+        if (vms.size()==t.getMax_available()||
+                vms.stream().map(VM::getRam).mapToInt(Integer::intValue).sum()+settings.getRam()>t.getRam() ||
+                vms.stream().map(VM::getDisk_space).mapToInt(Integer::intValue).sum()+settings.getDisk_space()>t.getDisk_space() ||
+                vms.stream().map(VM::getN_cpu).mapToInt(Integer::intValue).sum()+settings.getN_cpu()>t.getN_cpu())
+
+            throw new UnavailableResourcesForTeamException("The upper limit for usable resources has been exceeded");
+
+        vm.setN_cpu(settings.getN_cpu());
+        vm.setDisk_space(settings.getDisk_space());
+        vm.setRam(settings.getN_cpu());
+
+        Image img = null;
+        try {
+            imageService.remove(img.getName());
+            img = imageService.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
+        }
+        catch (IOException e) {
+            throw new ImageException("VM image didn't load on database correctly");
+        }
+        if(img == null)
+            throw new ImageException("VM image didn't load on database correctly");
+        vm.setImageId(img.getName());
+
+
+
+        vmRepository.save(vm);
+    }
+
+    @Override
+    public void updateVM(Long vmID, SettingsDTO settings){
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if(!vmRepository.existsById(vmID))
+            throw new VMInstanceNotFoundException("Instance "+vmID + " not found!");
+
+        VM vm = vmRepository.getOne(vmID);
+
+        if (!vm.getOwners().stream().anyMatch(x->x.getId().equals(principal))){
+            throw new TeamAuthorizationException("Current user is not an owner of this machine");
+        }
+
+
+        if (vm.getStatus()==1){
+            throw new VMAlreadyInExecutionException("Running instance"); // TO DO: cambiare
+        }
+
+        Team t= vm.getTeam();
+
+        List<VM> vms=t.getVMs().stream().filter(x->!x.getId().equals(vm.getId())).collect(Collectors.toList());
+
+        if (vms.size()==t.getMax_available()||
+               vms.stream().map(VM::getRam).mapToInt(Integer::intValue).sum()+settings.getRam()>t.getRam() ||
+                vms.stream().map(VM::getDisk_space).mapToInt(Integer::intValue).sum()+settings.getDisk_space()>t.getDisk_space() ||
+                vms.stream().map(VM::getN_cpu).mapToInt(Integer::intValue).sum()+settings.getN_cpu()>t.getN_cpu())
+
+            throw new UnavailableResourcesForTeamException("The upper limit for usable resources has been exceeded");
+
+        vm.setN_cpu(settings.getN_cpu());
+        vm.setDisk_space(settings.getDisk_space());
+        vm.setRam(settings.getN_cpu());
+
+        vmRepository.save(vm);
+    }
+
+    @Override
     public Image connectToVM(Long vmID){
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
 

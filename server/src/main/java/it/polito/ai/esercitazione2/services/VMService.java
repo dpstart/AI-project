@@ -38,6 +38,10 @@ public interface VMService {
     @PreAuthorize("hasRole('STUDENT')")
     void runVM(Long VMID);
     @PreAuthorize("hasRole('STUDENT')")
+    void updateVM(Long vmID, MultipartFile file, SettingsDTO settings);
+    @PreAuthorize("hasRole('STUDENT')")
+    void updateVM(Long vmID, SettingsDTO settings);
+    @PreAuthorize("hasRole('STUDENT')")
     void stopVM(Long VMID);
     @PreAuthorize("hasRole('STUDENT')")
     void removeVM(Long VMID);
