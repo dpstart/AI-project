@@ -635,12 +635,11 @@ public class TeamServiceImpl implements TeamService {
         if (!c.getEnabled())
             throw new CourseNotEnabledException("Course: "+courseId + " is not enabled!");
 
-        if (!memberIds.contains(proposer))
-            throw new ProposerNotPartOfTheTeamException("The student proposing a team must be part of the team");
-
         if (memberIds.size()==0)
             throw new TeamSizeConstraintsException("It need to specify at least one student for  a team");
 
+        if (!memberIds.contains(proposer))
+            memberIds.add(proposer);
         List<Student> enrolled = c.getStudents();
 
         // retrieval delle entities e controllo se lo studente esiste e se è iscritto al corso
@@ -692,6 +691,7 @@ public class TeamServiceImpl implements TeamService {
             t.addStudent(s);
 
         TeamDTO dto = modelMapper.map(teamRepository.save(t),TeamDTO.class);
+        memberIds.remove(proposer);
         notificationService.notifyTeam(dto,memberIds,duration);
         return dto;
 

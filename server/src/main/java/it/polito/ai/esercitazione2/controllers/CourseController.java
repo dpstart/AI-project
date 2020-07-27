@@ -339,7 +339,7 @@ public class CourseController {
         }
     }
 
-    @PostMapping("/{name}/teams/{teamId}/settings/createVM")
+    @PostMapping("/{name}/teams/{teamId}/createVM")
     VMDTO createVM(@PathVariable Long teamId, @RequestPart(value="image") MultipartFile file, @Valid @RequestPart("settings") SettingsDTO settings){
         if (settings.getMax_active()==null) //contemporary active
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max active' field not expected here");
@@ -350,7 +350,7 @@ public class CourseController {
             return vmservice.createVM(teamId,file,settings);
         }
         catch (AuthorizationServiceException e){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());  //DA CAMBIARE!!!!
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZ, e.getMessage());  //DA CAMBIARE!!!!
         }
         catch ( TeamNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
