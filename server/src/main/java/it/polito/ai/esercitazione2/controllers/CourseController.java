@@ -200,6 +200,8 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }
     }
+
+
     @PostMapping("/{name}/enrollMany")
     @ResponseStatus(HttpStatus.CREATED)
     void enrollStudents(@PathVariable String name, @RequestBody Map<String,Object> input){
