@@ -134,6 +134,34 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    public CourseDTO updateCourse(CourseDTO c){
+        String prof = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!courseRepository.existsById(c.getName()) && !courseRepository.existsByAcronime(c.getAcronime()))
+            throw new CourseNotFoundException("Course: "+c.getName()+ " not found!");
+        Course co = courseRepository.getOne(c.getName());
+        if (!co.getProfessors().stream().anyMatch(x->x.getId().equals(prof)))
+            throw new CourseAuthorizationException("Professor "+prof+ "has not the rights to modify this course");
+
+        String acronime = c.getAcronime();
+        int min = c.getMin();
+        int max = c.getMax();
+
+        if (min>max)
+            throw new IncoherenceException("Impossible to set a minimum number of members greater than the maximum one");
+
+        co.setAcronime(acronime);
+
+        if (co.getTeams().stream().map(x->x.getMembers().size()).filter((Integer x)->x<min || x>max).count()>0)
+            throw new TeamSizeConstraintsException("Impossible to change members size constraints so that invalidate already existinf teams ");
+        co.setMin(min);
+        co.setMax(max);
+        courseRepository.save(co);
+
+        return modelMapper.map(co,CourseDTO.class);
+
+    }
+
+    @Override
     public Optional<CourseDTO> getCourse(String name) {
         Optional<Course> c = courseRepository.findById(name);
         if (c.isEmpty() && courseRepository.existsByAcronime(name))

@@ -17,6 +17,8 @@ public interface TeamService {
     boolean addCourse(CourseDTO c);
     @PreAuthorize("hasRole('PROFESSOR')")
     void removeCourse(String courseName);
+    @PreAuthorize("hasRole('PROFESSOR')")
+    CourseDTO updateCourse(CourseDTO c);
     Optional<CourseDTO> getCourse(String name);
     List<CourseDTO> getAllCourses();
     void shareOwnership(String courseName,String profId);

@@ -21,6 +21,8 @@ public class ModelHelper {
         Link enrolled_alias = linkTo(methodOn(CourseController.class)
                 .enrolledStudents(c.getAcronime())).withRel("enrolled");
         c.add(enrolled_alias);
+
+
         try {
             Link enable = linkTo(
                     CourseController.class,
@@ -57,6 +59,25 @@ public class ModelHelper {
         }catch (NoSuchMethodException e){
             //ignore
         }
+        try{
+            Link remove = linkTo(
+                    CourseController.class,
+                    CourseController.class.getMethod("removeCourse", String.class),
+                    c.getName())
+                    .withRel("remove");
+            c.add(remove);
+
+            Link remove_alias = linkTo(
+                    CourseController.class,
+                    CourseController.class.getMethod("removeCourse", String.class),
+                    c.getAcronime())
+                    .withRel("remove");
+            c.add(remove_alias);
+        }catch (NoSuchMethodException e){
+            //ignore
+        }
+
+
 
         Link teams = linkTo(methodOn(CourseController.class)
                 .getTeams(c.getName())).withRel("teams");

@@ -120,6 +120,25 @@ public class CourseController {
         }
     }
 
+    @PostMapping("/update")
+    CourseDTO updateCourse(@Valid @RequestBody CourseDTO dto){
+        try {
+            return teamservice.updateCourse(dto);
+        }
+        catch(CourseAuthorizationException e){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,e.getMessage());
+        }
+        catch(TeamSizeConstraintsException e){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
+        }
+        catch (CourseNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }
+        catch (IncoherenceException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
     @GetMapping("/{name}/enable")
     public void enableCourse(@PathVariable String name){
         try{
