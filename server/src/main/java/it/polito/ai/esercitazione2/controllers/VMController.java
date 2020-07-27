@@ -146,7 +146,6 @@ public class VMController {
     @GetMapping({"","/"})
     List<VMDTO> getVMs(){
             return vmservice.getVMs();
-
     }
 
     @GetMapping("/courses/{course_name}")

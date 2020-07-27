@@ -410,8 +410,14 @@ public class VMServiceImpl implements VMService {
     @Override
     public List<VMDTO> getVMs(){
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
-        return professorRepository.getOne(principal).getCourses().stream().flatMap(x->x.getTeams().stream())
+
+        if (professorRepository.existsById(principal))
+            return professorRepository.getOne(principal).getCourses().stream().flatMap(x->x.getTeams().stream())
                 .flatMap(x->x.getVMs().stream()).map(x->modelMapper.map(x,VMDTO.class)).collect(Collectors.toList());
+        else if (studentRepository.existsById(principal))
+            return studentRepository.getOne(principal).getTeams().stream().flatMap(x->x.getVMs().stream()).map(x->modelMapper.map(x,VMDTO.class)).collect(Collectors.toList());
+        else
+            return vmRepository.findAll().stream().map(x->modelMapper.map(x,VMDTO.class)).collect(Collectors.toList());
     }
 
     @Override
