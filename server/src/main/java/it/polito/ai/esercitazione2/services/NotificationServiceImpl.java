@@ -124,6 +124,7 @@ public class NotificationServiceImpl implements NotificationService {
             Token t = new Token();
             t.setId(token);
             t.setTeamId(dto.getId());
+            t.setUserId(s);
             t.setExpiryDate(expiryDate);
             tokenRepository.save(t);
             String body = String.format(template.getText(), "http://localhost:8080/notification/confirm/"+token,"http://localhost:8080/notification/reject/"+token);

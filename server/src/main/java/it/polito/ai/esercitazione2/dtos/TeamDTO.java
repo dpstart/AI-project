@@ -21,4 +21,6 @@ public class TeamDTO extends RepresentationModel<TeamDTO> {
     int max_active=0;
     int max_available=0;
 
+    String id_creator;
+
 }

@@ -145,6 +145,16 @@ public class ModelHelper {
                 .getTeamMembers(course,t.getId())).withRel("members");
         t.add(members);
 
+        Link creator = linkTo(methodOn(StudentController.class)
+                .getOne(t.getId_creator())).withRel("creator");
+        t.add(creator);
+
+        Link adhesionStatus = linkTo(methodOn(CourseController.class)
+                .getAdhesionInfo(course,t.getId())).withRel("adhesion");
+        t.add(adhesionStatus);
+
+
+
 
         return t;
     }

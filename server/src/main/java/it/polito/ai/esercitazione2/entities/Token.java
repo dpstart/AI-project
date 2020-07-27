@@ -12,6 +12,7 @@ public class Token {
      @Id
      String id;
      Long teamId;
+     String userId;
      Timestamp expiryDate;
 
 

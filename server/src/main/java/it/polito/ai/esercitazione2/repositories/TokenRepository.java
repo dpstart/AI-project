@@ -10,4 +10,6 @@ public interface TokenRepository extends JpaRepository<Token,String> {
 
     List<Token> findAllByExpiryDateBefore(Timestamp t);
     List<Token>findAllByTeamId(Long teamId); //per selezionare quelli legati ad un team
+
+
 }

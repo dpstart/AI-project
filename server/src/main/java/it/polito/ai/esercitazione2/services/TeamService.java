@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Reader;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -73,6 +74,7 @@ public interface TeamService {
     boolean activeTeam(Long ID);
     boolean evictTeam(Long ID);
     List<Boolean> evictAll(Set<Long> teams);
+    Map<String,Boolean> getAdhesionInfo(Long teamID);
 
     //Images
     Image getProfileImage();

@@ -51,6 +51,9 @@ public class TeamServiceImpl implements TeamService {
     TeamRepository teamRepository;
 
     @Autowired
+    TokenRepository tokenRepository;
+
+    @Autowired
     ProfessorRepository professorRepository;
 
     @Autowired
@@ -686,6 +689,7 @@ public class TeamServiceImpl implements TeamService {
         t.setName(name);
         t.setCourse(c);
         t.setStatus(0);
+        t.setId_creator(proposer);
 
         for (Student s: members)
             t.addStudent(s);
@@ -993,6 +997,21 @@ public class TeamServiceImpl implements TeamService {
         c.addProfessor(p);
         courseRepository.save(c);
 
+    }
+
+    @Override
+    public Map<String,Boolean> getAdhesionInfo(Long teamID){
+
+        Team t = teamRepository.getOne(teamID);
+        Map<String,Boolean> m=new HashMap<>();
+        List<Student> members = t.getMembers();
+        List<Token> tokens = tokenRepository.findAllByTeamId(teamID);
+
+        for(Student s: members){
+            m.put(s.getId(),!tokens.stream().anyMatch(x->x.getUserId().equals(s.getId())));
+        }
+
+        return m;
     }
 
 

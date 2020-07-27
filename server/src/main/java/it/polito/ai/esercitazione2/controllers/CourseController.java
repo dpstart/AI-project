@@ -350,7 +350,7 @@ public class CourseController {
             return vmservice.createVM(teamId,file,settings);
         }
         catch (AuthorizationServiceException e){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZ, e.getMessage());  //DA CAMBIARE!!!!
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());  //DA CAMBIARE!!!!
         }
         catch ( TeamNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
@@ -382,6 +382,12 @@ public class CourseController {
         }catch (IncoherenceException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
         }
+
+    }
+
+    @GetMapping("/{name}/teams/{id}/aadhesion")
+    Map<String,Boolean> getAdhesionInfo(@PathVariable String name, @PathVariable Long id){
+       return teamservice.getAdhesionInfo(id);
 
     }
 
