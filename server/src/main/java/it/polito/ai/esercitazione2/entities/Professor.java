@@ -15,6 +15,7 @@ public class Professor {
     String firstName;
     String email;
     String image_id;
+    Boolean enabled=false;
 
     @ManyToMany(mappedBy="professors")
     List<Course> courses =  new ArrayList<>();

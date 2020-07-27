@@ -28,6 +28,7 @@ public class ProfessorDTO extends RepresentationModel<ProfessorDTO> {
     @NotBlank
     @JsonProperty("password")
     String password;
+    Boolean enabled=false;
 
 
 }

@@ -224,18 +224,27 @@ public class CourseController {
         if (!input.containsKey("members"))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Missing members key");
 
-        if (input.keySet().size()>2)
+        if (!input.containsKey("timeout"))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Missing members timeout");
+
+        if (input.keySet().size()>3)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"More keys then expected");
 
         List<String> members=(List<String>)input.get("members");
         String team=input.get("team").toString().trim();
+        Long duration=(Long)input.get("timeout");
 
         if (team.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Specify a valid team name");
 
+        //almeno 10 minuti
+        if (duration<=(60*1000*10)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Impossible to set a tiemout less than 10 minutes");
+        }
+
 
         try {
-            TeamDTO t=teamservice.proposeTeam(name, team, members);
+            TeamDTO t=teamservice.proposeTeam(name, team, members,duration);
         }
         catch (AlreadyInACourseTeamException e){
             throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());

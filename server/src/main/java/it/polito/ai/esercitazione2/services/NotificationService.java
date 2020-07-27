@@ -12,7 +12,7 @@ public interface NotificationService {
     boolean confirm(String token);
 
     boolean reject(String token);
-    void notifyTeam(TeamDTO dto, List<String> memberIds);
+    void notifyTeam(TeamDTO dto, List<String> memberIds,Long duration);
 
     void notifyStudent(StudentDTO s);
     void notifyProfessor(ProfessorDTO p);

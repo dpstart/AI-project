@@ -14,6 +14,7 @@ import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.stereotype.Service;
@@ -90,7 +91,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public boolean addCourse(CourseDTO c) {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!professorRepository.existsById(prof))
+        if (!professorRepository.existsById(prof) || !professorRepository.getOne(prof).getEnabled())
             throw new ProfessorNotFoundException("Professor "+prof+ " not found!");
         Professor p = professorRepository.findById(prof).get();
         if (courseRepository.existsById(c.getName()) || courseRepository.existsByAcronime(c.getAcronime()))
@@ -130,7 +131,7 @@ public class TeamServiceImpl implements TeamService {
         Course c = courseRepository.getOne(courseName);
         if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)) && !SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
             throw new CourseAuthorizationException("User "+prof+ " has not the rights to modify this course: he's not the admin or the professor for this course");
-        if (!studentRepository.existsById(studentId))
+        if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
             throw new StudentNotFoundException("Student: "+studentId + " not found!");
 
         if (!c.getEnabled())
@@ -180,7 +181,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public List<CourseDTO> getCourses(String studentId) {
-        if (!studentRepository.existsById(studentId))
+        if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
             throw new StudentNotFoundException("Student: "+studentId+" not found!");
         Student s = studentRepository.getOne(studentId);
         return s.getCourses()
@@ -248,7 +249,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public Optional<ProfessorDTO> getProfessor(String professorId) {
-        return professorRepository.findById(professorId).map(x->modelMapper.map(x,ProfessorDTO.class));
+        return professorRepository.findById(professorId).filter(x->x.getEnabled()).map(x->modelMapper.map(x,ProfessorDTO.class));
     }
 
     //Students
@@ -399,7 +400,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public Optional<StudentDTO> getStudent(String studentId) {
-        return studentRepository.findById(studentId).map(x->modelMapper.map(x,StudentDTO.class));
+        return studentRepository.findById(studentId).filter(x->x.getEnabled()).map(x->modelMapper.map(x,StudentDTO.class));
     }
 
 
@@ -407,6 +408,7 @@ public class TeamServiceImpl implements TeamService {
     public List<StudentDTO> getAllStudents() {
         return studentRepository.findAll()
                 .stream()
+                .filter(x->x.getEnabled())
                 .map(s->modelMapper.map(s,StudentDTO.class))
                 .collect(Collectors.toList());
     }
@@ -522,7 +524,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public List<TeamDTO> getTeamsforStudent(String studentId) {
-        if (!studentRepository.existsById(studentId))
+        if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
             throw new StudentNotFoundException("Student: "+studentId+" not found!");
         Student s = studentRepository.getOne(studentId);
         return s.getTeams()
@@ -556,6 +558,9 @@ public class TeamServiceImpl implements TeamService {
         }
         if (!professorRepository.existsById(profID))
             throw new ProfessorNotFoundException(message);
+
+        if(!professorRepository.getOne(profID).getEnabled())
+            throw new ProfessorNotFoundException("Not activated account");
         Professor p = professorRepository.getOne(profID);
         return  p.getCourses().stream()
                 .map(x->modelMapper.map(x, CourseDTO.class))
@@ -564,7 +569,7 @@ public class TeamServiceImpl implements TeamService {
 
 
     @Override
-    public TeamDTO proposeTeam(String courseId, String name, List<String> memberIds) {
+    public TeamDTO proposeTeam(String courseId, String name, List<String> memberIds,Long duration) {
         String proposer = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // il corso esiste?
@@ -586,7 +591,7 @@ public class TeamServiceImpl implements TeamService {
         // retrieval delle entities e controllo se lo studente esiste e se è iscritto al corso
         List<Student> members = memberIds.stream()
                 .map(x -> {
-                    if (studentRepository.existsById(x))
+                    if (studentRepository.existsById(x) && studentRepository.getOne(x).getEnabled())
                         return studentRepository.getOne(x);
                     else
                         throw new  StudentNotFoundException("Student: "+x+" not found!");
@@ -632,7 +637,7 @@ public class TeamServiceImpl implements TeamService {
             t.addStudent(s);
 
         TeamDTO dto = modelMapper.map(teamRepository.save(t),TeamDTO.class);
-        notificationService.notifyTeam(dto,memberIds);
+        notificationService.notifyTeam(dto,memberIds,duration);
         return dto;
 
     }
@@ -730,6 +735,7 @@ public class TeamServiceImpl implements TeamService {
 
         return courseRepository.getStudentsNotInTeams(courseName)
                 .stream()
+                .filter(x->x.getEnabled())
                 .map(x->modelMapper.map(x,StudentDTO.class))
                 .collect(Collectors.toList());
     }
@@ -761,6 +767,7 @@ public class TeamServiceImpl implements TeamService {
     public List<ProfessorDTO> getAllProfessors(){
         return professorRepository.findAll()
                 .stream()
+                .filter(x->x.getEnabled())
                 .map(s->modelMapper.map(s,ProfessorDTO.class))
                 .collect(Collectors.toList());
     }
@@ -808,6 +815,16 @@ public class TeamServiceImpl implements TeamService {
     }
 
     public void activeAccount(String id){
+
+
+        if (studentRepository.existsById(id)){
+            studentRepository.getOne(id).setEnabled(true);
+        }else if (professorRepository.existsById(id)){
+            professorRepository.getOne(id).setEnabled(true);
+        }else
+            throw new UsernameNotFoundException("Impossible to activate not existing user");
+
+
         //TO DO: gestire eventuali casi di errore con il reinvio
         JSONObject personJsonObject = new JSONObject();
         personJsonObject.put("id", id);

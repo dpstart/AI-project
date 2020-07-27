@@ -5,6 +5,7 @@ import it.polito.ai.esercitazione2.config.JwtResponse;
 import it.polito.ai.esercitazione2.config.JwtTokenUtil;
 
 import it.polito.ai.esercitazione2.dtos.ValidUserList;
+import it.polito.ai.esercitazione2.services.JWTService;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,19 +30,16 @@ import java.util.Map;
 @RestController
 @CrossOrigin
 public class JwtAuthenticationController {
+
     @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
-    @Autowired
-    private JdbcUserDetailsManager jdbcUserDetailsManager;
+    JWTService jwtservice;
 
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
-        authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        final UserDetails userDetails = jdbcUserDetailsManager.loadUserByUsername(authenticationRequest.getUsername());
-        final String token = jwtTokenUtil.generateToken(userDetails);
+        jwtservice.authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+        final UserDetails userDetails = jwtservice.getUser(authenticationRequest.getUsername());
+        final String token = jwtservice.generateToken(userDetails);
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
@@ -55,13 +53,8 @@ public class JwtAuthenticationController {
         String pwd = input.get("pwd");
         String role=input.get("role");
 
-        List<GrantedAuthority> auth = new ArrayList<>();
-        auth.add(new SimpleGrantedAuthority(role));
-
-        //TO DO: check
-        UserDetails user = new User(id,pwd,false,true,true,true,auth);
         try {
-            jdbcUserDetailsManager.createUser(user);
+            jwtservice.createUser(id,pwd,role);
         }
         catch(Exception e){
             //throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Problems with the insertion of a new user");
@@ -81,13 +74,8 @@ public class JwtAuthenticationController {
             String pwd = (String)input.get("pwd");
             String role = (String)input.get("role");
 
-            List<GrantedAuthority> auth = new ArrayList<>();
-            auth.add(new SimpleGrantedAuthority(role));
-
-            //TO DO: check
-            UserDetails user = new User(id,pwd,false,true,true,true,auth);
             try {
-                jdbcUserDetailsManager.createUser(user);
+                jwtservice.createUser(id,pwd,role);
             }
             catch(Exception e){
                // throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Problems with the insertion of a new user");
@@ -105,12 +93,9 @@ public class JwtAuthenticationController {
         String id=input.get("id");
 
         try {
-
-            UserDetails user=jdbcUserDetailsManager.loadUserByUsername(id);
-            jdbcUserDetailsManager.updateUser(new User(user.getUsername(),user.getPassword(),true,true,true,true,user.getAuthorities()));
+            jwtservice.activate(id);
         }
         catch(Exception e){
-
             //throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Problems with the insertion of a new user");
             return ResponseEntity.ok(false);
         }
@@ -127,7 +112,7 @@ public class JwtAuthenticationController {
             String id = (String)input.get("id");
 
             try {
-                jdbcUserDetailsManager.deleteUser(id);
+                jwtservice.deleteUser(id);
             }
             catch(Exception e){
                 // throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Problems with the insertion of a new user");
@@ -138,16 +123,5 @@ public class JwtAuthenticationController {
     }
 
 
-    private void authenticate(String username, String password) throws Exception {
-        try {
 
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        } catch (DisabledException e) {
-
-            throw new Exception("USER_DISABLED", e);
-        } catch (BadCredentialsException e) {
-
-            throw new Exception("INVALID_CREDENTIALS", e);
-        }
-    }
 }

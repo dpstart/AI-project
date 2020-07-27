@@ -117,8 +117,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Async
-    public void notifyTeam(TeamDTO dto, List<String> memberIds){
-        Timestamp expiryDate =  new Timestamp(System.currentTimeMillis()+(60 * 60 * 1000));
+    public void notifyTeam(TeamDTO dto, List<String> memberIds,Long expiration){
+        Timestamp expiryDate =  new Timestamp(System.currentTimeMillis()+expiration);
         for(String s: memberIds){
             String token = UUID.randomUUID().toString();
             Token t = new Token();
