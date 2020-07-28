@@ -16,7 +16,7 @@ public class Homework {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Integer id;
+    Long id;
 
     @ManyToOne
     @JoinColumn(name="student_id")

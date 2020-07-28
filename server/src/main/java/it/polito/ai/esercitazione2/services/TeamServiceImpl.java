@@ -211,6 +211,47 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    public boolean removeStudentFromCourse(String studentId, String courseName) {
+        String prof = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
+            throw new CourseNotFoundException("Course: "+courseName + " not found!");
+        Course c = courseRepository.getOne(courseName);
+        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)) && !SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+            throw new CourseAuthorizationException("User "+prof+ " has not the rights to modify this course: he's not the admin or the professor for this course");
+        if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
+            throw new StudentNotFoundException("Student: "+studentId + " not found!");
+
+        if (!c.getEnabled())
+            throw new CourseNotEnabledException("Course "+courseName+" is not enabled");
+
+        if (!c.getStudents().stream().anyMatch(x->x.getId().equals(studentId)))
+            throw new StudentNotFoundException("Student: "+studentId + " not enrolled in this course!");
+
+
+        Student s =  studentRepository.getOne(studentId);
+
+        // remove homerwork of the student
+        s.getHomeworks().stream().map(x->{x.getVersionIds().stream().forEach((Long y)->imageService.remove(y)); return x;}).forEach((Homework x)->homeworkRepository.delete(x));
+        // rimuovere relazione ownership con VM, se è l'unico rimuovere proprio la VM
+        s.getVMs().stream().filter(x->x.getOwners().size()==1).map(x->{imageService.remove(x.getImageId());return x;}).forEach((VM x)->vmRepository.delete(x));
+        // rimuovere dal team: se il team va sotto la soglia minima, rimuoverlo
+        Team t =  s.getTeams().stream().filter(x->x.getCourse().getName().equals(courseName)).findFirst().orElse(null);
+
+        if (t!=null) {
+            t.removeStudent(s);
+            if (t.getMembers().size() < c.getMin())
+                teamRepository.delete(t);
+        }
+        c.removeStudent(s);
+        return true;
+    }
+
+    @Override
+    public List<Boolean> unsubscribeAll(List<String> studentIds, String courseName){
+        return studentIds.stream().map(x->removeStudentFromCourse(x,courseName)).collect(Collectors.toList());
+    }
+
+    @Override
     public void enableCourse(String courseName) {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))

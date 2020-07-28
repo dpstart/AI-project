@@ -201,6 +201,50 @@ public class CourseController {
         }
     }
 
+    @PostMapping("/{name}/unsubscribeOne")
+    @ResponseStatus(HttpStatus.CREATED)
+    void unsubscribeOne(@PathVariable String name, @RequestBody Map<String,String> input){
+        if (!input.containsKey("id") || input.get("id").isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Please valorize the key ID");
+        if (input.keySet().size()>1)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Received more keys then expected");
+        String id=input.get("id");
+
+        try {
+            if (!teamservice.removeStudentFromCourse(id, name))
+                throw new ResponseStatusException(HttpStatus.CONFLICT, id);
+        }catch (CourseAuthorizationException e){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,e.getMessage());
+        }
+        catch(TeamServiceException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }
+    }
+
+    @PostMapping("/{name}/unsubscribeMany")
+    @ResponseStatus(HttpStatus.CREATED)
+    void unsubscribeStudents(@PathVariable String name, @RequestBody Map<String,Object> input){
+
+        if (!input.containsKey("students"))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Missing 'students' key'");
+
+        if (input.keySet().size()>1)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"More keys then expected");
+
+        List<String> students=(List<String>)input.get("students");
+
+        try  {
+            teamservice.unsubscribeAll(students, name);
+        }  catch(StudentNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage()+" Ask the administrator to add it!");
+        } catch(CourseAuthorizationException e){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,e.getMessage());
+        }catch (TeamServiceException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }
+
+    }
+
 
     @PostMapping("/{name}/enrollMany")
     @ResponseStatus(HttpStatus.CREATED)
@@ -387,7 +431,7 @@ public class CourseController {
 
     }
 
-    @GetMapping("/{name}/teams/{id}/aadhesion")
+    @GetMapping("/{name}/teams/{id}/adhesion")
     Map<String,Boolean> getAdhesionInfo(@PathVariable String name, @PathVariable Long id){
        return teamservice.getAdhesionInfo(id);
 

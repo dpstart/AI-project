@@ -31,6 +31,8 @@ public class Assignment {
     @OneToMany(mappedBy="assignment",cascade = CascadeType.ALL, orphanRemoval = true)
     List<Homework> homeworks =  new ArrayList<>();
 
+    public Assignment(){}
+
     public Assignment(@NonNull Course course,
                       @NonNull Professor professor,
                       @NonNull Timestamp releaseDate,

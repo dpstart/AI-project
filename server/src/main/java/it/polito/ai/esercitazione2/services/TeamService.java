@@ -42,6 +42,8 @@ public interface TeamService {
     List<StudentDTO> getEnrolledStudents(String courseName);
     @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
     boolean addStudentToCourse(String  studentId, String courseName);
+    @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
+    public boolean removeStudentFromCourse(String studentId, String courseName);
     @PreAuthorize("hasRole('PROFESSOR')")
     void enableCourse(String courseName);
     @PreAuthorize("hasRole('PROFESSOR')")
@@ -51,6 +53,8 @@ public interface TeamService {
     List<Boolean> addAll(List<StudentDTO> students,boolean notify);
     @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
     List<Boolean> enrollAll(List<String> studentIds,String courseName);
+    @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
+    List<Boolean> unsubscribeAll(List<String> studentIds,String courseName);
     @PreAuthorize("hasRole('ADMIN')")
     List<Boolean> addAndEnroll(Reader r, String courseName);
     @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
