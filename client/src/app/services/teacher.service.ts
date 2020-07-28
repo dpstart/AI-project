@@ -31,13 +31,10 @@ export class TeacherService {
     //tabs of the teacher
     private navTeacherLinks: NavTeacherLinks[];
 
-
-
     constructor(private http: HttpClient) {
         this.navTeacherLinks = [{ link: 'students', label: 'Students' }, { link: 'vms', label: 'VMs' }, { link: 'homework', label: 'Elaborati' }]
     }
-
-
+    
     getNavTeacherLinks(){
         return this.navTeacherLinks
     }

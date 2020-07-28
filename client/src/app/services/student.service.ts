@@ -5,6 +5,11 @@ import { Student } from '../model/student.model';
 import { catchError } from 'rxjs/operators';
 
 
+export interface NavStudentLinks {
+  link: String;
+  label: String;
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +32,17 @@ export class StudentService {
       'Something bad happened; please try again later.');
   };
 
-  constructor(private http: HttpClient) { }
+  private navStudentLinks: NavStudentLinks[];
+
+  constructor(private http: HttpClient) {
+    this.navStudentLinks = [{ link: 'students', label: 'Students' }, { link: 'vms', label: 'VMs' }, { link: 'homework', label: 'Elaborati' }]
+  }
+
+  getNavStudentLinks(){
+    return this.navStudentLinks;
+  }
+
+  
 
   URL = "http://localhost:4200/API"
 

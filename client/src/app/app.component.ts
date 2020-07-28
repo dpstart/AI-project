@@ -4,9 +4,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { LoginDialogComponent } from './auth/login-dialog.component';
 import { AuthService } from './services/auth.service';
 import { Router, Event, NavigationEnd, ActivatedRoute } from '@angular/router';
-import { TeacherService,NavTeacherLinks } from './services/teacher.service';
+import { TeacherService, NavTeacherLinks } from './services/teacher.service';
 import { RegisterDialogComponent } from './auth/register-dialog.component';
 import { Course } from './model/course.model';
+import { StudentService, NavStudentLinks } from './services/student.service';
 
 
 @Component({
@@ -19,13 +20,15 @@ export class AppComponent implements OnInit, OnDestroy {
   courses: Course[];
   selectedCourse: Course;
   navTeacherLinks: NavTeacherLinks[];
+  navStudentLinks: NavStudentLinks[];
 
 
   constructor(public dialog: MatDialog, private auth: AuthService, private router: Router, private route: ActivatedRoute,
-    private teacher: TeacherService) {
+    private teacherService: TeacherService, private studentService: StudentService) {
 
 
-      this.navTeacherLinks = teacher.getNavTeacherLinks();
+    this.navTeacherLinks = teacherService.getNavTeacherLinks();
+    this.navStudentLinks = studentService.getNavStudentLinks();
 
     this.router.events.subscribe((event: Event) => {
       if (event instanceof NavigationEnd) {
@@ -63,20 +66,28 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // }
 
-  onClickTab(link:string){
-    this.router.navigate(['teacher', 'course', this.teacher.getSelectedCourse(), link]);
+  onClickTeacherTab(link: string) {
+    this.router.navigate(['teacher', 'course', this.teacherService.getSelectedCourse(), link]);
+  }
+
+
+  onClickStudentTab(link: string) {
+    this.router.navigate(['student', 'course', this.teacherService.getSelectedCourse(), link]);
   }
 
 
   @ViewChild(MatSidenav) sidenav: MatSidenav;
 
   ngOnInit() {
-    if (this.auth.isLoggedIn())
-      this.teacher.getCourses().subscribe((data: Course[]) => {
+    if (this.auth.isLoggedIn) {
+      // user is logged
+      this.teacherService.getCourses().subscribe((data: Course[]) => {
         this.courses = data;
-        this.teacher.setCourse(this.courses[0].name)
+        if (this.courses[0].name)
+          this.teacherService.setCourse(this.courses[0].name)
       });
 
+    }
   }
 
   ngOnDestroy() {
@@ -99,8 +110,10 @@ export class AppComponent implements OnInit, OnDestroy {
       }
       else {
         // user is logged
-        this.teacher.getCourses().subscribe((data: Course[]) => {
+        this.teacherService.getCourses().subscribe((data: Course[]) => {
           this.courses = data;
+          if (this.courses[0].name)
+            this.teacherService.setCourse(this.courses[0].name)
         });
 
         if (redirectUrl == null)
