@@ -34,6 +34,7 @@ import { StudentGuard } from './auth/student.guard';
 import { HomeworkComponent } from './teacher/homework/homework.component';
 import { VmStudentComponent } from './student/vm/vm-student.component';
 import { HomeworkStudentComponent } from './student/homework/homework-student.component';
+import { EditTeamDialogComponent } from './teacher/vm/edit/edit-team-dialog.component';
 
 
 @NgModule({
@@ -49,6 +50,7 @@ import { HomeworkStudentComponent } from './student/homework/homework-student.co
     HomeworkComponent,
     VmStudentComponent,
     HomeworkStudentComponent,
+    EditTeamDialogComponent,
   ],
   imports: [
     BrowserModule,

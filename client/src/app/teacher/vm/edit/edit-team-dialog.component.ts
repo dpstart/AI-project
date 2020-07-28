@@ -4,10 +4,10 @@ import { FormGroup, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'edit-team-dialog',
-  templateUrl: './edit.component.html',
-  styleUrls: ['../../auth/shared.styles.css']
+  templateUrl: './edit-team-dialog.component.html',
+  styleUrls: ['./edit-team-dialog.component.css']
 })
-export class EditTeamDialog {
+export class EditTeamDialogComponent {
 
 
   form: FormGroup = new FormGroup({
@@ -20,7 +20,7 @@ export class EditTeamDialog {
 
 
   constructor(
-    public dialogRef: MatDialogRef<EditTeamDialog>,
+    public dialogRef: MatDialogRef<EditTeamDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data) {
 
   }

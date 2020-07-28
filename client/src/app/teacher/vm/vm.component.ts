@@ -4,7 +4,7 @@ import { TeacherService } from '../../services/teacher.service';
 import { Team } from '../../model/team.model';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { EditTeamDialog } from './edit.component';
+import { EditTeamDialogComponent } from './edit/edit-team-dialog.component';
 
 
 
@@ -35,7 +35,7 @@ export class VMComponent implements OnInit {
     openEditDialog(element, event): void {
 
         console.log(element);
-        const dialogRef = this.dialog.open(EditTeamDialog, {
+        const dialogRef = this.dialog.open(EditTeamDialogComponent, {
             width: '250px',
             data: { team: element }
         });

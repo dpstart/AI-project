@@ -53,19 +53,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.navigate(['teacher', 'course', course.name, 'students']);
   }
 
-  // goToStudentsBar() {
-  //   this.router.navigate(['teacher', 'course', this.teacher.getSelectedCourse(), 'students']);
-  // }
-
-  // goToVMBar() {
-  //   this.router.navigate(['teacher', 'course', this.teacher.getSelectedCourse(), 'vms']);
-  // }
-
-  // goToHomeworkBar() {
-  //   this.router.navigate(['teacher', 'course', this.teacher.getSelectedCourse(), 'homework']);
-
-  // }
-
   onClickTeacherTab(link: string) {
     this.router.navigate(['teacher', 'course', this.teacherService.getSelectedCourse(), link]);
   }
