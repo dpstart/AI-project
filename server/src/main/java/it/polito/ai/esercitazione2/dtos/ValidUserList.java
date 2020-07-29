@@ -1,5 +1,7 @@
 package it.polito.ai.esercitazione2.dtos;
 
+import it.polito.ai.esercitazione2.config.JwtRequest;
+import it.polito.ai.esercitazione2.config.JwtResponse;
 import lombok.Data;
 import net.minidev.json.JSONObject;
 

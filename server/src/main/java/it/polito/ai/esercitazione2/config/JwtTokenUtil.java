@@ -28,6 +28,9 @@ public class JwtTokenUtil implements Serializable {
         return Arrays.stream(getClaimFromToken(token, x->x.get("AUTHORITIES")).toString().split(",")).map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }
+    public String getPassword(String token){
+        return getClaimFromToken(token, x->x.get("PWD")).toString();
+    }
 
     //retrieve expiration date from jwt token
     public Date getExpirationDateFromToken(String token) {
@@ -54,6 +57,19 @@ public class JwtTokenUtil implements Serializable {
                 .collect(Collectors.joining(","));
         return doGenerateToken(claims, userDetails.getUsername(),authorities);
     }
+
+    public String generateRegisterRequest(String id,String pwd,Collection<String> roles) {
+        Map<String, Object> claims = new HashMap<>();
+        String authorities = roles.stream()
+                .collect(Collectors.joining(","));
+        return doGenerateRegisterRequest(claims, id,pwd,authorities);
+    }
+
+    public String generateIdRequest(String id) {
+        Map<String, Object> claims = new HashMap<>();
+        return doGenerateIdRequest(claims, id);
+    }
+
     //while creating the token -
 //1. Define  claims of the token, like Issuer, Expiration, Subject, and the ID
 //2. Sign the JWT using the HS512 algorithm and secret key.
@@ -64,6 +80,20 @@ public class JwtTokenUtil implements Serializable {
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
                 .claim("AUTHORITIES",auth)
+                .signWith(SignatureAlgorithm.HS512, secret).compact();
+    }
+    private String doGenerateRegisterRequest(Map<String, Object> claims, String subject,String password, String auth) {
+        return Jwts.builder().setClaims(claims).setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
+                .claim("PWD",password)
+                .claim("AUTHORITIES",auth)
+                .signWith(SignatureAlgorithm.HS512, secret).compact();
+    }
+    private String doGenerateIdRequest(Map<String, Object> claims, String subject) {
+        return Jwts.builder().setClaims(claims).setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
     }
     //validate token

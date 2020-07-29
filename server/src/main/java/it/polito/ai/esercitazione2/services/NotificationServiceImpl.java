@@ -187,7 +187,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 
 
-    @Scheduled(initialDelay = 60*60*1000, fixedRate = 10*60*60*1000)
+    @Scheduled(initialDelay = 6*1000, fixedRate = 10*1000)
     public void run() {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         List<Token> expired = tokenRepository.findAllByExpiryDateBefore(now);

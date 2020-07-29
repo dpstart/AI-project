@@ -20,10 +20,12 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +35,9 @@ public class JwtAuthenticationController {
 
     @Autowired
     JWTService jwtservice;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
@@ -44,17 +49,24 @@ public class JwtAuthenticationController {
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<?> registerUser(@RequestBody Map<String,String> input) throws InterruptedException {
+    public ResponseEntity<?> registerUser(@RequestBody JwtResponse input) throws InterruptedException {
+        String token = input.getToken();
+        String username = null;
+        String pwd = null;
+        Collection<GrantedAuthority> roles=null;
+        try {
 
-        if (!input.containsKey("id") || !input.containsKey("pwd") || !input.containsKey("role") || input.size()>3)
-            //throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            username = jwtTokenUtil.getUsernameFromToken(token);
+            roles = jwtTokenUtil.getAuthorities(token);
+            pwd = jwtTokenUtil.getPassword(token);
+            System.out.println(username+"..."+roles+"..."+pwd);
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.ok(false);
-        String id=input.get("id");
-        String pwd = input.get("pwd");
-        String role=input.get("role");
+        }
 
         try {
-            jwtservice.createUser(id,pwd,role);
+            jwtservice.createUser(username,pwd,roles);
+
         }
         catch(Exception e){
             //throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Problems with the insertion of a new user");
@@ -65,17 +77,24 @@ public class JwtAuthenticationController {
 
     @RequestMapping(value = "/registerMany", method = RequestMethod.POST)
     public ResponseEntity<?> registerUsers(@RequestBody @Valid ValidUserList users) throws InterruptedException {
-
+        String token =null;
+        String username = null;
+        String pwd = null;
+        Collection<GrantedAuthority> roles=null;
         for (JSONObject input:  users.getList()) {
-            if (!input.containsKey("id") || !input.containsKey("pwd") || !input.containsKey("role") || input.size() > 3)
-                //throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+              if (!input.containsKey("token")  || input.size() > 1)
                 return ResponseEntity.ok(false);
-            String id = (String)input.get("id");
-            String pwd = (String)input.get("pwd");
-            String role = (String)input.get("role");
+            token = (String)input.get("token");
+            try {
+                username = jwtTokenUtil.getUsernameFromToken(token);
+                roles = jwtTokenUtil.getAuthorities(token);
+                pwd = jwtTokenUtil.getPassword(token);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.ok(false);
+            }
 
             try {
-                jwtservice.createUser(id,pwd,role);
+                jwtservice.createUser(username,pwd,roles);
             }
             catch(Exception e){
                // throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Problems with the insertion of a new user");
@@ -86,14 +105,20 @@ public class JwtAuthenticationController {
     }
 
     @RequestMapping(value = "/activate", method = RequestMethod.POST)
-    public ResponseEntity<?> activateUser(@RequestBody Map<String,String> input) throws InterruptedException {
-        if (!input.containsKey("id") || input.size()>1)
-            //throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-            return ResponseEntity.ok(false);
-        String id=input.get("id");
+    public ResponseEntity<?> activateUser(@RequestBody JwtResponse input) throws InterruptedException {
+        String token = input.getToken();
+        String username = null;
 
         try {
-            jwtservice.activate(id);
+
+            username = jwtTokenUtil.getUsernameFromToken(token);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.ok(false);
+        }
+
+        try {
+            jwtservice.activate(username);
         }
         catch(Exception e){
             //throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Problems with the insertion of a new user");
@@ -104,12 +129,20 @@ public class JwtAuthenticationController {
 
     @RequestMapping(value = "/removeMany", method = RequestMethod.POST)
     public ResponseEntity<?> deleteUsers(@RequestBody @Valid ValidUserList users) throws InterruptedException {
-
+        String token=null;
+        String id=null;
         for (JSONObject input:  users.getList()) {
-            if (!input.containsKey("id")  || input.size() > 1)
-                //throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            if (!input.containsKey("token")  || input.size() > 1)
                 return ResponseEntity.ok(false);
-            String id = (String)input.get("id");
+            token = (String)input.get("token");
+            try {
+
+                id = jwtTokenUtil.getUsernameFromToken(token);
+
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.ok(false);
+            }
+
 
             try {
                 jwtservice.deleteUser(id);

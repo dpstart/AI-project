@@ -2,6 +2,8 @@ package it.polito.ai.esercitazione2.services;
 
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import it.polito.ai.esercitazione2.config.JwtResponse;
+import it.polito.ai.esercitazione2.config.JwtTokenUtil;
 import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.entities.*;
 import it.polito.ai.esercitazione2.exceptions.*;
@@ -86,6 +88,9 @@ public class TeamServiceImpl implements TeamService {
     
     @Autowired
     HomeworkRepository homeworkRepository;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     WebClient w = WebClient.create("http://localhost:8080");
 
@@ -415,16 +420,12 @@ public class TeamServiceImpl implements TeamService {
 
     public boolean registerUser( String id, String pwd,String role)  {
 
-        JSONObject personJsonObject = new JSONObject();
-        personJsonObject.put("id", id);
-        personJsonObject.put("pwd", pwd);
-        personJsonObject.put("role",role);
 
-
-
+         List<String> roles = new ArrayList<>();
+         roles.add(role);
          Boolean a= w.post()
                     .uri("/register")
-                    .body(Mono.just(personJsonObject), JSONObject.class)
+                    .body(Mono.just(jwtTokenUtil.generateRegisterRequest(id,pwd,roles)), JwtResponse.class)
                     /*
                     .exchange().flatMap(x->{
                         if (x.statusCode().is4xxClientError()||x.statusCode().is5xxServerError()) {
@@ -470,13 +471,14 @@ public class TeamServiceImpl implements TeamService {
     public boolean registerUsers(Map<String,String> input,String role) {
 
         List<JSONObject> list=new ArrayList<>();
+        List<String> roles=new ArrayList<>();
+        roles.add(role);
         for (String key: input.keySet()) {
             JSONObject personJsonObject = new JSONObject();
-            personJsonObject.put("id", key);
-            personJsonObject.put("pwd", input.get(key));
-            personJsonObject.put("role", role);
+            personJsonObject.put("token", jwtTokenUtil.generateRegisterRequest(key, input.get(key), roles));
             list.add(personJsonObject);
         }
+
         ValidUserList usersList=new ValidUserList();
         usersList.setList(list);
 
@@ -929,13 +931,9 @@ public class TeamServiceImpl implements TeamService {
             throw new UsernameNotFoundException("Impossible to activate not existing user");
 
 
-        //TO DO: gestire eventuali casi di errore con il reinvio
-        JSONObject personJsonObject = new JSONObject();
-        personJsonObject.put("id", id);
-
         w.post()
                 .uri("/activate")
-                .body(Mono.just(personJsonObject), JSONObject.class)
+                .body(Mono.just(jwtTokenUtil.generateIdRequest(id)), JwtResponse.class)
                 .exchange()
                 .subscribe();
                 /*
@@ -978,12 +976,11 @@ public class TeamServiceImpl implements TeamService {
 
     public void removeAccount(String id){
         //TO DO: gestire eventuali casi di errore con il reinvio
-        JSONObject personJsonObject = new JSONObject();
-        personJsonObject.put("id", id);
+
 
         w.post()
                 .uri("/remove")
-                .body(Mono.just(personJsonObject), JSONObject.class)
+                .body(Mono.just(jwtTokenUtil.generateIdRequest(id)), JwtResponse.class)
                 .exchange()
                 .subscribe();
 
@@ -995,9 +992,10 @@ public class TeamServiceImpl implements TeamService {
         List<JSONObject> list=new ArrayList<>();
         for (String key: users) {
             JSONObject personJsonObject = new JSONObject();
-            personJsonObject.put("id", key);
+            personJsonObject.put("token", jwtTokenUtil.generateIdRequest(key));
             list.add(personJsonObject);
         }
+
         ValidUserList usersList=new ValidUserList();
         usersList.setList(list);
         w.post()

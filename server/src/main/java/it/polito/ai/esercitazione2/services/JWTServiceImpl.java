@@ -1,7 +1,6 @@
 package it.polito.ai.esercitazione2.services;
 
 import it.polito.ai.esercitazione2.config.JwtTokenUtil;
-import it.polito.ai.esercitazione2.exceptions.TeamNotFoundException;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -54,14 +54,13 @@ public class JWTServiceImpl implements JWTService {
     public String generateToken(UserDetails u){
         return jwtTokenUtil.generateToken(u);
     }
+    public String generateRegisterRequest(String id, String password, Collection<String> roles) { return jwtTokenUtil.generateRegisterRequest(id,password,roles);}
 
     @Override
-    public void createUser(String id, String pwd, String role) throws Exception {
-        List<GrantedAuthority> auth = new ArrayList<>();
-        auth.add(new SimpleGrantedAuthority(role));
+    public void createUser(String id,String pwd, Collection<GrantedAuthority> roles) throws Exception {
 
         //TO DO: check
-        UserDetails user = new User(id, pwd, false, true, true, true, auth);
+        UserDetails user = new User(id, pwd, false, true, true, true, roles);
         jdbcUserDetailsManager.createUser(user);
 
     }
