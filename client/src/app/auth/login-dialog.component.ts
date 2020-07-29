@@ -35,6 +35,7 @@ export class LoginDialogComponent {
       sess["token"] = data["token"]
 
       localStorage.setItem("session", JSON.stringify(sess));
+      
 
       this.dialogRef.close();
 

@@ -16,6 +16,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatCardModule } from '@angular/material/card';
 import { MatSortModule } from '@angular/material/sort';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { StudentsComponent } from './teacher/students.component';
@@ -25,13 +26,15 @@ import { HomeComponent } from './home.component';
 import { PageNotFoundComponent } from './page-not-found.component';
 import { VMComponent } from 'src/app/teacher/vm/vm.component';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatCardModule } from '@angular/material/card';
 import { LoginDialogComponent } from './auth/login-dialog.component';
 import { TokenInterceptor } from './auth/token.interceptor';
 import { RegisterDialogComponent } from './auth/register-dialog.component';
 import { TeacherGuard } from './auth/teacher.guard';
 import { StudentGuard } from './auth/student.guard';
 import { HomeworkComponent } from './teacher/homework/homework.component';
+import { VmStudentComponent } from './student/vm/vm-student.component';
+import { HomeworkStudentComponent } from './student/homework/homework-student.component';
+import { EditTeamDialogComponent } from './teacher/vm/edit/edit-team-dialog.component';
 
 
 @NgModule({
@@ -45,6 +48,9 @@ import { HomeworkComponent } from './teacher/homework/homework.component';
     LoginDialogComponent,
     RegisterDialogComponent,
     HomeworkComponent,
+    VmStudentComponent,
+    HomeworkStudentComponent,
+    EditTeamDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -58,7 +64,6 @@ import { HomeworkComponent } from './teacher/homework/homework.component';
     MatTableModule,
     MatCheckboxModule,
     MatInputModule,
-    MatFormFieldModule,
     MatAutocompleteModule,
     FormsModule,
     ReactiveFormsModule,
@@ -68,7 +73,7 @@ import { HomeworkComponent } from './teacher/homework/homework.component';
     AppRoutingModule,
     MatDialogModule,
     MatCardModule,
-    MatFormFieldModule
+    MatFormFieldModule,
   ],
   entryComponents: [LoginDialogComponent],
   providers: [

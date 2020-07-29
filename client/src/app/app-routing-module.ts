@@ -10,6 +10,7 @@ import { StudentsContComponent } from './teacher/students-cont.component';
 import { TeacherGuard } from './auth/teacher.guard';
 import { StudentGuard } from './auth/student.guard';
 import { HomeworkComponent } from './teacher/homework/homework.component';
+import { VmStudentComponent } from './student/vm/vm-student.component';
 
 
 const routes: Routes = [
@@ -20,7 +21,7 @@ const routes: Routes = [
         children: 
         [
             // { path: 'teams', component:  },
-            // { path: 'vms', component:  },
+            { path: 'course/:course_name/vms', component: VmStudentComponent },
 
         ]
 
