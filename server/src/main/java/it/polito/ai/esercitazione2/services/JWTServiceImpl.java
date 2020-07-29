@@ -64,7 +64,7 @@ public class JWTServiceImpl implements JWTService {
         auth.add(new SimpleGrantedAuthority(role));
 
         //TO DO: check
-        UserDetails user = new User(id, passwordEncoder.encode(pwd), false, true, true, true, auth);
+        UserDetails user = new User(id, passwordEncoder.encode(pwd), true, true, true, true, auth);
         jdbcUserDetailsManager.createUser(user);
 
     }
