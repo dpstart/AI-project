@@ -12,7 +12,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.stereotype.Service;
 
@@ -31,8 +30,6 @@ public class JWTServiceImpl implements JWTService {
     JwtTokenUtil jwtTokenUtil;
     @Autowired
     JdbcUserDetailsManager jdbcUserDetailsManager;
-    @Autowired
-    PasswordEncoder passwordEncoder;
 
     @Override
     public void authenticate(String username, String password) throws Exception {
@@ -64,7 +61,7 @@ public class JWTServiceImpl implements JWTService {
         auth.add(new SimpleGrantedAuthority(role));
 
         //TO DO: check
-        UserDetails user = new User(id, passwordEncoder.encode(pwd), true, true, true, true, auth);
+        UserDetails user = new User(id, pwd, false, true, true, true, auth);
         jdbcUserDetailsManager.createUser(user);
 
     }
