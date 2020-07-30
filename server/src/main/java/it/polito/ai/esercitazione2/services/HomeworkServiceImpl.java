@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -110,17 +111,178 @@ public class HomeworkServiceImpl implements HomeworkService {
         return modelMapper.map(h, HomeworkDTO.class);
     }
 
-    public Image getImage(HomeworkDTO homework){
-        return getImage(homework, -1);
+    @Override
+    public Integer getAssignmentId(Integer homeworkId) {
+        if(!homeworkRepository.existsById(homeworkId))
+            throw new HomeworkNotFoundException("Homework " + homeworkId + " not found");
+        Homework h = homeworkRepository.getOne(homeworkId);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+            if(!studentRepository.existsById(principal)){
+                throw new StudentNotFoundException("Student " + principal + " not found");
+            }
+            if(!studentRepository.getOne(principal).equals(h.getStudent())){
+                throw new StudentNotFoundException("Student " + principal + " is not the owner of this homework");
+            }
+        }
+        else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+            if(!professorRepository.existsById(principal)){
+                throw new ProfessorNotFoundException("Professor " + principal + " not found");
+            }
+            if(!professorRepository.getOne(principal).getCourses().contains(h.getAssignment().getCourse())){
+                throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + h.getAssignment().getCourse().getName());
+            }
+        }
+        return h.getAssignment().getId();
     }
 
-    public Image getImage(HomeworkDTO homework, int version){
-        Homework h = modelMapper.map(homework, Homework.class);
+    @Override
+    public Image getImage(Integer homeworkId){
+        return getImage(homeworkId, -1);
+    }
+
+    @Override
+    public Image getImage(Integer homeworkId, int version){
+        if(!homeworkRepository.existsById(homeworkId))
+            throw new HomeworkNotFoundException("Homework " + homeworkId + " not found");
+        Homework h = homeworkRepository.getOne(homeworkId);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+            if(!studentRepository.existsById(principal)){
+                throw new StudentNotFoundException("Student " + principal + " not found");
+            }
+            if(!studentRepository.getOne(principal).equals(h.getStudent())){
+                throw new StudentNotFoundException("Student " + principal + " is not the owner of this homework");
+            }
+        }
+        else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+            if(!professorRepository.existsById(principal)){
+                throw new ProfessorNotFoundException("Professor " + principal + " not found");
+            }
+            if(!professorRepository.getOne(principal).getCourses().contains(h.getAssignment().getCourse())){
+                throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + h.getAssignment().getCourse().getName());
+            }
+        }
         List<Long> ids = h.getVersionIds();
         if(ids.size() == 0)
             throw new IncoherenceException("This homework hasn't been delivered yet");
         if(version > ids.size() || version == -1)
             version = ids.size();
         return imageService.getImage(ids.get(version-1));
+    }
+
+    @Override
+    public Timestamp getDeliveryDate(Integer homeworkId, int version) {
+        if(!homeworkRepository.existsById(homeworkId))
+            throw new HomeworkNotFoundException("Homework " + homeworkId + " not found");
+        Homework h = homeworkRepository.getOne(homeworkId);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+            if(!studentRepository.existsById(principal)){
+                throw new StudentNotFoundException("Student " + principal + " not found");
+            }
+            if(!studentRepository.getOne(principal).equals(h.getStudent())){
+                throw new StudentNotFoundException("Student " + principal + " is not the owner of this homework");
+            }
+        }
+        else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+            if(!professorRepository.existsById(principal)){
+                throw new ProfessorNotFoundException("Professor " + principal + " not found");
+            }
+            if(!professorRepository.getOne(principal).getCourses().contains(h.getAssignment().getCourse())){
+                throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + h.getAssignment().getCourse().getName());
+            }
+        }
+        List<Long> ids = h.getVersionIds();
+        if(ids.size() == 0)
+            throw new IncoherenceException("This homework hasn't been delivered yet");
+        if(version > ids.size() || version == -1)
+            version = ids.size();
+        return h.getVersionDates().get(version-1);
+    }
+
+    @Override
+    public List<Image> getAllImages(Integer homeworkId){
+        if(!homeworkRepository.existsById(homeworkId))
+            throw new HomeworkNotFoundException("Homework " + homeworkId + " not found");
+        Homework h = homeworkRepository.getOne(homeworkId);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+            if(!studentRepository.existsById(principal)){
+                throw new StudentNotFoundException("Student " + principal + " not found");
+            }
+            if(!studentRepository.getOne(principal).equals(h.getStudent())){
+                throw new StudentNotFoundException("Student " + principal + " is not the owner of this homework");
+            }
+        }
+        else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+            if(!professorRepository.existsById(principal)){
+                throw new ProfessorNotFoundException("Professor " + principal + " not found");
+            }
+            if(!professorRepository.getOne(principal).getCourses().contains(h.getAssignment().getCourse())){
+                throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + h.getAssignment().getCourse().getName());
+            }
+        }
+        List<Image> versions = new ArrayList<>();
+        for(Long id : h.getVersionIds()){
+            versions.add(imageService.getImage(id));
+        }
+        return versions;
+    }
+
+    @Override
+    public String getHomeworkStudentId(Integer homeworkId){
+        if(!homeworkRepository.existsById(homeworkId))
+            throw new HomeworkNotFoundException("Homework " + homeworkId + " not found");
+        Homework h = homeworkRepository.getOne(homeworkId);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+            if(!studentRepository.existsById(principal)){
+                throw new StudentNotFoundException("Student " + principal + " not found");
+            }
+            if(!studentRepository.getOne(principal).equals(h.getStudent())){
+                throw new StudentNotFoundException("Student " + principal + " is not the owner of this homework");
+            }
+        }
+        else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+            if(!professorRepository.existsById(principal)){
+                throw new ProfessorNotFoundException("Professor " + principal + " not found");
+            }
+            if(!professorRepository.getOne(principal).getCourses().contains(h.getAssignment().getCourse())){
+                throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + h.getAssignment().getCourse().getName());
+            }
+        }
+        return h.getStudent().getId();
+    }
+
+    @Override
+    public String getHomeworkCourse(Integer homeworkId) {
+        if(!homeworkRepository.existsById(homeworkId))
+            throw new HomeworkNotFoundException("Homework " + homeworkId + " not found");
+        Homework h = homeworkRepository.getOne(homeworkId);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+            if(!studentRepository.existsById(principal)){
+                throw new StudentNotFoundException("Student " + principal + " not found");
+            }
+            if(!studentRepository.getOne(principal).equals(h.getStudent())){
+                throw new StudentNotFoundException("Student " + principal + " is not the owner of this homework");
+            }
+        }
+        else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+            if(!professorRepository.existsById(principal)){
+                throw new ProfessorNotFoundException("Professor " + principal + " not found");
+            }
+            if(!professorRepository.getOne(principal).getCourses().contains(h.getAssignment().getCourse())){
+                throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + h.getAssignment().getCourse().getName());
+            }
+        }
+        return h.getAssignment().getCourse().getName();
     }
 }

@@ -1,6 +1,8 @@
 package it.polito.ai.esercitazione2.controllers;
 
 import it.polito.ai.esercitazione2.dtos.*;
+import it.polito.ai.esercitazione2.entities.Assignment;
+import it.polito.ai.esercitazione2.entities.Image;
 import org.springframework.hateoas.Link;
 
 
@@ -9,10 +11,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 public class ModelHelper {
 
-    public static CourseDTO enrich(CourseDTO c){
-        Link self=linkTo(CourseController.class).slash(c.getName()).withSelfRel();
+    public static CourseDTO enrich(CourseDTO c) {
+        Link self = linkTo(CourseController.class).slash(c.getName()).withSelfRel();
         c.add(self);
-        Link self_alias=linkTo(CourseController.class).slash(c.getAcronime()).withSelfRel();
+        Link self_alias = linkTo(CourseController.class).slash(c.getAcronime()).withSelfRel();
         c.add(self_alias);
 
         Link enrolled = linkTo(methodOn(CourseController.class)
@@ -38,10 +40,10 @@ public class ModelHelper {
                     c.getAcronime())
                     .withRel("enable");
             c.add(enable_alias);
-        }catch (NoSuchMethodException e){
+        } catch (NoSuchMethodException e) {
             //ignore
         }
-        try{
+        try {
             Link disable = linkTo(
                     CourseController.class,
                     CourseController.class
@@ -56,10 +58,10 @@ public class ModelHelper {
                     c.getAcronime())
                     .withRel("disable");
             c.add(disable_alias);
-        }catch (NoSuchMethodException e){
+        } catch (NoSuchMethodException e) {
             //ignore
         }
-        try{
+        try {
             Link remove = linkTo(
                     CourseController.class,
                     CourseController.class.getMethod("removeCourse", String.class),
@@ -73,10 +75,9 @@ public class ModelHelper {
                     c.getAcronime())
                     .withRel("remove");
             c.add(remove_alias);
-        }catch (NoSuchMethodException e){
+        } catch (NoSuchMethodException e) {
             //ignore
         }
-
 
 
         Link teams = linkTo(methodOn(CourseController.class)
@@ -103,8 +104,8 @@ public class ModelHelper {
         return c;
     }
 
-    public static StudentDTO enrich(StudentDTO s){
-        Link l=linkTo(StudentController.class).slash(s.getId()).withSelfRel();
+    public static StudentDTO enrich(StudentDTO s) {
+        Link l = linkTo(StudentController.class).slash(s.getId()).withSelfRel();
         s.add(l);
         Link courses = linkTo(methodOn(StudentController.class)
                 .getCourses()).withRel("courses");
@@ -121,8 +122,8 @@ public class ModelHelper {
         return s;
     }
 
-    public static ProfessorDTO enrich(ProfessorDTO p){
-        Link l=linkTo(ProfessorController.class).slash(p.getId()).withSelfRel();
+    public static ProfessorDTO enrich(ProfessorDTO p) {
+        Link l = linkTo(ProfessorController.class).slash(p.getId()).withSelfRel();
         p.add(l);
 
         Link courses = linkTo(methodOn(ProfessorController.class)
@@ -135,14 +136,15 @@ public class ModelHelper {
 
         return p;
     }
-    public static TeamDTO enrich(TeamDTO t,String course){
+
+    public static TeamDTO enrich(TeamDTO t, String course) {
 
         Link self = linkTo(methodOn(CourseController.class)
-                .getTeam(course,t.getId())).withSelfRel();
+                .getTeam(course, t.getId())).withSelfRel();
         t.add(self);
 
         Link members = linkTo(methodOn(CourseController.class)
-                .getTeamMembers(course,t.getId())).withRel("members");
+                .getTeamMembers(course, t.getId())).withRel("members");
         t.add(members);
 
         Link creator = linkTo(methodOn(StudentController.class)
@@ -150,16 +152,14 @@ public class ModelHelper {
         t.add(creator);
 
         Link adhesionStatus = linkTo(methodOn(CourseController.class)
-                .getAdhesionInfo(course,t.getId())).withRel("adhesion");
+                .getAdhesionInfo(course, t.getId())).withRel("adhesion");
         t.add(adhesionStatus);
-
-
 
 
         return t;
     }
 
-    public static VMDTO enrich(VMDTO vm){
+    public static VMDTO enrich(VMDTO vm) {
 
         Link self = linkTo(methodOn(VMController.class)
                 .getVM(vm.getId())).withSelfRel();
@@ -170,34 +170,34 @@ public class ModelHelper {
 
             Link run = linkTo(
                     VMController.class,
-                    VMController.class.getMethod("runVM",Long.class),
+                    VMController.class.getMethod("runVM", Long.class),
                     vm.getId())
                     .withRel("run");
             vm.add(run);
 
             Link stop = linkTo(
                     VMController.class,
-                    VMController.class.getMethod("stopVM",Long.class),
+                    VMController.class.getMethod("stopVM", Long.class),
                     vm.getId()).withRel("stop");
             vm.add(stop);
 
             Link remove = linkTo(
                     VMController.class,
-                    VMController.class.getMethod("removeVM",Long.class),
+                    VMController.class.getMethod("removeVM", Long.class),
                     vm.getId()).withRel("remove");
             vm.add(remove);
-        }catch (NoSuchMethodException e){
+        } catch (NoSuchMethodException e) {
             //ignore
         }
 
-        Link creator =  linkTo(methodOn(StudentController.class)
+        Link creator = linkTo(methodOn(StudentController.class)
                 .getOne(vm.getId_creator())).withRel("creator");
         vm.add(creator);
 
         return vm;
     }
 
-    public static VMModelDTO enrich(VMModelDTO vmm){
+    public static VMModelDTO enrich(VMModelDTO vmm) {
 
         Link self = linkTo(methodOn(VMModelController.class)
                 .getVMModel(vmm.getName())).withSelfRel();
@@ -208,6 +208,89 @@ public class ModelHelper {
         vmm.add(delete);
 
         return vmm;
+    }
+
+    public static AssignmentDTO enrich(AssignmentDTO a){
+        return enrich(a, methodOn(StudentController.class).getAssignmentCourse(a.getId()));
+    }
+
+    public static AssignmentDTO enrich(AssignmentDTO a, String courseName) {
+        Link self = linkTo(methodOn(CourseController.class)
+                .getAssignment(courseName, a.getId())).withSelfRel();
+        a.add(self);
+
+        Link course = linkTo(methodOn(CourseController.class)
+                .getOne(courseName)).withRel("course");
+        a.add(course);
+
+        Link professor = linkTo(methodOn(ProfessorController.class)
+                .getOne(methodOn(CourseController.class).getAssignmentProfessorId(courseName, a.getId())))
+                .withRel("professor");
+        a.add(professor);
+
+        Link homeworks = linkTo(methodOn(CourseController.class)
+                .getAssignmentHomeworks(courseName, a.getId()))
+                .withRel("homeworks");
+        a.add(homeworks);
+
+        Link image = linkTo(methodOn(CourseController.class)
+                .getAssignmentImage(courseName, a.getId())).withRel("image");
+        a.add(image);
+
+        return a;
+    }
+
+    public static HomeworkDTO enrich(HomeworkDTO h){
+        return enrich(h, methodOn(StudentController.class).getHomeworkCourse(h.getId()));
+    }
+
+    public static HomeworkDTO enrich(HomeworkDTO h, String courseName) {
+        return enrich(h, courseName, methodOn(CourseController.class).getHomeworkAssignmentId(courseName, h.getId()));
+    }
+
+    public static HomeworkDTO enrich(HomeworkDTO h, String courseName, Integer assignmentId) {
+        Link self = linkTo(methodOn(CourseController.class)
+                .getHomework(courseName, assignmentId, h.getId())).withSelfRel();
+        h.add(self);
+
+        Link course = linkTo(methodOn(CourseController.class)
+                .getOne(courseName)).withRel("course");
+        h.add(course);
+
+        Link professor = linkTo(methodOn(ProfessorController.class)
+                .getOne(methodOn(CourseController.class).getAssignmentProfessorId(courseName, assignmentId)))
+                .withRel("professor");
+        h.add(professor);
+
+        Link student = linkTo(methodOn(StudentController.class)
+                .getOne(methodOn(CourseController.class).getHomeworkStudentId(courseName, assignmentId, h.getId())))
+                .withRel("student");
+        h.add(student);
+
+        Link versions = linkTo(methodOn(CourseController.class)
+                .getHomeworkVersions(courseName, assignmentId, h.getId())).withRel("versions");
+        h.add(versions);
+
+        return h;
+    }
+
+    public static HomeworkVersionDTO enrich(Image i, String courseName, Integer assignmentId, Integer homeworkId, Integer index) {
+        HomeworkVersionDTO hv = new HomeworkVersionDTO();
+        hv.setId(index);
+        hv.setContent(i);
+        hv.setDeliveryDate(methodOn(CourseController.class)
+                .getHomeworkVersionDeliveryDate(courseName, assignmentId, homeworkId, index));
+        Link self = linkTo(methodOn(CourseController.class)
+                .getHomeworkVersion(courseName, assignmentId, homeworkId, index))
+                .withSelfRel();
+        hv.add(self);
+
+        return hv;
+    }
+
+    public static HomeworkVersionDTO enrich(Image i, String courseName, Integer assignmentId, Integer homeworkId) {
+        return enrich(i, courseName, assignmentId, homeworkId,
+                methodOn(CourseController.class).getHomeworkVersions(courseName, assignmentId, homeworkId).size()-1);
     }
 
 }

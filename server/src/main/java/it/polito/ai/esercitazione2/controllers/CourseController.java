@@ -1,8 +1,11 @@
 package it.polito.ai.esercitazione2.controllers;
 
 import it.polito.ai.esercitazione2.dtos.*;
+import it.polito.ai.esercitazione2.entities.Image;
 import it.polito.ai.esercitazione2.exceptions.*;
 
+import it.polito.ai.esercitazione2.services.AssignmentService;
+import it.polito.ai.esercitazione2.services.HomeworkService;
 import it.polito.ai.esercitazione2.services.TeamService;
 
 import it.polito.ai.esercitazione2.services.VMService;
@@ -16,7 +19,6 @@ import org.springframework.http.HttpStatus;
 
 
 import org.springframework.security.access.AuthorizationServiceException;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +29,8 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.Valid;
 import java.io.*;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,11 +41,16 @@ import java.util.stream.Collectors;
 @RequestMapping("/API/courses")
 public class CourseController {
     @Autowired
-    TeamService teamservice;
+    TeamService teamService;
 
     @Autowired
-    VMService vmservice;
+    VMService vmService;
 
+    @Autowired
+    AssignmentService assignmentService;
+
+    @Autowired
+    HomeworkService homeworkService;
 
     @Autowired
     @Qualifier("messageSource")
@@ -49,13 +58,13 @@ public class CourseController {
 
     @GetMapping({"","/"})
     List<CourseDTO> all(){
-        return teamservice.getAllCourses().stream()
+        return teamService.getAllCourses().stream()
                 .map(x->ModelHelper.enrich(x)).collect(Collectors.toList());
     }
 
     @GetMapping("/{name}")
     CourseDTO getOne(@PathVariable String name){
-        CourseDTO c=teamservice.getCourse(name).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,name));
+        CourseDTO c= teamService.getCourse(name).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,name));
         return ModelHelper.enrich(c);
     }
 
@@ -65,7 +74,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Expected only one field: usage 'id':<professorsId>");
         String user=input.get("id");
         try {
-            teamservice.shareOwnership(name,user);
+            teamService.shareOwnership(name,user);
         }
         catch(IncoherenceException e){
             throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
@@ -81,7 +90,7 @@ public class CourseController {
     @GetMapping("/{name}/enrolled")
     List<StudentDTO> enrolledStudents(@PathVariable String name){
         try {
-            return teamservice.getEnrolledStudents(name)
+            return teamService.getEnrolledStudents(name)
                     .stream()
                     .map(x -> ModelHelper.enrich(x))
                     .collect(Collectors.toList());
@@ -95,7 +104,7 @@ public class CourseController {
     CourseDTO addCourse(@Valid @RequestBody CourseDTO dto){
 
         try {
-            if (!teamservice.addCourse(dto))
+            if (!teamService.addCourse(dto))
                 throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getName());
         }catch(ProfessorNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -107,7 +116,7 @@ public class CourseController {
     @GetMapping("/{name}/remove")
     void removeCourse(@PathVariable String name){
         try {
-            teamservice.removeCourse(name);
+            teamService.removeCourse(name);
         }
         catch(CourseAuthorizationException e){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,e.getMessage());
@@ -123,7 +132,7 @@ public class CourseController {
     @PostMapping("/update")
     CourseDTO updateCourse(@Valid @RequestBody CourseDTO dto){
         try {
-            return teamservice.updateCourse(dto);
+            return teamService.updateCourse(dto);
         }
         catch(CourseAuthorizationException e){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,e.getMessage());
@@ -142,7 +151,7 @@ public class CourseController {
     @GetMapping("/{name}/enable")
     public void enableCourse(@PathVariable String name){
         try{
-            teamservice.enableCourse(name);
+            teamService.enableCourse(name);
         }catch(CourseNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }catch (CourseAuthorizationException e) {
@@ -152,7 +161,7 @@ public class CourseController {
     @GetMapping("/{name}/disable")
     public  void disableCourse(@PathVariable String name){
         try{
-            teamservice.disableCourse(name);
+            teamService.disableCourse(name);
         }catch(CourseNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }catch (CourseAuthorizationException e) {
@@ -167,7 +176,7 @@ public class CourseController {
         }
 
         try{
-            vmservice.defineVMModel(name,input.get("model"));
+            vmService.defineVMModel(name,input.get("model"));
         }
         catch (AuthorizationServiceException e){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());  //DA CAMBIARE!!!!
@@ -191,7 +200,7 @@ public class CourseController {
         String id=input.get("id");
 
         try {
-            if (!teamservice.addStudentToCourse(id, name))
+            if (!teamService.addStudentToCourse(id, name))
                 throw new ResponseStatusException(HttpStatus.CONFLICT, id);
         }catch (CourseAuthorizationException e){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,e.getMessage());
@@ -211,7 +220,7 @@ public class CourseController {
         String id=input.get("id");
 
         try {
-            if (!teamservice.removeStudentFromCourse(id, name))
+            if (!teamService.removeStudentFromCourse(id, name))
                 throw new ResponseStatusException(HttpStatus.CONFLICT, id);
         }catch (CourseAuthorizationException e){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,e.getMessage());
@@ -234,7 +243,7 @@ public class CourseController {
         List<String> students=(List<String>)input.get("students");
 
         try  {
-            teamservice.unsubscribeAll(students, name);
+            teamService.unsubscribeAll(students, name);
         }  catch(StudentNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage()+" Ask the administrator to add it!");
         } catch(CourseAuthorizationException e){
@@ -259,7 +268,7 @@ public class CourseController {
         List<String> students=(List<String>)input.get("students");
 
         try  {
-            teamservice.enrollAll(students, name);
+            teamService.enrollAll(students, name);
         }  catch(StudentNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage()+" Ask the administrator to add it!");
         } catch(CourseAuthorizationException e){
@@ -279,7 +288,7 @@ public class CourseController {
 
 
         try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-            teamservice.enrollCSV(reader, name);
+            teamService.enrollCSV(reader, name);
         } catch (IncoherenceException e){
             throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
         } catch(IOException e){
@@ -299,7 +308,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE,file.getName());
 
         try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-            teamservice.addAndEnroll(reader,name);
+            teamService.addAndEnroll(reader,name);
         } catch (IncoherenceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }catch (NotExpectedStatusException e){
@@ -344,7 +353,7 @@ public class CourseController {
 
 
         try {
-            TeamDTO t=teamservice.proposeTeam(name, team, members,duration);
+            TeamDTO t= teamService.proposeTeam(name, team, members,duration);
         }
         catch (AlreadyInACourseTeamException e){
             throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
@@ -368,7 +377,7 @@ public class CourseController {
     @GetMapping("/{name}/teams")
     List<TeamDTO> getTeams(@PathVariable String name){
         try {
-            return teamservice.getTeamForCourse(name).stream().map(x->ModelHelper.enrich(x,name)).collect(Collectors.toList());
+            return teamService.getTeamForCourse(name).stream().map(x->ModelHelper.enrich(x,name)).collect(Collectors.toList());
         }
         catch(CourseNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
@@ -378,7 +387,7 @@ public class CourseController {
     @GetMapping("/{name}/teams/{id}")
     TeamDTO getTeam(@PathVariable String name,@PathVariable Long id){
         try {
-            return ModelHelper.enrich(teamservice.getOneTeamForCourse(name,id),name);
+            return ModelHelper.enrich(teamService.getOneTeamForCourse(name,id),name);
         }
         catch(TeamServiceException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
@@ -393,7 +402,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max available' field not expected here");
 
         try{
-            return vmservice.createVM(teamId,file,settings);
+            return vmService.createVM(teamId,file,settings);
         }
         catch (AuthorizationServiceException e){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());  //DA CAMBIARE!!!!
@@ -416,7 +425,7 @@ public class CourseController {
 
 
         try {
-            return teamservice.setSettings(name, id, settings);
+            return teamService.setSettings(name, id, settings);
         } catch(CourseNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }catch(CourseAuthorizationException e){
@@ -433,14 +442,14 @@ public class CourseController {
 
     @GetMapping("/{name}/teams/{id}/adhesion")
     Map<String,Boolean> getAdhesionInfo(@PathVariable String name, @PathVariable Long id){
-       return teamservice.getAdhesionInfo(id);
+       return teamService.getAdhesionInfo(id);
 
     }
 
     @GetMapping("/{name}/teams/{id}/members")
     List<StudentDTO> getTeamMembers(@PathVariable String name,@PathVariable Long id){
         try {
-            return teamservice.getMembers(name,id).stream().map(x-> ModelHelper.enrich(x)).collect(Collectors.toList());
+            return teamService.getMembers(name,id).stream().map(x-> ModelHelper.enrich(x)).collect(Collectors.toList());
         }
         catch(TeamServiceException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
@@ -450,7 +459,7 @@ public class CourseController {
     @GetMapping("/{name}/inTeams")
     List<StudentDTO> getStudentsInTeams(@PathVariable String name){
         try{
-            return teamservice.getStudentsInTeams(name).stream()
+            return teamService.getStudentsInTeams(name).stream()
                     .map(x->ModelHelper.enrich(x))
                     .collect(Collectors.toList());
         }catch(CourseNotFoundException e){
@@ -462,11 +471,163 @@ public class CourseController {
     @GetMapping("/{name}/available")
     List<StudentDTO> getAvailableStudents(@PathVariable String name){
         try{
-            return teamservice.getAvailableStudents(name).stream()
+            return teamService.getAvailableStudents(name).stream()
                     .map(x->ModelHelper.enrich(x))
                     .collect(Collectors.toList());
         }catch(CourseNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/assignments")
+    List<AssignmentDTO> getAssignments(@PathVariable String name){
+        try{
+            return assignmentService.getByCourse(name)
+                    .stream()
+                    .map(x -> ModelHelper.enrich(x, name))
+                    .collect(Collectors.toList());
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/assignments/{id}")
+    AssignmentDTO getAssignment(@PathVariable String name, @PathVariable Integer id){
+        try{
+            return ModelHelper.enrich(assignmentService.getAssignment(id), name);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/assignments/{id}/image")
+    Image getAssignmentImage(@PathVariable String name, @PathVariable Integer id){
+        try{
+            return assignmentService.getImage(id);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/assignments/{id}/professorId")
+    String getAssignmentProfessorId(@PathVariable String name, @PathVariable Integer id){
+        try{
+            return assignmentService.getAssignmentProfessor(id);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/homeworks")
+    List<HomeworkDTO> getCourseHomeworks(@PathVariable String name){
+        try{
+            return assignmentService.getHomeworksByCourse(name)
+                    .stream()
+                    .map(h -> ModelHelper.enrich(h, name))
+                    .collect(Collectors.toList());
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/homeworks/{id}/assignmentId")
+    Integer getHomeworkAssignmentId(@PathVariable String name, @PathVariable Integer id){
+        try{
+            return homeworkService.getAssignmentId(id);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/assignments/{id}/homeworks")
+    List<HomeworkDTO> getAssignmentHomeworks(@PathVariable String name, @PathVariable Integer id){
+        try{
+            return assignmentService.getAssignmentHomeworks(id)
+                    .stream()
+                    .map(h -> ModelHelper.enrich(h, name))
+                    .collect(Collectors.toList());
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/assignments/{id1}/homeworks/{id2}")
+    HomeworkDTO getHomework(@PathVariable String name, @PathVariable Integer id1, @PathVariable Integer id2){
+        try{
+            return ModelHelper.enrich(homeworkService.getHomework(id2), name, id1);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/assignments/{id1}/homeworks/{id2}/versions")
+    List<HomeworkVersionDTO> getHomeworkVersions(@PathVariable String name, @PathVariable Integer id1, @PathVariable Integer id2){
+        try{
+            List<Image> versions = homeworkService.getAllImages(id2);
+            List<HomeworkVersionDTO> enriched = new ArrayList<>();
+            for(int i=0; i< versions.size(); i++){
+                enriched.add(ModelHelper.enrich(versions.get(i), name, id1, id2, i));
+            }
+            return enriched;
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/assignments/{id1}/homeworks/{id2}/versions/{id3}")
+    HomeworkVersionDTO getHomeworkVersion(@PathVariable String name,
+                                    @PathVariable Integer id1,
+                                    @PathVariable Integer id2,
+                                    @PathVariable Integer id3){
+        try{
+            return ModelHelper.enrich(homeworkService.getImage(id2, id3), name, id1, id2, id3);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/assignments/{id1}/homeworks/{id2}/versions/{id3}/date")
+    Timestamp getHomeworkVersionDeliveryDate(@PathVariable String name,
+                                 @PathVariable Integer id1,
+                                 @PathVariable Integer id2,
+                                 @PathVariable Integer id3){
+        try{
+            return homeworkService.getDeliveryDate(id2, id3);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/assignments/{id1}/homeworks/{id2}/versions/latest")
+    HomeworkVersionDTO getHomeworkLatestVersion(@PathVariable String name,
+                             @PathVariable Integer id1,
+                             @PathVariable Integer id2){
+        try{
+            return ModelHelper.enrich(homeworkService.getImage(id2), name, id1, id2);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/assignments/{id1}/homeworks/{id2}/studentId")
+    String getHomeworkStudentId(@PathVariable String name, @PathVariable Integer id1, @PathVariable Integer id2){
+        try{
+            return homeworkService.getHomeworkStudentId(id2);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
         }
     }
 

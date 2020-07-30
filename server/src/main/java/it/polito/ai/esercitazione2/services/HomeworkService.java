@@ -5,18 +5,20 @@ import it.polito.ai.esercitazione2.entities.Image;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.sql.Timestamp;
+import java.util.List;
+
+@PreAuthorize("isAuthenticated()")
 public interface HomeworkService {
 
     @PreAuthorize("hasRole('STUDENT')")
     void uploadHomework(Integer assignmentId, MultipartFile file);
-    @PreAuthorize("hasRole('PROFESSOR') or hasRole('STUDENT')")
     HomeworkDTO getHomework(Integer id);
-
-    @PreAuthorize("hasRole('PROFESSOR') or hasRole('STUDENT')")
-    Image getImage(HomeworkDTO homework);
-    @PreAuthorize("hasRole('PROFESSOR') or hasRole('STUDENT')")
-    Image getImage(HomeworkDTO homework, int version);
-
-
-
+    Integer getAssignmentId(Integer homeworkId);
+    Image getImage(Integer homeworkId);
+    Image getImage(Integer homeworkId, int version);
+    Timestamp getDeliveryDate(Integer homeworkId, int version);
+    List<Image> getAllImages(Integer homeworkId);
+    String getHomeworkStudentId(Integer homeworkId);
+    String getHomeworkCourse(Integer homeworkId);
 }

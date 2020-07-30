@@ -26,24 +26,16 @@ public interface TeamService {
 
 
     // Professors
-
     boolean addProfessor(ProfessorDTO p, MultipartFile file);
-
     boolean addProfessor(ProfessorDTO p);
     Optional<ProfessorDTO> getProfessor(String professorId);
     List<ProfessorDTO> getAllProfessors();
 
-
-    boolean addStudent(StudentDTO s,boolean notify);
-
-    boolean addStudent(StudentDTO s,boolean notify, MultipartFile file);
-    Optional<StudentDTO> getStudent(String studentId);
-    List<StudentDTO> getAllStudents();
-    List<StudentDTO> getEnrolledStudents(String courseName);
     @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
     boolean addStudentToCourse(String  studentId, String courseName);
     @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
     public boolean removeStudentFromCourse(String studentId, String courseName);
+
     @PreAuthorize("hasRole('PROFESSOR')")
     void enableCourse(String courseName);
     @PreAuthorize("hasRole('PROFESSOR')")
@@ -61,6 +53,11 @@ public interface TeamService {
     List<Boolean> enrollCSV(Reader r, String courseName);
 
     // Students
+    boolean addStudent(StudentDTO s,boolean notify);
+    boolean addStudent(StudentDTO s,boolean notify, MultipartFile file);
+    Optional<StudentDTO> getStudent(String studentId);
+    List<StudentDTO> getAllStudents();
+    List<StudentDTO> getEnrolledStudents(String courseName);
     @PreAuthorize("hasRole('STUDENT')")
     List<CourseDTO> getCourses(String studentId);
     List<CourseDTO> getCoursesByProf(String profID);
@@ -69,7 +66,7 @@ public interface TeamService {
     List<StudentDTO> getMembers(String courseName, Long TeamId);
     @PreAuthorize("hasRole('STUDENT')")
     TeamDTO proposeTeam(String courseId,String name, List<String> memberIds,Long duration);
-    List<TeamDTO> getTeamForCourse(String  courseName);
+    List<TeamDTO> getTeamForCourse(String courseName);
     TeamDTO getOneTeamForCourse(String courseName,Long TeamID);
     @PreAuthorize("hasRole('PROFESSOR')")
     TeamDTO setSettings(String courseName, Long TeamID, SettingsDTO settings);
@@ -82,9 +79,7 @@ public interface TeamService {
 
     //Images
     Image getProfileImage();
-
     void activeAccount(String ID);
-
     void deleteAll(Set<String> students);
 
 

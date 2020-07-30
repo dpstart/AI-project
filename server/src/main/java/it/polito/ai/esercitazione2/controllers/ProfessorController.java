@@ -1,7 +1,9 @@
 package it.polito.ai.esercitazione2.controllers;
 
 
+import it.polito.ai.esercitazione2.dtos.AssignmentDTO;
 import it.polito.ai.esercitazione2.dtos.CourseDTO;
+import it.polito.ai.esercitazione2.dtos.HomeworkDTO;
 import it.polito.ai.esercitazione2.dtos.ProfessorDTO;
 import it.polito.ai.esercitazione2.entities.Image;
 import it.polito.ai.esercitazione2.exceptions.AuthenticationServiceException;
@@ -9,6 +11,8 @@ import it.polito.ai.esercitazione2.exceptions.IncoherenceException;
 
 import it.polito.ai.esercitazione2.exceptions.ProfessorNotFoundException;
 
+import it.polito.ai.esercitazione2.services.AssignmentService;
+import it.polito.ai.esercitazione2.services.HomeworkService;
 import it.polito.ai.esercitazione2.services.TeamService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +42,15 @@ public class ProfessorController {
 
     @Autowired
     TeamService teamservice;
+
+    @Autowired
+    AssignmentService assignmentService;
+
+    @Autowired
+    HomeworkService homeworkService;
+
+    @Autowired
+    CourseController courseController;
 
     @Autowired
     @Qualifier("messageSource")
@@ -96,6 +109,53 @@ public class ProfessorController {
         }
     }
 
+    @GetMapping("/image")
+    Image getProfileImage(){
+
+        Image img = teamservice.getProfileImage();
+        return img;
+    }
+
+    @GetMapping("/{name}/assignments")
+    List<AssignmentDTO> getAssignments(@PathVariable String name){
+        try{
+            return assignmentService.getByProfessor(name)
+                    .stream()
+                    .map(x -> ModelHelper.enrich(x))
+                    .collect(Collectors.toList());
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/assignments/{aId}/")
+    public AssignmentDTO getAssignment(@PathVariable String name, @PathVariable Integer aId){
+        String course = assignmentService.getAssignmentCourse(aId);
+        return courseController.getAssignment(course, aId);
+    }
+
+    @GetMapping("/{name}/homeworks")
+    List<HomeworkDTO> getHomeworks(@PathVariable String name){
+        try{
+            return assignmentService.getByProfessor(name)
+                    .stream()
+                    .flatMap(a -> assignmentService.getAssignmentHomeworks(a.getId()).stream())
+                    .map(x -> ModelHelper.enrich(x))
+                    .collect(Collectors.toList());
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/homeworks/{hId}/")
+    public HomeworkDTO getHomework(@PathVariable String name, @PathVariable Integer hId){
+        String course = homeworkService.getHomeworkCourse(hId);
+        Integer aId = homeworkService.getAssignmentId(hId);
+        return courseController.getHomework(course, aId, hId);
+    }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Map<String, String> handleValidationExceptions(
@@ -119,12 +179,5 @@ public class ProfessorController {
             errors.put(fieldName, errorMessage);
         });
         return errors;
-    }
-
-    @GetMapping("/image")
-    Image getProfileImage(){
-
-        Image img = teamservice.getProfileImage();
-        return img;
     }
 }

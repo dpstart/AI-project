@@ -1,6 +1,7 @@
 package it.polito.ai.esercitazione2.services;
 
 import it.polito.ai.esercitazione2.dtos.AssignmentDTO;
+import it.polito.ai.esercitazione2.dtos.HomeworkDTO;
 import it.polito.ai.esercitazione2.entities.*;
 import it.polito.ai.esercitazione2.exceptions.*;
 import it.polito.ai.esercitazione2.repositories.*;
@@ -133,6 +134,92 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    public String getAssignmentProfessor(Integer assignmentId){
+        if(!assignmentRepository.existsById(assignmentId))
+            throw new AssignmentNotFoundException("Assignment " + assignmentId + " not found");
+        Assignment a = assignmentRepository.getOne(assignmentId);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+            if(!studentRepository.existsById(principal)){
+                throw new StudentNotFoundException("Student " + principal + " not found");
+            }
+            if(!studentRepository.getOne(principal).getCourses().contains(a.getCourse())){
+                throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course with the requested assignment");
+            }
+        }
+        else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+            if(!professorRepository.existsById(principal)){
+                throw new ProfessorNotFoundException("Professor " + principal + " not found");
+            }
+            if(!professorRepository.getOne(principal).getCourses().contains(a.getCourse())){
+                throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course with the requested assignment");
+            }
+        }
+        return a.getProfessor().getId();
+    }
+
+    @Override
+    public String getAssignmentCourse(Integer assignmentId) {
+        if(!assignmentRepository.existsById(assignmentId))
+            throw new AssignmentNotFoundException("Assignment " + assignmentId + " not found");
+        Assignment a = assignmentRepository.getOne(assignmentId);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+            if(!studentRepository.existsById(principal)){
+                throw new StudentNotFoundException("Student " + principal + " not found");
+            }
+            if(!studentRepository.getOne(principal).getCourses().contains(a.getCourse())){
+                throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course with the requested assignment");
+            }
+        }
+        else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+            if(!professorRepository.existsById(principal)){
+                throw new ProfessorNotFoundException("Professor " + principal + " not found");
+            }
+            if(!professorRepository.getOne(principal).getCourses().contains(a.getCourse())){
+                throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course with the requested assignment");
+            }
+        }
+        return a.getCourse().getName();
+    }
+
+    @Override
+    public List<HomeworkDTO> getAssignmentHomeworks(Integer assignmentId){
+        if(!assignmentRepository.existsById(assignmentId))
+            throw new AssignmentNotFoundException("Assignment " + assignmentId + " not found");
+        Assignment a = assignmentRepository.getOne(assignmentId);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+            if(!studentRepository.existsById(principal)){
+                throw new StudentNotFoundException("Student " + principal + " not found");
+            }
+            if(!studentRepository.getOne(principal).getCourses().contains(a.getCourse())){
+                throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course with the requested assignment");
+            }
+            return a.getHomeworks()
+                    .stream()
+                    .filter(h -> h.getStudent().getId() == principal)
+                    .map(h -> modelMapper.map(h, HomeworkDTO.class))
+                    .collect(Collectors.toList());
+        }
+        else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+            if(!professorRepository.existsById(principal)){
+                throw new ProfessorNotFoundException("Professor " + principal + " not found");
+            }
+            if(!professorRepository.getOne(principal).getCourses().contains(a.getCourse())){
+                throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course with the requested assignment");
+            }
+        }
+        return a.getHomeworks()
+                .stream()
+                .map(h -> modelMapper.map(h, HomeworkDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<AssignmentDTO> getAllAssignments(){
         return assignmentRepository.findAll()
                 .stream()
@@ -167,6 +254,43 @@ public class AssignmentServiceImpl implements AssignmentService {
         return assignmentRepository.getAssignmentsForCourse(courseId)
                 .stream()
                 .map(a -> modelMapper.map(a, AssignmentDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<HomeworkDTO> getHomeworksByCourse(String courseId) {
+        if(!courseRepository.existsById(courseId) && !courseRepository.existsByAcronime(courseId))
+            throw new CourseNotFoundException("Course " + courseId+ " not found");
+
+        Course course = courseRepository.getOne(courseId);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+            if(!studentRepository.existsById(principal)){
+                throw new StudentNotFoundException("Student " + principal + " not found");
+            }
+            if(!studentRepository.getOne(principal).getCourses().contains(courseId)){
+                throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course " + course.getName());
+            }
+            return assignmentRepository.getAssignmentsForCourse(courseId)
+                    .stream()
+                    .flatMap(a -> a.getHomeworks().stream())
+                    .filter(h -> h.getStudent().getId() == principal)
+                    .map(h -> modelMapper.map(h, HomeworkDTO.class))
+                    .collect(Collectors.toList());
+        }
+        else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+            if(!professorRepository.existsById(principal)){
+                throw new ProfessorNotFoundException("Professor " + principal + " not found");
+            }
+            if(!professorRepository.getOne(principal).getCourses().contains(courseId)){
+                throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + course.getName());
+            }
+        }
+        return assignmentRepository.getAssignmentsForCourse(courseId)
+                .stream()
+                .flatMap(a -> a.getHomeworks().stream())
+                .map(h -> modelMapper.map(h, HomeworkDTO.class))
                 .collect(Collectors.toList());
     }
 
@@ -216,8 +340,10 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .collect(Collectors.toList());
     }
 
-    public Image getImage(AssignmentDTO assignment) {
-        Assignment a = modelMapper.map(assignment, Assignment.class);
+    public Image getImage(Integer assignmentId) {
+        if(!assignmentRepository.existsById(assignmentId))
+            throw new AssignmentNotFoundException("Assignment " + assignmentId + " not found");
+        Assignment a = assignmentRepository.getOne(assignmentId);
         return imageService.getImage(a.getContentId());
     }
 }
