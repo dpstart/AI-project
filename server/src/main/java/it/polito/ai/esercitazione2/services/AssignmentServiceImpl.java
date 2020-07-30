@@ -51,7 +51,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     ModelMapper modelMapper;
 
     @Override
-    public boolean addAssignment(AssignmentDTO a, MultipartFile file, String courseId){
+    public AssignmentDTO addAssignment(AssignmentDTO a, MultipartFile file, String courseId){
         String professor = SecurityContextHolder.getContext().getAuthentication().getName();
         if(!professorRepository.existsById(professor))
             throw new CourseNotFoundException("Professor " + professor + " not found");
@@ -63,7 +63,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             throw new CourseAuthorizationException("User "+professor+ " has not the rights to modify this course: he's not the professor for this course");
         if (assignmentRepository.existsById(a.getId())) {
             if (getAssignment(a.getId()).equals(a))
-                return false;
+                return a;
             else
                 throw new IncoherenceException("Assignment with id "+ a.getId() +" already exist with different details");
         }
@@ -86,17 +86,19 @@ public class AssignmentServiceImpl implements AssignmentService {
             homeworkRepository.save(h);
         }
         assignment.setProfessor(professorRepository.getOne(professor));
-        assignmentRepository.save(assignment);
-        return true;
+        a = modelMapper.map(assignmentRepository.save(assignment), AssignmentDTO.class);
+        return a;
     }
 
     @Override
     public boolean removeAssignment(Integer id) {
         if(!assignmentRepository.existsById(id))
             return true;
-        if(assignmentRepository.getOne(id).getHomeworks().stream().filter(
-                h -> h.getState()!= Homework.states.unread
-        ).collect(Collectors.toList()).size()>0)
+        if(assignmentRepository.getOne(id).getHomeworks()
+                .stream()
+                .filter(h -> h.getState()!= Homework.states.unread)
+                .collect(Collectors.toList())
+                .size()>0)
             return false;
         assignmentRepository.delete(assignmentRepository.getOne(id));
         return true;
@@ -202,6 +204,12 @@ public class AssignmentServiceImpl implements AssignmentService {
             return a.getHomeworks()
                     .stream()
                     .filter(h -> h.getStudent().getId() == principal)
+                    .peek(h -> {
+                        if(h.getState() == Homework.states.unread) {
+                            h.setState(Homework.states.read);
+                            homeworkRepository.save(h);
+                        }
+                    })
                     .map(h -> modelMapper.map(h, HomeworkDTO.class))
                     .collect(Collectors.toList());
         }
@@ -242,6 +250,17 @@ public class AssignmentServiceImpl implements AssignmentService {
             if(!studentRepository.getOne(principal).getCourses().contains(courseId)){
                 throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course " + course.getName());
             }
+            return assignmentRepository.getAssignmentsForCourse(courseId)
+                    .stream()
+                    .peek(a -> {
+                        Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, a.getId());
+                        if(h.getState() == Homework.states.unread) {
+                            h.setState(Homework.states.read);
+                            homeworkRepository.save(h);
+                        }
+                    })
+                    .map(a -> modelMapper.map(a, AssignmentDTO.class))
+                    .collect(Collectors.toList());
         }
         else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
             if(!professorRepository.existsById(principal)){
@@ -276,6 +295,12 @@ public class AssignmentServiceImpl implements AssignmentService {
                     .stream()
                     .flatMap(a -> a.getHomeworks().stream())
                     .filter(h -> h.getStudent().getId() == principal)
+                    .peek(h -> {
+                        if(h.getState() == Homework.states.unread) {
+                            h.setState(Homework.states.read);
+                            homeworkRepository.save(h);
+                        }
+                    })
                     .map(h -> modelMapper.map(h, HomeworkDTO.class))
                     .collect(Collectors.toList());
         }
@@ -308,6 +333,11 @@ public class AssignmentServiceImpl implements AssignmentService {
                         if(!studentRepository.getOne(principal).getCourses().contains(a.getCourse())){
                             return false;
                         }
+                        Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, a.getId());
+                        if(h.getState() == Homework.states.unread) {
+                            h.setState(Homework.states.read);
+                            homeworkRepository.save(h);
+                        }
                     }
                     else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
                         if(!professorRepository.existsById(principal)){
@@ -336,6 +366,13 @@ public class AssignmentServiceImpl implements AssignmentService {
         return s.getCourses()
                 .stream()
                 .flatMap(c -> c.getAssignments().stream())
+                .peek(a -> {
+                    Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, a.getId());
+                    if(h.getState() == Homework.states.unread) {
+                        h.setState(Homework.states.read);
+                        homeworkRepository.save(h);
+                    }
+                })
                 .map(a -> modelMapper.map(a, AssignmentDTO.class))
                 .collect(Collectors.toList());
     }

@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 
 
 import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.security.core.parameters.P;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -492,10 +493,39 @@ public class CourseController {
         }
     }
 
+    @PostMapping("/{name}/assignments")
+    public AssignmentDTO addAssignment(@PathVariable String name,
+                                       @Valid @RequestPart("assignment") AssignmentDTO dto,
+                                       @RequestPart(value="image",required=true) MultipartFile file)
+    {
+        try{
+            AssignmentDTO a = assignmentService.addAssignment(dto, file, name);
+            if(a.equals(dto)){
+                throw new IncoherenceException("Assignment already exists");
+            }
+            return ModelHelper.enrich(a, name);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
     @GetMapping("/{name}/assignments/{id}")
     AssignmentDTO getAssignment(@PathVariable String name, @PathVariable Integer id){
         try{
             return ModelHelper.enrich(assignmentService.getAssignment(id), name);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{name}/assignments/{id}")
+    void removeAssignment(@PathVariable String name, @PathVariable Integer id){
+        try{
+            if(!assignmentService.removeAssignment(id))
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED , "You can only remove assignments if none of the students has read it");
+            return;
         }
         catch (Exception e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
@@ -562,6 +592,18 @@ public class CourseController {
     HomeworkDTO getHomework(@PathVariable String name, @PathVariable Integer id1, @PathVariable Integer id2){
         try{
             return ModelHelper.enrich(homeworkService.getHomework(id2), name, id1);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
+    @PostMapping("/{name}/assignments/{id}")
+    HomeworkVersionDTO uploadHomework(@PathVariable String name, @PathVariable Integer id,
+                               @RequestPart(value="image",required=true) MultipartFile file){
+        try{
+            HomeworkDTO h = homeworkService.uploadHomework(id, file);
+            return getHomeworkLatestVersion(name, id, h.getId());
         }
         catch (Exception e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());

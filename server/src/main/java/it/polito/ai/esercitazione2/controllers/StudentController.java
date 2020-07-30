@@ -60,7 +60,8 @@ public class StudentController {
 
 
     @PostMapping({"","/"})
-    StudentDTO addStudent(@Valid @RequestPart("student") StudentDTO dto, @RequestPart(value="image",required=false) MultipartFile file) {
+    StudentDTO addStudent(@Valid @RequestPart("student") StudentDTO dto,
+                          @RequestPart(value="image",required=false) MultipartFile file) {
 
         try {
             if (file==null || file.isEmpty()) {
@@ -122,13 +123,13 @@ public class StudentController {
     }
 
     @GetMapping("/image")
-    Image getProfileImage(){
+    public Image getProfileImage(){
         Image img = teamservice.getProfileImage();
         return img;
     }
 
     @GetMapping("/{id}/assignments")
-    List<AssignmentDTO> getAssignments(@PathVariable String id){
+    public List<AssignmentDTO> getAssignments(@PathVariable String id){
         try{
             return assignmentService.getByStudent(id)
                     .stream()
@@ -142,17 +143,27 @@ public class StudentController {
 
     @GetMapping("/{id}/assignments/{aId}/")
     public AssignmentDTO getAssignment(@PathVariable String id, @PathVariable Integer aId){
-        String course = assignmentService.getAssignmentCourse(aId);
-        return courseController.getAssignment(course, aId);
+        try{
+            String course = assignmentService.getAssignmentCourse(aId);
+            return courseController.getAssignment(course, aId);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
     }
 
     @GetMapping("/{id}/assignments/{aId}/course")
     public String getAssignmentCourse(@PathVariable("aId") Integer aId){
-        return assignmentService.getAssignmentCourse(aId);
+        try{
+            return assignmentService.getAssignmentCourse(aId);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
     }
 
     @GetMapping("/{id}/homeworks")
-    List<HomeworkDTO> getHomeworks(@PathVariable String id){
+    public List<HomeworkDTO> getHomeworks(@PathVariable String id){
         try{
             return assignmentService.getByStudent(id)
                     .stream()
@@ -167,14 +178,24 @@ public class StudentController {
 
     @GetMapping("/{id}/homeworks/{hId}/")
     public HomeworkDTO getHomework(@PathVariable String id, @PathVariable Integer hId){
-        String course = homeworkService.getHomeworkCourse(hId);
-        Integer aId = homeworkService.getAssignmentId(hId);
-        return courseController.getHomework(course, aId, hId);
+        try{
+            String course = homeworkService.getHomeworkCourse(hId);
+            Integer aId = homeworkService.getAssignmentId(hId);
+            return courseController.getHomework(course, aId, hId);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
     }
 
     @GetMapping("/{id}/homeworks/{hId}/course")
     public String getHomeworkCourse(@PathVariable("hId") Integer hId){
-        return homeworkService.getHomeworkCourse(hId);
+        try{
+            return homeworkService.getHomeworkCourse(hId);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

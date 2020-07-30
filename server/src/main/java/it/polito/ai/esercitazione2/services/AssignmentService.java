@@ -12,7 +12,7 @@ import java.util.List;
 public interface AssignmentService {
 
     @PreAuthorize("hasRole('PROFESSOR')")
-    boolean addAssignment(AssignmentDTO a, MultipartFile file, String courseId);
+    AssignmentDTO addAssignment(AssignmentDTO a, MultipartFile file, String courseId);
     @PreAuthorize("hasRole('PROFESSOR')")
     boolean removeAssignment(Integer id);
     AssignmentDTO getAssignment(Integer id);

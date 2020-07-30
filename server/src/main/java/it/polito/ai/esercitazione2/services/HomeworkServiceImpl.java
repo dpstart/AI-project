@@ -53,7 +53,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     ModelMapper modelMapper;
 
     @Override
-    public void uploadHomework(Integer assignmentId, MultipartFile file){
+    public HomeworkDTO uploadHomework(Integer assignmentId, MultipartFile file){
         if(!assignmentRepository.existsById(assignmentId))
             throw new AssignmentNotFoundException("Assignment " + assignmentId + " not found");
         Assignment a = assignmentRepository.getOne(assignmentId);
@@ -82,7 +82,8 @@ public class HomeworkServiceImpl implements HomeworkService {
         h.getVersionIds().add(img.getName());
         h.getVersionDates().add(new Timestamp(System.currentTimeMillis()));
         h.setState(Homework.states.delivered);
-        homeworkRepository.save(h);
+        h = homeworkRepository.save(h);
+        return modelMapper.map(h, HomeworkDTO.class);
     }
 
     @Override
@@ -98,6 +99,10 @@ public class HomeworkServiceImpl implements HomeworkService {
             }
             if(!studentRepository.getOne(principal).equals(h.getStudent())){
                 throw new StudentNotFoundException("Student " + principal + " is not the owner of this homework");
+            }
+            if(h.getState() == Homework.states.unread) {
+                h.setState(Homework.states.read);
+                homeworkRepository.save(h);
             }
         }
         else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){

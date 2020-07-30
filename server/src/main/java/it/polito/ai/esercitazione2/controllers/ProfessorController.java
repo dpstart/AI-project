@@ -131,8 +131,13 @@ public class ProfessorController {
 
     @GetMapping("/{name}/assignments/{aId}/")
     public AssignmentDTO getAssignment(@PathVariable String name, @PathVariable Integer aId){
-        String course = assignmentService.getAssignmentCourse(aId);
-        return courseController.getAssignment(course, aId);
+        try{
+            String course = assignmentService.getAssignmentCourse(aId);
+            return courseController.getAssignment(course, aId);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
     }
 
     @GetMapping("/{name}/homeworks")
@@ -151,9 +156,14 @@ public class ProfessorController {
 
     @GetMapping("/{name}/homeworks/{hId}/")
     public HomeworkDTO getHomework(@PathVariable String name, @PathVariable Integer hId){
-        String course = homeworkService.getHomeworkCourse(hId);
-        Integer aId = homeworkService.getAssignmentId(hId);
-        return courseController.getHomework(course, aId, hId);
+        try{
+            String course = homeworkService.getHomeworkCourse(hId);
+            Integer aId = homeworkService.getAssignmentId(hId);
+            return courseController.getHomework(course, aId, hId);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

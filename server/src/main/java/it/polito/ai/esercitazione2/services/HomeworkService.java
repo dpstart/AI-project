@@ -12,7 +12,7 @@ import java.util.List;
 public interface HomeworkService {
 
     @PreAuthorize("hasRole('STUDENT')")
-    void uploadHomework(Integer assignmentId, MultipartFile file);
+    HomeworkDTO uploadHomework(Integer assignmentId, MultipartFile file);
     HomeworkDTO getHomework(Integer id);
     Integer getAssignmentId(Integer homeworkId);
     Image getImage(Integer homeworkId);
