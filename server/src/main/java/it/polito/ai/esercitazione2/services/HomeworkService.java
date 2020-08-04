@@ -13,6 +13,8 @@ public interface HomeworkService {
 
     @PreAuthorize("hasRole('STUDENT')")
     HomeworkDTO uploadHomework(Integer assignmentId, MultipartFile file);
+    @PreAuthorize("hasRole('PROFESSOR')")
+    HomeworkDTO reviewHomework(HomeworkDTO dto);
     HomeworkDTO getHomework(Integer id);
     Integer getAssignmentId(Integer homeworkId);
     Image getImage(Integer homeworkId);

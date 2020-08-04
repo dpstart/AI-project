@@ -62,7 +62,7 @@ public class Homework {
         if(this.isFinal)
             throw new IllegalHomeworkStateChangeException("Can't change state of an Homework flagged as final");
         if(state.compareTo(this.state)!=1 //only go ahead through states
-                && (this.state.equals(states.reviewed) //unless it is reviewed and students wants to re-deliver
+                || (this.state.equals(states.reviewed) //unless it is reviewed and students wants to re-deliver
                     && state.compareTo(this.state)!=-1)){
             throw new IllegalHomeworkStateChangeException("States can only go ahead and by one step, unless when going from reviewed to delivered");
         }

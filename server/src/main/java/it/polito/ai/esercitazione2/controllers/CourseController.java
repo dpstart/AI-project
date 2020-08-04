@@ -598,6 +598,18 @@ public class CourseController {
         }
     }
 
+    @PostMapping("/{name}/assignments/{id1}/homeworks/{id2}")
+    HomeworkDTO reviewHomework(@PathVariable String name, @PathVariable Integer id1, @PathVariable Integer id2,
+                               @Valid @RequestBody HomeworkDTO dto){
+        //Used for both reviewing and assigning the final mark, the usage depends on the dto object
+        try{
+            return ModelHelper.enrich(homeworkService.reviewHomework(dto), name, id1);
+        }
+        catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
+    }
+
     @PostMapping("/{name}/assignments/{id}")
     HomeworkVersionDTO uploadHomework(@PathVariable String name, @PathVariable Integer id,
                                @RequestPart(value="image",required=true) MultipartFile file){

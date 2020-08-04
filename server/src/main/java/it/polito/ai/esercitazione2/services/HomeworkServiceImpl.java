@@ -87,6 +87,29 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     @Override
+    public HomeworkDTO reviewHomework(HomeworkDTO dto) {
+        if(!homeworkRepository.existsById(dto.getId()))
+            throw new HomeworkNotFoundException("Homework " + dto.getId() + " not found");
+        Homework h = homeworkRepository.getOne(dto.getId());
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+            if(!professorRepository.existsById(principal)){
+                throw new ProfessorNotFoundException("Professor " + principal + " not found");
+            }
+            if(!professorRepository.getOne(principal).getCourses().contains(h.getAssignment().getCourse())){
+                throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + h.getAssignment().getCourse().getName());
+            }
+        }
+        h.setState(Homework.states.reviewed);
+        h.setIsFinal(dto.getIsFinal());
+        if(dto.getMark()!=0f)
+            h.setMark(dto.getMark());
+        h = homeworkRepository.save(h);
+        return modelMapper.map(h, HomeworkDTO.class);
+    }
+
+    @Override
     public HomeworkDTO getHomework(Integer id){
         if(!homeworkRepository.existsById(id))
             throw new HomeworkNotFoundException("Homework " + id + " not found");
