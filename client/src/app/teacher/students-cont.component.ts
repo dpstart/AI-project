@@ -36,7 +36,6 @@ export class StudentsContComponent implements OnInit {
 
   ngOnInit() {
 
-
     this.route.params.subscribe(params => {
       if (params["course_name"]) {
         let course = params["course_name"];
@@ -44,13 +43,13 @@ export class StudentsContComponent implements OnInit {
         this.teacher.setCourse(course);
 
 
-        this.service.getStudentsInCourse<Student[]>(course).subscribe(data => {
+        this.service.getStudentsInCourse(course).subscribe(data => {
           this.allStudents = data;
           this.isAllStudentsLoaded = true;
         });
 
 
-        this.service.getStudentsInCourse<Student[]>(course).subscribe(data => {
+        this.service.getStudentsInCourse(course).subscribe(data => {
           this.enrolledStudents = data;
           this.isEnrolledStudentsLoaded = true;
         });

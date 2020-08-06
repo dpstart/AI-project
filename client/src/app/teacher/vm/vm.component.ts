@@ -3,7 +3,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { TeacherService } from '../../services/teacher.service';
 import { Team } from '../../model/team.model';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { EditTeamDialogComponent } from './edit/edit-team-dialog.component';
 
 

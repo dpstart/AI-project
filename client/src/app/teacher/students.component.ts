@@ -126,8 +126,6 @@ export class StudentsComponent implements OnInit {
   addStudentEvent() {
 
     if (this.studentSelected != null) {
-
-
       this.addStudent.emit(this.studentSelected);
       this.studentSelected = null;
       //this.enrolledStudentsDataSource.data = this._enrolledStudents;

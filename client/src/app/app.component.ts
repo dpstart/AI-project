@@ -44,7 +44,6 @@ export class AppComponent implements OnInit, OnDestroy {
         if (doRegister) {
           this.openRegisterDialog(redirect);
         }
-
       }
     });
   }

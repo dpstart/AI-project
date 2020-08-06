@@ -35,27 +35,22 @@ export class StudentService {
   private navStudentLinks: NavStudentLinks[];
 
   constructor(private http: HttpClient) {
-    this.navStudentLinks = [{ link: 'students', label: 'Students' }, { link: 'vms', label: 'VMs' }, { link: 'homework', label: 'Elaborati' }]
+    this.navStudentLinks = [{ link: 'groups', label: 'Groups' }, { link: 'vms', label: 'VMs' }, { link: 'homework', label: 'Elaborati' }]
   }
 
-  getNavStudentLinks(){
+  getNavStudentLinks() {
     return this.navStudentLinks;
   }
 
-  
+
 
   URL = "http://localhost:4200/API"
 
-  getStudents<T>(): Observable<T> {
 
-    const url = `${this.URL}/students`;
-    return this.http.get<T>(url);
-  }
 
-  getStudentById<T>(id: string): Observable<T> {
-    const url = `${this.URL}/students/${id}`;
-    return this.http.get<T>(url);
-  }
+
+
+  // CREATE
 
   addStudent(s: Student) {
 
@@ -67,6 +62,34 @@ export class StudentService {
 
   }
 
+
+
+  //RESEARCH
+
+  getStudents() : Observable<Array<Student>> {
+    const url = `${this.URL}/students`;
+    return this.http.get<Array<Student>>(url);
+  }
+
+  getStudentById(id: string): Observable<Student> {
+    const url = `${this.URL}/students/${id}`;
+    return this.http.get<Student>(url);
+  }
+
+
+  getStudentsInCourse(course_name: string): Observable<Student[]> {
+    const url = `${this.URL}/courses/${course_name}/enrolled`;
+    return this.http.get<Student[]>(url);
+  }
+
+
+  getTeamsOfStudent(): Observable<Student[]> {
+    const url = `${this.URL}/students/teams`;
+    return this.http.get<Student[]>(url);
+  }
+
+  //UPDATE
+  
   updateStudent(s: Student) {
 
     const url = `${this.URL}/students/${s.id}`;
@@ -94,10 +117,9 @@ export class StudentService {
 
   }
 
-  getStudentsInCourse<T>(course_name: string): Observable<T> {
-    const url = `${this.URL}/courses/${course_name}/enrolled`;
-    return this.http.get<T>(url);
-  }
+
+
+  //DELETE
 
   deleteStudent(id: string): Observable<{}> {
     const url = `${this.URL}/students/${id} `; // DELETE api/heroes/42

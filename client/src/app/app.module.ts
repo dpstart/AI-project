@@ -35,7 +35,9 @@ import { HomeworkComponent } from './teacher/homework/homework.component';
 import { VmStudentComponent } from './student/vm/vm-student.component';
 import { HomeworkStudentComponent } from './student/homework/homework-student.component';
 import { EditTeamDialogComponent } from './teacher/vm/edit/edit-team-dialog.component';
-
+import { GroupsComponent } from './student/groups/groups.component';
+import { MatDividerModule } from '@angular/material/divider';
+import { StudentNotInTeamComponent } from './student/groups/studentNotInTeam/student-not-in-team/student-not-in-team.component';
 
 @NgModule({
   declarations: [
@@ -51,6 +53,8 @@ import { EditTeamDialogComponent } from './teacher/vm/edit/edit-team-dialog.comp
     VmStudentComponent,
     HomeworkStudentComponent,
     EditTeamDialogComponent,
+    GroupsComponent,
+    StudentNotInTeamComponent,
   ],
   imports: [
     BrowserModule,
@@ -74,6 +78,7 @@ import { EditTeamDialogComponent } from './teacher/vm/edit/edit-team-dialog.comp
     MatDialogModule,
     MatCardModule,
     MatFormFieldModule,
+    MatDividerModule,
   ],
   entryComponents: [LoginDialogComponent],
   providers: [
