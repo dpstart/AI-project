@@ -5,6 +5,7 @@ import { Student } from 'src/app/model/student.model';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TeacherService } from 'src/app/services/teacher.service';
+import { SelectionModel } from '@angular/cdk/collections';
 
 @Component({
   selector: 'app-groups',
@@ -20,10 +21,15 @@ export class GroupsComponent implements OnInit {
   }
 
   studentsInTeam: Student[];
-  course: string
+  course: string;
 
-  //Table related pproperties
 
+
+  // Table selection
+  selection = new SelectionModel<Student>(true, []);
+
+
+  //Table related properties
   dataSourceStudentsInTeam: MatTableDataSource<Student>
   dataSourceStudentsNotYetInTeam: MatTableDataSource<Student>
   displayedColumns: string[]
@@ -37,7 +43,7 @@ export class GroupsComponent implements OnInit {
 
 
     this.dataSourceStudentsNotYetInTeam = new MatTableDataSource<Student>();
-    this.displayedColumns = ['id', 'name', 'first name', 'group'];
+    this.displayedColumns = ['select','id', 'name', 'first name', 'group'];
 
 
   }
@@ -57,13 +63,26 @@ export class GroupsComponent implements OnInit {
         if (this.studentsInTeam.length == 0) {
           //students is not yet in team: we have to upload in the table only the students that are not in a team
 
-          this.studentService.getStudentsAvailableInCourse(this.course).subscribe((studentsNotInTeam:Student[]) => {
-            this.dataSourceStudentsNotYetInTeam= new MatTableDataSource<Student>(studentsNotInTeam)
+          this.studentService.getStudentsAvailableInCourse(this.course).subscribe((studentsNotInTeam: Student[]) => {
+            this.dataSourceStudentsNotYetInTeam = new MatTableDataSource<Student>(studentsNotInTeam)
           })
         }
 
 
       })
   }
+
+  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  masterToggle() {
+    this.isAllSelected() ? this.selection.clear() : this.dataSourceStudentsNotYetInTeam.data.forEach(row => this.selection.select(row));
+  }
+
+  /** Whether the number of selected elements matches the total number of rows. */
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.dataSourceStudentsNotYetInTeam.data.length;
+    return numSelected === numRows;
+  }
+
 
 }
