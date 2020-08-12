@@ -3,6 +3,7 @@ import { Observable, throwError } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Student } from '../model/student.model';
 import { catchError } from 'rxjs/operators';
+import { Course } from '../model/course.model';
 
 
 export interface NavStudentLinks {
@@ -65,6 +66,11 @@ export class StudentService {
 
 
   //RESEARCH
+
+  getCourse(course_name: string) : Observable<Course>{
+    const url = `${this.URL}/courses/${course_name}`
+    return this.http.get<Course>(url);
+  }
 
   getStudents() : Observable<Array<Student>> {
     const url = `${this.URL}/students`;

@@ -1,31 +1,33 @@
 <div *ngIf="studentsInTeam.length == 0; then notInTeamBlock else inTeamBlock"></div>
 <!-- notInTeamBlock: student is not in a group -->
 <ng-template #notInTeamBlock>
-    
 
-    <h2 class="mat-h2 tabtitle">Elenco Studenti Not in Team.</h2>
+
+    <h2 class="mat-h2 tabtitle">Elenco studenti not in team.</h2>
+
+    <button mat-raised-button color="primary" (click)="addStudentsToGroup()" [disabled]="isDisabled">Add to group</button>
 
     <table #table mat-table [dataSource]="dataSourceStudentsNotYetInTeam" matSort class="mat-elevation-z8">
-    
+
         <!-- ID Column -->
         <ng-container matColumnDef="id">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> Id </th>
             <td mat-cell *matCellDef="let student"> {{student.id}} </td>
         </ng-container>
-    
+
         <!-- Group Column -->
         <!-- Groups are not modelled yet, providing a default value. -->
         <ng-container matColumnDef="group">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> Group </th>
             <td mat-cell *matCellDef="let student"> {{(student.group) || "---"}} </td>
         </ng-container>
-    
+
         <!-- Name Column -->
         <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
             <td mat-cell *matCellDef="let student"> {{student.name}} </td>
         </ng-container>
-    
+
         <!-- First Name Column -->
         <ng-container matColumnDef="first name">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> FirstName </th>
@@ -41,62 +43,59 @@
                 </mat-checkbox>
             </th>
             <td mat-cell *matCellDef="let row">
-                <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+                <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? toggleRow(row) : null"
                     [checked]="selection.isSelected(row)">
                 </mat-checkbox>
             </td>
         </ng-container>
-    
-       
+
+
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
     <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
-    
 
-    
+
+
 </ng-template>
 
 <!-- inTeamBlock: student is in a group -->
 <ng-template #inTeamBlock>
 
-    <h2 class="mat-h2 tabtitle">Elenco Studenti in Team.</h2>
+    <h2 class="mat-h2 tabtitle">Elenco studenti in team.</h2>
 
     <table #table mat-table [dataSource]="dataSourceStudentsInTeam" matSort class="mat-elevation-z8">
-    
+
         <!-- ID Column -->
         <ng-container matColumnDef="id">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> Id </th>
             <td mat-cell *matCellDef="let student"> {{student.id}} </td>
         </ng-container>
-    
+
         <!-- Group Column -->
         <!-- Groups are not modelled yet, providing a default value. -->
         <ng-container matColumnDef="group">
             <th mat-header-cell mat-sort-header *matHeaderCellDef> Group </th>
             <td mat-cell *matCellDef="let student"> {{(student.group) || "---"}} </td>
         </ng-container>
-    
+
         <!-- Name Column -->
         <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
             <td mat-cell *matCellDef="let student"> {{student.name}} </td>
         </ng-container>
-    
+
         <!-- First Name Column -->
         <ng-container matColumnDef="first name">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> FirstName </th>
             <td mat-cell *matCellDef="let student"> {{student.firstName}} </td>
         </ng-container>
-    
-       
+
+
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
     <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
-    
-
-
 
 </ng-template>
 
