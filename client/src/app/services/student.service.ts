@@ -88,6 +88,11 @@ export class StudentService {
     return this.http.get<Student[]>(url);
   }
 
+  getStudentsAvailableInCourse(courseName: string):Observable<Student[]>{
+    const url = `${this.URL}/courses/${courseName}/available`;
+    return this.http.get<Student[]>(url);
+  }
+
   //UPDATE
   
   updateStudent(s: Student) {

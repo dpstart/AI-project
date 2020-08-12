@@ -27,7 +27,7 @@ export class StudentsContComponent implements OnInit {
   course;
 
 
-  constructor(private http: HttpClient, private service: StudentService, private route: ActivatedRoute, private teacher: TeacherService) {
+  constructor(private http: HttpClient, private studentService: StudentService, private activatedRoute: ActivatedRoute, private teacherService: TeacherService) {
     // this.getJSON(this._jsonURLenrolled).subscribe(data => {
     //   this.enrolledStudents.data = data;
     // });
@@ -36,20 +36,20 @@ export class StudentsContComponent implements OnInit {
 
   ngOnInit() {
 
-    this.route.params.subscribe(params => {
+    this.activatedRoute.params.subscribe(params => {
       if (params["course_name"]) {
         let course = params["course_name"];
 
-        this.teacher.setCourse(course);
+        this.teacherService.setCourse(course);
 
 
-        this.service.getStudentsInCourse(course).subscribe(data => {
+        this.studentService.getStudentsInCourse(course).subscribe(data => {
           this.allStudents = data;
           this.isAllStudentsLoaded = true;
         });
 
 
-        this.service.getStudentsInCourse(course).subscribe(data => {
+        this.studentService.getStudentsInCourse(course).subscribe(data => {
           this.enrolledStudents = data;
           this.isEnrolledStudentsLoaded = true;
         });
@@ -63,7 +63,7 @@ export class StudentsContComponent implements OnInit {
     if (this.enrolledStudents.indexOf(s) != -1)
       return;
 
-    this.service
+    this.studentService
       .addStudent(s)
       .subscribe(s => {
         s.courseId = this.course.id;
@@ -78,7 +78,7 @@ export class StudentsContComponent implements OnInit {
   deleteStudents(students: Student[]) {
 
     students.forEach(s => {
-      this.service.deleteStudent(s.id).subscribe(_ =>
+      this.studentService.deleteStudent(s.id).subscribe(_ =>
         this.enrolledStudents = this.enrolledStudents.filter(s2 => s2.id != s.id)
       );
     });
