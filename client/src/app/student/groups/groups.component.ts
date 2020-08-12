@@ -7,6 +7,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { TeacherService } from 'src/app/services/teacher.service';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Course } from 'src/app/model/course.model';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-groups',
@@ -40,6 +41,10 @@ export class GroupsComponent implements OnInit {
   displayedColumns: string[]
   expandedElement: Student | null;
 
+
+
+  groupName: FormControl
+
   constructor(private router: ActivatedRoute, private _studentService: StudentService, private teacherService: TeacherService) {
 
 
@@ -52,6 +57,7 @@ export class GroupsComponent implements OnInit {
     this.displayedColumns = ['select', 'id', 'name', 'first name', 'group'];
 
 
+    this.groupName = new FormControl('');
   }
 
   ngOnInit(): void {
@@ -73,11 +79,7 @@ export class GroupsComponent implements OnInit {
                   this.dataSourceStudentsNotYetInTeam = new MatTableDataSource<Student>(studentsNotInTeam)
                 })
               }
-
-
             })
-
-
         })
       }
     })
@@ -87,7 +89,7 @@ export class GroupsComponent implements OnInit {
   /** Selects all rows if they are not all selected; otherwise clear selection. */
   masterToggle() {
     if (this.isAllSelected()) {
-      this.isDisabled = true; 
+      this.isDisabled = true;
       this.selection.clear()
     } else {
       this.isDisabled = false
@@ -131,6 +133,11 @@ export class GroupsComponent implements OnInit {
         break;
     }
 
+  }
+
+  //TODO: submission
+  onSubmit() {
+    console.log("submit")
   }
 
 

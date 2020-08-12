@@ -5,7 +5,16 @@
 
     <h2 class="mat-h2 tabtitle">Elenco studenti not in team.</h2>
 
-    <button mat-raised-button color="primary" (click)="addStudentsToGroup()" [disabled]="isDisabled">Add to group</button>
+
+    <form #form class="example-form" (submit)="onSubmit()">
+        <mat-form-field class="example-full-width">
+            <mat-label>Give a name to your group</mat-label>
+            <input matInput [formControl]="groupName">
+        </mat-form-field>
+        <button id="addButton" type="submit" mat-raised-button color="primary" (click)="addStudentsToGroup()"
+            [disabled]="isDisabled">Add to group</button>
+    </form>
+
 
     <table #table mat-table [dataSource]="dataSourceStudentsNotYetInTeam" matSort class="mat-elevation-z8">
 
