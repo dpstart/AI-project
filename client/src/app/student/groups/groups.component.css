@@ -1,3 +1,15 @@
-#addButton{
-    margin-left: 20px;
+
+.error {
+    padding: 16px;
+    width: 300px;
+    color: white;
+    background-color: red;
+}
+
+div {
+    padding-top: 5vh;
+}
+
+mat-form-field{
+    margin-right: 20px;
 }

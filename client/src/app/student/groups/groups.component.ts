@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { StudentService } from 'src/app/services/student.service';
-import { Observable } from 'rxjs';
 import { Student } from 'src/app/model/student.model';
 import { MatTableDataSource } from '@angular/material/table';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { TeacherService } from 'src/app/services/teacher.service';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Course } from 'src/app/model/course.model';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-groups',
@@ -42,22 +41,34 @@ export class GroupsComponent implements OnInit {
   expandedElement: Student | null;
 
 
+  //Table of proposals:
+  dataSourceProposals: MatTableDataSource<any>
+  displayedColumnsProposals: string[]
 
-  groupName: FormControl
 
-  constructor(private router: ActivatedRoute, private _studentService: StudentService, private teacherService: TeacherService) {
+  form: FormGroup
+
+
+  constructor(private router: ActivatedRoute, private _studentService: StudentService) {
 
 
     this.isDisabled = true
+
+    //students table
     this.studentsInTeam = []
     this.dataSourceStudentsInTeam = new MatTableDataSource<Student>();
-
-
     this.dataSourceStudentsNotYetInTeam = new MatTableDataSource<Student>();
     this.displayedColumns = ['select', 'id', 'name', 'first name', 'group'];
 
+    //proposals table
+    this.dataSourceProposals = new MatTableDataSource()
+    this.displayedColumnsProposals = ['groupName', 'matricola', 'name', 'firstName'];
 
-    this.groupName = new FormControl('');
+    this.form = new FormGroup({
+      groupNameControl: new FormControl('', [Validators.required]),
+      timeoutControl: new FormControl('23:59', [Validators.required, Validators.min(10)]) //10 min
+    })
+
   }
 
   ngOnInit(): void {
@@ -89,13 +100,11 @@ export class GroupsComponent implements OnInit {
   /** Selects all rows if they are not all selected; otherwise clear selection. */
   masterToggle() {
     if (this.isAllSelected()) {
-      this.isDisabled = true;
       this.selection.clear()
     } else {
-      this.isDisabled = false
       this.dataSourceStudentsNotYetInTeam.data.forEach(row => this.selection.select(row));
-
     }
+    this.checkValidity()
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -121,23 +130,30 @@ export class GroupsComponent implements OnInit {
    */
   toggleRow(row) {
     this.selection.toggle(row)
+    this.checkValidity()
+  }
+
+
+  checkValidity() {
     let numSelected = this.selection.selected.length
     switch (numSelected) {
       case 0:
         this.isDisabled = true
         break;
       default:
-        if (this.selectedCourse.min < numSelected && numSelected < this.selectedCourse.max && true) { //TODO: inserire condizione sul nome del gruppo
-          this.isDisabled = false;
+        if (this.selectedCourse.min < numSelected && numSelected < this.selectedCourse.max && this.form.valid) {
+          this.isDisabled = false
+        } else {
+          this.isDisabled = true
         }
         break;
     }
 
   }
 
-  //TODO: submission
+  //TODO: check if submission has gone well
   onSubmit() {
-    console.log("submit")
+    this.studentService.addGroup(this.form.get('groupNameControl').value, this.selection.selected, this.form.get('timeoutControl').value)
   }
 
 

@@ -23,7 +23,7 @@ export class AppComponent implements OnInit, OnDestroy {
   navStudentLinks: NavStudentLinks[];
 
 
-  constructor(public dialog: MatDialog, private auth: AuthService, private router: Router, private route: ActivatedRoute,
+  constructor(public dialog: MatDialog, private authService: AuthService, private router: Router, private activatedRoute: ActivatedRoute,
     private teacherService: TeacherService, private studentService: StudentService) {
 
 
@@ -33,9 +33,9 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.events.subscribe((event: Event) => {
       if (event instanceof NavigationEnd) {
 
-        let doLogin = this.route.snapshot.queryParams.doLogin;
-        let doRegister = this.route.snapshot.queryParams.doRegister;
-        let redirect = this.route.snapshot.queryParams.redirect;
+        let doLogin = this.activatedRoute.snapshot.queryParams.doLogin;
+        let doRegister = this.activatedRoute.snapshot.queryParams.doRegister;
+        let redirect = this.activatedRoute.snapshot.queryParams.redirect;
 
         if (doLogin) {
           this.openLoginDialog(redirect);
@@ -49,7 +49,13 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   selectCourse(course) {
-    this.router.navigate(['teacher', 'course', course.name, 'students']);
+    if (this.authService.isRoleTeacher())
+      this.router.navigate(['teacher', 'course', course.name, 'students']);
+    else
+      this.router.navigate(['student', 'course', course.name, 'groups']);
+
+
+
   }
 
   onClickTeacherTab(link: string) {
@@ -65,7 +71,7 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild(MatSidenav) sidenav: MatSidenav;
 
   ngOnInit() {
-    if (this.auth.isLoggedIn) {
+    if (this.authService.isLoggedIn) {
       // user is logged
       this.teacherService.getCourses().subscribe((data: Course[]) => {
         this.courses = data;
@@ -89,7 +95,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
 
-      if (!this.auth.isLoggedIn()) {
+      if (!this.authService.isLoggedIn()) {
 
         this.router.navigate(["home"]);
 
@@ -117,7 +123,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
 
-      if (redirectUrl == null || !this.auth.isLoggedIn())
+      if (redirectUrl == null || !this.authService.isLoggedIn())
         this.router.navigate(["home"]);
       else this.router.navigate([redirectUrl]);
 
@@ -125,20 +131,20 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   isLoggedIn() {
-    return this.auth.isLoggedIn();
+    return this.authService.isLoggedIn();
   }
 
   logout() {
-    this.auth.logout();
+    this.authService.logout();
     this.router.navigate(["home"])
     this.sidenav.close()
   }
 
   isRoleTeacher() {
-    return this.auth.isRoleTeacher()
+    return this.authService.isRoleTeacher()
   }
   isRoleStudent() {
-    return this.auth.isRoleStudent()
+    return this.authService.isRoleStudent()
   }
 
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Student } from '../model/student.model';
-import { catchError } from 'rxjs/operators';
+import { catchError, retry } from 'rxjs/operators';
 import { Course } from '../model/course.model';
 
 
@@ -16,6 +16,7 @@ export interface NavStudentLinks {
   providedIn: 'root'
 })
 export class StudentService {
+
 
   private handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {
@@ -58,53 +59,82 @@ export class StudentService {
     const url = `${this.URL}/students`;
     return this.http.post<Student>(url, s)
       .pipe(
+        retry(3),
         catchError(this.handleError)
       );
 
+  }
+
+  addGroup(team: string, members: Student[], timeout: number) {
+    const url = `${this.URL}/courses/${team}/proposeTeam`
+    return this.http.post(url, { "team": team, "members": members, "timeout": timeout })
+      .pipe(
+        retry(3),
+        catchError(this.handleError)
+      );
   }
 
 
 
   //RESEARCH
 
-  getCourse(course_name: string) : Observable<Course>{
+  getCourse(course_name: string): Observable<Course> {
     const url = `${this.URL}/courses/${course_name}`
-    return this.http.get<Course>(url);
+    return this.http.get<Course>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
   }
 
-  getStudents() : Observable<Array<Student>> {
+  getStudents(): Observable<Array<Student>> {
     const url = `${this.URL}/students`;
-    return this.http.get<Array<Student>>(url);
+    return this.http.get<Array<Student>>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );;
   }
 
   getStudentById(id: string): Observable<Student> {
     const url = `${this.URL}/students/${id}`;
-    return this.http.get<Student>(url);
+    return this.http.get<Student>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );;
   }
 
 
   getStudentsInCourse(course_name: string): Observable<Student[]> {
     const url = `${this.URL}/courses/${course_name}/enrolled`;
-    return this.http.get<Student[]>(url);
+    return this.http.get<Student[]>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
   }
 
 
   getTeamsOfStudent(): Observable<Student[]> {
     const url = `${this.URL}/students/teams`;
-    return this.http.get<Student[]>(url);
+    return this.http.get<Student[]>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
   }
 
-  getStudentsAvailableInCourse(courseName: string):Observable<Student[]>{
+  getStudentsAvailableInCourse(courseName: string): Observable<Student[]> {
     const url = `${this.URL}/courses/${courseName}/available`;
-    return this.http.get<Student[]>(url);
+    return this.http.get<Student[]>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
   }
 
   //UPDATE
-  
+
   updateStudent(s: Student) {
 
     const url = `${this.URL}/students/${s.id}`;
     return this.http.put<Student>(url, s).pipe(
+      retry(3),
       catchError(this.handleError)
     );
 
