@@ -65,9 +65,15 @@ export class StudentService {
 
   }
 
-  addGroup(team: string, members: Student[], timeout: number) {
-    const url = `${this.URL}/courses/${team}/proposeTeam`
-    return this.http.post(url, { "team": team, "members": members, "timeout": timeout })
+  proposeTeam(courseName: string, team: string, members: Student[], timeout: number) {
+    const url = `${this.URL}/courses/${courseName}/proposeTeam`
+    let membersIds: string[] = []
+    members.forEach((student) => {
+      membersIds.push(student.id)
+    })
+    let milliTimeout = timeout * 60 * 1000
+    console.log(courseName, team, membersIds, milliTimeout)
+    return this.http.post(url, { "team": team, "members":membersIds, "timeout": 66000000000 })
       .pipe(
         retry(3),
         catchError(this.handleError)
@@ -91,7 +97,7 @@ export class StudentService {
     return this.http.get<Array<Student>>(url).pipe(
       retry(3),
       catchError(this.handleError)
-    );;
+    );
   }
 
   getStudentById(id: string): Observable<Student> {
@@ -99,7 +105,7 @@ export class StudentService {
     return this.http.get<Student>(url).pipe(
       retry(3),
       catchError(this.handleError)
-    );;
+    );
   }
 
 
