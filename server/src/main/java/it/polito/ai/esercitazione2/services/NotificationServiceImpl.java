@@ -55,7 +55,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         SimpleMailMessage message = new SimpleMailMessage();
         //message.setTo(address);
-        message.setTo("s257649@studenti.polito.it");
+        message.setTo("s262829@studenti.polito.it");
         message.setSubject(subject);
         message.setText(body);
         try {

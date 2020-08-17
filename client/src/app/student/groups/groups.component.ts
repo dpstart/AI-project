@@ -45,7 +45,7 @@ export class GroupsComponent implements OnInit {
   dataSourceProposals: MatTableDataSource<any>
   displayedColumnsProposals: string[]
 
-  displayedColumnsInTeam:string[]
+  displayedColumnsInTeam: string[]
 
   form: FormGroup
 
@@ -64,7 +64,7 @@ export class GroupsComponent implements OnInit {
     //proposals table
     this.dataSourceProposals = new MatTableDataSource()
     this.displayedColumnsProposals = ['groupName', 'matricola', 'name', 'firstName'];
-    this.displayedColumnsInTeam = ['id', 'name', 'first name', 'group' ]
+    this.displayedColumnsInTeam = ['id', 'name', 'first name', 'group']
     this.form = new FormGroup({
       groupNameControl: new FormControl('', [Validators.required]),
       timeoutControl: new FormControl('23:59', [Validators.required, Validators.min(10)]) //10 min
@@ -154,7 +154,16 @@ export class GroupsComponent implements OnInit {
 
   //TODO: check if submission has gone well
   onSubmit() {
-    this.studentService.proposeTeam(this.selectedCourse.name,this.form.get('groupNameControl').value, this.selection.selected, this.form.get('timeoutControl').value)
+    this.studentService.proposeTeam(this.selectedCourse.name,
+      this.form.get('groupNameControl').value,
+      this.selection.selected,
+      this.form.get('timeoutControl').value).subscribe(((resp) => {
+        if (resp.status === 201) { // Ok created
+          // TODO: fill dataSourceProposals with the proposed members in the team
+           
+
+        }
+      }))
   }
 
 

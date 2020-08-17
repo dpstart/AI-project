@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Student } from '../model/student.model';
-import { catchError, retry } from 'rxjs/operators';
+import { catchError, retry, map } from 'rxjs/operators';
 import { Course } from '../model/course.model';
 
 
@@ -73,11 +73,14 @@ export class StudentService {
     })
     let milliTimeout = timeout * 60 * 1000
     console.log(courseName, team, membersIds, milliTimeout)
-    return this.http.post(url, { "team": team, "members":membersIds, "timeout": 66000000000 })
-      .pipe(
-        retry(3),
-        catchError(this.handleError)
-      );
+
+
+    return this.http.post(url, { "team": team, "members": membersIds, "timeout": 66000000000 }, {
+      observe: 'response'
+    }).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
   }
 
 
