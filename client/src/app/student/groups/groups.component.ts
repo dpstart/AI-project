@@ -50,9 +50,10 @@ export class GroupsComponent implements OnInit {
 
   form: FormGroup
 
+  isLoading: boolean // loading
 
   constructor(private router: ActivatedRoute, private _studentService: StudentService, private authService: AuthService) {
-
+    this.isLoading = true
 
     this.isDisabled = true
 
@@ -84,8 +85,11 @@ export class GroupsComponent implements OnInit {
 
           this.studentService.getTeamsOfStudent().subscribe(
             (data) => {
+
+
               this.studentsInTeam = data
 
+              this.isLoading = false
               //Now we can see if the student is already in team or not by looking to the length of the studentsInTeam array:
               if (this.studentsInTeam.length == 0) {
                 //students is not yet in team: we have to upload in the table only the students that are not in a team

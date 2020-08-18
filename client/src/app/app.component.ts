@@ -15,7 +15,7 @@ import { StudentService, NavStudentLinks } from './services/student.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit {
 
   courses: Course[];
   selectedCourse: Course;
@@ -76,14 +76,12 @@ export class AppComponent implements OnInit, OnDestroy {
       this.teacherService.getCourses().subscribe((data: Course[]) => {
         this.courses = data;
         if (this.courses[0].name)
-          this.teacherService.setCourse(this.courses[0].name)
+          this.teacherService.setSelectedCourse(this.courses[0].name)
       });
 
     }
   }
 
-  ngOnDestroy() {
-  }
 
 
   toggleForMenuClick() {
@@ -105,7 +103,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.teacherService.getCourses().subscribe((data: Course[]) => {
           this.courses = data;
           if (this.courses[0].name)
-            this.teacherService.setCourse(this.courses[0].name)
+            this.teacherService.setSelectedCourse(this.courses[0].name)
         });
 
         if (redirectUrl == null)

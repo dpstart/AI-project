@@ -40,7 +40,7 @@ export class StudentsContComponent implements OnInit {
       if (params["course_name"]) {
         let course = params["course_name"];
 
-        this.teacherService.setCourse(course);
+        this.teacherService.setSelectedCourse(course);
 
 
         this.studentService.getStudentsInCourse(course).subscribe(data => {

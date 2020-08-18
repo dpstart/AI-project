@@ -1,37 +1,95 @@
-<div class="container tabContainer">
+<div class="container">
+    <h2 class="mat-h2 tabtitle">Elenco Consegne ed Elaborati.</h2>
 
-    <h2 class="mat-h2 tabtitle">Elenco Homework.</h2>
+    <div class="tabContainer">
 
-    <table mat-table [dataSource]="dataSource" multiTemplateDataRows class="mat-elevation-z8">
 
-        <div *ngFor="let column of columnsToDisplay">
-            <ng-container *ngIf="column!='actions'" matColumnDef="{{column}}">
-                <th mat-header-cell *matHeaderCellDef> {{column}} </th>
-                <td mat-cell *matCellDef="let element"> {{element[column]}} </td>
-            </ng-container>
+        <div class="firstHalfContainer">
+
+
+            <!-- <mat-table [dataSource]="consegneDataSource" class="mat-elevation-z8">
+                <ng-container matColumnDef="id">
+                    <mat-header-cell *matHeaderCellDef> Id </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.id}} </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="releaseDate">
+                    <mat-header-cell *matHeaderCellDef> releaseDate </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.releaseDate}} </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="expirationDate">
+                    <mat-header-cell *matHeaderCellDef> expirationDate </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element.expirationDate}} </mat-cell>
+                </ng-container>
+
+
+                <mat-header-row *matHeaderRowDef="consegneDisplayedColumns"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: consegneDisplayedColumns;"></mat-row>
+            </mat-table> -->
+
+
+            <table mat-table [dataSource]="consegneDataSource" multiTemplateDataRows class="mat-elevation-z8">
+                <div *ngFor="let column of consegneDisplayedColumns">
+                    <ng-container *ngIf="column!='actions'" matColumnDef="{{column}}">
+                        <th mat-header-cell *matHeaderCellDef> {{column}} </th>
+                        <td mat-cell *matCellDef="let element"> {{element[column]}} </td>
+                    </ng-container>
+                </div>
+
+                <ng-container matColumnDef="expandedDetail">
+                    <td mat-cell *matCellDef="let element" [attr.colspan]="homeworksColumnsToDisplay.length">
+                        <div class="example-element-detail"
+                            [@detailExpand]="element == assignmentExpandedElement ? 'expanded' : 'collapsed'">
+                            <div class="example-element-description">
+
+                                <table mat-table [dataSource]="homeworksDataSource" multiTemplateDataRows
+                                    class="mat-elevation-z8">
+                                    <div *ngFor="let column of homeworksColumnsToDisplay">
+                                        <ng-container *ngIf="column!='actions'" matColumnDef="{{column}}">
+                                            <th mat-header-cell *matHeaderCellDef> {{column}} </th>
+                                            <td mat-cell *matCellDef="let element"> {{element[column]}} </td>
+                                        </ng-container>
+                                    </div>
+
+
+                                    <tr mat-header-row *matHeaderRowDef="homeworksColumnsToDisplay"></tr>
+                                    <tr mat-row *matRowDef="let element; columns: homeworksColumnsToDisplay;" (click)="seeHomeworkDetails(element)"></tr>
+                                </table>
+                                <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+                            </div>
+
+                        </div>
+                    </td>
+                </ng-container>
+
+
+
+                <tr mat-header-row *matHeaderRowDef="consegneDisplayedColumns"></tr>
+                <tr mat-row *matRowDef="let element; columns: consegneDisplayedColumns;" class="example-element-row"
+                    [class.example-expanded-row]="assignmentExpandedElement === element"
+                    (click)="assignmentExpandedElement = assignmentExpandedElement === element ? null : element">
+                </tr>
+                <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
+            </table>
+            <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+
         </div>
 
-        <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
-        <ng-container matColumnDef="expandedDetail">
-            <td mat-cell *matCellDef="let element" [attr.colspan]="columnsToDisplay.length">
-                <div class="example-element-detail"
-                    [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
-                    <div class="example-element-description">
-                        Homework details here
-                    </div>
-
-                </div>
-            </td>
-        </ng-container>
 
 
-        
-        <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-        <tr mat-row *matRowDef="let element; columns: columnsToDisplay;" class="example-element-row"
-            [class.example-expanded-row]="expandedElement === element"
-            (click)="expandedElement = expandedElement === element ? null : element">
-        </tr>
-        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
-    </table>
-    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+
+
+        <div class="secondHalfContainer">
+            <router-outlet name="detailsHomeworkOutlet"></router-outlet>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
 </div>

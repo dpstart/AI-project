@@ -20,7 +20,7 @@ tr.example-element-row:not(.example-expanded-row):active {
 
 .example-element-detail {
     overflow: hidden;
-    display: flex;
+        /* display: flex; */
 }
 
 .example-element-symbol {
@@ -35,4 +35,18 @@ tr.example-element-row:not(.example-expanded-row):active {
 
 .example-element-description-attribution {
     opacity: 0.5;
+}
+.firstHalfContainer , .secondHalfContainer{
+    width: 50%;
+    height: 100%;
+}
+.secondHalfContainer{
+    width: 50%;
+    height: 100%;
+    background-color: red;
+}
+.tabContainer{
+    display: flex;
+    flex-direction: row;
+
 }

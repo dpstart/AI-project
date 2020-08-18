@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { Observable, throwError, Subject, ReplaySubject } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+
 
 export interface NavTeacherLinks {
     link: String;
@@ -32,7 +33,8 @@ export class TeacherService {
     private navTeacherLinks: NavTeacherLinks[];
 
     constructor(private http: HttpClient) {
-        this.navTeacherLinks = [{ link: 'students', label: 'Students' }, { link: 'vms', label: 'VMs' }, { link: 'homework', label: 'Elaborati' }]
+
+        this.navTeacherLinks = [{ link: 'students', label: 'Students' }, { link: 'vms', label: 'VMs' }, { link: 'homework', label: 'Consegne ed Elaborati' }]
     }
 
     getNavTeacherLinks() {
@@ -43,12 +45,14 @@ export class TeacherService {
 
     selectedCourse: string;
 
-    setCourse(course) {
+
+    setSelectedCourse(course) {
         this.selectedCourse = course;
     }
 
     getSelectedCourse() {
-        return this.selectedCourse;
+        if (this.selectedCourse)
+            return this.selectedCourse;
     }
 
     getCourses<Course>(): Observable<Course[]> {
@@ -81,4 +85,20 @@ export class TeacherService {
         const url = `${this.URL}/courses/${courseName}/homeworks`;
         return this.http.get<Homework[]>(url);
     }
+
+
+    getHomeworksByAssignment<Homework>(courseName: string, assignmentId: number): Observable<Homework[]> {
+        const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks`;
+        return this.http.get<Homework[]>(url);
+
+    }
+
+    getAssignmentsByCourse<Assignment>(courseName: string): Observable<Assignment[]> {
+        const url = `${this.URL}/courses/${courseName}/assignments`;
+        return this.http.get<Assignment[]>(url);
+
+    }
+
+
+
 }

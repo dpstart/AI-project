@@ -30,7 +30,7 @@ export class VMComponent implements OnInit {
 
 
 
-    constructor(private teacher: TeacherService, private dialog: MatDialog) { }
+    constructor(private teacherService: TeacherService, private dialog: MatDialog) { }
 
     openEditDialog(element, event): void {
 
@@ -44,12 +44,12 @@ export class VMComponent implements OnInit {
 
     ngOnInit(): void {
 
-        this.teacher.getTeams(this.teacher.getSelectedCourse()).subscribe((data: Team[]) => {
+        this.teacherService.getTeams(this.teacherService.getSelectedCourse()).subscribe((data: Team[]) => {
 
             data.forEach((element, i) => {
 
                 let team_id = element["id"];
-                this.teacher.getVMs(team_id).subscribe(vms => {
+                this.teacherService.getVMs(team_id).subscribe(vms => {
                     data[i]["vms"] = vms;
                 })
 
