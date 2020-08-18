@@ -71,7 +71,7 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild(MatSidenav) sidenav: MatSidenav;
 
   ngOnInit() {
-    if (this.authService.isLoggedIn) {
+    if (this.authService.isLoggedIn()) {
       // user is logged
       this.teacherService.getCourses().subscribe((data: Course[]) => {
         this.courses = data;

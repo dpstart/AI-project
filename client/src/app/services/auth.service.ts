@@ -64,9 +64,6 @@ export class AuthService {
     return this.getRole() == ROLE.TEACHER;
   }
 
-
-
-
   isLoggedIn() {
 
     if (localStorage.getItem('session') === null) return false;

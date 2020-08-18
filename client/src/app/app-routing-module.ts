@@ -12,6 +12,7 @@ import { StudentGuard } from './auth/student.guard';
 import { HomeworkComponent } from './teacher/homework/homework.component';
 import { VmStudentComponent } from './student/vm/vm-student.component';
 import { GroupsComponent } from './student/groups/groups.component';
+import { HomeworkStudentComponent } from './student/homework/homework-student.component';
 
 
 const routes: Routes = [
@@ -23,7 +24,7 @@ const routes: Routes = [
             [
                 { path: 'course/:course_name/groups', component: GroupsComponent },
                 { path: 'course/:course_name/vms', component: VmStudentComponent },
-                { path: 'course/:course_name/homework', component: HomeworkComponent }
+                { path: 'course/:course_name/homework', component: HomeworkStudentComponent }
 
             ]
 

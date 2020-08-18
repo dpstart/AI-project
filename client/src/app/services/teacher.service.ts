@@ -34,8 +34,8 @@ export class TeacherService {
     constructor(private http: HttpClient) {
         this.navTeacherLinks = [{ link: 'students', label: 'Students' }, { link: 'vms', label: 'VMs' }, { link: 'homework', label: 'Elaborati' }]
     }
-    
-    getNavTeacherLinks(){
+
+    getNavTeacherLinks() {
         return this.navTeacherLinks
     }
 
@@ -75,5 +75,10 @@ export class TeacherService {
         const url = `${this.URL}/vms/teams/${team}`;
         return this.http.get<T>(url);
 
+    }
+
+    getHomeworks<Homework>(courseName: string): Observable<Homework[]> {
+        const url = `${this.URL}/courses/${courseName}/homeworks`;
+        return this.http.get<Homework[]>(url);
     }
 }

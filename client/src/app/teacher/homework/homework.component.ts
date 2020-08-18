@@ -10,11 +10,11 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
   styleUrls: ['./homework.component.css'],
   animations: [
     trigger('detailExpand', [
-        state('collapsed', style({ height: '0px', minHeight: '0' })),
-        state('expanded', style({ height: '*' })),
-        transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+      state('collapsed', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
     ]),
-]
+  ]
 })
 export class HomeworkComponent implements OnInit {
 
@@ -22,11 +22,20 @@ export class HomeworkComponent implements OnInit {
   columnsToDisplay: string[] = ['id', 'state', 'isFinal', 'mark'];
   dataSource: MatTableDataSource<Homework> = new MatTableDataSource<Homework>();
 
+
+
   expandedElement: Homework | null;
 
-  constructor(private teacher: TeacherService) { }
+  constructor(private teacherService: TeacherService) { }
 
   ngOnInit(): void {
+
+    this.teacherService.getHomeworks(this.teacherService.getSelectedCourse()).subscribe((homeworks: Homework[]) => {
+
+      //TODO: remove fake homeworks
+      homeworks.push(new Homework(1, states.delivered, false, 25))
+      this.dataSource = new MatTableDataSource<Homework>(homeworks)
+    })
   }
 
 }
