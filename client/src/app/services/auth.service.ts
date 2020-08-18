@@ -40,15 +40,6 @@ export class AuthService {
     return session["token"];
   }
 
-  isRoleStudent() {
-    return this.getRole() == ROLE.STUDENT
-  }
-
-  isRoleTeacher() {
-    return this.getRole() == ROLE.TEACHER;
-  }
-
-
   getRole() {
 
     if (localStorage.getItem('session') === null) return null;
@@ -59,6 +50,22 @@ export class AuthService {
       return ROLE.TEACHER
     return ROLE.STUDENT
   }
+
+  getEmail() {
+    let session = JSON.parse(localStorage.getItem('session'));
+    return session['email']
+  }
+
+  isRoleStudent() {
+    return this.getRole() == ROLE.STUDENT
+  }
+
+  isRoleTeacher() {
+    return this.getRole() == ROLE.TEACHER;
+  }
+
+
+
 
   isLoggedIn() {
 

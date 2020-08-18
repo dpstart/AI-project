@@ -85,7 +85,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Autowired
     AssignmentRepository assignmentRepository;
-    
+
     @Autowired
     HomeworkRepository homeworkRepository;
 
@@ -1047,7 +1047,7 @@ public class TeamServiceImpl implements TeamService {
         List<Token> tokens = tokenRepository.findAllByTeamId(teamID);
 
         for(Student s: members){
-            m.put(s.getId(),!tokens.stream().anyMatch(x->x.getUserId().equals(s.getId())));
+            m.put(s.getId(), tokens.stream().noneMatch(x->x.getUserId().equals(s.getId())));
         }
 
         return m;

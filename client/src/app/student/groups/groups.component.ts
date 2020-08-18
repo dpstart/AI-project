@@ -7,6 +7,7 @@ import { TeacherService } from 'src/app/services/teacher.service';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Course } from 'src/app/model/course.model';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-groups',
@@ -35,14 +36,14 @@ export class GroupsComponent implements OnInit {
 
 
   //Table related properties
-  dataSourceStudentsInTeam: MatTableDataSource<Student>
-  dataSourceStudentsNotYetInTeam: MatTableDataSource<Student>
+  dataSourceStudentInTeam: MatTableDataSource<Student>
+  dataSourceStudentNotYetInTeam: MatTableDataSource<Student>
   displayedColumns: string[]
   expandedElement: Student | null;
 
 
   //Table of proposals:
-  dataSourceProposals: MatTableDataSource<any>
+  dataSourceProposals: MatTableDataSource<Proposal>
   displayedColumnsProposals: string[]
 
   displayedColumnsInTeam: string[]
@@ -50,24 +51,26 @@ export class GroupsComponent implements OnInit {
   form: FormGroup
 
 
-  constructor(private router: ActivatedRoute, private _studentService: StudentService) {
+  constructor(private router: ActivatedRoute, private _studentService: StudentService, private authService: AuthService) {
 
 
     this.isDisabled = true
 
     //students table
     this.studentsInTeam = []
-    this.dataSourceStudentsInTeam = new MatTableDataSource<Student>();
-    this.dataSourceStudentsNotYetInTeam = new MatTableDataSource<Student>();
+    this.dataSourceStudentInTeam = new MatTableDataSource<Student>();
+    this.dataSourceStudentNotYetInTeam = new MatTableDataSource<Student>();
     this.displayedColumns = ['select', 'id', 'name', 'first name', 'group'];
 
     //proposals table
     this.dataSourceProposals = new MatTableDataSource()
-    this.displayedColumnsProposals = ['groupName', 'matricola', 'name', 'firstName'];
-    this.displayedColumnsInTeam = ['id', 'name', 'first name', 'group']
+    this.displayedColumnsProposals = ['idCreator', 'groupName', 'matricola', 'name', 'firstName'];
+    this.displayedColumnsInTeam = ['group', 'id', 'name', 'first name']
+
+
     this.form = new FormGroup({
       groupNameControl: new FormControl('', [Validators.required]),
-      timeoutControl: new FormControl('23:59', [Validators.required, Validators.min(10)]) //10 min
+      timeoutControl: new FormControl(10, [Validators.required, Validators.min(10)]) //10 min
     })
 
   }
@@ -86,10 +89,12 @@ export class GroupsComponent implements OnInit {
               //Now we can see if the student is already in team or not by looking to the length of the studentsInTeam array:
               if (this.studentsInTeam.length == 0) {
                 //students is not yet in team: we have to upload in the table only the students that are not in a team
-
                 this.studentService.getStudentsAvailableInCourse(this.selectedCourse.name).subscribe((studentsNotInTeam: Student[]) => {
-                  this.dataSourceStudentsNotYetInTeam = new MatTableDataSource<Student>(studentsNotInTeam)
+                  this.dataSourceStudentNotYetInTeam = new MatTableDataSource<Student>(studentsNotInTeam)
                 })
+              } else {
+                //TODO: retrieve members  is in team
+
               }
             })
         })
@@ -103,7 +108,7 @@ export class GroupsComponent implements OnInit {
     if (this.isAllSelected()) {
       this.selection.clear()
     } else {
-      this.dataSourceStudentsNotYetInTeam.data.forEach(row => this.selection.select(row));
+      this.dataSourceStudentNotYetInTeam.data.forEach(row => this.selection.select(row));
     }
     this.checkValidity()
   }
@@ -111,7 +116,7 @@ export class GroupsComponent implements OnInit {
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
     const numSelected = this.selection.selected.length;
-    const numRows = this.dataSourceStudentsNotYetInTeam.data.length;
+    const numRows = this.dataSourceStudentNotYetInTeam.data.length;
     return numSelected === numRows;
   }
 
@@ -152,20 +157,53 @@ export class GroupsComponent implements OnInit {
 
   }
 
-  //TODO: check if submission has gone well
+  //TODO: check if submission has gone well 
   onSubmit() {
-    this.studentService.proposeTeam(this.selectedCourse.name,
-      this.form.get('groupNameControl').value,
-      this.selection.selected,
-      this.form.get('timeoutControl').value).subscribe(((resp) => {
-        if (resp.status === 201) { // Ok created
-          // TODO: fill dataSourceProposals with the proposed members in the team
-           
+    // Check if all fields are correctly setted.
+    if (!this.isDisabled) {
 
-        }
-      }))
+      this.studentService.proposeTeam(this.selectedCourse.name,
+        this.form.get('groupNameControl').value,
+        this.selection.selected,
+        this.form.get('timeoutControl').value).subscribe(((resp) => {
+          if (resp.status === 201) { // Ok created
+            // TODO: fill dataSourceProposals with the proposed members in the team
+
+
+            let studentsSelected = this.selection.selected
+            let idCreator = this.authService.getEmail()
+            let groupName = this.form.get('groupNameControl').value
+
+
+
+
+            // Add the new proposals 
+            let proposals: Proposal[] = []
+
+            for (let student of studentsSelected) {
+              proposals.push({ idCreator: idCreator, groupName: groupName, matricola: student.id, name: student.name, firstName: student.firstName })
+            }
+            // New data source
+            this.dataSourceProposals = new MatTableDataSource<Proposal>(proposals)
+
+            // Remove students selected
+            this.selection.clear()
+          }
+        }))
+
+    }
+
   }
 
 
+
+}
+
+export interface Proposal {
+  idCreator: string
+  groupName: string
+  matricola: string
+  name: string
+  firstName: string
 
 }
