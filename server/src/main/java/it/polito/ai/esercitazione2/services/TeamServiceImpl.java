@@ -630,13 +630,14 @@ public class TeamServiceImpl implements TeamService {
         Student s = studentRepository.getOne(studentId);
         return s.getTeams()
                 .stream()
+                .filter(t -> t.getCourse() != null)
                 .map(x -> modelMapper.map(x, TeamDTO.class))
                 .collect(Collectors.toList());
     }
 
     @Override
     public String getTeamCourse(Long teamId) {
-        if(!teamRepository.existsById(teamId))
+        if(!teamRepository.existsById(teamId) || teamRepository.getOne(teamId).getCourse() == null)
             throw new TeamNotFoundException("Team "+ teamId+ " not found");
         return teamRepository.getOne(teamId).getCourse().getName();
     }
@@ -855,6 +856,13 @@ public class TeamServiceImpl implements TeamService {
         if(!t.isPresent())
             return false;
         t.get().setStatus(1);
+        for(Student s : t.get().getMembers()){
+            s.getTeams().stream()
+                    .filter(x -> x.getCourse() == t.get().getCourse() && x.getStatus() == 0)
+                    .forEach(x -> {
+                        evictTeam(x.getId());
+                    });
+        }
         return true;
     }
 

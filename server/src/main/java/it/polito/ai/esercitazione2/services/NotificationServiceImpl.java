@@ -81,16 +81,12 @@ public class NotificationServiceImpl implements NotificationService {
 
         tokenRepository.deleteById(token);
 
-
+        List<Token> lt=tokenRepository.findAllByTeamId(to.getTeamId());
+        if  (lt.size()>0)
+            return false;
 
         if (!teamService.activateTeam(to.getTeamId()))
             throw new TeamNotFoundException("Team associated with this token doesn't exist anymore");
-
-        List<Token> lt=tokenRepository.findAllByTeamId(to.getTeamId());
-        if  (lt.size()>0)
-            return  false;
-
-
 
         return true;
     }
