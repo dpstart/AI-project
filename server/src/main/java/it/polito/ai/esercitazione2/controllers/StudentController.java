@@ -4,6 +4,7 @@ package it.polito.ai.esercitazione2.controllers;
 import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.entities.Image;
 import it.polito.ai.esercitazione2.exceptions.AuthenticationServiceException;
+import it.polito.ai.esercitazione2.exceptions.CourseNotFoundException;
 import it.polito.ai.esercitazione2.exceptions.IncoherenceException;
 import it.polito.ai.esercitazione2.exceptions.StudentNotFoundException;
 import it.polito.ai.esercitazione2.services.AssignmentService;
@@ -115,7 +116,11 @@ public class StudentController {
     @GetMapping("/teams")
     List<TeamDTO> getTeams() {
         try {
-            return teamservice.getTeamsforStudent(SecurityContextHolder.getContext().getAuthentication().getName());
+            return teamservice.getTeamsforStudent(SecurityContextHolder.getContext().getAuthentication().getName())
+                    .stream()
+                    .filter(t -> t.getStatus() == 1)
+                    .map(t -> ModelHelper.enrich(t, teamservice.getTeamCourse(t.getId())))
+                    .collect(Collectors.toList());
 
         } catch (StudentNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -127,6 +132,23 @@ public class StudentController {
         Image img = teamservice.getProfileImage();
         return img;
     }
+
+    @GetMapping("/courses/{name}/teamsProposals")
+    List<TeamDTO> getTeamsProposalsForCourse(@PathVariable String id, @PathVariable String name){
+        try {
+            return teamservice.getTeamsforStudent(SecurityContextHolder.getContext().getAuthentication().getName())
+                    .stream()
+                    .filter(t -> t.getStatus() == 0)
+                    .map(t -> ModelHelper.enrich(t, name))
+                    .collect(Collectors.toList());
+
+        } catch (StudentNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (CourseNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
 
     @GetMapping("/{id}/assignments")
     public List<AssignmentDTO> getAssignments(@PathVariable String id){

@@ -635,6 +635,13 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    public String getTeamCourse(Long teamId) {
+        if(!teamRepository.existsById(teamId))
+            throw new TeamNotFoundException("Team "+ teamId+ " not found");
+        return teamRepository.getOne(teamId).getCourse().getName();
+    }
+
+    @Override
     public List<StudentDTO> getMembers(String courseName,Long teamID) {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: "+courseName+" not found!");
@@ -715,7 +722,7 @@ public class TeamServiceImpl implements TeamService {
 
         // check se già in un gruppo associato a quel corso
         boolean alreadyInATeam = members.stream()
-                .flatMap(x->x.getTeams().stream())
+                .flatMap(x->x.getTeams().stream().filter( t -> t.getStatus() == 1))
                 .anyMatch(x->teams.contains(x));
         if (alreadyInATeam)
             throw new AlreadyInACourseTeamException("One or more among specified students is already part of a team inside course "+courseId);
@@ -843,7 +850,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public boolean activeTeam(Long ID) {
+    public boolean activateTeam(Long ID) {
         Optional<Team> t = teamRepository.findById(ID);
         if(!t.isPresent())
             return false;
@@ -920,7 +927,7 @@ public class TeamServiceImpl implements TeamService {
         throw new UsernameNotFoundException("Can't retrieve profile image for the specified user");
     }
 
-    public void activeAccount(String id){
+    public void activateAccount(String id){
 
 
         if (studentRepository.existsById(id)){

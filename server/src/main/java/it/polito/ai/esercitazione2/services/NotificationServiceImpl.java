@@ -83,7 +83,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 
 
-        if (!teamService.activeTeam(to.getTeamId()))
+        if (!teamService.activateTeam(to.getTeamId()))
             throw new TeamNotFoundException("Team associated with this token doesn't exist anymore");
 
         List<Token> lt=tokenRepository.findAllByTeamId(to.getTeamId());
@@ -179,7 +179,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         confirmAccountRepository.deleteById(token);
 
-        teamService.activeAccount(ca.getUserId());
+        teamService.activateAccount(ca.getUserId());
 
         return true;
     }

@@ -63,6 +63,7 @@ public interface TeamService {
     List<CourseDTO> getCoursesByProf(String profID);
     @PreAuthorize("hasRole('STUDENT')")
     List<TeamDTO> getTeamsforStudent(String studentId);
+    String getTeamCourse(Long teamId);
     List<StudentDTO> getMembers(String courseName, Long TeamId);
     @PreAuthorize("hasRole('STUDENT')")
     TeamDTO proposeTeam(String courseId,String name, List<String> memberIds,Long duration);
@@ -72,14 +73,14 @@ public interface TeamService {
     TeamDTO setSettings(String courseName, Long TeamID, SettingsDTO settings);
     List<StudentDTO> getStudentsInTeams(String courseName);
     List<StudentDTO> getAvailableStudents(String courseName);
-    boolean activeTeam(Long ID);
+    boolean activateTeam(Long ID);
     boolean evictTeam(Long ID);
     List<Boolean> evictAll(Set<Long> teams);
     Map<String,Boolean> getAdhesionInfo(Long teamID);
 
     //Images
     Image getProfileImage();
-    void activeAccount(String ID);
+    void activateAccount(String ID);
     void deleteAll(Set<String> students);
 
 
