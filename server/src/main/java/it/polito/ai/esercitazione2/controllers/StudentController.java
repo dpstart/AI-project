@@ -134,7 +134,7 @@ public class StudentController {
     }
 
     @GetMapping("/courses/{name}/teamsProposals")
-    List<TeamDTO> getTeamsProposalsForCourse(@PathVariable String id, @PathVariable String name){
+    List<TeamDTO> getTeamsProposalsForCourse(@PathVariable String name){
         try {
             return teamservice.getTeamsforStudent(SecurityContextHolder.getContext().getAuthentication().getName())
                     .stream()
@@ -142,9 +142,7 @@ public class StudentController {
                     .map(t -> ModelHelper.enrich(t, name))
                     .collect(Collectors.toList());
 
-        } catch (StudentNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        } catch (CourseNotFoundException e) {
+        } catch (StudentNotFoundException | CourseNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
