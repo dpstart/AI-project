@@ -133,10 +133,27 @@ public class StudentController {
         return img;
     }
 
+    @GetMapping("/courses/{name}/team")
+    TeamDTO getTeamForCourse(@PathVariable String name){
+        try {
+            List<TeamDTO> teams = teamservice.getTeamsforStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
+                    .stream()
+                    .filter(t -> t.getStatus() == 1)
+                    .map(t -> ModelHelper.enrich(t, name))
+                    .collect(Collectors.toList());
+            if(teams.size()>1)
+                throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "Error in student's teams, more than one team active for this course");
+            return teams.get(0);
+
+        } catch (StudentNotFoundException | CourseNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
     @GetMapping("/courses/{name}/teamsProposals")
     List<TeamDTO> getTeamsProposalsForCourse(@PathVariable String name){
         try {
-            return teamservice.getTeamsforStudent(SecurityContextHolder.getContext().getAuthentication().getName())
+            return teamservice.getTeamsforStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
                     .stream()
                     .filter(t -> t.getStatus() == 0)
                     .map(t -> ModelHelper.enrich(t, name))
@@ -146,7 +163,6 @@ public class StudentController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
-
 
     @GetMapping("/{id}/assignments")
     public List<AssignmentDTO> getAssignments(@PathVariable String id){

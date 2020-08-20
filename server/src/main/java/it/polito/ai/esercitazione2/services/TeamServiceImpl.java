@@ -621,8 +621,6 @@ public class TeamServiceImpl implements TeamService {
         return resAdd;
     }
 
-
-
     @Override
     public List<TeamDTO> getTeamsforStudent(String studentId) {
         if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
@@ -631,6 +629,18 @@ public class TeamServiceImpl implements TeamService {
         return s.getTeams()
                 .stream()
                 .filter(t -> t.getCourse() != null)
+                .map(x -> modelMapper.map(x, TeamDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TeamDTO> getTeamsforStudentAndCourse(String studentId, String courseId) {
+        if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
+            throw new StudentNotFoundException("Student: "+studentId+" not found!");
+        Student s = studentRepository.getOne(studentId);
+        return s.getTeams()
+                .stream()
+                .filter(t -> t.getCourse().getName() == courseId)
                 .map(x -> modelMapper.map(x, TeamDTO.class))
                 .collect(Collectors.toList());
     }
