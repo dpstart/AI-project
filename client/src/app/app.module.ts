@@ -38,6 +38,7 @@ import { EditTeamDialogComponent } from './teacher/vm/edit/edit-team-dialog.comp
 import { GroupsComponent } from './student/groups/groups.component';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { HomeworkDialogComponent } from './teacher/homework/dialog/homework-dialog.component';
 
 
 @NgModule({
@@ -55,6 +56,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     HomeworkStudentComponent,
     EditTeamDialogComponent,
     GroupsComponent,
+    HomeworkDialogComponent,
   ],
   imports: [
     BrowserModule,

@@ -6,6 +6,8 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 import { Assignment } from 'src/app/model/assignment.model';
 import { ActivatedRoute } from '@angular/router';
 import { RouteStateService } from 'src/app/services/route-state.service';
+import { MatDialog } from '@angular/material/dialog';
+import { HomeworkDialogComponent } from './dialog/homework-dialog.component';
 
 @Component({
   selector: 'app-homework',
@@ -24,6 +26,8 @@ export class HomeworkComponent implements OnInit {
 
   selectedCourse: string
 
+  selectedAssignment: Assignment
+
   // id,  state,  isFinal, mark
   homeworksColumnsToDisplay: string[] = ['id', 'state', 'isFinal', 'mark'];
   homeworksDataSource: MatTableDataSource<Homework> = new MatTableDataSource<Homework>();
@@ -37,7 +41,8 @@ export class HomeworkComponent implements OnInit {
 
   homeworkExpandedElement: Homework | null;
 
-  constructor(private teacherService: TeacherService, private activatedRoute: ActivatedRoute, private routeStateService: RouteStateService) { }
+  constructor(private teacherService: TeacherService, private activatedRoute: ActivatedRoute,
+    private routeStateService: RouteStateService, private dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.activatedRoute.params.subscribe((params) => {
@@ -80,8 +85,23 @@ export class HomeworkComponent implements OnInit {
 
 
   }
-  seeHomeworkDetails(element) {
-    console.log(element)
+
+  selectAssignment(assignment: Assignment) {
+    console.log("assignment: ",assignment)
+    this.selectedAssignment = assignment
+  }
+  seeHomeworkDetails(homework: Homework) {
+
+    const dialogRef = this.dialog.open(HomeworkDialogComponent, {
+      height: '75%',
+      width: '75%',
+      data: {
+        assignment: this.assignmentExpandedElement,
+        homework: homework
+      }
+    });
+    event.stopPropagation();
+
   }
 }
 

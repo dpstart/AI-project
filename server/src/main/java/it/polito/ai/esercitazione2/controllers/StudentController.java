@@ -144,7 +144,7 @@ public class StudentController {
             if(teams.size()>1)
                 throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "More than one team active for this course");
             if(teams.size()==0)
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED,
                         "Team for student " + SecurityContextHolder.getContext().getAuthentication().getName() + " and course " +  name + " not found");
             return teams.get(0);
 

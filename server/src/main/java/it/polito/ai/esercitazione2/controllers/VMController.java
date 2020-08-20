@@ -106,7 +106,7 @@ public class VMController {
     }
 
 
-    @GetMapping("{id}/cancel")
+    @DeleteMapping("{id}")
     void removeVM(@PathVariable Long id){
         try{
             vmservice.removeVM(id);

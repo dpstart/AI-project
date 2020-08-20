@@ -4,6 +4,9 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Student } from '../model/student.model';
 import { catchError, retry, map } from 'rxjs/operators';
 import { Course } from '../model/course.model';
+import { Vm } from '../student/vm/vm-student.component';
+import { Team } from '../model/team.model';
+import { HomeworkVersion } from '../model/homework-version';
 
 
 export interface NavStudentLinks {
@@ -27,7 +30,7 @@ export class StudentService {
       // The response body may contain clues as to what went wrong,
       console.error(
         `Backend returned code ${error.status}, ` +
-        `body was: ${error.error}`);
+        `body was: ${error.error}`, `error was: ${error}`);
     }
     // return an observable with a user-facing error message
     return throwError(
@@ -47,10 +50,6 @@ export class StudentService {
 
 
   URL = "http://localhost:4200/API"
-
-
-
-
 
   // CREATE
 
@@ -82,8 +81,6 @@ export class StudentService {
       catchError(this.handleError)
     );
   }
-
-
 
   //RESEARCH
 
@@ -136,6 +133,35 @@ export class StudentService {
       catchError(this.handleError)
     );
   }
+  /**
+   * Ritorna il team dello specifico studente che fa la richiesta dato il corso.
+   * @param courseName  nome del corso
+   */
+  getTeamForCourse(courseName: string): Observable<Team> {
+    const url = `${this.URL}/courses/${courseName}/team`;
+    return this.http.get<Team>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+  }
+
+
+  getVmsForTeam(teamId: number): Observable<Vm[]> {
+    const url = `${this.URL}/vms/teams/${teamId}`;
+    return this.http.get<Vm[]>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+  }
+
+
+  getHomeworkVersions(course_name: string, assignment_id: number, homework_id: number): Observable<HomeworkVersion[]> {
+    const url = `${this.URL}/courses/${course_name}/assignments/${assignment_id}/homeworks/${homework_id}/versions`
+    return this.http.get<HomeworkVersion[]>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+  }
 
   //UPDATE
 
@@ -168,6 +194,26 @@ export class StudentService {
   }
 
 
+  changeVmStatus(vm: Vm) {
+
+    let url = `${this.URL}/vms/${vm.id}`;
+
+    switch (vm.status) {
+      //spenta
+      case 0:
+        url = `${url}/run`
+        break;
+      //attiva
+      case 1:
+        url = `${url}/stop`
+        break;
+    }
+
+    return this.http.get(url).pipe(
+      retry(3), catchError(this.handleError)
+    );
+  }
+
 
   //DELETE
 
@@ -175,7 +221,18 @@ export class StudentService {
     const url = `${this.URL}/students/${id} `; // DELETE api/heroes/42
     return this.http.delete(url)
       .pipe(
+        retry(3),
         catchError(this.handleError)
       );
   }
+
+
+  deleteVm(vm: Vm) {
+    const url = `${this.URL}/vms/${vm.id} `; // DELETE api/heroes/42
+    return this.http.delete(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+  }
+
 }

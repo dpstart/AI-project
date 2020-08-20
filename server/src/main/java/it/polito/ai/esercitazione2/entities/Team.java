@@ -39,10 +39,6 @@ public class Team {
 
     String id_creator;
 
-
-
-
-
     public void setCourse(Course c){
         if (course != null) {
 

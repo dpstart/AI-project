@@ -182,8 +182,6 @@ export class GroupsComponent implements OnInit {
             let groupName = this.form.get('groupNameControl').value
 
 
-
-
             // Add the new proposals 
             let proposals: Proposal[] = []
 

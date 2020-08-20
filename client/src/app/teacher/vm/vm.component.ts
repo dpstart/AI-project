@@ -38,9 +38,8 @@ export class VMComponent implements OnInit {
 
     openEditDialog(element, event) {
 
-        console.log(element);
         const dialogRef = this.dialog.open(EditTeamDialogComponent, {
-            width: '250px',
+            width: '500px',
             data: { team: element }
         });
         event.stopPropagation();
