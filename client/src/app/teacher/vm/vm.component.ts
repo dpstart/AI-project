@@ -5,6 +5,8 @@ import { Team } from '../../model/team.model';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatDialog } from '@angular/material/dialog';
 import { EditTeamDialogComponent } from './edit/edit-team-dialog.component';
+import { ActivatedRoute } from '@angular/router';
+import { RouteStateService } from 'src/app/services/route-state.service';
 
 
 
@@ -22,6 +24,8 @@ import { EditTeamDialogComponent } from './edit/edit-team-dialog.component';
 })
 export class VMComponent implements OnInit {
 
+    selectedCourse: string
+
     columnsToDisplay: string[] = ['actions', 'name', 'id', 'disk_space', 'ram'];
     innerDisplayedColumns = ['id', 'n_cpu', 'disk_space', 'ram', 'status'];
     dataSourceTeams: MatTableDataSource<any> = new MatTableDataSource<any>();
@@ -30,9 +34,9 @@ export class VMComponent implements OnInit {
 
 
 
-    constructor(private teacherService: TeacherService, private dialog: MatDialog) { }
+    constructor(private teacherService: TeacherService, private activatedRoute: ActivatedRoute, private dialog: MatDialog, private routerStateService: RouteStateService) { }
 
-    openEditDialog(element, event): void {
+    openEditDialog(element, event) {
 
         console.log(element);
         const dialogRef = this.dialog.open(EditTeamDialogComponent, {
@@ -42,21 +46,31 @@ export class VMComponent implements OnInit {
         event.stopPropagation();
     }
 
-    ngOnInit(): void {
+    ngOnInit() {
 
-        this.teacherService.getTeams(this.teacherService.getSelectedCourse()).subscribe((data: Team[]) => {
 
-            data.forEach((element, i) => {
+        this.activatedRoute.params.subscribe((params) => {
 
-                let team_id = element["id"];
-                this.teacherService.getVMs(team_id).subscribe(vms => {
-                    data[i]["vms"] = vms;
+            if (params['course_name']) {
+                this.selectedCourse = params['course_name'];
+
+                this.routerStateService.updatePathParamState(params['course_name'])
+
+                
+                this.teacherService.getTeams(this.selectedCourse).subscribe((data: Team[]) => {
+
+                    data.forEach((element, i) => {
+
+                        let team_id = element["id"];
+                        this.teacherService.getVMs(team_id).subscribe(vms => {
+                            data[i]["vms"] = vms;
+                        })
+
+                    });
+
+                    this.dataSourceTeams.data = data;
                 })
-
-            });
-
-            this.dataSourceTeams.data = data;
+            }
         })
     }
-
 }

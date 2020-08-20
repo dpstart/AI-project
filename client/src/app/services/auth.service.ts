@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import * as moment from 'moment';
+import { RouteStateService } from './route-state.service';
 
 export enum ROLE {
   TEACHER,
@@ -15,7 +16,7 @@ export class AuthService {
 
 
   URL = "http://localhost:8080"
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient,private routeStateService: RouteStateService) { }
 
   login(email: string, password: string) {
     const url = `${this.URL}/authenticate`;
@@ -29,6 +30,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('session');
+    this.routeStateService.updatePathParamState("Home")
   }
 
   getAccessToken() {

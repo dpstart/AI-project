@@ -4,6 +4,8 @@ import { Homework, states } from 'src/app/model/homework.model';
 import { TeacherService } from 'src/app/services/teacher.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { Assignment } from 'src/app/model/assignment.model';
+import { ActivatedRoute } from '@angular/router';
+import { RouteStateService } from 'src/app/services/route-state.service';
 
 @Component({
   selector: 'app-homework',
@@ -19,6 +21,9 @@ import { Assignment } from 'src/app/model/assignment.model';
 })
 export class HomeworkComponent implements OnInit {
 
+
+  selectedCourse: string
+
   // id,  state,  isFinal, mark
   homeworksColumnsToDisplay: string[] = ['id', 'state', 'isFinal', 'mark'];
   homeworksDataSource: MatTableDataSource<Homework> = new MatTableDataSource<Homework>();
@@ -32,40 +37,50 @@ export class HomeworkComponent implements OnInit {
 
   homeworkExpandedElement: Homework | null;
 
-  constructor(private teacherService: TeacherService) { }
+  constructor(private teacherService: TeacherService, private activatedRoute: ActivatedRoute, private routeStateService: RouteStateService) { }
 
   ngOnInit(): void {
+    this.activatedRoute.params.subscribe((params) => {
+      if (params['course_name']) {
+        this.routeStateService.updatePathParamState(params['course_name'])
 
-    this.teacherService.getAssignmentsByCourse(this.teacherService.getSelectedCourse()).subscribe((assignments: Assignment[]) => {
-      assignments.push(new Assignment(1, new Date().toDateString(), new Date().toDateString()))
-      this.consegneDataSource = new MatTableDataSource<Assignment>(assignments)
+        this.selectedCourse = params['course_name']
+
+        this.teacherService.getAssignmentsByCourse(this.selectedCourse).subscribe((assignments: Assignment[]) => {
+          assignments.push(new Assignment(1, new Date().toDateString(), new Date().toDateString()))
+          this.consegneDataSource = new MatTableDataSource<Assignment>(assignments)
 
 
-      assignments.forEach(assignment => {
+          assignments.forEach(assignment => {
 
-        this.teacherService.getHomeworksByAssignment(this.teacherService.getSelectedCourse(), assignment.id).subscribe((homeworks: Homework[]) => {
+            this.teacherService.getHomeworksByAssignment(this.selectedCourse, assignment.id).subscribe((homeworks: Homework[]) => {
 
-          //TODO: remove fake homeworks
-          homeworks.push(new Homework(1, states.delivered, false, 25))
-          this.homeworksDataSource = new MatTableDataSource<Homework>(homeworks)
-        }, (data) => {
+              //TODO: remove fake homeworks
+              homeworks.push(new Homework(1, states.delivered, false, 25))
+              this.homeworksDataSource = new MatTableDataSource<Homework>(homeworks)
+            }, (data) => {
 
-          //TODO: remove fake homeworks
-          let homeworks: Homework[] = []
-          homeworks.push(new Homework(1, states.delivered, false, 25))
-          this.homeworksDataSource = new MatTableDataSource<Homework>(homeworks)
-        })
+              //TODO: remove fake homeworks
+              let homeworks: Homework[] = []
+              homeworks.push(new Homework(1, states.delivered, false, 25))
+              this.homeworksDataSource = new MatTableDataSource<Homework>(homeworks)
+            })
 
-        // this.teacherService.getHomeworks(this.teacherService.getSelectedCourse()).subscribe((homeworks: Homework[]) => {
+            // this.teacherService.getHomeworks(this.teacherService.getSelectedCourse()).subscribe((homeworks: Homework[]) => {
 
-        //   //TODO: remove fake homeworks
-        //   homeworks.push(new Homework(1, states.delivered, false, 25))
-        //   this.dataSource = new MatTableDataSource<Homework>(homeworks)
-        // })
-      })
-    });
+            //   //TODO: remove fake homeworks
+            //   homeworks.push(new Homework(1, states.delivered, false, 25))
+            //   this.dataSource = new MatTableDataSource<Homework>(homeworks)
+            // })
+          })
+        });
+      }
+
+    })
+
+
   }
-  seeHomeworkDetails(element){
+  seeHomeworkDetails(element) {
     console.log(element)
   }
 }

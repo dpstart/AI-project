@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 
 import { Student } from '../model/student.model';
-import { MatTableDataSource } from '@angular/material/table';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { StudentService } from '../services/student.service';
 import { ActivatedRoute } from '@angular/router';
 import { TeacherService } from '../services/teacher.service';
+import { RouteStateService } from '../services/route-state.service';
 
 
 @Component({
@@ -22,12 +22,13 @@ export class StudentsContComponent implements OnInit {
   // Data sources
   allStudents: Student[];
   enrolledStudents: Student[];
+
   studentsToDelete: Student[];
 
+  selectedCourse: string
   course;
 
-
-  constructor(private http: HttpClient, private studentService: StudentService, private activatedRoute: ActivatedRoute, private teacherService: TeacherService) {
+  constructor(private http: HttpClient, private studentService: StudentService, private activatedRoute: ActivatedRoute, private routeStateService: RouteStateService, private teacherService: TeacherService) {
     // this.getJSON(this._jsonURLenrolled).subscribe(data => {
     //   this.enrolledStudents.data = data;
     // });
@@ -36,20 +37,21 @@ export class StudentsContComponent implements OnInit {
 
   ngOnInit() {
 
+
+
     this.activatedRoute.params.subscribe(params => {
       if (params["course_name"]) {
-        let course = params["course_name"];
 
-        this.teacherService.setSelectedCourse(course);
+        this.routeStateService.updatePathParamState(params['course_name'])
 
 
-        this.studentService.getStudentsInCourse(course).subscribe(data => {
+        this.selectedCourse = params["course_name"];
+
+
+
+        this.studentService.getStudentsInCourse(this.selectedCourse).subscribe(data => {
           this.allStudents = data;
           this.isAllStudentsLoaded = true;
-        });
-
-
-        this.studentService.getStudentsInCourse(course).subscribe(data => {
           this.enrolledStudents = data;
           this.isEnrolledStudentsLoaded = true;
         });
@@ -58,13 +60,13 @@ export class StudentsContComponent implements OnInit {
 
   }
 
-  addStudent(s: Student) {
+  addStudent(student: Student) {
 
-    if (this.enrolledStudents.indexOf(s) != -1)
+    if (this.enrolledStudents.indexOf(student) != -1)
       return;
 
     this.studentService
-      .addStudent(s)
+      .addStudent(student)
       .subscribe(s => {
         s.courseId = this.course.id;
         var data = this.enrolledStudents;

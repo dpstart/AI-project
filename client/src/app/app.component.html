@@ -32,8 +32,17 @@
   </mat-toolbar-row>
 
   <mat-toolbar-row id="secondrow">
-    <span>{{(selectedCourse?.name)  || "Home"}}</span>
-    <span class="example-spacer"></span>
+
+
+    <div *ngIf="!authService.isLoggedIn();then loggedBlock else notLoggedBlock"></div>
+    <ng-template #loggedBlock>
+      <span>Home</span>
+      <span class="example-spacer"></span>
+    </ng-template>
+    <ng-template #notLoggedBlock>
+      <span>{{selectedCourse | async}}</span>
+      <span class="example-spacer"></span>
+    </ng-template>
   </mat-toolbar-row>
 </mat-toolbar>
 

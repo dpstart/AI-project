@@ -8,6 +8,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { Course } from 'src/app/model/course.model';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from 'src/app/services/auth.service';
+import { RouteStateService } from 'src/app/services/route-state.service';
 
 @Component({
   selector: 'app-groups',
@@ -52,9 +53,8 @@ export class GroupsComponent implements OnInit {
 
   isLoading: boolean // loading
 
-  constructor(private router: ActivatedRoute, private _studentService: StudentService, private authService: AuthService) {
+  constructor(private activatedRoute: ActivatedRoute, private _studentService: StudentService, private authService: AuthService, private routeStateService: RouteStateService) {
     this.isLoading = true
-
     this.isDisabled = true
 
     //students table
@@ -77,8 +77,11 @@ export class GroupsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.router.params.subscribe(params => {
+    this.activatedRoute.params.subscribe(params => {
       if (params["course_name"]) {
+
+        // Update the course into the service so that all the other components will know it
+        this.routeStateService.updatePathParamState(params['course_name'])
 
         this.studentService.getCourse(params["course_name"]).subscribe((selectedCourse: Course) => {
           this.selectedCourse = selectedCourse;
