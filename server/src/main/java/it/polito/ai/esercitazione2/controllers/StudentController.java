@@ -142,7 +142,10 @@ public class StudentController {
                     .map(t -> ModelHelper.enrich(t, name))
                     .collect(Collectors.toList());
             if(teams.size()>1)
-                throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "Error in student's teams, more than one team active for this course");
+                throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "More than one team active for this course");
+            if(teams.size()==0)
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Team for student " + SecurityContextHolder.getContext().getAuthentication().getName() + " and course " +  name + " not found");
             return teams.get(0);
 
         } catch (StudentNotFoundException | CourseNotFoundException e) {
@@ -155,6 +158,12 @@ public class StudentController {
         try {
             return teamservice.getTeamsforStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
                     .stream()
+                    .peek(x -> {
+                        if(x.getStatus()==1)
+                            throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED,
+                                    "Student " + SecurityContextHolder.getContext().getAuthentication().getName()
+                                            + " already has an active team for course " + name);
+                    })
                     .filter(t -> t.getStatus() == 0)
                     .map(t -> ModelHelper.enrich(t, name))
                     .collect(Collectors.toList());
