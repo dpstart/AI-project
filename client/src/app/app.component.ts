@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatDialog } from '@angular/material/dialog';
 import { LoginDialogComponent } from './auth/login-dialog.component';
@@ -17,7 +17,7 @@ import { RouteStateService } from './services/route-state.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit{
 
   courses: Course[];
   selectedCourse: Observable<string>;
@@ -55,6 +55,7 @@ export class AppComponent implements OnInit {
       }
     });
   }
+ 
 
 
   ngOnInit() {
@@ -98,6 +99,9 @@ export class AppComponent implements OnInit {
     this.routeStateService.pathParam.subscribe(courseSelected => {
       if (courseSelected !== "Home")
         this.router.navigate(['teacher', 'course', courseSelected, link]);
+      else
+        this.sidenav.open()
+
 
     })
   }
@@ -105,6 +109,8 @@ export class AppComponent implements OnInit {
     this.routeStateService.pathParam.subscribe(courseSelected => {
       if (courseSelected !== "Home")
         this.router.navigate(['student', 'course', courseSelected, link]);
+      else
+        this.sidenav.open()
     })
   }
 

@@ -8,6 +8,16 @@ import { ActivatedRoute } from '@angular/router';
 import { RouteStateService } from 'src/app/services/route-state.service';
 import { MatDialog } from '@angular/material/dialog';
 import { HomeworkDialogComponent } from './dialog/homework-dialog.component';
+import { element } from 'protractor';
+
+export interface DisplayedHomework {
+  id: number,
+  state: string,
+  isFinal: boolean,
+  mark: number
+}
+
+
 
 @Component({
   selector: 'app-homework',
@@ -30,7 +40,7 @@ export class HomeworkComponent implements OnInit {
 
   // id,  state,  isFinal, mark
   homeworksColumnsToDisplay: string[] = ['id', 'state', 'isFinal', 'mark'];
-  homeworksDataSource: MatTableDataSource<Homework> = new MatTableDataSource<Homework>();
+  homeworksDataSource: MatTableDataSource<DisplayedHomework> = new MatTableDataSource<DisplayedHomework>();
 
 
   consegneDisplayedColumns: string[] = ['id', 'releaseDate', 'expirationDate']
@@ -52,7 +62,8 @@ export class HomeworkComponent implements OnInit {
         this.selectedCourse = params['course_name']
 
         this.teacherService.getAssignmentsByCourse(this.selectedCourse).subscribe((assignments: Assignment[]) => {
-          assignments.push(new Assignment(1, new Date().toDateString(), new Date().toDateString()))
+          let date = new Date().toDateString()
+          assignments.push(new Assignment(1, date.toString(), date.toString()))
           this.consegneDataSource = new MatTableDataSource<Assignment>(assignments)
 
 
@@ -62,14 +73,90 @@ export class HomeworkComponent implements OnInit {
 
               //TODO: remove fake homeworks
               homeworks.push(new Homework(1, states.delivered, false, 25))
-              this.homeworksDataSource = new MatTableDataSource<Homework>(homeworks)
-            }, (data) => {
 
-              //TODO: remove fake homeworks
-              let homeworks: Homework[] = []
-              homeworks.push(new Homework(1, states.delivered, false, 25))
-              this.homeworksDataSource = new MatTableDataSource<Homework>(homeworks)
-            })
+
+              let displayHomeworks: DisplayedHomework[] = []
+
+              /*  unread,
+                  read,
+                  delivered,
+                  reviewed */
+
+              homeworks.forEach(element => {
+                let state = ""
+                switch (element.state) {
+                  case 0:
+                    state = "NON LETTO"
+                    break;
+                  case 1:
+                    state = "LETTO"
+                    break;
+                  case 2:
+                    state = "CONSEGNATO"
+                    break;
+                  case 3:
+                    state = "RIVISTO"
+                    break;
+
+                  default:
+                    break;
+
+                }
+                displayHomeworks.push({
+                  id: element.id,
+                  state: state,
+                  isFinal: element.isFinal,
+                  mark: element.mark
+                })
+              })
+
+              this.homeworksDataSource.data = displayHomeworks
+              
+
+              console.log(displayHomeworks)
+
+            },
+              (error) => {
+                //TODO: remove fake homeworks
+                let homeworks: Homework[] = []
+
+                homeworks.push(new Homework(1, states.delivered, false, 25))
+                let displayHomeworks: DisplayedHomework[] = []
+
+                homeworks.forEach(element => {
+                  let state = ""
+                  switch (element.state) {
+                    case 0:
+                      state = "NON LETTO"
+                      break;
+                    case 1:
+                      state = "LETTO"
+                      break;
+                    case 2:
+                      state = "CONSEGNATO"
+                      break;
+                    case 3:
+                      state = "RIVISTO"
+                      break;
+  
+                    default:
+                      break;
+  
+                  }
+                  
+                  displayHomeworks.push({
+                    id: element.id,
+                    state: state,
+                    isFinal: element.isFinal,
+                    mark: element.mark
+                  })
+                })
+
+                this.homeworksDataSource.data = displayHomeworks
+
+
+                console.log(displayHomeworks)
+              })
 
             // this.teacherService.getHomeworks(this.teacherService.getSelectedCourse()).subscribe((homeworks: Homework[]) => {
 
@@ -87,7 +174,7 @@ export class HomeworkComponent implements OnInit {
   }
 
   selectAssignment(assignment: Assignment) {
-    console.log("assignment: ",assignment)
+    console.log("assignment: ", assignment)
     this.selectedAssignment = assignment
   }
   seeHomeworkDetails(homework: Homework) {
@@ -103,5 +190,11 @@ export class HomeworkComponent implements OnInit {
     event.stopPropagation();
 
   }
+
+
 }
+
+
+
+
 

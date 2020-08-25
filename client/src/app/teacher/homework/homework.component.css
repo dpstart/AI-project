@@ -36,7 +36,7 @@ tr.example-element-row:not(.example-expanded-row):active {
 .example-element-description-attribution {
     opacity: 0.5;
 }
-.firstHalfContainer {
+.contentContainer {
     width: 100%;
     height: 100%;
 }

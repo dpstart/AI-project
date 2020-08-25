@@ -1,16 +1,16 @@
 
 
 export class Homework {
-    public get mark(): Number {
+    public get mark(): number {
         return this._mark;
     }
-    public set mark(value: Number) {
+    public set mark(value: number) {
         this._mark = value;
     }
-    public get isFinal(): Boolean {
+    public get isFinal(): boolean {
         return this._isFinal;
     }
-    public set isFinal(value: Boolean) {
+    public set isFinal(value: boolean) {
         this._isFinal = value;
     }
     public get state(): states {
@@ -34,7 +34,7 @@ export class Homework {
     // @NotBlank
     // Float mark;
 
-    constructor(private _id: number, private _state: states, private _isFinal: Boolean, private _mark: Number) { }
+    constructor(private _id: number, private _state: states, private _isFinal: boolean, private _mark: number) { }
 }
 
 export enum states {
