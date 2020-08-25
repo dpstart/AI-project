@@ -16,7 +16,7 @@ export class AuthService {
 
 
   URL = "http://localhost:8080"
-  constructor(private http: HttpClient,private routeStateService: RouteStateService) { }
+  constructor(private http: HttpClient, private routeStateService: RouteStateService) { }
 
   login(email: string, password: string) {
     const url = `${this.URL}/authenticate`;
@@ -48,9 +48,12 @@ export class AuthService {
     let session = JSON.parse(localStorage.getItem('session'));
     let role = session["info"]["AUTHORITIES"];
 
-    if (role == "ROLE_ADMIN")
+
+    if (role == "ROLE_PROFESSOR")
       return ROLE.TEACHER
     return ROLE.STUDENT
+
+
   }
 
   getEmail() {

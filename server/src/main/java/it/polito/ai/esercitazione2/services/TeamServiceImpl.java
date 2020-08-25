@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import javax.swing.*;
 import javax.transaction.Transactional;
 
 import java.io.ByteArrayOutputStream;
@@ -766,6 +767,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public TeamDTO setSettings(String courseName, Long teamId, SettingsDTO settings){
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
+
 
         // il corso esiste?
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))

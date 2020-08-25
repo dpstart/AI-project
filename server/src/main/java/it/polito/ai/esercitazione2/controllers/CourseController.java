@@ -420,7 +420,7 @@ public class CourseController {
     @PostMapping("/{name}/teams/{id}/settings")
     TeamDTO setSettings(@PathVariable String name, @PathVariable Long id, @Valid @RequestBody SettingsDTO settings){
         if (settings.getMax_active()==null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Please specify 'max_axtive' field"); //da generalizzare
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Please specify 'max_active' field"); //da generalizzare
         if (settings.getMax_available()==null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Please specify 'max_available' field"); //da generalizzare
 

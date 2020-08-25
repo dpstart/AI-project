@@ -9,12 +9,20 @@ export interface NavTeacherLinks {
     label: String;
 }
 
+export interface TeamSettings {
+    nCpu: number
+    diskSpace: number
+    ram: number
+    max_active: number
+    max_available: number
+}
+
 @Injectable({
     providedIn: 'root'
 })
 export class TeacherService {
 
-    
+
     //tabs of the teacher
     private navTeacherLinks: NavTeacherLinks[];
 
@@ -48,7 +56,7 @@ export class TeacherService {
 
     }
 
-    getVMs<T>(team: number): Observable<T> {
+    getVmsForTeam<T>(team: number): Observable<T> {
 
         const url = `${this.URL}/vms/teams/${team}`;
         return this.http.get<T>(url);
@@ -66,16 +74,23 @@ export class TeacherService {
     }
 
 
-    getHomeworkVersions(courseName:string,assignmentId:number,homeworkId:number):Observable<HomeworkVersion[]>{
+    getHomeworkVersions(courseName: string, assignmentId: number, homeworkId: number): Observable<HomeworkVersion[]> {
         const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}/versions`;
         return this.http.get<HomeworkVersion[]>(url);
     }
-    
+
 
     getAssignmentsByCourse<Assignment>(courseName: string): Observable<Assignment[]> {
         const url = `${this.URL}/courses/${courseName}/assignments`;
         return this.http.get<Assignment[]>(url);
 
+    }
+
+    changeTeamSettings(courseName: string, teamId: number, settings: TeamSettings) {
+        const url = `${this.URL}/courses/${courseName}/teams/${teamId}/settings`;
+
+        console.log(settings)
+        return this.http.post(url, settings);
     }
 
     private handleError(error: HttpErrorResponse) {

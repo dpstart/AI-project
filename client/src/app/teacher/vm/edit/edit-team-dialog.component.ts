@@ -1,6 +1,8 @@
 import { Inject, Component, Input } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormControl } from '@angular/forms';
+import { TeacherService } from 'src/app/services/teacher.service';
+import { Team } from 'src/app/model/team.model';
 
 @Component({
   selector: 'edit-team-dialog',
@@ -9,11 +11,15 @@ import { FormGroup, FormControl } from '@angular/forms';
 })
 export class EditTeamDialogComponent {
 
+  team: Team
+  course: string
 
   form: FormGroup = new FormGroup({
     ram: new FormControl(this.data.team.ram),
-    n_cpu: new FormControl(''),
-    disk_space: new FormControl(''),
+    n_cpu: new FormControl(this.data.team.n_cpu),
+    disk_space: new FormControl(this.data.team.disk_space),
+    max_active: new FormControl(this.data.team.max_active || "--"),
+    max_available: new FormControl(this.data.team.max_available || "--")
   });
 
   @Input() error: string | null;
@@ -21,7 +27,11 @@ export class EditTeamDialogComponent {
 
   constructor(
     public dialogRef: MatDialogRef<EditTeamDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data) {
+    @Inject(MAT_DIALOG_DATA) public data,
+    private teacherService: TeacherService) {
+
+    this.team = data.team;
+    this.course = data.course;
 
   }
 
@@ -29,6 +39,11 @@ export class EditTeamDialogComponent {
     this.dialogRef.close();
   }
 
-  close() { }
-  submit() { }
+  close() { this.dialogRef.close(); }
+  submit() {
+
+    this.teacherService.changeTeamSettings(this.course, this.team.id, this.form.value).subscribe((team) =>
+      this.close()
+    )
+  }
 }

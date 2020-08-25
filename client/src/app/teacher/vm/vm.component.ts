@@ -36,34 +36,27 @@ export class VMComponent implements OnInit {
 
 
 
-    constructor(private studentService: StudentService, private activatedRoute: ActivatedRoute, private dialog: MatDialog, private routerStateService: RouteStateService) { }
+    constructor(private teacherService: TeacherService, private activatedRoute: ActivatedRoute, private dialog: MatDialog, private routerStateService: RouteStateService) { }
 
-    openEditDialog(element, event) {
 
-        const dialogRef = this.dialog.open(EditTeamDialogComponent, {
-            width: '500px',
-            data: { team: element }
-        });
-        event.stopPropagation();
-    }
 
-    ngOnInit() {
-
+    getData() {
 
         this.activatedRoute.params.subscribe((params) => {
 
-            if (params['course_name']) {
+            let current_course = params['course_name']
+            if (current_course) {
                 this.selectedCourse = params['course_name'];
 
-                this.routerStateService.updatePathParamState(params['course_name'])
+                this.routerStateService.updatePathParamState(current_course)
 
 
-                this.studentService.getTeamsOfStudent().subscribe((data: Team[]) => {
+                this.teacherService.getTeams(current_course).subscribe((data: Team[]) => {
 
                     data.forEach((element, i) => {
                         let team_id = element["id"];
 
-                        this.studentService.getVmsForTeam(team_id).subscribe(vms => {
+                        this.teacherService.getVmsForTeam(team_id).subscribe(vms => {
                             data[i]["vms"] = vms;
                         })
                     });
@@ -72,5 +65,21 @@ export class VMComponent implements OnInit {
                 })
             }
         })
+    }
+
+    openEditDialog(element, event) {
+
+        const dialogRef = this.dialog.open(EditTeamDialogComponent, {
+            width: '500px',
+            data: { team: element, course: this.selectedCourse }
+        });
+
+        dialogRef.afterClosed().subscribe(() => this.getData())
+        event.stopPropagation();
+    }
+
+    ngOnInit() {
+
+        this.getData()
     }
 }
