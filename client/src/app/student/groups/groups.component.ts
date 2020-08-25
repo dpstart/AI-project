@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { StudentService } from 'src/app/services/student.service';
+import { StudentService, ServerError } from 'src/app/services/student.service';
 import { Student } from 'src/app/model/student.model';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
@@ -93,29 +93,36 @@ export class GroupsComponent implements OnInit {
           this.studentService.getTeamForCourse(this.selectedCourse.name).subscribe(
             (teams) => {
               this.isLoading = false
+              this.isInTeam = true
 
               //Now we can see if the student is already in team or not by looking to the length of the studentsInTeam array:
-              if (teams == null) {
-                this.isInTeam = false
+              this.studentService.getTeamMembers(this.selectedCourse.name, teams.id).subscribe((students) => {
+                students.push(new Student("<sdsa", "Aa", "bbb"))
+
+                students.forEach(element => {
+                  element["group"] = teams.name
+                });
+                this.dataSourceStudentInTeam.data = [...students]
+              })
+
+
+            }, (error: ServerError) => {
+
+              this.isLoading = false
+              this.isInTeam = false
+              if (error.status == 417) { 
                 //students is not yet in team: we have to upload in the table only the students that are not in a team
                 this.studentService.getStudentsAvailableInCourse(this.selectedCourse.name).subscribe((studentsNotInTeam: Student[]) => {
-                  studentsNotInTeam.push(new Student("<sdsa","Aa","bbb"))
+                  studentsNotInTeam.push(new Student("<sdsa", "Aa", "bbb"))
+                  studentsNotInTeam.push(new Student("<sdsa", "Aa", "bbb"))
+                  
                   this.dataSourceStudentNotYetInTeam.data = [...studentsNotInTeam]
-                })
-              } else {
-                this.isInTeam = true
-                //TODO: retrieve members is in team
-                this.studentService.getTeamMembers(this.selectedCourse.name, teams.id).subscribe((students) => {
-                  students.push(new Student("<sdsa","Aa","bbb"))
-
-                  students.forEach(element => {
-                    element["group"]= teams.name
-                  });
-                  this.dataSourceStudentInTeam.data = [...students]
                 })
 
               }
+
             })
+
         })
       }
     })
@@ -224,7 +231,7 @@ export interface Proposal {
   firstName: string
 }
 
-export interface StudentInGroup{
-  group:string
-  student:Student
+export interface StudentInGroup {
+  group: string
+  student: Student
 }

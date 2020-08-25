@@ -148,7 +148,7 @@ public class StudentController {
             if(teams.size()>1)
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "More than one team active for this course");
             if(teams.size()==0)
-              return null;
+                throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "No team found");
             return teams.get(0);
 
         } catch (StudentNotFoundException | CourseNotFoundException e) {
