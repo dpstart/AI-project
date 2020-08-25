@@ -58,8 +58,6 @@ public class StudentController {
         return ModelHelper.enrich(c);
     }
 
-
-
     @PostMapping({"","/"})
     public StudentDTO addStudent(@Valid @RequestPart("student") StudentDTO dto,
                           @RequestPart(value="image",required=false) MultipartFile file) {

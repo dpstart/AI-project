@@ -1,18 +1,44 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import * as moment from 'moment';
 import { RouteStateService } from './route-state.service';
+import { throwError } from 'rxjs/internal/observable/throwError';
+import { catchError, retry } from 'rxjs/operators';
 
 export enum ROLE {
   TEACHER,
   STUDENT
 }
 
+export interface RegisteredUser {
+  first_name: string
+  last_name: string
+  id: string
+  email: string
+  password: string
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+
+  private handleError(error: HttpErrorResponse) {
+    if (error.error instanceof ErrorEvent) {
+      // A client-side or network error occurred. Handle it accordingly.ù
+      console.log(error)
+      console.error('An error occurred:', error.message);
+    } else {
+      // The backend returned an unsuccessful response code.
+      // The response body may contain clues as to what went wrong,
+      console.error(
+        `Backend returned code ${error.status}, ` +
+        `body was: ${error.error.message}`);
+    }
+    // return an observable with a user-facing error message
+    return throwError({ status: error.status, message: error.error.message });
+  };
 
 
   URL = "http://localhost:8080"
@@ -23,9 +49,17 @@ export class AuthService {
     return this.http.post<string>(url, { username: email, password: password });
   }
 
-  register(first_name: string, last_name: string, id: string, email: string, password: string) {
+  register(user: RegisteredUser) {
     const url = `${this.URL}/API/students`;
-    return this.http.post<string>(url, { firstName: first_name, name: last_name, id: id, email: email, password: password });
+
+    let headers = new HttpHeaders()
+    headers.append('Content-Type', 'multipart/form-data; boundary=Inflow');
+
+
+    return this.http.post<string>(url, user, { "headers": headers }).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
   }
 
   logout() {

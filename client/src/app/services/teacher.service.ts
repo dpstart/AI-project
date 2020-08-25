@@ -2,6 +2,7 @@ import { Injectable, OnInit } from '@angular/core';
 import { Observable, throwError, Subject, ReplaySubject } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { HomeworkVersion } from '../model/homework-version';
+import { retry, catchError } from 'rxjs/operators';
 
 
 export interface NavTeacherLinks {
@@ -90,7 +91,10 @@ export class TeacherService {
         const url = `${this.URL}/courses/${courseName}/teams/${teamId}/settings`;
 
         console.log(settings)
-        return this.http.post(url, settings);
+        return this.http.post(url, settings).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
     }
 
     private handleError(error: HttpErrorResponse) {
@@ -106,7 +110,7 @@ export class TeacherService {
         }
         // return an observable with a user-facing error message
         return throwError(
-            'Something bad happened; please try again later.');
+            { status: error.status, message: error.error.message });
     };
 
 

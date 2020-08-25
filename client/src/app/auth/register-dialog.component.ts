@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
-import { AuthService } from '../services/auth.service';
+import { AuthService, RegisteredUser } from '../services/auth.service';
 
 @Component({
   selector: 'app-register-dialog',
@@ -32,9 +32,12 @@ export class RegisterDialogComponent implements OnInit {
   }
 
   save() {
-    this.auth.register(this.form.value.first_name, this.form.value.last_name,
-      this.form.value.id, this.form.value.email, this.form.value.password)
-      .subscribe(data => { console.log(data) })
+
+    let user: RegisteredUser = this.form.value;
+    this.auth.register(user)
+      .subscribe(
+        data => { console.log(data) },
+        error => this.error = error.message)
   }
 
   close() {
