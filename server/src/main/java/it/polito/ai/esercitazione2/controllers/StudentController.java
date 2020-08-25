@@ -46,13 +46,13 @@ public class StudentController {
     MessageSource msg;
 
     @GetMapping({"","/"})
-    List<StudentDTO> all(){
+    public List<StudentDTO> all(){
         return teamservice.getAllStudents().stream()
                 .map(x->ModelHelper.enrich(x)).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    StudentDTO getOne(@PathVariable String id){
+    public StudentDTO getOne(@PathVariable String id){
         StudentDTO c=teamservice.getStudent(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,id));
 
         return ModelHelper.enrich(c);
@@ -61,7 +61,7 @@ public class StudentController {
 
 
     @PostMapping({"","/"})
-    StudentDTO addStudent(@Valid @RequestPart("student") StudentDTO dto,
+    public StudentDTO addStudent(@Valid @RequestPart("student") StudentDTO dto,
                           @RequestPart(value="image",required=false) MultipartFile file) {
 
         try {
@@ -83,7 +83,7 @@ public class StudentController {
     }
 
     @PostMapping({"/many"})
-    List<StudentDTO> addStudents(@RequestBody @Valid ValidStudentDTOList students ){
+    public List<StudentDTO> addStudents(@RequestBody @Valid ValidStudentDTOList students ){
         List<Boolean> res;
         List<StudentDTO> original=students.getList();
         List<StudentDTO> finalRes=new ArrayList<>();
@@ -104,7 +104,7 @@ public class StudentController {
     }
 
     @GetMapping("/courses")
-    List<CourseDTO> getCourses(){
+    public List<CourseDTO> getCourses(){
         try {
             return teamservice.getCourses(SecurityContextHolder.getContext().getAuthentication().getName()).stream()
                     .map(x->ModelHelper.enrich(x)).collect(Collectors.toList());
@@ -113,8 +113,12 @@ public class StudentController {
         }
     }
 
+    /**
+     * Metodo usato per ricercare i team di uno studente.
+     * @return i team del determinato studente che effettua la richiesta
+     */
     @GetMapping("/teams")
-    List<TeamDTO> getTeams() {
+    public List<TeamDTO> getTeams() {
         try {
             return teamservice.getTeamsforStudent(SecurityContextHolder.getContext().getAuthentication().getName())
                     .stream()
@@ -134,7 +138,7 @@ public class StudentController {
     }
 
     @GetMapping("/courses/{name}/team")
-    TeamDTO getTeamForCourse(@PathVariable String name){
+    public TeamDTO getTeamForCourse(@PathVariable String name){
         try {
             List<TeamDTO> teams = teamservice.getTeamsforStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
                     .stream()
@@ -142,10 +146,9 @@ public class StudentController {
                     .map(t -> ModelHelper.enrich(t, name))
                     .collect(Collectors.toList());
             if(teams.size()>1)
-                throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "More than one team active for this course");
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "More than one team active for this course");
             if(teams.size()==0)
-                throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED,
-                        "Team for student " + SecurityContextHolder.getContext().getAuthentication().getName() + " and course " +  name + " not found");
+              return null;
             return teams.get(0);
 
         } catch (StudentNotFoundException | CourseNotFoundException e) {
@@ -154,7 +157,7 @@ public class StudentController {
     }
 
     @GetMapping("/courses/{name}/teamsProposals")
-    List<TeamDTO> getTeamsProposalsForCourse(@PathVariable String name){
+    public  List<TeamDTO> getTeamsProposalsForCourse(@PathVariable String name){
         try {
             return teamservice.getTeamsforStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
                     .stream()

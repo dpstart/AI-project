@@ -9,6 +9,7 @@ import { Course } from 'src/app/model/course.model';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from 'src/app/services/auth.service';
 import { RouteStateService } from 'src/app/services/route-state.service';
+import { group } from 'console';
 
 @Component({
   selector: 'app-groups',
@@ -53,9 +54,12 @@ export class GroupsComponent implements OnInit {
 
   isLoading: boolean // loading
 
+  isInTeam: boolean
+
   constructor(private activatedRoute: ActivatedRoute, private _studentService: StudentService, private authService: AuthService, private routeStateService: RouteStateService) {
-    this.isLoading = true
-    this.isDisabled = true
+    this.isInTeam = false // inizializzato a false indica che lo studente non è in un team
+    this.isLoading = true // caricamento 
+    this.isDisabled = true // indica se il bottone può essere premuto o meno
 
     //students table
     this.studentsInTeam = []
@@ -86,21 +90,29 @@ export class GroupsComponent implements OnInit {
         this.studentService.getCourse(params["course_name"]).subscribe((selectedCourse: Course) => {
           this.selectedCourse = selectedCourse;
 
-          this.studentService.getTeamsOfStudent().subscribe(
-            (data) => {
-
-
-              this.studentsInTeam = data
-
+          this.studentService.getTeamForCourse(this.selectedCourse.name).subscribe(
+            (teams) => {
               this.isLoading = false
+
               //Now we can see if the student is already in team or not by looking to the length of the studentsInTeam array:
-              if (this.studentsInTeam.length == 0) {
+              if (teams == null) {
+                this.isInTeam = false
                 //students is not yet in team: we have to upload in the table only the students that are not in a team
                 this.studentService.getStudentsAvailableInCourse(this.selectedCourse.name).subscribe((studentsNotInTeam: Student[]) => {
-                  this.dataSourceStudentNotYetInTeam = new MatTableDataSource<Student>(studentsNotInTeam)
+                  studentsNotInTeam.push(new Student("<sdsa","Aa","bbb"))
+                  this.dataSourceStudentNotYetInTeam.data = [...studentsNotInTeam]
                 })
               } else {
-                //TODO: retrieve members  is in team
+                this.isInTeam = true
+                //TODO: retrieve members is in team
+                this.studentService.getTeamMembers(this.selectedCourse.name, teams.id).subscribe((students) => {
+                  students.push(new Student("<sdsa","Aa","bbb"))
+
+                  students.forEach(element => {
+                    element["group"]= teams.name
+                  });
+                  this.dataSourceStudentInTeam.data = [...students]
+                })
 
               }
             })
@@ -210,5 +222,9 @@ export interface Proposal {
   matricola: string
   name: string
   firstName: string
+}
 
+export interface StudentInGroup{
+  group:string
+  student:Student
 }

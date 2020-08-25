@@ -7,6 +7,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { EditTeamDialogComponent } from './edit/edit-team-dialog.component';
 import { ActivatedRoute } from '@angular/router';
 import { RouteStateService } from 'src/app/services/route-state.service';
+import { StudentService } from 'src/app/services/student.service';
+import { Student } from 'src/app/model/student.model';
 
 
 
@@ -34,7 +36,7 @@ export class VMComponent implements OnInit {
 
 
 
-    constructor(private teacherService: TeacherService, private activatedRoute: ActivatedRoute, private dialog: MatDialog, private routerStateService: RouteStateService) { }
+    constructor(private studentService: StudentService, private activatedRoute: ActivatedRoute, private dialog: MatDialog, private routerStateService: RouteStateService) { }
 
     openEditDialog(element, event) {
 
@@ -55,16 +57,15 @@ export class VMComponent implements OnInit {
 
                 this.routerStateService.updatePathParamState(params['course_name'])
 
-                
-                this.teacherService.getTeams(this.selectedCourse).subscribe((data: Team[]) => {
+
+                this.studentService.getTeamsOfStudent().subscribe((data: Team[]) => {
 
                     data.forEach((element, i) => {
-
                         let team_id = element["id"];
-                        this.teacherService.getVMs(team_id).subscribe(vms => {
+
+                        this.studentService.getVmsForTeam(team_id).subscribe(vms => {
                             data[i]["vms"] = vms;
                         })
-
                     });
 
                     this.dataSourceTeams.data = data;

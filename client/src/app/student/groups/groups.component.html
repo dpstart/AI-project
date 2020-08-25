@@ -1,6 +1,6 @@
 <div *ngIf="isLoading; else loadedBlock"><mat-spinner diameter="300" strokeWidth="5"></mat-spinner></div>
 <ng-template #loadedBlock>
-    <div *ngIf="studentsInTeam.length == 0; then notInTeamBlock else inTeamBlock"></div>
+    <div *ngIf="isInTeam; then inTeamBlock else notInTeamBlock"></div>
     <!-- notInTeamBlock: student is not in a group -->
     <ng-template #notInTeamBlock>
 

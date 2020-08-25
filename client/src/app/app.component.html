@@ -47,19 +47,19 @@
 </mat-toolbar>
 
 <mat-sidenav-container>
+
+
   <mat-sidenav #sidenav mode="side">
-    <div class="container">
-      <mat-nav-list>
-        <a mat-list-item *ngFor="let course of courses" (click)="selectCourse(course)">
-          {{course.name}} </a>
-      </mat-nav-list>
-    </div>
+    <mat-selection-list [multiple]="false">
+      <mat-list-option *ngFor="let course of courses" [value]="course" (click)="selectCourse(course)">
+        {{course.name}}
+      </mat-list-option>
+    </mat-selection-list>
+
   </mat-sidenav>
 
   <mat-sidenav-content>
     <div *ngIf="isRoleTeacher() && isLoggedIn();">
-
-
 
       <nav mat-tab-nav-bar>
         <a mat-tab-link *ngFor="let element of navTeacherLinks" (click)="onClickTeacherTab(element.link)"

@@ -37,6 +37,8 @@ export class StudentService {
       'Something bad happened; please try again later.');
   };
 
+
+
   private navStudentLinks: NavStudentLinks[];
 
   constructor(private http: HttpClient) {
@@ -118,9 +120,9 @@ export class StudentService {
   }
 
 
-  getTeamsOfStudent(): Observable<Student[]> {
+  getTeamsOfStudent(): Observable<Team[]> {
     const url = `${this.URL}/students/teams`;
-    return this.http.get<Student[]>(url).pipe(
+    return this.http.get<Team[]>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
@@ -138,11 +140,20 @@ export class StudentService {
    * @param courseName  nome del corso
    */
   getTeamForCourse(courseName: string): Observable<Team> {
-    const url = `${this.URL}/courses/${courseName}/team`;
+    const url = `${this.URL}/students/courses/${courseName}/team`;
     return this.http.get<Team>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
+  }
+
+  getTeamMembers(courseName: string, teamId: number): Observable<Student[]> {
+    const url = `${this.URL}/courses/${courseName}/teams/${teamId}/members`;
+    return this.http.get<Student[]>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+
   }
 
 
