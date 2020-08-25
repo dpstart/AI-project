@@ -40,7 +40,7 @@ export class VmStudentComponent implements OnInit {
 
         this.studentService.getVmsForTeam(1).subscribe(vms => {
           vms.push({
-            id: 1,
+            id: 2,
             n_cpu: 1,
             disk_space: 2,
             ram: 12,
@@ -61,8 +61,8 @@ export class VmStudentComponent implements OnInit {
 
   deleteVm(vm: Vm) {
     this.studentService.deleteVm(vm).subscribe((_) => {
-     this.dataSourceVm.data.splice(this.dataSourceVm.data.indexOf(vm),1)
-     this.dataSourceVm._updateChangeSubscription()
+      this.dataSourceVm.data.splice(this.dataSourceVm.data.indexOf(vm), 1)
+      this.dataSourceVm._updateChangeSubscription()
     })
   }
 
@@ -70,8 +70,8 @@ export class VmStudentComponent implements OnInit {
     this.studentService.changeVmStatus(vm).subscribe((_) => {
 
       this.dataSourceVm.data.forEach((selected) => {
-        if (selected.id == vm.id) {
-          selected.status == 1 ? 0 : 1;
+        if (selected.id === vm.id) {
+          selected.status === 1 ? selected.status = 0 : selected.status = 1;
         }
       })
 

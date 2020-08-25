@@ -1,13 +1,11 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { StudentService } from 'src/app/services/student.service';
 import { RouteStateService } from 'src/app/services/route-state.service';
 import { HomeworkVersion } from 'src/app/model/homework-version';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Homework } from 'src/app/model/homework.model';
 import { Assignment } from 'src/app/model/assignment.model';
 import { TeacherService } from 'src/app/services/teacher.service';
-import { version } from 'process';
 
 @Component({
   selector: 'app-homework-dialog',
