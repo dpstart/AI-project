@@ -6,6 +6,8 @@ import { HomeworkVersion } from 'src/app/model/homework-version';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Homework } from 'src/app/model/homework.model';
 import { Assignment } from 'src/app/model/assignment.model';
+import { TeacherService } from 'src/app/services/teacher.service';
+import { version } from 'process';
 
 @Component({
   selector: 'app-homework-dialog',
@@ -21,12 +23,12 @@ export class HomeworkDialogComponent implements OnInit {
   selectedAssignment: Assignment
   selectedHomework: Homework
 
-  constructor(private studentService: StudentService, private routeStateService: RouteStateService,
+  constructor(private teacherService: TeacherService, private routeStateService: RouteStateService,
     @Inject(MAT_DIALOG_DATA) public data) {
 
     this.selectedAssignment = data.assignment
     this.selectedHomework = data.homework
-    this.historyHomeworkColumnsToDisplay = ['id','image','deliveryDate']
+    this.historyHomeworkColumnsToDisplay = ['id', 'image', 'deliveryDate']
     this.historyHomeworkDataSource = new MatTableDataSource<HomeworkVersion>()
   }
 
@@ -40,17 +42,29 @@ export class HomeworkDialogComponent implements OnInit {
     })
 
 
-    // this.studentService.getHomeworkVersions(this.courseName, this.selectedAssignment.id, this.selectedHomework.id,).subscribe(
-    //   (homeworkVersion: HomeworkVersion[]) => {
+    this.teacherService.getHomeworkVersions(this.courseName, this.selectedAssignment.id, this.selectedHomework.id).subscribe((data) => {
 
-    //     homeworkVersion.push(new HomeworkVersion(1, "ciao", new Date()))
-    //     this.historyHomeworkDataSource.data = [...homeworkVersion]
-    //   })
+      data.push(new HomeworkVersion(1, "ciao", new Date()))
 
-    let homeworkVersion = []
-       homeworkVersion.push(new HomeworkVersion(1, "ciao", new Date()))
-        this.historyHomeworkDataSource.data = [...homeworkVersion]
+      /*this.httpClient.get('http://localhost:8080/image/get/' + this.imageName)
+      .subscribe(
+        res => {
+          this.retrieveResonse = res;
+          this.base64Data = this.retrieveResonse.picByte;
+          this.retrievedImage = 'data:image/jpeg;base64,' + this.base64Data;
+        }
+      );
+  }*/
 
+      this.historyHomeworkDataSource.data = data.map(element => {
+        // this.base64Data = this.retrieveResonse.picByte;
+        element.content = 'data:image/jpeg;base64,' + element.content
+        return element
+      })
+
+
+      this.historyHomeworkDataSource.data = [...data]
+    })
   }
 
 

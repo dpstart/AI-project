@@ -5,11 +5,11 @@ export class HomeworkVersion {
     public set deliveryDate(value: Date) {
         this._deliveryDate = value;
     }
-    public get image(): any {
-        return this._image;
+    public get content(): string {
+        return this._content;
     }
-    public set image(value: any) {
-        this._image = value;
+    public set content(value: string) {
+        this._content = value;
     }
     public get id() {
         return this._id;
@@ -18,7 +18,7 @@ export class HomeworkVersion {
         this._id = value;
     }
 
-    constructor(private _id, private _image: any, private _deliveryDate: Date) {
+    constructor(private _id, private _content: string, private _deliveryDate: Date) {
 
     }
 }

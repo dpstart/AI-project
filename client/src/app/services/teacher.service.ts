@@ -1,6 +1,7 @@
 import { Injectable, OnInit } from '@angular/core';
 import { Observable, throwError, Subject, ReplaySubject } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HomeworkVersion } from '../model/homework-version';
 
 
 export interface NavTeacherLinks {
@@ -62,8 +63,14 @@ export class TeacherService {
     getHomeworksByAssignment<Homework>(courseName: string, assignmentId: number): Observable<Homework[]> {
         const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks`;
         return this.http.get<Homework[]>(url);
-
     }
+
+
+    getHomeworkVersions(courseName:string,assignmentId:number,homeworkId:number):Observable<HomeworkVersion[]>{
+        const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}/versions`;
+        return this.http.get<HomeworkVersion[]>(url);
+    }
+    
 
     getAssignmentsByCourse<Assignment>(courseName: string): Observable<Assignment[]> {
         const url = `${this.URL}/courses/${courseName}/assignments`;
