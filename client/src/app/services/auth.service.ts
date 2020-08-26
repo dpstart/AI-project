@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 
 import * as moment from 'moment';
 import { RouteStateService } from './route-state.service';
@@ -82,10 +82,14 @@ export class AuthService {
     let session = JSON.parse(localStorage.getItem('session'));
     let role = session["info"]["AUTHORITIES"];
 
-
-    if (role == "ROLE_PROFESSOR")
-      return ROLE.TEACHER
-    return ROLE.STUDENT
+    switch (role) {
+      case "ROLE_PROFESSOR":
+        return ROLE.TEACHER
+      case "ROLE_ADMIN":
+        return ROLE.TEACHER     // TODO: gestire ADMIN
+      default:
+        return ROLE.STUDENT
+    }
 
 
   }

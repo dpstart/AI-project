@@ -5,10 +5,10 @@ export class HomeworkVersion {
     public set deliveryDate(value: Date) {
         this._deliveryDate = value;
     }
-    public get content(): string {
+    public get content(): any {
         return this._content;
     }
-    public set content(value: string) {
+    public set content(value: any) {
         this._content = value;
     }
     public get id() {
@@ -18,7 +18,7 @@ export class HomeworkVersion {
         this._id = value;
     }
 
-    constructor(private _id, private _content: string, private _deliveryDate: Date) {
+    constructor(private _id, private _content: any, private _deliveryDate: Date) {
 
     }
 }

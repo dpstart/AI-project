@@ -41,49 +41,73 @@ export class TeacherService {
     getCourses<Course>(): Observable<Course[]> {
 
         const url = `${this.URL}/courses`;
-        return this.http.get<Course[]>(url);
+        return this.http.get<Course[]>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
     }
 
     getCourse<Course>(name: string): Observable<Course> {
 
         const url = `${this.URL}/courses/${name}`;
-        return this.http.get<Course>(url);
+        return this.http.get<Course>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
     }
 
     getTeams<Team>(course: string): Observable<Team[]> {
 
         const url = `${this.URL}/courses/${course}/teams`;
-        return this.http.get<Team[]>(url);
+        return this.http.get<Team[]>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
 
     }
 
     getVmsForTeam<T>(team: number): Observable<T> {
 
         const url = `${this.URL}/vms/teams/${team}`;
-        return this.http.get<T>(url);
+        return this.http.get<T>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
 
     }
 
     getHomeworks<Homework>(courseName: string): Observable<Homework[]> {
         const url = `${this.URL}/courses/${courseName}/homeworks`;
-        return this.http.get<Homework[]>(url);
+        return this.http.get<Homework[]>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
     }
 
     getHomeworksByAssignment<Homework>(courseName: string, assignmentId: number): Observable<Homework[]> {
         const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks`;
-        return this.http.get<Homework[]>(url);
+        return this.http.get<Homework[]>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
     }
 
 
     getHomeworkVersions(courseName: string, assignmentId: number, homeworkId: number): Observable<HomeworkVersion[]> {
         const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}/versions`;
-        return this.http.get<HomeworkVersion[]>(url);
+        return this.http.get<HomeworkVersion[]>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
     }
 
 
     getAssignmentsByCourse<Assignment>(courseName: string): Observable<Assignment[]> {
         const url = `${this.URL}/courses/${courseName}/assignments`;
-        return this.http.get<Assignment[]>(url);
+        return this.http.get<Assignment[]>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
 
     }
 

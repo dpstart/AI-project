@@ -71,7 +71,7 @@ export class HomeworkComponent implements OnInit {
 
             this.teacherService.getHomeworksByAssignment(this.selectedCourse, assignment.id).subscribe((homeworks: Homework[]) => {
 
-              //TODO: remove fake homeworks
+              //******************************TODO: remove fake homeworks***************************************//
               homeworks.push(new Homework(1, states.delivered, false, 25))
 
 
@@ -85,9 +85,6 @@ export class HomeworkComponent implements OnInit {
               homeworks.forEach(element => {
                 let state = ""
                 switch (element.state) {
-                  case 0:
-                    state = "NON LETTO"
-                    break;
                   case 1:
                     state = "LETTO"
                     break;
@@ -99,6 +96,7 @@ export class HomeworkComponent implements OnInit {
                     break;
 
                   default:
+                    state = "NON LETTO"
                     break;
 
                 }
@@ -111,11 +109,9 @@ export class HomeworkComponent implements OnInit {
               })
 
               this.homeworksDataSource.data = displayHomeworks
-              
-
-              console.log(displayHomeworks)
-
             },
+
+            //***************REMOVE THIS BRANCH **************************************/
               (error) => {
                 //TODO: remove fake homeworks
                 let homeworks: Homework[] = []
@@ -126,9 +122,6 @@ export class HomeworkComponent implements OnInit {
                 homeworks.forEach(element => {
                   let state = ""
                   switch (element.state) {
-                    case 0:
-                      state = "NON LETTO"
-                      break;
                     case 1:
                       state = "LETTO"
                       break;
@@ -138,12 +131,12 @@ export class HomeworkComponent implements OnInit {
                     case 3:
                       state = "RIVISTO"
                       break;
-  
+
                     default:
+                      state = "NON LETTO"
                       break;
-  
                   }
-                  
+
                   displayHomeworks.push({
                     id: element.id,
                     state: state,
@@ -154,16 +147,7 @@ export class HomeworkComponent implements OnInit {
 
                 this.homeworksDataSource.data = displayHomeworks
 
-
-                console.log(displayHomeworks)
               })
-
-            // this.teacherService.getHomeworks(this.teacherService.getSelectedCourse()).subscribe((homeworks: Homework[]) => {
-
-            //   //TODO: remove fake homeworks
-            //   homeworks.push(new Homework(1, states.delivered, false, 25))
-            //   this.dataSource = new MatTableDataSource<Homework>(homeworks)
-            // })
           })
         });
       }
@@ -174,6 +158,7 @@ export class HomeworkComponent implements OnInit {
   }
 
   selectAssignment(assignment: Assignment) {
+    //assignmentExpandedElement === assignment ? null : assignment
     console.log("assignment: ", assignment)
     this.selectedAssignment = assignment
   }
@@ -188,9 +173,7 @@ export class HomeworkComponent implements OnInit {
       }
     });
     event.stopPropagation();
-
   }
-
 
 }
 
