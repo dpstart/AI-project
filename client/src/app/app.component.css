@@ -1,3 +1,11 @@
 mat-sidenav {
     width: 25%;
 }
+.mat-list-base {
+    padding-top: 0px;
+}
+.emailToolbar{
+    font-size: medium;
+    margin-right: 10px;
+    margin-bottom: 17px
+}

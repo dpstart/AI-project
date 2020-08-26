@@ -17,7 +17,7 @@ import { RouteStateService } from './services/route-state.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit {
 
   courses: Course[];
   selectedCourse: Observable<string>;
@@ -55,7 +55,7 @@ export class AppComponent implements OnInit{
       }
     });
   }
- 
+
 
 
   ngOnInit() {
@@ -154,6 +154,10 @@ export class AppComponent implements OnInit{
 
   isLoggedIn() {
     return this.authService.isLoggedIn();
+  }
+
+  getEmail() {
+    return this.authService.getEmail()
   }
 
   logout() {

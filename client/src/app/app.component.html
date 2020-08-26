@@ -24,10 +24,17 @@
     <span> <a routerLink="/home">VirtualLabs</a></span>
     <!-- This fills the remaining space of the current row -->
     <span class="example-fill-remaining-space"></span>
-    <button mat-button [routerLink]="['home']" [queryParams]="{doLogin: true}" *ngIf="!isLoggedIn()">Login</button>
-    <button mat-button [routerLink]="['home']" [queryParams]="{doRegister: true}"
-      *ngIf="!isLoggedIn()">Register</button>
-    <button mat-button *ngIf="isLoggedIn()" (click)="logout()">Logout</button>
+
+    <div *ngIf="!isLoggedIn(); then loggedBlock else unloggedBlock"></div>
+    <ng-template #loggedBlock>
+      <button mat-button [routerLink]="['home']" [queryParams]="{doLogin: true}">Login</button>
+      <button mat-button [routerLink]="['home']" [queryParams]="{doRegister: true}">Register</button>
+    </ng-template>
+
+    <ng-template #unloggedBlock>
+      <p class="emailToolbar"> {{getEmail()}}</p>
+      <button mat-button (click)="logout()">Logout</button>
+    </ng-template>
 
   </mat-toolbar-row>
 

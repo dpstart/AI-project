@@ -94,7 +94,7 @@ export class AuthService {
 
   }
 
-  getEmail() {
+  getEmail() : string {
     let session = JSON.parse(localStorage.getItem('session'));
     return session['email']
   }

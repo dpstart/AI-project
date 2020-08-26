@@ -22,6 +22,9 @@ export class HomeworkDialogComponent implements OnInit {
   selectedAssignment: Assignment
   selectedHomework: Homework
 
+
+  expandedImage:any
+
   constructor(private teacherService: TeacherService, private routeStateService: RouteStateService, private sanitizer: DomSanitizer,
     @Inject(MAT_DIALOG_DATA) public data) {
 
@@ -29,16 +32,27 @@ export class HomeworkDialogComponent implements OnInit {
     this.selectedHomework = data.homework
     this.historyHomeworkColumnsToDisplay = ['id', 'content', 'deliveryDate']
     this.historyHomeworkDataSource = new MatTableDataSource<HomeworkVersion>()
+
+
+    this.expandedImage = false
   }
 
 
+  selectImageToExpand(element: any){
+    if(element == this.expandedImage)
+    this.expandedImage = null
+    else
+    this.expandedImage = element
 
+  }
 
   ngOnInit(): void {
 
     this.routeStateService.pathParam.subscribe(courseName => {
       this.courseName = courseName
     })
+
+    
 
 
     this.teacherService.getHomeworkVersions(this.courseName, this.selectedAssignment.id, this.selectedHomework.id).subscribe((data) => {
