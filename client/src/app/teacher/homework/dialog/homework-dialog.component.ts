@@ -39,7 +39,7 @@ export class HomeworkDialogComponent implements OnInit {
   separatorKeysCodes: number[] = [ENTER, COMMA];
   optionCtrl = new FormControl();
   filteredOptions: Observable<string[]>;
-  options: string[] = ['NON LETTO'];
+  options: string[] = [];
   allOptions: string[] = ['LETTO', 'NON LETTO', 'RIVISTO', 'CONSEGNATO'];
 
 
@@ -62,7 +62,7 @@ export class HomeworkDialogComponent implements OnInit {
     //chips
     this.filteredOptions = this.optionCtrl.valueChanges.pipe(
       startWith(null),
-      map((option: string | null) => option ? this._filter(option) : this.allOptions.slice()));
+      map((option: string | null) => option ? this._filter(option) : this.allOptions.slice().sort()));
   }
 
 //*****************chips methods*******************************//
@@ -72,7 +72,7 @@ add(event: MatChipInputEvent): void {
   const input = event.input;
   const value = event.value;
 
-  // Add our fruit
+  // Add our options
   if ((value || '').trim()) {
     this.options.push(value.trim());
   }
@@ -85,8 +85,10 @@ add(event: MatChipInputEvent): void {
   this.optionCtrl.setValue(null);
 }
 
-remove(fruit: string): void {
-  const index = this.options.indexOf(fruit);
+remove(option: string): void {
+  const index = this.options.indexOf(option);
+  this.allOptions.push(option);
+  this.optionCtrl.setValue(null);
 
   if (index >= 0) {
     this.options.splice(index, 1);
@@ -95,6 +97,7 @@ remove(fruit: string): void {
 
 selected(event: MatAutocompleteSelectedEvent): void {
   this.options.push(event.option.viewValue);
+  this.allOptions.splice(this.allOptions.indexOf(event.option.viewValue),1)
   this.optionInput.nativeElement.value = '';
   this.optionCtrl.setValue(null);
 }
@@ -102,7 +105,7 @@ selected(event: MatAutocompleteSelectedEvent): void {
 private _filter(value: string): string[] {
   const filterValue = value.toLowerCase();
 
-  return this.allOptions.filter(fruit => fruit.toLowerCase().indexOf(filterValue) === 0);
+  return this.allOptions.filter(option => option.toLowerCase().indexOf(filterValue) === 0);
 }
 
 //****************************************************//
