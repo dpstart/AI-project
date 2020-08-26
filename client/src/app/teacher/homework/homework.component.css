@@ -46,3 +46,7 @@ tr.example-element-row:not(.example-expanded-row):active {
     flex-direction: row;
 
 }
+
+mat-form-field{
+    width: 50%;
+}

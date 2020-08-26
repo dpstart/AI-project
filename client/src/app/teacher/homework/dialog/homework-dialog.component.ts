@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { RouteStateService } from 'src/app/services/route-state.service';
 import { HomeworkVersion } from 'src/app/model/homework-version';
@@ -7,12 +7,8 @@ import { Homework } from 'src/app/model/homework.model';
 import { Assignment } from 'src/app/model/assignment.model';
 import { TeacherService } from 'src/app/services/teacher.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import {COMMA, ENTER} from '@angular/cdk/keycodes';
-import { FormControl } from '@angular/forms';
-import { Observable } from 'rxjs';
-import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { startWith, map } from 'rxjs/operators';
-import { MatChipInputEvent } from '@angular/material/chips';
+
+
 @Component({
   selector: 'app-homework-dialog',
   templateUrl: './homework-dialog.component.html',
@@ -21,33 +17,16 @@ import { MatChipInputEvent } from '@angular/material/chips';
 export class HomeworkDialogComponent implements OnInit {
 
   historyHomeworkDataSource: MatTableDataSource<HomeworkVersion>
-  historyHomeworkColumnsToDisplay: string[]
 
+  historyHomeworkColumnsToDisplay: string[]
   courseName: string
   selectedAssignment: Assignment
   selectedHomework: Homework
 
 
+  //image to be expanded
   expandedImage:any
 
-
-
-  //***********chips
-  visible = true;
-  selectable = true;
-  removable = true;
-  separatorKeysCodes: number[] = [ENTER, COMMA];
-  optionCtrl = new FormControl();
-  filteredOptions: Observable<string[]>;
-  options: string[] = [];
-  allOptions: string[] = ['LETTO', 'NON LETTO', 'RIVISTO', 'CONSEGNATO'];
-
-
-
-  @ViewChild('optionInput') optionInput: ElementRef<HTMLInputElement>;
-  @ViewChild('auto') matAutocomplete: MatAutocomplete;
-
-  //************ */
   constructor(private teacherService: TeacherService, private routeStateService: RouteStateService, private sanitizer: DomSanitizer,
     @Inject(MAT_DIALOG_DATA) public data) {
 
@@ -57,61 +36,13 @@ export class HomeworkDialogComponent implements OnInit {
     this.historyHomeworkDataSource = new MatTableDataSource<HomeworkVersion>()
 
 
-    this.expandedImage = false
+    this.expandedImage = null
 
-    //chips
-    this.filteredOptions = this.optionCtrl.valueChanges.pipe(
-      startWith(null),
-      map((option: string | null) => option ? this._filter(option) : this.allOptions.slice().sort()));
+   
   }
 
-//*****************chips methods*******************************//
 
-
-add(event: MatChipInputEvent): void {
-  const input = event.input;
-  const value = event.value;
-
-  // Add our options
-  if ((value || '').trim()) {
-    this.options.push(value.trim());
-  }
-
-  // Reset the input value
-  if (input) {
-    input.value = '';
-  }
-
-  this.optionCtrl.setValue(null);
-}
-
-remove(option: string): void {
-  const index = this.options.indexOf(option);
-  this.allOptions.push(option);
-  this.optionCtrl.setValue(null);
-
-  if (index >= 0) {
-    this.options.splice(index, 1);
-  }
-}
-
-selected(event: MatAutocompleteSelectedEvent): void {
-  this.options.push(event.option.viewValue);
-  this.allOptions.splice(this.allOptions.indexOf(event.option.viewValue),1)
-  this.optionInput.nativeElement.value = '';
-  this.optionCtrl.setValue(null);
-}
-
-private _filter(value: string): string[] {
-  const filterValue = value.toLowerCase();
-
-  return this.allOptions.filter(option => option.toLowerCase().indexOf(filterValue) === 0);
-}
-
-//****************************************************//
-
-
-  selectImageToExpand(element: any){
+  selectImageToExpand(element: HomeworkVersion){
     if(element == this.expandedImage)
     this.expandedImage = null
     else
@@ -124,9 +55,6 @@ private _filter(value: string): string[] {
     this.routeStateService.pathParam.subscribe(courseName => {
       this.courseName = courseName
     })
-
-    
-
 
     this.teacherService.getHomeworkVersions(this.courseName, this.selectedAssignment.id, this.selectedHomework.id).subscribe((data) => {
 
@@ -147,7 +75,7 @@ private _filter(value: string): string[] {
       })
 
       this.historyHomeworkDataSource.data = [...data]
-    }, error => {
+    }, () => {
       let fakeValues = []
 
 

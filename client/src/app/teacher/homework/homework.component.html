@@ -21,6 +21,27 @@
                             <div class="example-element-description">
 
                                 <h2 class="mat-h2 tabtitle">Elenco Elaborati </h2>
+
+
+                                <mat-form-field class="example-chip-list">
+                                    <mat-chip-list #chipList aria-label="Filter Options">
+                                        <mat-chip *ngFor="let option of options" [selectable]="selectable"
+                                            [removable]="removable" (removed)="remove(option)">
+                                            {{option}}
+                                            <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+                                        </mat-chip>
+                                        <input placeholder="Select an option..." #optionInput [formControl]="optionCtrl"
+                                            [matAutocomplete]="auto" [matChipInputFor]="chipList"
+                                            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                                            (matChipInputTokenEnd)="add($event)">
+                                    </mat-chip-list>
+                                    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+                                        <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+                                            {{option}}
+                                        </mat-option>
+                                    </mat-autocomplete>
+                                </mat-form-field>
+
                                 <table mat-table [dataSource]="homeworksDataSource" multiTemplateDataRows
                                     class="mat-elevation-z8">
                                     <div *ngFor="let column of homeworksColumnsToDisplay">
