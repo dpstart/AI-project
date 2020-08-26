@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { RouteStateService } from 'src/app/services/route-state.service';
 import { HomeworkVersion } from 'src/app/model/homework-version';
@@ -7,7 +7,12 @@ import { Homework } from 'src/app/model/homework.model';
 import { Assignment } from 'src/app/model/assignment.model';
 import { TeacherService } from 'src/app/services/teacher.service';
 import { DomSanitizer } from '@angular/platform-browser';
-
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import { FormControl } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { startWith, map } from 'rxjs/operators';
+import { MatChipInputEvent } from '@angular/material/chips';
 @Component({
   selector: 'app-homework-dialog',
   templateUrl: './homework-dialog.component.html',
@@ -25,6 +30,24 @@ export class HomeworkDialogComponent implements OnInit {
 
   expandedImage:any
 
+
+
+  //***********chips
+  visible = true;
+  selectable = true;
+  removable = true;
+  separatorKeysCodes: number[] = [ENTER, COMMA];
+  optionCtrl = new FormControl();
+  filteredOptions: Observable<string[]>;
+  options: string[] = ['NON LETTO'];
+  allOptions: string[] = ['LETTO', 'NON LETTO', 'RIVISTO', 'CONSEGNATO'];
+
+
+
+  @ViewChild('optionInput') optionInput: ElementRef<HTMLInputElement>;
+  @ViewChild('auto') matAutocomplete: MatAutocomplete;
+
+  //************ */
   constructor(private teacherService: TeacherService, private routeStateService: RouteStateService, private sanitizer: DomSanitizer,
     @Inject(MAT_DIALOG_DATA) public data) {
 
@@ -35,7 +58,54 @@ export class HomeworkDialogComponent implements OnInit {
 
 
     this.expandedImage = false
+
+    //chips
+    this.filteredOptions = this.optionCtrl.valueChanges.pipe(
+      startWith(null),
+      map((option: string | null) => option ? this._filter(option) : this.allOptions.slice()));
   }
+
+//*****************chips methods*******************************//
+
+
+add(event: MatChipInputEvent): void {
+  const input = event.input;
+  const value = event.value;
+
+  // Add our fruit
+  if ((value || '').trim()) {
+    this.options.push(value.trim());
+  }
+
+  // Reset the input value
+  if (input) {
+    input.value = '';
+  }
+
+  this.optionCtrl.setValue(null);
+}
+
+remove(fruit: string): void {
+  const index = this.options.indexOf(fruit);
+
+  if (index >= 0) {
+    this.options.splice(index, 1);
+  }
+}
+
+selected(event: MatAutocompleteSelectedEvent): void {
+  this.options.push(event.option.viewValue);
+  this.optionInput.nativeElement.value = '';
+  this.optionCtrl.setValue(null);
+}
+
+private _filter(value: string): string[] {
+  const filterValue = value.toLowerCase();
+
+  return this.allOptions.filter(fruit => fruit.toLowerCase().indexOf(filterValue) === 0);
+}
+
+//****************************************************//
 
 
   selectImageToExpand(element: any){
@@ -59,6 +129,8 @@ export class HomeworkDialogComponent implements OnInit {
 
       data.push(new HomeworkVersion(1, "tree", new Date()))
 
+      data.push(new HomeworkVersion(2, "tree", new Date()))
+
       // this.httpClient.get('http://localhost:8080/image/get/' + this.imageName)
       //   .subscribe(
       //     res => {
@@ -78,6 +150,8 @@ export class HomeworkDialogComponent implements OnInit {
 
 
       fakeValues.push(new HomeworkVersion(1, "", new Date()))
+      fakeValues.push(new HomeworkVersion(2, "", new Date()))
+
 
       // this.httpClient.get('http://localhost:8080/image/get/' + this.imageName)
       //   .subscribe(

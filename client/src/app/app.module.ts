@@ -39,6 +39,8 @@ import { GroupsComponent } from './student/groups/groups.component';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HomeworkDialogComponent } from './teacher/homework/dialog/homework-dialog.component';
+import {MatChipsModule} from '@angular/material/chips'; 
+
 
 
 @NgModule({
@@ -82,6 +84,7 @@ import { HomeworkDialogComponent } from './teacher/homework/dialog/homework-dial
     MatFormFieldModule,
     MatDividerModule,
     MatProgressSpinnerModule,
+    MatChipsModule,
   ],
   entryComponents: [LoginDialogComponent],
   providers: [

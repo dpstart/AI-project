@@ -165,8 +165,8 @@ export class HomeworkComponent implements OnInit {
   seeHomeworkDetails(homework: Homework) {
 
     const dialogRef = this.dialog.open(HomeworkDialogComponent, {
-      height: '75%',
-      width: '75%',
+      height: '95%',
+      width: '95%',
       data: {
         assignment: this.assignmentExpandedElement,
         homework: homework
