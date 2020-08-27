@@ -25,13 +25,13 @@
     <!-- This fills the remaining space of the current row -->
     <span class="example-fill-remaining-space"></span>
 
-    <div *ngIf="!isLoggedIn(); then loggedBlock else unloggedBlock"></div>
-    <ng-template #loggedBlock>
+    <div *ngIf="!isLoggedIn(); then toolbarLoggedBlock else toolbarUnloggedBlock"></div>
+    <ng-template #toolbarLoggedBlock>
       <button mat-button [routerLink]="['home']" [queryParams]="{doLogin: true}">Login</button>
       <button mat-button [routerLink]="['home']" [queryParams]="{doRegister: true}">Register</button>
     </ng-template>
 
-    <ng-template #unloggedBlock>
+    <ng-template #toolbarUnloggedBlock>
       <p class="emailToolbar"> {{getEmail()}}</p>
       <button mat-button (click)="logout()">Logout</button>
     </ng-template>
@@ -39,8 +39,6 @@
   </mat-toolbar-row>
 
   <mat-toolbar-row id="secondrow">
-
-
     <div *ngIf="!authService.isLoggedIn();then loggedBlock else notLoggedBlock"></div>
     <ng-template #loggedBlock>
       <span>Home</span>

@@ -628,6 +628,9 @@ public class CourseController {
             for(int i=0; i< versions.size(); i++){
                 enriched.add(ModelHelper.enrich(versions.get(i), name, id1, id2, i));
             }
+
+            enriched.sort(Comparator.comparing(HomeworkVersionDTO::getDeliveryDate));
+
             return enriched;
         }
         catch (Exception e){

@@ -12,6 +12,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 const options = { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' };
 
 export interface HomeworkVersionDisplayed {
+  position: number,
   id: number,
   content: any,
   deliveryDate: string
@@ -40,7 +41,7 @@ export class HomeworkDialogComponent implements OnInit {
 
     this.selectedAssignment = data.assignment
     this.selectedHomework = data.homework
-    this.historyHomeworkColumnsToDisplay = ['id', 'content', 'deliveryDate']
+    this.historyHomeworkColumnsToDisplay = ['id', 'content', 'deliveryDate', 'review']
     this.historyHomeworkDataSource = new MatTableDataSource<HomeworkVersionDisplayed>()
 
 
@@ -77,6 +78,8 @@ export class HomeworkDialogComponent implements OnInit {
 
       let source: HomeworkVersionDisplayed[] = []
 
+
+      let position = 0
       retrieveResponse.forEach(version => {
         let base64Data = version.content;
         let formattedImage = 'data:image/jpeg;base64,' + '\n' + base64Data;
@@ -88,7 +91,8 @@ export class HomeworkDialogComponent implements OnInit {
         let content = version.content
         let deliveryDate = version.deliveryDate.toLocaleDateString(undefined, options)
 
-        source.push({ id, content, deliveryDate })
+        source.push({ position, id, content, deliveryDate })
+        position++
       })
 
       this.historyHomeworkDataSource.data = [...source]
@@ -107,6 +111,8 @@ export class HomeworkDialogComponent implements OnInit {
         fakeValues.push(new HomeworkVersion(2, "", new Date()))
 
         let retrieveResponse = fakeValues;
+
+        let position = 0;
 
         retrieveResponse.forEach(version => {
           let base64Data = version.content;
@@ -301,12 +307,21 @@ export class HomeworkDialogComponent implements OnInit {
           let content = version.content
           let deliveryDate = version.deliveryDate.toLocaleDateString(undefined, options)
 
-          source.push({ id, content, deliveryDate })
+          source.push({ position, id, content, deliveryDate })
 
+          position++
         })
 
         this.historyHomeworkDataSource.data = [...source]
       })
+  }
+
+
+  //TODO
+  addReview(version: HomeworkVersionDisplayed) {
+    
+    console.log(version)
+
   }
 
 
