@@ -11,14 +11,14 @@ export class HomeworkVersion {
     public set content(value: any) {
         this._content = value;
     }
-    public get id() {
+    public get id(): number {
         return this._id;
     }
-    public set id(value) {
+    public set id(value: number) {
         this._id = value;
     }
 
-    constructor(private _id, private _content: any, private _deliveryDate: Date) {
+    constructor(private _id: number, private _content: any, private _deliveryDate: Date) {
 
     }
 }

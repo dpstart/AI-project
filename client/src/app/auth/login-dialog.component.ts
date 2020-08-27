@@ -40,7 +40,7 @@ export class LoginDialogComponent {
       this.dialogRef.close();
 
     }, error => {
-      this.error = error.error;
+      this.error = error.message;
     })
 
   }

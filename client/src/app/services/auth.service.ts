@@ -46,7 +46,10 @@ export class AuthService {
 
   login(email: string, password: string) {
     const url = `${this.URL}/authenticate`;
-    return this.http.post<string>(url, { username: email, password: password });
+    return this.http.post<string>(url, { username: email, password: password }).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
   }
 
   register(user: RegisteredUser) {

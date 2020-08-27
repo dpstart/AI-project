@@ -9,6 +9,14 @@ import { TeacherService } from 'src/app/services/teacher.service';
 import { DomSanitizer } from '@angular/platform-browser';
 
 
+const options = { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' };
+
+export interface HomeworkVersionDisplayed {
+  id: number,
+  content: any,
+  deliveryDate: string
+}
+
 @Component({
   selector: 'app-homework-dialog',
   templateUrl: './homework-dialog.component.html',
@@ -16,7 +24,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 })
 export class HomeworkDialogComponent implements OnInit {
 
-  historyHomeworkDataSource: MatTableDataSource<HomeworkVersion>
+  historyHomeworkDataSource: MatTableDataSource<HomeworkVersionDisplayed>
 
   historyHomeworkColumnsToDisplay: string[]
   courseName: string
@@ -25,7 +33,7 @@ export class HomeworkDialogComponent implements OnInit {
 
 
   //image to be expanded
-  expandedImage:any
+  expandedImage: any
 
   constructor(private teacherService: TeacherService, private routeStateService: RouteStateService, private sanitizer: DomSanitizer,
     @Inject(MAT_DIALOG_DATA) public data) {
@@ -33,20 +41,20 @@ export class HomeworkDialogComponent implements OnInit {
     this.selectedAssignment = data.assignment
     this.selectedHomework = data.homework
     this.historyHomeworkColumnsToDisplay = ['id', 'content', 'deliveryDate']
-    this.historyHomeworkDataSource = new MatTableDataSource<HomeworkVersion>()
+    this.historyHomeworkDataSource = new MatTableDataSource<HomeworkVersionDisplayed>()
 
 
     this.expandedImage = null
 
-   
+
   }
 
 
-  selectImageToExpand(element: HomeworkVersion){
-    if(element == this.expandedImage)
-    this.expandedImage = null
+  selectImageToExpand(element: HomeworkVersion) {
+    if (element == this.expandedImage)
+      this.expandedImage = null
     else
-    this.expandedImage = element
+      this.expandedImage = element
 
   }
 
@@ -67,33 +75,44 @@ export class HomeworkDialogComponent implements OnInit {
       //     res => {
       let retrieveResponse = data;
 
+      let source: HomeworkVersionDisplayed[] = []
+
       retrieveResponse.forEach(version => {
         let base64Data = version.content;
         let formattedImage = 'data:image/jpeg;base64,' + '\n' + base64Data;
         version.content = this.sanitizer.bypassSecurityTrustResourceUrl(formattedImage);
-      
+
+
+
+        let id = version.id
+        let content = version.content
+        let deliveryDate = version.deliveryDate.toLocaleDateString(undefined, options)
+
+        source.push({ id, content, deliveryDate })
       })
 
-      this.historyHomeworkDataSource.data = [...data]
-    }, () => {
-      let fakeValues = []
+      this.historyHomeworkDataSource.data = [...source]
 
 
+    },
+      // 
+      (_) => {
 
-      fakeValues.push(new HomeworkVersion(1, "", new Date()))
-      fakeValues.push(new HomeworkVersion(2, "", new Date()))
 
+        let fakeValues = []
 
-      // this.httpClient.get('http://localhost:8080/image/get/' + this.imageName)
-      //   .subscribe(
-      //     res => {
-      let retrieveResponse = fakeValues;
+        let source: HomeworkVersionDisplayed[] = []
 
-      retrieveResponse.forEach(version => {
-        let base64Data = version.content;
+        fakeValues.push(new HomeworkVersion(1, "", new Date()))
+        fakeValues.push(new HomeworkVersion(2, "", new Date()))
 
-        /*FAKE IMAGE FOR THE MOMENT*/
-        base64Data = `/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAwICRYVExgWFRUZGBgYGxgNGBoaGiQaGBoaKhktLCoa
+        let retrieveResponse = fakeValues;
+
+        retrieveResponse.forEach(version => {
+          let base64Data = version.content;
+
+          /*FAKE IMAGE FOR THE MOMENT*/
+          base64Data = `/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAwICRYVExgWFRUZGBgYGxgNGBoaGiQaGBoaKhktLCoa
         HygvNTc5LzI0MigpLkQvNDk9P0A/LThGTEY9TDc+Pz0BDA0NEw8SHRISHT0lJSU9PT09PUg9PT09
         PT09PTw9PT09PT09PT09PT09PT09PD09PT09PT1GRjw9PT09SD09PP/AABEIAMIBAwMBIgACEQED
         EQH/xAAbAAACAwEBAQAAAAAAAAAAAAADBAACBQYBB//EAEEQAAIBAwIDBQUFBwIGAgMAAAECEQAD
@@ -274,12 +293,20 @@ export class HomeworkDialogComponent implements OnInit {
         VKlSgCVKlSgCVKlSgCVKlSgCVKlSgCVKlSgCVKlSgCVKlSgCVKlSgCVKlSgCVKlSgCVKlSgCVKlS
         gCVKlSgCVKlSgD//2Q==`
 
-        let formattedImage = 'data:image/jpeg;base64,' + '\n' + base64Data; 
-        version.content = this.sanitizer.bypassSecurityTrustResourceUrl(formattedImage);
-      })
+          let formattedImage = 'data:image/jpeg;base64,' + '\n' + base64Data;
+          version.content = this.sanitizer.bypassSecurityTrustResourceUrl(formattedImage);
 
-      this.historyHomeworkDataSource.data = [...retrieveResponse]
-    })
+
+          let id = version.id
+          let content = version.content
+          let deliveryDate = version.deliveryDate.toLocaleDateString(undefined, options)
+
+          source.push({ id, content, deliveryDate })
+
+        })
+
+        this.historyHomeworkDataSource.data = [...source]
+      })
   }
 
 

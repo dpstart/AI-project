@@ -31,10 +31,7 @@ import javax.validation.Valid;
 import java.io.*;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import java.util.stream.Collectors;
 
@@ -486,6 +483,7 @@ public class CourseController {
             return assignmentService.getByCourse(name)
                     .stream()
                     .map(x -> ModelHelper.enrich(x, name))
+                    .sorted(Comparator.comparing(AssignmentDTO::getReleaseDate))
                     .collect(Collectors.toList());
         }
         catch (Exception e){
