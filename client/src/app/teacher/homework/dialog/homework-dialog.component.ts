@@ -7,9 +7,10 @@ import { Homework } from 'src/app/model/homework.model';
 import { Assignment } from 'src/app/model/assignment.model';
 import { TeacherService } from 'src/app/services/teacher.service';
 import { DomSanitizer } from '@angular/platform-browser';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 
 
-const options = { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' };
+const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
 
 export interface HomeworkVersionDisplayed {
   position: number,
@@ -21,7 +22,14 @@ export interface HomeworkVersionDisplayed {
 @Component({
   selector: 'app-homework-dialog',
   templateUrl: './homework-dialog.component.html',
-  styleUrls: ['./homework-dialog.component.css']
+  styleUrls: ['./homework-dialog.component.css'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
 })
 export class HomeworkDialogComponent implements OnInit {
 
@@ -36,6 +44,15 @@ export class HomeworkDialogComponent implements OnInit {
   //image to be expanded
   expandedImage: any
 
+  expandedElement: HomeworkVersionDisplayed | null;
+
+
+  selectedFile: File;
+  message: string;
+  fileName: string
+
+  isDisabled: boolean
+
   constructor(private teacherService: TeacherService, private routeStateService: RouteStateService, private sanitizer: DomSanitizer,
     @Inject(MAT_DIALOG_DATA) public data) {
 
@@ -48,6 +65,7 @@ export class HomeworkDialogComponent implements OnInit {
     this.expandedImage = null
 
 
+    this.isDisabled = true
   }
 
 
@@ -319,9 +337,36 @@ export class HomeworkDialogComponent implements OnInit {
 
   //TODO
   addReview(version: HomeworkVersionDisplayed) {
-    
-    console.log(version)
+    this.expandedElement = this.expandedElement === version ? null : version
+  }
 
+  //Gets called when the user selects an image
+  public onFileChanged(event) {
+    //Select File
+    this.selectedFile = event.target.files[0];
+    this.fileName = this.selectedFile.name
+    if (this.fileName)
+      this.isDisabled = false
+  }
+  //Gets called when the user clicks on submit to upload the image
+  onUpload() {
+    console.log(this.selectedFile);
+
+    //FormData API provides methods and properties to allow us easily prepare form data to be sent with POST HTTP requests.
+    const uploadImageData = new FormData();
+    uploadImageData.append('imageFile', this.selectedFile, this.selectedFile.name);
+
+
+    this.teacherService.uploadRevision(this.courseName, this.selectedAssignment.id, this.selectedHomework.id, uploadImageData).subscribe(
+      (response) => {
+        console.log(response)
+        this.message = 'Image uploaded successfully';
+      }, error => {
+        console.log(error)
+        this.message = 'Sorry something went wrong, try later...';
+
+      }
+    );
   }
 
 

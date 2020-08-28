@@ -24,6 +24,7 @@ export interface TeamSettings {
 export class TeacherService {
 
 
+
     //tabs of the teacher
     private navTeacherLinks: NavTeacherLinks[];
 
@@ -119,6 +120,20 @@ export class TeacherService {
             retry(3),
             catchError(this.handleError)
         );
+    }
+
+
+    //CREATE
+
+
+    uploadRevision(courseName: string, assignmentId: number, homeworkId: number, uploadImageData: FormData): Observable<any> {
+
+        const url = `${this.URL}/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}`
+        return this.http.post<any>(url, uploadImageData).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+
     }
 
     private handleError(error: HttpErrorResponse) {
