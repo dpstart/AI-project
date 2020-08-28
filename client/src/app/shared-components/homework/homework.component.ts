@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, Input } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { Homework, states } from 'src/app/model/homework.model';
 import { TeacherService } from 'src/app/services/teacher.service';
@@ -14,7 +14,6 @@ import { ENTER, COMMA } from '@angular/cdk/keycodes';
 import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { startWith, map } from 'rxjs/operators';
 import { MatChipInputEvent } from '@angular/material/chips';
-import { element } from 'protractor';
 
 export interface DisplayedHomework {
   id: number,
@@ -40,18 +39,21 @@ export interface DisplayedHomework {
 export class HomeworkComponent implements OnInit {
 
 
-  selectedCourse: string
 
   selectedAssignment: Assignment
 
   // id,  state,  isFinal, mark
   homeworksColumnsToDisplay: string[] = ['id', 'state', 'isFinal', 'mark'];
-  homeworksDataSource: MatTableDataSource<DisplayedHomework> = new MatTableDataSource<DisplayedHomework>();
+  homeworksDataSource: MatTableDataSource<DisplayedHomework>
   allHomeworks: DisplayedHomework[]
 
   consegneDisplayedColumns: string[] = ['id', 'releaseDate', 'expirationDate']
-  consegneDataSource: MatTableDataSource<Assignment> = new MatTableDataSource<Assignment>();
+  consegneDataSource: MatTableDataSource<Assignment>
 
+
+  @Input() selectedCourse: string
+  @Input() assignments: Assignment[]
+  @Input() displayedHomeworks: DisplayedHomework[]
 
   assignmentExpandedElement: Assignment | null;
 
@@ -76,8 +78,12 @@ export class HomeworkComponent implements OnInit {
 
   //************ */
 
-  constructor(private teacherService: TeacherService, private activatedRoute: ActivatedRoute,
-    private routeStateService: RouteStateService, private dialog: MatDialog) {
+  constructor(private dialog: MatDialog) {
+
+    this.homeworksDataSource = new MatTableDataSource<DisplayedHomework>();
+    this.consegneDataSource = new MatTableDataSource<Assignment>();
+
+
     //chips
     this.filteredOptions = this.optionCtrl.valueChanges.pipe(
       startWith(null),
@@ -91,10 +97,19 @@ export class HomeworkComponent implements OnInit {
 
 
 
+  ngOnInit(): void {
+
+    console.log(this.assignments,this.displayedHomeworks)
+    this.homeworksDataSource.data = [...this.displayedHomeworks];
+    this.consegneDataSource.data = [...this.assignments];
+    this.allHomeworks = [...this.displayedHomeworks]
+  }
+
+
   //*****************chips methods*******************************//
 
 
-  add(event: MatChipInputEvent): void {
+  addOption(event: MatChipInputEvent): void {
     const input = event.input;
     const value = event.value;
 
@@ -112,7 +127,7 @@ export class HomeworkComponent implements OnInit {
 
   }
 
-  remove(option: string): void {
+  removeOption(option: string): void {
     const index = this.options.indexOf(option);
     this.allOptions.push(option);
 
@@ -148,110 +163,7 @@ export class HomeworkComponent implements OnInit {
     this.homeworksDataSource.data = [...filteredDataSource]
   }
 
-  ngOnInit(): void {
-    this.activatedRoute.params.subscribe((params) => {
-      if (params['course_name']) {
-        this.routeStateService.updatePathParamState(params['course_name'])
 
-        this.selectedCourse = params['course_name']
-
-        this.teacherService.getAssignmentsByCourse(this.selectedCourse).subscribe((assignments: Assignment[]) => {
-          let date = new Date().toDateString()
-          assignments.push(new Assignment(1, date.toString(), date.toString()))
-          this.consegneDataSource = new MatTableDataSource<Assignment>(assignments)
-
-
-          assignments.forEach(assignment => {
-
-            this.teacherService.getHomeworksByAssignment(this.selectedCourse, assignment.id).subscribe((homeworks: Homework[]) => {
-
-              //******************************TODO: remove fake homeworks***************************************//
-              homeworks.push(new Homework(1, states.delivered, false, 25))
-
-
-              let displayHomeworks: DisplayedHomework[] = []
-
-              /*  unread,
-                  read,
-                  delivered,
-                  reviewed */
-
-              homeworks.forEach(element => {
-                let state = ""
-                switch (element.state) {
-                  case 1:
-                    state = "LETTO"
-                    break;
-                  case 2:
-                    state = "CONSEGNATO"
-                    break;
-                  case 3:
-                    state = "RIVISTO"
-                    break;
-
-                  default:
-                    state = "NON LETTO"
-                    break;
-
-                }
-                displayHomeworks.push({
-                  id: element.id,
-                  state: state,
-                  isFinal: element.isFinal,
-                  mark: element.mark
-                })
-              })
-
-              this.homeworksDataSource.data = displayHomeworks
-              this.allHomeworks = displayHomeworks
-            },
-
-              //***************REMOVE THIS BRANCH **************************************/
-              (error) => {
-                //TODO: remove fake homeworks
-                let homeworks: Homework[] = []
-
-                homeworks.push(new Homework(1, states.delivered, false, 25))
-                let displayHomeworks: DisplayedHomework[] = []
-
-                homeworks.forEach(element => {
-                  let state = ""
-                  switch (element.state) {
-                    case 1:
-                      state = "LETTO"
-                      break;
-                    case 2:
-                      state = "CONSEGNATO"
-                      break;
-                    case 3:
-                      state = "RIVISTO"
-                      break;
-
-                    default:
-                      state = "NON LETTO"
-                      break;
-                  }
-
-                  displayHomeworks.push({
-                    id: element.id,
-                    state: state,
-                    isFinal: element.isFinal,
-                    mark: element.mark
-                  })
-                })
-
-                this.homeworksDataSource.data = displayHomeworks
-                this.allHomeworks = displayHomeworks
-
-              })
-          })
-        });
-      }
-
-    })
-
-
-  }
 
   selectAssignment(assignment: Assignment) {
     //assignmentExpandedElement === assignment ? null : assignment

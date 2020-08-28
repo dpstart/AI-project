@@ -5,7 +5,6 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { StudentService } from '../services/student.service';
 import { ActivatedRoute } from '@angular/router';
-import { TeacherService } from '../services/teacher.service';
 import { RouteStateService } from '../services/route-state.service';
 
 
@@ -28,7 +27,11 @@ export class StudentsContComponent implements OnInit {
   selectedCourse: string
   course;
 
-  constructor(private http: HttpClient, private studentService: StudentService, private activatedRoute: ActivatedRoute, private routeStateService: RouteStateService, private teacherService: TeacherService) {
+  constructor(
+    private http: HttpClient,
+    private studentService: StudentService,
+    private activatedRoute: ActivatedRoute,
+    private routeStateService: RouteStateService) {
     // this.getJSON(this._jsonURLenrolled).subscribe(data => {
     //   this.enrolledStudents.data = data;
     // });
@@ -36,9 +39,6 @@ export class StudentsContComponent implements OnInit {
 
 
   ngOnInit() {
-
-
-
     this.activatedRoute.params.subscribe(params => {
       if (params["course_name"]) {
 

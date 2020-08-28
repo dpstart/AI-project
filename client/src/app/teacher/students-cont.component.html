@@ -1,3 +1,7 @@
-<app-students *ngIf="isAllStudentsLoaded && isEnrolledStudentsLoaded" [allStudents]="allStudents"
-    [enrolledStudents]="enrolledStudents" (addStudent)="addStudent($event)" (deleteStudents)="deleteStudents($event)">
+<app-students 
+*ngIf="isAllStudentsLoaded && isEnrolledStudentsLoaded" 
+[allStudents]="allStudents"
+[enrolledStudents]="enrolledStudents" 
+(addStudent)="addStudent($event)" 
+(deleteStudents)="deleteStudents($event)">
 </app-students>

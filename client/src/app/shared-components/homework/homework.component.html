@@ -26,14 +26,14 @@
                                 <mat-form-field class="example-chip-list">
                                     <mat-chip-list #chipList aria-label="Filter Options">
                                         <mat-chip *ngFor="let option of options" [selectable]="selectable"
-                                            [removable]="removable" (removed)="remove(option)">
+                                            [removable]="removable" (removed)="removeOption(option)">
                                             {{option}}
                                             <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
                                         </mat-chip>
                                         <input placeholder="Select an option..." #optionInput [formControl]="optionCtrl"
                                             [matAutocomplete]="auto" [matChipInputFor]="chipList"
                                             [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                                            (matChipInputTokenEnd)="add($event)">
+                                            (matChipInputTokenEnd)="addOption($event)">
                                     </mat-chip-list>
                                     <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
                                         <mat-option *ngFor="let option of filteredOptions | async" [value]="option">

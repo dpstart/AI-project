@@ -7,6 +7,8 @@ import { Course } from '../model/course.model';
 import { Vm } from '../student/vm/vm-student.component';
 import { Team } from '../model/team.model';
 import { HomeworkVersion } from '../model/homework-version';
+import { Assignment } from '../model/assignment.model';
+import { Homework } from '../model/homework.model';
 
 
 export interface NavStudentLinks {
@@ -24,6 +26,7 @@ export interface ServerError {
   providedIn: 'root'
 })
 export class StudentService {
+
 
 
   private handleError(error: HttpErrorResponse) {
@@ -178,6 +181,26 @@ export class StudentService {
       catchError(this.handleError)
     );
   }
+
+  //TODO Url da modificare
+  getAssignmentByCourse(): Observable<Assignment[]> {
+    const url = `${this.URL}/students/assignments/`
+    return this.http.get<Assignment[]>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+  }
+
+
+  //TODO Url da modificare
+  getHomeworksByAssignment(studentId: string, assignmentId: number): Observable<Homework[]> {
+    const url = `${this.URL}/students/${studentId}/assignments/${assignmentId}`
+    return this.http.get<Homework[]>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+  }
+
 
   //UPDATE
 

@@ -9,10 +9,10 @@ import { StudentsContComponent } from './teacher/students-cont.component';
 
 import { TeacherGuard } from './auth/teacher.guard';
 import { StudentGuard } from './auth/student.guard';
-import { HomeworkComponent } from './teacher/homework/homework.component';
 import { VmStudentComponent } from './student/vm/vm-student.component';
 import { GroupsComponent } from './student/groups/groups.component';
 import { HomeworkStudentComponent } from './student/homework/homework-student.component';
+import { HomeworkContainerComponent } from './teacher/homework-container/homework-container.component';
 
 
 const routes: Routes = [
@@ -35,7 +35,7 @@ const routes: Routes = [
         children: [
             { path: 'course/:course_name/students', component: StudentsContComponent },
             { path: 'course/:course_name/vms', component: VMComponent },
-            { path: 'course/:course_name/homework', component: HomeworkComponent },
+            { path: 'course/:course_name/homework', component: HomeworkContainerComponent },
         ]
     },
     { path: 'home', component: HomeComponent },
