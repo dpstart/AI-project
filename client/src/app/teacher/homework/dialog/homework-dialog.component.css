@@ -38,7 +38,7 @@ tr.example-element-row:not(.example-expanded-row):active {
     flex-direction: row;
     justify-content: space-evenly;
     width: 40%;
-    max-height: 8vh;
+    max-height: 25vh;
 }
 .error {
     padding: 16px;
