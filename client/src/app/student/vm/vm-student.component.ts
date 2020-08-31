@@ -18,10 +18,14 @@ export class VmStudentComponent implements OnInit {
 
   dataSourceVm: MatTableDataSource<Vm>
 
+
+  isAllLoaded: boolean
+
   @ViewChild("innerTables") innerTables: MatTable<Vm>;
 
   constructor(private routeStateService: RouteStateService, private activatedRoute: ActivatedRoute, private studentService: StudentService, private change: ChangeDetectorRef) {
 
+    this.isAllLoaded = false
     this.dataSourceVm = new MatTableDataSource();
     this.innerDisplayedColumns = ['id', 'n_cpu', 'disk_space', 'ram', 'status'];
 
@@ -48,6 +52,7 @@ export class VmStudentComponent implements OnInit {
           })
 
           this.dataSourceVm.data = [...vms]
+          this.isAllLoaded = true
         })
 
       }, (error) => {

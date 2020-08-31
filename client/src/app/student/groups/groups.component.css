@@ -13,3 +13,7 @@ div {
 mat-form-field{
     margin-right: 20px;
 }
+
+mat-spinner{
+    margin: 4%;
+}

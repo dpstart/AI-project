@@ -11,7 +11,10 @@ import { RouteStateService } from '../services/route-state.service';
 @Component({
   selector: 'app-students-cont',
   templateUrl: './students-cont.component.html',
-  styles: [``]
+  styles: [
+    `mat-spinner{
+    margin: 4%;
+}`]
 })
 export class StudentsContComponent implements OnInit {
 
@@ -51,8 +54,8 @@ export class StudentsContComponent implements OnInit {
 
         this.studentService.getStudentsInCourse(this.selectedCourse).subscribe(data => {
           this.allStudents = data;
-          this.isAllStudentsLoaded = true;
           this.enrolledStudents = data;
+          this.isAllStudentsLoaded = true;
           this.isEnrolledStudentsLoaded = true;
         });
       }

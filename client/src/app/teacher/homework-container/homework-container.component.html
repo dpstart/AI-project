@@ -1,6 +1,7 @@
-<app-homework
-*ngIf="isAllLoaded==true"
-[selectedCourse]="selectedCourse"
-[assignments]="assignments"
-[displayedHomeworks]="displayedHomeworks"
-></app-homework>
+<div *ngIf="isAllLoaded == false; else loadedBlock">
+    <mat-spinner diameter="300" strokeWidth="5"></mat-spinner>
+</div>
+<ng-template #loadedBlock>
+    <app-homework [selectedCourse]="selectedCourse" [assignments]="assignments"
+        [displayedHomeworks]="displayedHomeworks"></app-homework>
+</ng-template>

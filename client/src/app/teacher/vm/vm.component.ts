@@ -34,9 +34,15 @@ export class VMComponent implements OnInit {
 
     expandedElement: Team | null;
 
+    isAllLoaded: boolean
 
-
-    constructor(private teacherService: TeacherService, private activatedRoute: ActivatedRoute, private dialog: MatDialog, private routerStateService: RouteStateService) { }
+    constructor(
+        private teacherService: TeacherService,
+        private activatedRoute: ActivatedRoute,
+        private dialog: MatDialog,
+        private routerStateService: RouteStateService) {
+        this.isAllLoaded = false
+    }
 
 
 
@@ -62,6 +68,7 @@ export class VMComponent implements OnInit {
                     });
 
                     this.dataSourceTeams.data = data;
+                    this.isAllLoaded = true
                 })
             }
         })

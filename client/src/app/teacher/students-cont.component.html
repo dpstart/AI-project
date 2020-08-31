@@ -1,7 +1,11 @@
+<div *ngIf="!(isAllStudentsLoaded && isEnrolledStudentsLoaded); else loadedBlock">
+    <mat-spinner diameter="300" strokeWidth="5"></mat-spinner>
+</div>
+<ng-template #loadedBlock>
 <app-students 
-*ngIf="isAllStudentsLoaded && isEnrolledStudentsLoaded" 
 [allStudents]="allStudents"
 [enrolledStudents]="enrolledStudents" 
 (addStudent)="addStudent($event)" 
 (deleteStudents)="deleteStudents($event)">
 </app-students>
+</ng-template>
