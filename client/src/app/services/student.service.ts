@@ -119,6 +119,16 @@ export class StudentService {
   }
 
 
+  //{name}/assignments/{id1}/homeworks/{id2}/studentId
+  getStudentIdByHomework(courseName: string, assignmentId: number, homeworkId: number): Observable<string> {
+    const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}/studentId`;
+    return this.http.get<string>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+  }
+
+
   getStudentsInCourse(course_name: string): Observable<Student[]> {
     const url = `${this.URL}/courses/${course_name}/enrolled`;
     return this.http.get<Student[]>(url).pipe(
@@ -182,7 +192,7 @@ export class StudentService {
     );
   }
 
-  //TODO Url da modificare
+  //TODO url da modificare perchè non deve ritornare tutta la lista di assignement, ma quella per un determinato corso.
   getAssignmentByCourse(): Observable<Assignment[]> {
     const url = `${this.URL}/students/assignments/`
     return this.http.get<Assignment[]>(url).pipe(
@@ -193,8 +203,10 @@ export class StudentService {
 
 
   //TODO Url da modificare
-  getHomeworksByAssignment(studentId: string, assignmentId: number): Observable<Homework[]> {
-    const url = `${this.URL}/students/${studentId}/assignments/${assignmentId}`
+
+  ///{name}/assignments/{id}/homeworks
+  getHomeworksByAssignment(courseName: string, assignmentId: number): Observable<Homework[]> {
+    const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks`
     return this.http.get<Homework[]>(url).pipe(
       retry(3),
       catchError(this.handleError)

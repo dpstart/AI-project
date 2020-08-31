@@ -14,12 +14,14 @@ import { ENTER, COMMA } from '@angular/cdk/keycodes';
 import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { startWith, map } from 'rxjs/operators';
 import { MatChipInputEvent } from '@angular/material/chips';
+import { AuthService } from 'src/app/services/auth.service';
 
 export interface DisplayedHomework {
-  id: number,
+  name: string,
+  surname: string,
+  freshman: string,
   state: string,
-  isFinal: boolean,
-  mark: number
+  timestamp: string
 }
 
 
@@ -42,8 +44,8 @@ export class HomeworkComponent implements OnInit {
 
   selectedAssignment: Assignment
 
-  // id,  state,  isFinal, mark
-  homeworksColumnsToDisplay: string[] = ['id', 'state', 'isFinal', 'mark'];
+  // nome, cognome, matricola,  state,  timestamp  
+  homeworksColumnsToDisplay: string[] = ['name', 'surname', 'freshman', 'state', 'timestamp'];
   homeworksDataSource: MatTableDataSource<DisplayedHomework>
   allHomeworks: DisplayedHomework[]
 
@@ -99,7 +101,7 @@ export class HomeworkComponent implements OnInit {
 
   ngOnInit(): void {
 
-    console.log(this.assignments,this.displayedHomeworks)
+    console.log(this.assignments, this.displayedHomeworks)
     this.homeworksDataSource.data = [...this.displayedHomeworks];
     this.consegneDataSource.data = [...this.assignments];
     this.allHomeworks = [...this.displayedHomeworks]

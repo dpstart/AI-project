@@ -3,6 +3,7 @@ import { Observable, throwError, Subject, ReplaySubject } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { HomeworkVersion } from '../model/homework-version';
 import { retry, catchError } from 'rxjs/operators';
+import { Student } from '../model/student.model';
 
 
 export interface NavTeacherLinks {
@@ -39,6 +40,26 @@ export class TeacherService {
         return this.navTeacherLinks
     }
 
+
+
+    getStudentById(id: string): Observable<Student> {
+
+        const url = `${this.URL}/students/${id}`
+        return this.http.get<Student>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+
+    }
+
+    //{name}/assignments/{id1}/homeworks/{id2}/studentId
+    getStudentIdByHomework(courseName: string, assignmentId: number, homeworkId: number): Observable<string> {
+        const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}/studentId`;
+        return this.http.get<string>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+    }
     getCourses<Course>(): Observable<Course[]> {
 
         const url = `${this.URL}/courses`;
