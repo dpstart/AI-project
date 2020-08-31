@@ -101,7 +101,6 @@ export class HomeworkComponent implements OnInit {
 
   ngOnInit(): void {
 
-    console.log(this.assignments, this.displayedHomeworks)
     this.homeworksDataSource.data = [...this.displayedHomeworks];
     this.consegneDataSource.data = [...this.assignments];
     this.allHomeworks = [...this.displayedHomeworks]
@@ -169,7 +168,6 @@ export class HomeworkComponent implements OnInit {
 
   selectAssignment(assignment: Assignment) {
     //assignmentExpandedElement === assignment ? null : assignment
-    console.log("assignment: ", assignment)
     this.selectedAssignment = assignment
   }
   seeHomeworkDetails(homework: Homework) {

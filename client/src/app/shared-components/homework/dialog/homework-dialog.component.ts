@@ -8,6 +8,7 @@ import { Assignment } from 'src/app/model/assignment.model';
 import { TeacherService } from 'src/app/services/teacher.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { AuthService } from 'src/app/services/auth.service';
 
 
 const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
@@ -33,6 +34,7 @@ export interface HomeworkVersionDisplayed {
 })
 export class HomeworkDialogComponent implements OnInit {
 
+
   historyHomeworkDataSource: MatTableDataSource<HomeworkVersionDisplayed>
 
   historyHomeworkColumnsToDisplay: string[]
@@ -53,7 +55,11 @@ export class HomeworkDialogComponent implements OnInit {
 
   isDisabled: boolean
 
-  constructor(private teacherService: TeacherService, private routeStateService: RouteStateService, private sanitizer: DomSanitizer,
+  constructor(
+    private _authService: AuthService,
+    private teacherService: TeacherService,
+    private routeStateService: RouteStateService,
+    private sanitizer: DomSanitizer,
     @Inject(MAT_DIALOG_DATA) public data) {
 
     this.selectedAssignment = data.assignment
@@ -69,25 +75,28 @@ export class HomeworkDialogComponent implements OnInit {
   }
 
 
+  public get authService(): AuthService {
+    return this._authService;
+  }
+
+
+
   selectImageToExpand(element: HomeworkVersion) {
     if (element == this.expandedImage)
       this.expandedImage = null
     else
       this.expandedImage = element
-
   }
 
   ngOnInit(): void {
-
     this.routeStateService.pathParam.subscribe(courseName => {
       this.courseName = courseName
     })
 
     this.teacherService.getHomeworkVersions(this.courseName, this.selectedAssignment.id, this.selectedHomework.id).subscribe((data) => {
 
-      data.push(new HomeworkVersion(1, "tree", new Date()))
-
-      data.push(new HomeworkVersion(2, "tree", new Date()))
+      // data.push(new HomeworkVersion(1, "tree", new Date()))
+      // data.push(new HomeworkVersion(2, "tree", new Date()))
 
       // this.httpClient.get('http://localhost:8080/image/get/' + this.imageName)
       //   .subscribe(

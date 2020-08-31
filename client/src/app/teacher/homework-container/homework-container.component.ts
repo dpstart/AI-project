@@ -58,9 +58,9 @@ export class HomeworkContainerComponent implements OnInit {
                   delivered,
                   reviewed */
 
-              homeworks.forEach(element => {
+              homeworks.forEach(homework => {
                 let state = ""
-                switch (element.state) {
+                switch (homework.state) {
                   case 1:
                     state = "LETTO"
                     break;
@@ -76,18 +76,28 @@ export class HomeworkContainerComponent implements OnInit {
                     break;
 
                 }
+
+                // this.teacherService.getStudentIdByHomework(this.selectedCourse, assignment.id, homework.id).subscribe(matricola => {
+                //   this.teacherService.getStudentById(matricola).subscribe(student => {
+                //   })
+                // })
+
                 displayHomeworks.push({
-                  id: element.id,
+                  name: "student.name",
+                  surname: "student.firstName",
+                  freshman: "student.id",
                   state: state,
-                  isFinal: element.isFinal,
-                  mark: element.mark
+                  timestamp: Date.now().toLocaleString()
                 })
+                this.assignments = assignments
+                this.displayedHomeworks = displayHomeworks
+                this.isAllLoaded = true
+                console.log(this.assignments, this.displayedHomeworks)
+
+
               })
 
-              this.assignments = assignments
-              this.displayedHomeworks = displayHomeworks
-              this.isAllLoaded = true
-              console.log(this.assignments,this.displayedHomeworks)
+
             },
 
               //***************REMOVE THIS BRANCH **************************************/
@@ -98,9 +108,9 @@ export class HomeworkContainerComponent implements OnInit {
                 homeworks.push(new Homework(1, states.delivered, false, 25))
                 let displayHomeworks: DisplayedHomework[] = []
 
-                homeworks.forEach(element => {
+                homeworks.forEach(homework => {
                   let state = ""
-                  switch (element.state) {
+                  switch (homework.state) {
                     case 1:
                       state = "LETTO"
                       break;
@@ -116,25 +126,42 @@ export class HomeworkContainerComponent implements OnInit {
                       break;
                   }
 
+
+                  //TODO per il momento i dati sono fake è da vedere come ricavarli
+                  // this.teacherService.getStudentIdByHomework(this.selectedCourse, assignment.id, homework.id).subscribe(matricola => {
+                  //   this.teacherService.getStudentById(matricola).subscribe(student => {
+                  //   })
+                  // })
+
                   displayHomeworks.push({
-                    id: element.id,
+                    name: "student.name",
+                    surname: "student.firstName",
+                    freshman: "student.id",
                     state: state,
-                    isFinal: element.isFinal,
-                    mark: element.mark
+                    timestamp: new Date().toLocaleString()
                   })
+                  this.assignments = assignments
+                  this.displayedHomeworks = displayHomeworks
+                  this.isAllLoaded = true
+                  console.log(this.assignments, this.displayedHomeworks)
+                  console.log("ERRORE");
+
+
                 })
-
-                this.assignments = assignments
-                this.displayedHomeworks = displayHomeworks
-                this.isAllLoaded = true
-                console.log(this.assignments,this.displayedHomeworks)
-
               })
           })
         });
       }
 
     })
+
+
+
+    // this.assignments = assignments
+    // this.displayedHomeworks = displayHomeworks
+    // this.isAllLoaded = true
+    // console.log(this.assignments, this.displayedHomeworks)
+
 
   }
 

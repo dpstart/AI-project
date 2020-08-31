@@ -48,99 +48,112 @@ export class HomeworkStudentComponent implements OnInit {
           let date = new Date().toDateString()
           assignments.push(new Assignment(1, date.toString(), date.toString()))
 
-               this.assignments = assignments
-              this.displayedHomeworks = []
-              this.isAllLoaded = true
-              console.log(this.assignments, this.displayedHomeworks)
+          this.assignments = assignments
+          this.displayedHomeworks = []
 
-          // assignments.forEach(assignment => {
+          assignments.forEach(assignment => {
 
-          // this.studentService.getHomeworksByAssignment(this.authService.getEmail(), assignment.id).subscribe((homeworks: Homework[]) => {
+            this.studentService.getHomeworksByAssignment(this.selectedCourse, assignment.id).subscribe((homeworks: Homework[]) => {
 
-          //     //******************************TODO: remove fake homeworks***************************************//
-          //     homeworks.push(new Homework(1, states.delivered, false, 25))
+              //******************************TODO: remove fake homeworks***************************************//
+              homeworks.push(new Homework(1, states.delivered, false, 25))
 
 
-          //     let displayHomeworks: DisplayedHomework[] = []
+              let displayHomeworks: DisplayedHomework[] = []
 
-          //     /*  unread,
-          //         read,
-          //         delivered,
-          //         reviewed */
+              /*  unread,
+                  read,
+                  delivered,
+                  reviewed */
 
-          //     homeworks.forEach(element => {
-          //       let state = ""
-          //       switch (element.state) {
-          //         case 1:
-          //           state = "LETTO"
-          //           break;
-          //         case 2:
-          //           state = "CONSEGNATO"
-          //           break;
-          //         case 3:
-          //           state = "RIVISTO"
-          //           break;
+              homeworks.forEach(homework => {
+                let state = ""
+                switch (homework.state) {
+                  case 1:
+                    state = "LETTO"
+                    break;
+                  case 2:
+                    state = "CONSEGNATO"
+                    break;
+                  case 3:
+                    state = "RIVISTO"
+                    break;
 
-          //         default:
-          //           state = "NON LETTO"
-          //           break;
+                  default:
+                    state = "NON LETTO"
+                    break;
 
-          //       }
-          //       displayHomeworks.push({
-          //         id: element.id,
-          //         state: state,
-          //         isFinal: element.isFinal,
-          //         mark: element.mark
-          //       })
-          //     })
+                }
 
-          //     this.assignments = assignments
-          //     this.displayedHomeworks = displayHomeworks
-          //     this.isAllLoaded = true
-          //     console.log(this.assignments, this.displayedHomeworks)
-          //   },
+                // this.teacherService.getStudentIdByHomework(this.selectedCourse, assignment.id, homework.id).subscribe(matricola => {
+                //   this.teacherService.getStudentById(matricola).subscribe(student => {
+                //   })
+                // })
 
-          //     //***************REMOVE THIS BRANCH **************************************/
-          //     (error) => {
-          //       //TODO: remove fake homeworks
-          //       let homeworks: Homework[] = []
+                displayHomeworks.push({
+                  name: "student.name",
+                  surname: "student.firstName",
+                  freshman: "student.id",
+                  state: state,
+                  timestamp: Date.now().toLocaleString()
+                })
+                this.assignments = assignments
+                this.displayedHomeworks = displayHomeworks
+                this.isAllLoaded = true
+                console.log(this.assignments, this.displayedHomeworks)
+              })
+            },
 
-          //       homeworks.push(new Homework(1, states.delivered, false, 25))
-          //       let displayHomeworks: DisplayedHomework[] = []
+              //***************REMOVE THIS BRANCH **************************************/
+              (error) => {
+                //TODO: remove fake homeworks
+                let homeworks: Homework[] = []
 
-          //       homeworks.forEach(element => {
-          //         let state = ""
-          //         switch (element.state) {
-          //           case 1:
-          //             state = "LETTO"
-          //             break;
-          //           case 2:
-          //             state = "CONSEGNATO"
-          //             break;
-          //           case 3:
-          //             state = "RIVISTO"
-          //             break;
+                homeworks.push(new Homework(1, states.delivered, false, 25))
+                let displayHomeworks: DisplayedHomework[] = []
 
-          //           default:
-          //             state = "NON LETTO"
-          //             break;
-          //         }
+                homeworks.forEach(homework => {
+                  let state = ""
+                  switch (homework.state) {
+                    case 1:
+                      state = "LETTO"
+                      break;
+                    case 2:
+                      state = "CONSEGNATO"
+                      break;
+                    case 3:
+                      state = "RIVISTO"
+                      break;
 
-          //         displayHomeworks.push({
-          //           id: element.id,
-          //           state: state,
-          //           isFinal: element.isFinal,
-          //           mark: element.mark
-          //         })
-          //       })
+                    default:
+                      state = "NON LETTO"
+                      break;
+                  }
 
-          //       this.assignments = assignments
-          //       this.displayedHomeworks = displayHomeworks
-          //       this.isAllLoaded = true
-          //       console.log(this.assignments, this.displayedHomeworks)
 
-          //     })
-          // })
+                  //TODO per il momento i dati sono fake è da vedere come ricavarli
+                  // this.teacherService.getStudentIdByHomework(this.selectedCourse, assignment.id, homework.id).subscribe(matricola => {
+                  //   this.teacherService.getStudentById(matricola).subscribe(student => {
+                  //   })
+                  // })
+
+                  displayHomeworks.push({
+                    name: "student.name",
+                    surname: "student.firstName",
+                    freshman: "student.id",
+                    state: state,
+                    timestamp: new Date().toLocaleString()
+                  })
+                  this.assignments = assignments
+                  this.displayedHomeworks = displayHomeworks
+                  this.isAllLoaded = true
+                  console.log(this.assignments, this.displayedHomeworks)
+                  console.log("ERRORE");
+
+
+                })
+              })
+          })
         });
       }
 
