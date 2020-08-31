@@ -2,52 +2,55 @@
     <mat-spinner diameter="300" strokeWidth="5"></mat-spinner>
 </div>
 <ng-template #loadedBlock>
-<div class="container tabContainer">
+    <div>
+        <div class="tabContainer">
 
-    <h2 class="mat-h2 tabtitle">Elenco team.</h2>
+            <h2 class="mat-h2 tabtitle">Elenco team.</h2>
 
-    <table #innerTables mat-table #innerSort="matSort" [dataSource]=dataSourceVm matSort>
-        <ng-container matColumnDef="{{innerColumn}}" *ngFor="let innerColumn of innerDisplayedColumns">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{innerColumn}} </th>
-            <td mat-cell *matCellDef="let vm"> {{vm[innerColumn]}} </td>
-        </ng-container>
-
-
-        <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef> Actions </th>
-            <td mat-cell *matCellDef="let vm">
-                <button mat-raised-button (click)="changeVmStatus(vm)">
-                    <div *ngIf=" vm.status == 0; then runBlock else stopBlock"></div>
-                    <ng-template #runBlock>
-                        Run
-                    </ng-template>
-                    <ng-template #stopBlock> 
-                        Stop
-                    </ng-template>
-                </button>
+            <table #innerTables mat-table #innerSort="matSort" [dataSource]=dataSourceVm matSort>
+                <ng-container matColumnDef="{{innerColumn}}" *ngFor="let innerColumn of innerDisplayedColumns">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> {{innerColumn}} </th>
+                    <td mat-cell *matCellDef="let vm"> {{vm[innerColumn]}} </td>
+                </ng-container>
 
 
-               
-            </td>
-        </ng-container>
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef> Actions </th>
+                    <td mat-cell *matCellDef="let vm">
+                        <button mat-raised-button (click)="changeVmStatus(vm)">
+                            <div *ngIf=" vm.status == 0; then runBlock else stopBlock"></div>
+                            <ng-template #runBlock>
+                                Run
+                            </ng-template>
+                            <ng-template #stopBlock>
+                                Stop
+                            </ng-template>
+                        </button>
 
 
 
-        <ng-container matColumnDef="delete">
-            <th mat-header-cell *matHeaderCellDef> Delete </th>
-            <td mat-cell *matCellDef="let vm">
-                <mat-icon aria-hidden="false" aria-label="Example home icon" (click)="deleteVm(vm)">delete</mat-icon>
-            </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+                    </td>
+                </ng-container>
 
 
-    <!-- Copyright 2020 Google LLC. All Rights Reserved.
+
+                <ng-container matColumnDef="delete">
+                    <th mat-header-cell *matHeaderCellDef> Delete </th>
+                    <td mat-cell *matCellDef="let vm">
+                        <mat-icon aria-hidden="false" aria-label="Example home icon" (click)="deleteVm(vm)">delete
+                        </mat-icon>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+
+            <!-- Copyright 2020 Google LLC. All Rights Reserved.
     Use of this source code is governed by an MIT-style license that
     can be found in the LICENSE file at http://angular.io/license -->
-    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
-</div>
+            <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+        </div>
+    </div>
+
 </ng-template>

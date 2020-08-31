@@ -6,6 +6,24 @@ mat-sidenav {
 }
 .emailToolbar{
     font-size: medium;
-    margin-right: 10px;
-    margin-bottom: 17px
+    margin-top: auto;
 }
+
+#secondrow {
+    background-color: #f5f5f5;
+    color: black;
+  }
+
+  nav {
+    width: 100%;
+  }
+
+  .example-fill-remaining-space {
+    /* This fills the remaining space, by using flexbox. 
+     Every toolbar row uses a flexbox row layout. */
+    flex: 1 1 auto;
+  }
+
+  .clickableElement{
+      cursor: pointer;
+  }

@@ -1,27 +1,10 @@
-<style>
-  #secondrow {
-    background-color: #f5f5f5;
-    color: black;
-  }
-
-  nav {
-    width: 100%;
-  }
-
-  .example-fill-remaining-space {
-    /* This fills the remaining space, by using flexbox. 
-     Every toolbar row uses a flexbox row layout. */
-    flex: 1 1 auto;
-  }
-</style>
-
 <mat-toolbar color="primary">
   <mat-toolbar-row>
     <button type="button" aria-label="Toggle sidenav" mat-icon-button *ngIf="isLoggedIn()"
       (click)="toggleForMenuClick()">
       <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
     </button>
-    <span> <a routerLink="/home">VirtualLabs</a></span>
+    <span class="clickableElement" routerLink="/home">VirtualLabs</span>
     <!-- This fills the remaining space of the current row -->
     <span class="example-fill-remaining-space"></span>
 
