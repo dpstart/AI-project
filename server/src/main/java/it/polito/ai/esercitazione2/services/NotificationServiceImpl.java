@@ -187,18 +187,20 @@ public class NotificationServiceImpl implements NotificationService {
     public void run() {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         List<Token> expired = tokenRepository.findAllByExpiryDateBefore(now);
-        Set<Long> teams = expired.stream().map(x->x.getTeamId()).collect(Collectors.toSet());
-        tokenRepository.deleteAll(expired);
-        teams.stream().forEach(x->tokenRepository.deleteAll(tokenRepository.findAllByTeamId(x)));
-        teamService.evictAll(teams);   // posso riportare eventualmente qualki team erano già stati cancellatio prima della scadenza del token
-
+        if(expired.size()!=0) {
+            Set<Long> teams = expired.stream().map(x -> x.getTeamId()).collect(Collectors.toSet());
+            tokenRepository.deleteAll(expired);
+            teams.stream().forEach(x -> tokenRepository.deleteAll(tokenRepository.findAllByTeamId(x)));
+            teamService.evictAll(teams);   // posso riportare eventualmente qualki team erano già stati cancellatio prima della scadenza del token
+        }
 
         //TO DO: move on a separated file for authentication service
         List<ConfirmAccount> expired_accounts = confirmAccountRepository.findAllByExpiryDateBefore(now);
-        Set<String> users = expired_accounts.stream().map(x->x.getUserId()).collect(Collectors.toSet());
-        confirmAccountRepository.deleteAll(expired_accounts);
-        teamService.deleteAll(users);
-
+        if(expired_accounts.size()!=0){
+            Set<String> users = expired_accounts.stream().map(x->x.getUserId()).collect(Collectors.toSet());
+            confirmAccountRepository.deleteAll(expired_accounts);
+            teamService.deleteAll(users);
+        }
     }
 
 
