@@ -33,9 +33,7 @@
                 </mat-form-field>
             </p>
 
-            <p *ngIf="error" class="error">
-                {{ error }}
-            </p>
+            <ngb-alert *ngIf="error" type='danger' (close)="error=null">{{ error }}</ngb-alert>
 
             <div>
                 <button mat-raised-button color="primary">Register</button>

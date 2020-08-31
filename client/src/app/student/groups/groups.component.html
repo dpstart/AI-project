@@ -1,4 +1,6 @@
-<div *ngIf="isLoading; else loadedBlock"><mat-spinner diameter="300" strokeWidth="5"></mat-spinner></div>
+<div *ngIf="isLoading; else loadedBlock">
+    <mat-spinner diameter="300" strokeWidth="5"></mat-spinner>
+</div>
 <ng-template #loadedBlock>
     <div *ngIf="isInTeam; then inTeamBlock else notInTeamBlock"></div>
     <!-- notInTeamBlock: student is not in a group -->
@@ -28,7 +30,9 @@
 
 
 
-            <p *ngIf="checkValidity()" class="error">Sorry... the group was not created try with another name.</p>
+            <ngb-alert *ngIf="isErrorAlertOpen" type='danger' (close)="isErrorAlertOpen=false">Sorry... the group was
+                not created try with another name. </ngb-alert>
+
 
             <table #table mat-table [dataSource]="dataSourceStudentNotYetInTeam" matSort class="mat-elevation-z8">
 

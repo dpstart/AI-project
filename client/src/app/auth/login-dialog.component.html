@@ -14,10 +14,9 @@
                 </mat-form-field>
             </p>
 
-            <p *ngIf="error" class="error">
-                {{ error }}
-            </p>
+            <ngb-alert *ngIf="error" type='danger' (close)="error=null">{{ error }}</ngb-alert>
 
+            
             <div>
                 <button mat-raised-button color="primary">Login</button>
                 <button (click)="close()" class="cancel" mat-raised-button>Cancel</button>
@@ -25,5 +24,7 @@
 
 
         </form>
+        
+
     </mat-card-content>
 </mat-card>

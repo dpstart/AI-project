@@ -55,6 +55,8 @@ export class HomeworkDialogComponent implements OnInit {
 
   isDisabled: boolean
 
+  alertType: string
+
   constructor(
     private _authService: AuthService,
     private teacherService: TeacherService,
@@ -369,9 +371,11 @@ export class HomeworkDialogComponent implements OnInit {
     this.teacherService.uploadRevision(this.courseName, this.selectedAssignment.id, this.selectedHomework.id, uploadImageData).subscribe(
       (response) => {
         console.log(response)
+        this.alertType = "success"
         this.message = 'Image uploaded successfully';
       }, error => {
         console.log(error)
+        this.alertType = "danger"
         this.message = 'Sorry something went wrong, try later...';
 
       }

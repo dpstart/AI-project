@@ -41,6 +41,7 @@ import {MatChipsModule} from '@angular/material/chips';
 import { HomeworkComponent } from './shared-components/homework/homework.component';
 import { HomeworkDialogComponent } from './shared-components/homework/dialog/homework-dialog.component';
 import { HomeworkContainerComponent } from './teacher/homework-container/homework-container.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 
@@ -87,6 +88,7 @@ import { HomeworkContainerComponent } from './teacher/homework-container/homewor
     MatDividerModule,
     MatProgressSpinnerModule,
     MatChipsModule,
+    NgbModule,
   ],
   entryComponents: [LoginDialogComponent],
   providers: [

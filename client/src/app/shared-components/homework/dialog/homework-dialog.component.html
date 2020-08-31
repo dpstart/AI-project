@@ -22,7 +22,7 @@
             </div>
         </div>
         <div>
-            <p *ngIf="message" class="error">{{message}}</p>
+            <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
         </div>
     </ng-template>
     <ng-template #withDataBlock>
@@ -88,7 +88,8 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <p *ngIf="message" class="error">{{message}}</p>
+                                    <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}
+                                    </ngb-alert>
                                 </div>
                             </div>
                         </div>

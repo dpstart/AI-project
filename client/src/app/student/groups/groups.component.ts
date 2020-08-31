@@ -54,6 +54,8 @@ export class GroupsComponent implements OnInit {
 
   isLoading: boolean // loading
 
+  isErrorAlertOpen: boolean
+
   isInTeam: boolean
 
   constructor(private activatedRoute: ActivatedRoute, private _studentService: StudentService, private authService: AuthService, private routeStateService: RouteStateService) {
@@ -77,6 +79,9 @@ export class GroupsComponent implements OnInit {
       groupNameControl: new FormControl('', [Validators.required]),
       timeoutControl: new FormControl(10, [Validators.required, Validators.min(10)]) //10 min
     })
+
+
+    this.isErrorAlertOpen = false
 
   }
 
@@ -110,12 +115,12 @@ export class GroupsComponent implements OnInit {
 
               this.isLoading = false
               this.isInTeam = false
-              if (error.status == 417) { 
+              if (error.status == 417) {
                 //students is not yet in team: we have to upload in the table only the students that are not in a team
                 this.studentService.getStudentsAvailableInCourse(this.selectedCourse.name).subscribe((studentsNotInTeam: Student[]) => {
                   studentsNotInTeam.push(new Student("<sdsa", "Aa", "bbb"))
                   studentsNotInTeam.push(new Student("<sdsa", "Aa", "bbb"))
-                  
+
                   this.dataSourceStudentNotYetInTeam.data = [...studentsNotInTeam]
                 })
 
@@ -191,7 +196,7 @@ export class GroupsComponent implements OnInit {
       this.studentService.proposeTeam(this.selectedCourse.name,
         this.form.get('groupNameControl').value,
         this.selection.selected,
-        this.form.get('timeoutControl').value).subscribe(((resp) => {
+        this.form.get('timeoutControl').value).subscribe((resp) => {
           if (resp.status === 201) { // Ok created
             // TODO: fill dataSourceProposals with the proposed members in the team
 
@@ -212,8 +217,11 @@ export class GroupsComponent implements OnInit {
 
             // Remove students selected
             this.selection.clear()
-          }
-        }))
+          } else
+            this.isErrorAlertOpen = true
+        }, (_) => {
+          this.isErrorAlertOpen = true
+        })
 
     }
 
