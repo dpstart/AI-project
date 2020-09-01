@@ -115,7 +115,7 @@ public class ProfessorController {
         try{
             return assignmentService.getByProfessor(name)
                     .stream()
-                    .map(ModelHelper::enrich)
+                    .map(x -> ModelHelper.enrich(x, assignmentService.getAssignmentCourse(x.getId()), name))
                     .collect(Collectors.toList());
         }
         catch (Exception e){
@@ -140,7 +140,12 @@ public class ProfessorController {
             return assignmentService.getByProfessor(name)
                     .stream()
                     .flatMap(a -> assignmentService.getAssignmentHomeworks(a.getId()).stream())
-                    .map(x -> ModelHelper.enrich(x))
+                    .map(h -> {
+                        String courseId = homeworkService.getHomeworkCourse(h.getId());
+                        Integer assignmentId = homeworkService.getAssignmentId(h.getId());
+                        String studentId = homeworkService.getHomeworkStudentId(h.getId());;
+                        return ModelHelper.enrich(h, courseId, assignmentId, name, studentId);
+                    })
                     .collect(Collectors.toList());
         }
         catch (Exception e){

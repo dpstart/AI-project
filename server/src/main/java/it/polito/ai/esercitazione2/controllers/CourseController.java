@@ -19,7 +19,6 @@ import org.springframework.http.HttpStatus;
 
 
 import org.springframework.security.access.AuthorizationServiceException;
-import org.springframework.security.core.parameters.P;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -447,7 +446,7 @@ public class CourseController {
         try {
             return assignmentService.getByCourse(name)
                     .stream()
-                    .map(x -> ModelHelper.enrich(x, name))
+                    .map(a -> ModelHelper.enrich(a, name, assignmentService.getAssignmentProfessor(a.getId())))
                     .sorted(Comparator.comparing(AssignmentDTO::getReleaseDate))
                     .collect(Collectors.toList());
         } catch (Exception e) {
@@ -464,7 +463,7 @@ public class CourseController {
             if (a.equals(dto)) {
                 throw new IncoherenceException("Assignment already exists");
             }
-            return ModelHelper.enrich(a, name);
+            return ModelHelper.enrich(a, name, assignmentService.getAssignmentProfessor(a.getId()));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -473,7 +472,8 @@ public class CourseController {
     @GetMapping("/{name}/assignments/{id}")
     AssignmentDTO getAssignment(@PathVariable String name, @PathVariable Integer id) {
         try {
-            return ModelHelper.enrich(assignmentService.getAssignment(id), name);
+            AssignmentDTO assignment = assignmentService.getAssignment(id);
+            return ModelHelper.enrich(assignment, name, assignmentService.getAssignmentProfessor(assignment.getId()));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -498,31 +498,18 @@ public class CourseController {
         }
     }
 
-    @GetMapping("/{name}/assignments/{id}/professorId")
-    String getAssignmentProfessorId(@PathVariable String name, @PathVariable Integer id) {
-        try {
-            return assignmentService.getAssignmentProfessor(id);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
-    }
-
     @GetMapping("/{name}/homeworks")
     List<HomeworkDTO> getCourseHomeworks(@PathVariable String name) {
         try {
             return assignmentService.getHomeworksByCourse(name)
                     .stream()
-                    .map(h -> ModelHelper.enrich(h, name))
+                    .map(h -> {
+                        Integer assignmentId = homeworkService.getAssignmentId(h.getId());
+                        String professorId = assignmentService.getAssignmentProfessor(assignmentId);
+                        String studentId = homeworkService.getHomeworkStudentId(h.getId());
+                        return ModelHelper.enrich(h, name, assignmentId, professorId, studentId);
+                    })
                     .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
-    }
-
-    @GetMapping("/{name}/homeworks/{id}/assignmentId")
-    Integer getHomeworkAssignmentId(@PathVariable String name, @PathVariable Long id) {
-        try {
-            return homeworkService.getAssignmentId(id);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -533,7 +520,12 @@ public class CourseController {
         try {
             return assignmentService.getAssignmentHomeworks(id)
                     .stream()
-                    .map(h -> ModelHelper.enrich(h, name))
+                    .map(h -> {
+                        Integer assignmentId = homeworkService.getAssignmentId(h.getId());
+                        String professorId = assignmentService.getAssignmentProfessor(assignmentId);
+                        String studentId = homeworkService.getHomeworkStudentId(h.getId());
+                        return ModelHelper.enrich(h, name, assignmentId, professorId, studentId);
+                    })
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -543,7 +535,11 @@ public class CourseController {
     @GetMapping("/{name}/assignments/{id1}/homeworks/{id2}")
     HomeworkDTO getHomework(@PathVariable String name, @PathVariable Integer id1, @PathVariable Long id2) {
         try {
-            return ModelHelper.enrich(homeworkService.getHomework(id2), name, id1);
+            HomeworkDTO h = homeworkService.getHomework(id2);
+            Integer assignmentId = homeworkService.getAssignmentId(h.getId());
+            String professorId = assignmentService.getAssignmentProfessor(assignmentId);
+            String studentId = homeworkService.getHomeworkStudentId(h.getId());
+            return ModelHelper.enrich(h, name, assignmentId, professorId, studentId);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -562,7 +558,10 @@ public class CourseController {
     HomeworkDTO reviewHomework(@PathVariable String name, @PathVariable Integer id1, @PathVariable Integer id2,
                                @Valid @RequestBody HomeworkDTO dto) {
         try {
-            return ModelHelper.enrich(homeworkService.reviewHomework(dto), name, id1);
+            Integer assignmentId = homeworkService.getAssignmentId(dto.getId());
+            String professorId = assignmentService.getAssignmentProfessor(assignmentId);
+            String studentId = homeworkService.getHomeworkStudentId(dto.getId());
+            return ModelHelper.enrich(homeworkService.reviewHomework(dto), name, id1, professorId, studentId);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -625,16 +624,9 @@ public class CourseController {
                                                 @PathVariable Integer id1,
                                                 @PathVariable Long id2) {
         try {
-            return ModelHelper.enrich(homeworkService.getImage(id2), name, id1, id2);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
-    }
-
-    @GetMapping("/{name}/assignments/{id1}/homeworks/{id2}/studentId")
-    String getHomeworkStudentId(@PathVariable String name, @PathVariable Integer id1, @PathVariable Long id2) {
-        try {
-            return homeworkService.getHomeworkStudentId(id2);
+            Image image = homeworkService.getImage(id2);
+            int version = homeworkService.getAllImages(id2).size() - 1;
+            return ModelHelper.enrich(image, name, id1, id2, version);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }

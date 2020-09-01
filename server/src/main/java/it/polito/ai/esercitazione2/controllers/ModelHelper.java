@@ -209,12 +209,7 @@ public class ModelHelper {
 
         return vmm;
     }
-
-    public static AssignmentDTO enrich(AssignmentDTO a){
-        return enrich(a, methodOn(StudentController.class).getAssignmentCourse(a.getId()));
-    }
-
-    public static AssignmentDTO enrich(AssignmentDTO a, String courseName) {
+    public static AssignmentDTO enrich(AssignmentDTO a, String courseName, String professorId) {
         Link self = linkTo(methodOn(CourseController.class)
                 .getAssignment(courseName, a.getId())).withSelfRel();
         a.add(self);
@@ -224,7 +219,7 @@ public class ModelHelper {
         a.add(course);
 
         Link professor = linkTo(methodOn(ProfessorController.class)
-                .getOne(methodOn(CourseController.class).getAssignmentProfessorId(courseName, a.getId())))
+                .getOne(professorId))
                 .withRel("professor");
         a.add(professor);
 
@@ -240,15 +235,8 @@ public class ModelHelper {
         return a;
     }
 
-    public static HomeworkDTO enrich(HomeworkDTO h){
-        return enrich(h, methodOn(StudentController.class).getHomeworkCourse(h.getId()));
-    }
-
-    public static HomeworkDTO enrich(HomeworkDTO h, String courseName) {
-        return enrich(h, courseName, methodOn(CourseController.class).getHomeworkAssignmentId(courseName, h.getId()));
-    }
-
-    public static HomeworkDTO enrich(HomeworkDTO h, String courseName, Integer assignmentId) {
+    public static HomeworkDTO enrich(HomeworkDTO h, String courseName, Integer assignmentId,
+                                     String professorId, String studentId) {
         Link self = linkTo(methodOn(CourseController.class)
                 .getHomework(courseName, assignmentId, h.getId())).withSelfRel();
         h.add(self);
@@ -258,12 +246,12 @@ public class ModelHelper {
         h.add(course);
 
         Link professor = linkTo(methodOn(ProfessorController.class)
-                .getOne(methodOn(CourseController.class).getAssignmentProfessorId(courseName, assignmentId)))
+                .getOne(professorId))
                 .withRel("professor");
         h.add(professor);
 
         Link student = linkTo(methodOn(StudentController.class)
-                .getOne(methodOn(CourseController.class).getHomeworkStudentId(courseName, assignmentId, h.getId())))
+                .getOne(studentId))
                 .withRel("student");
         h.add(student);
 
@@ -286,11 +274,6 @@ public class ModelHelper {
         hv.add(self);
 
         return hv;
-    }
-
-    public static HomeworkVersionDTO enrich(Image i, String courseName, Integer assignmentId, Long homeworkId) {
-        return enrich(i, courseName, assignmentId, homeworkId,
-                methodOn(CourseController.class).getHomeworkVersions(courseName, assignmentId, homeworkId).size()-1);
     }
 
 }

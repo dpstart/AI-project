@@ -178,9 +178,14 @@ public class StudentController {
     @GetMapping("/assignments")
     public List<AssignmentDTO> getAssignments() {
         try {
-            return assignmentService.getByStudent(SecurityContextHolder.getContext().getAuthentication().getName())
+            String id = SecurityContextHolder.getContext().getAuthentication().getName();
+            return assignmentService.getByStudent(id)
                     .stream()
-                    .map(ModelHelper::enrich)
+                    .map(a -> {
+                        String courseId = assignmentService.getAssignmentCourse(a.getId());
+                        String professorId = assignmentService.getAssignmentProfessor(a.getId());
+                        return ModelHelper.enrich(a, courseId, professorId);
+                    })
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -212,7 +217,12 @@ public class StudentController {
             return assignmentService.getByStudent(id)
                     .stream()
                     .flatMap(a -> assignmentService.getAssignmentHomeworks(a.getId()).stream())
-                    .map(ModelHelper::enrich)
+                    .map(h -> {
+                        String courseId = homeworkService.getHomeworkCourse(h.getId());
+                        Integer assignmentId = homeworkService.getAssignmentId(h.getId());
+                        String professorId = assignmentService.getAssignmentProfessor(assignmentId);
+                        return ModelHelper.enrich(h, courseId, assignmentId, professorId, id);
+                    })
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
