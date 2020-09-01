@@ -77,15 +77,17 @@ public class AssignmentServiceImpl implements AssignmentService {
         Assignment assignment = modelMapper.map(a, Assignment.class);
         assignment.setCourse(c);
         assignment.setContentId(img.getName());
+        Professor p = professorRepository.getOne(professor);
+        assignment.setProfessor(p);
+        Assignment as = assignmentRepository.saveAndFlush(assignment);
+
         for (Student s : assignment.getCourse().getStudents()) {
             Homework h = new Homework();
-            h.setAssignment(assignment);
+            h.setAssignment(as);
             h.setStudent(s);
-            homeworkRepository.save(h);
+            homeworkRepository.saveAndFlush(h);
         }
-        assignment.setProfessor(professorRepository.getOne(professor));
-        a = modelMapper.map(assignmentRepository.save(assignment), AssignmentDTO.class);
-        return a;
+        return modelMapper.map(as, AssignmentDTO.class);
     }
 
     @Override
@@ -238,7 +240,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             if (!studentRepository.existsById(principal)) {
                 throw new StudentNotFoundException("Student " + principal + " not found");
             }
-            if(!studentRepository.getOne(principal).getCourses().contains(course)){
+            if (!studentRepository.getOne(principal).getCourses().contains(course)) {
                 throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course " + course.getName());
             }
             return assignmentRepository.getAssignmentsForCourse(courseId)
@@ -256,7 +258,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             if (!professorRepository.existsById(principal)) {
                 throw new ProfessorNotFoundException("Professor " + principal + " not found");
             }
-            if(!professorRepository.getOne(principal).getCourses().contains(course)){
+            if (!professorRepository.getOne(principal).getCourses().contains(course)) {
                 throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + course.getName());
             }
         }
@@ -278,7 +280,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             if (!studentRepository.existsById(principal)) {
                 throw new StudentNotFoundException("Student " + principal + " not found");
             }
-            if(!studentRepository.getOne(principal).getCourses().contains(course)){
+            if (!studentRepository.getOne(principal).getCourses().contains(course)) {
                 throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course " + course.getName());
             }
             return assignmentRepository.getAssignmentsForCourse(courseId)
@@ -297,7 +299,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             if (!professorRepository.existsById(principal)) {
                 throw new ProfessorNotFoundException("Professor " + principal + " not found");
             }
-            if(!professorRepository.getOne(principal).getCourses().contains(course)){
+            if (!professorRepository.getOne(principal).getCourses().contains(course)) {
                 throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + course.getName());
             }
         }

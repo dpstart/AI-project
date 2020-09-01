@@ -19,7 +19,7 @@ public class Professor {
 
     @ManyToMany(mappedBy="professors")
     List<Course> courses =  new ArrayList<>();
-    @OneToMany(mappedBy = "professor")
+    @OneToMany(mappedBy = "professor",cascade = CascadeType.MERGE, orphanRemoval = true)
     List<Assignment> assignments = new ArrayList<>();
 
     public void addCourse(Course c){

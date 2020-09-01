@@ -19,11 +19,11 @@ public class Homework {
     Long id;
 
     @ManyToOne
-    @JoinColumn(name="student_id")
+    @JoinColumn(name = "student_id")
     Student student;
 
     @ManyToOne
-    @JoinColumn(name="assignment_id")
+    @JoinColumn(name = "assignment_id")
     Assignment assignment;
 
     @ElementCollection
@@ -42,31 +42,31 @@ public class Homework {
     Boolean isFinal = false;
     Float mark = 0f;
 
-    public void setStudent(@NonNull Student s){
-        this.student=student;
+    public void setStudent(@NonNull Student s) {
+        this.student = s;
         this.student.addHomework(this);
     }
 
-    public void setAssignment(@NonNull Assignment a){
-        this.assignment=assignment;
+    public void setAssignment(@NonNull Assignment a) {
+        this.assignment = a;
         this.assignment.addHomework(this);
     }
 
-    public void setMark(@NonNull Float mark){
+    public void setMark(@NonNull Float mark) {
         if (!this.isFinal)
             throw new HomeworkIsNotFinalException("Homework must be flagged as final to assign a mark to it");
-        this.mark=mark;
+        this.mark = mark;
     }
 
-    public void setState(@NonNull Homework.states state){
-        if(this.isFinal)
+    public void setState(@NonNull Homework.states state) {
+        if (this.isFinal)
             throw new IllegalHomeworkStateChangeException("Can't change state of an Homework flagged as final");
-        if(state.compareTo(this.state)!=1 //only go ahead through states
+        if (state.compareTo(this.state) != 1 //only go ahead through states
                 || (this.state.equals(states.reviewed) //unless it is reviewed and students wants to re-deliver
-                    && state.compareTo(this.state)!=-1)){
+                && state.compareTo(this.state) != -1)) {
             throw new IllegalHomeworkStateChangeException("States can only go ahead and by one step, unless when going from reviewed to delivered");
         }
-        this.state=state;
+        this.state = state;
     }
 
 }

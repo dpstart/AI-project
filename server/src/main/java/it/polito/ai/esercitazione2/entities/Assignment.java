@@ -50,7 +50,7 @@ public class Assignment {
         this.course.getAssignments().add(this);
     }
 
-    public void setProfessor(@NonNull Professor professor){
+    public void setProfessor(Professor professor){
         this.professor=professor;
         this.professor.getAssignments().add(this);
     }
