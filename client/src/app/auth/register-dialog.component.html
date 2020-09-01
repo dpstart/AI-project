@@ -1,35 +1,35 @@
 <mat-card>
-    <mat-card-title>Login</mat-card-title>
+    <mat-card-title>Register</mat-card-title>
     <mat-card-content>
         <form [formGroup]="form" (ngSubmit)="submit()">
 
             <p>
                 <mat-form-field>
-                    <input required type="text" matInput placeholder="First name" formControlName="first_name">
+                    <input type="text" matInput placeholder="First name" formControlName="first_name">
                 </mat-form-field>
             </p>
 
             <p>
                 <mat-form-field>
-                    <input required type="text" matInput placeholder="Last name" formControlName="last_name">
+                    <input type="text" matInput placeholder="Last name" formControlName="last_name">
                 </mat-form-field>
             </p>
 
             <p>
                 <mat-form-field>
-                    <input required type="text" matInput placeholder="ID" formControlName="id">
+                    <input type="text" matInput placeholder="ID" formControlName="id">
                 </mat-form-field>
             </p>
 
             <p>
                 <mat-form-field>
-                    <input required type="text" matInput placeholder="Email" formControlName="email">
+                    <input type="text" matInput placeholder="Email" formControlName="email">
                 </mat-form-field>
             </p>
 
             <p>
                 <mat-form-field>
-                    <input required type="password" matInput placeholder="Password" formControlName="password">
+                    <input type="password" matInput placeholder="Password" formControlName="password">
                 </mat-form-field>
             </p>
 

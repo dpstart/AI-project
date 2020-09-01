@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { FormGroup, FormControl } from '@angular/forms';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { AuthService, RegisteredUser } from '../services/auth.service';
 
@@ -13,11 +13,11 @@ export class RegisterDialogComponent implements OnInit {
   constructor(private dialogRef: MatDialogRef<RegisterDialogComponent>, private auth: AuthService) { }
 
   form: FormGroup = new FormGroup({
-    first_name: new FormControl(''),
-    last_name: new FormControl(''),
-    id: new FormControl(''),
-    email: new FormControl(''),
-    password: new FormControl(''),
+    first_name: new FormControl('', Validators.required),
+    last_name: new FormControl('', Validators.required),
+    id: new FormControl('', Validators.required),
+    email: new FormControl('', [Validators.required, Validators.pattern("/(^(s|d){0,1}\d{6}((@studenti.polito.it)|(@polito.it))$)/g")]),
+    password: new FormControl('', Validators.required),
   });
 
   @Input() error: string | null;

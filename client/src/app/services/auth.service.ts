@@ -5,6 +5,7 @@ import * as moment from 'moment';
 import { RouteStateService } from './route-state.service';
 import { throwError } from 'rxjs/internal/observable/throwError';
 import { catchError, retry } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 export enum ROLE {
   TEACHER,
@@ -12,11 +13,11 @@ export enum ROLE {
 }
 
 export interface RegisteredUser {
-  first_name: string
-  last_name: string
   id: string
-  email: string
+  name: string
+  firstName: string
   password: string
+  email: string
 }
 
 @Injectable({
@@ -41,28 +42,51 @@ export class AuthService {
   };
 
 
-  URL = "http://localhost:8080"
+  UrlLogin = "http://localhost:8080"
+
+  URL = "http://localhost:4200/API"
+
   constructor(private http: HttpClient, private routeStateService: RouteStateService) { }
 
   login(email: string, password: string) {
-    const url = `${this.URL}/authenticate`;
+    const url = `${this.UrlLogin}/authenticate`;
     return this.http.post<string>(url, { username: email, password: password }).pipe(
       retry(3),
       catchError(this.handleError)
     );
   }
 
-  register(user: RegisteredUser) {
-    const url = `${this.URL}/API/students`;
+  register(user: RegisteredUser):Observable<RegisteredUser>{
+
+    let url = '';
+    let key = "";
 
     let headers = new HttpHeaders()
     headers.append('Content-Type', 'multipart/form-data; boundary=Inflow');
 
 
-    return this.http.post<string>(url, user, { "headers": headers }).pipe(
-      retry(3),
-      catchError(this.handleError)
-    );
+    // Il tentativo di discernere la fine della mail non è un aggiunta di un livello di sicurezza ma serve solo a discernere quale API contattare
+    if (user.email.includes("@studenti.polito.it")) {
+      url = `${this.URL}/students`;
+      key = "student"
+
+      return this.http.post<RegisteredUser>(url, { student: user }, { "headers": headers }).pipe(
+        retry(3),
+        catchError(this.handleError)
+      );
+    } else {
+      if (!user.email.includes("@docenti.polito.it")) {
+        throwError("Wrong Format")
+      }
+      url = `${this.URL}/professors`;
+      key = "professor"
+
+
+      return this.http.post<RegisteredUser>(url, { professor: user }, { "headers": headers }).pipe(
+        retry(3),
+        catchError(this.handleError)
+      );
+    }
   }
 
   logout() {
@@ -97,7 +121,7 @@ export class AuthService {
 
   }
 
-  getEmail() : string {
+  getEmail(): string {
     let session = JSON.parse(localStorage.getItem('session'));
     return session['email']
   }
