@@ -110,7 +110,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     @Override
-    public HomeworkDTO getHomework(Integer id){
+    public HomeworkDTO getHomework(Long id){
         if(!homeworkRepository.existsById(id))
             throw new HomeworkNotFoundException("Homework " + id + " not found");
         Homework h = homeworkRepository.getOne(id);
@@ -140,7 +140,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     @Override
-    public Integer getAssignmentId(Integer homeworkId) {
+    public Integer getAssignmentId(Long homeworkId) {
         if(!homeworkRepository.existsById(homeworkId))
             throw new HomeworkNotFoundException("Homework " + homeworkId + " not found");
         Homework h = homeworkRepository.getOne(homeworkId);
@@ -166,12 +166,12 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     @Override
-    public Image getImage(Integer homeworkId){
+    public Image getImage(Long homeworkId){
         return getImage(homeworkId, -1);
     }
 
     @Override
-    public Image getImage(Integer homeworkId, int version){
+    public Image getImage(Long homeworkId, int version){
         if(!homeworkRepository.existsById(homeworkId))
             throw new HomeworkNotFoundException("Homework " + homeworkId + " not found");
         Homework h = homeworkRepository.getOne(homeworkId);
@@ -202,7 +202,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     @Override
-    public Timestamp getDeliveryDate(Integer homeworkId, int version) {
+    public Timestamp getDeliveryDate(Long homeworkId, int version) {
         if(!homeworkRepository.existsById(homeworkId))
             throw new HomeworkNotFoundException("Homework " + homeworkId + " not found");
         Homework h = homeworkRepository.getOne(homeworkId);
@@ -233,7 +233,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     @Override
-    public List<Image> getAllImages(Integer homeworkId){
+    public List<Image> getAllImages(Long homeworkId){
         if(!homeworkRepository.existsById(homeworkId))
             throw new HomeworkNotFoundException("Homework " + homeworkId + " not found");
         Homework h = homeworkRepository.getOne(homeworkId);
@@ -263,7 +263,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     @Override
-    public String getHomeworkStudentId(Integer homeworkId){
+    public String getHomeworkStudentId(Long homeworkId){
         if(!homeworkRepository.existsById(homeworkId))
             throw new HomeworkNotFoundException("Homework " + homeworkId + " not found");
         Homework h = homeworkRepository.getOne(homeworkId);
@@ -289,7 +289,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     @Override
-    public String getHomeworkCourse(Integer homeworkId) {
+    public String getHomeworkCourse(Long homeworkId) {
         if(!homeworkRepository.existsById(homeworkId))
             throw new HomeworkNotFoundException("Homework " + homeworkId + " not found");
         Homework h = homeworkRepository.getOne(homeworkId);

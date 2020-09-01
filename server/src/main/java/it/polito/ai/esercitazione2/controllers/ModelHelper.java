@@ -274,7 +274,7 @@ public class ModelHelper {
         return h;
     }
 
-    public static HomeworkVersionDTO enrich(Image i, String courseName, Integer assignmentId, Integer homeworkId, Integer index) {
+    public static HomeworkVersionDTO enrich(Image i, String courseName, Integer assignmentId, Long homeworkId, Integer index) {
         HomeworkVersionDTO hv = new HomeworkVersionDTO();
         hv.setId(index);
         hv.setContent(i);
@@ -288,7 +288,7 @@ public class ModelHelper {
         return hv;
     }
 
-    public static HomeworkVersionDTO enrich(Image i, String courseName, Integer assignmentId, Integer homeworkId) {
+    public static HomeworkVersionDTO enrich(Image i, String courseName, Integer assignmentId, Long homeworkId) {
         return enrich(i, courseName, assignmentId, homeworkId,
                 methodOn(CourseController.class).getHomeworkVersions(courseName, assignmentId, homeworkId).size()-1);
     }

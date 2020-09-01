@@ -225,7 +225,7 @@ public class StudentController {
     }
 
     @GetMapping("/{id}/homeworks/{hId}/")
-    public HomeworkDTO getHomework(@PathVariable String id, @PathVariable Integer hId) {
+    public HomeworkDTO getHomework(@PathVariable String id, @PathVariable Long hId) {
         try {
             String course = homeworkService.getHomeworkCourse(hId);
             Integer aId = homeworkService.getAssignmentId(hId);
@@ -236,7 +236,7 @@ public class StudentController {
     }
 
     @GetMapping("/{id}/homeworks/{hId}/course")
-    public String getHomeworkCourse(@PathVariable("hId") Integer hId) {
+    public String getHomeworkCourse(@PathVariable("hId") Long hId) {
         try {
             return homeworkService.getHomeworkCourse(hId);
         } catch (Exception e) {

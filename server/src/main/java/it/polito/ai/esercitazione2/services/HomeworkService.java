@@ -15,12 +15,12 @@ public interface HomeworkService {
     HomeworkDTO uploadHomework(Integer assignmentId, MultipartFile file);
     @PreAuthorize("hasRole('PROFESSOR')")
     HomeworkDTO reviewHomework(HomeworkDTO dto);
-    HomeworkDTO getHomework(Integer id);
-    Integer getAssignmentId(Integer homeworkId);
-    Image getImage(Integer homeworkId);
-    Image getImage(Integer homeworkId, int version);
-    Timestamp getDeliveryDate(Integer homeworkId, int version);
-    List<Image> getAllImages(Integer homeworkId);
-    String getHomeworkStudentId(Integer homeworkId);
-    String getHomeworkCourse(Integer homeworkId);
+    HomeworkDTO getHomework(Long id);
+    Integer getAssignmentId(Long homeworkId);
+    Image getImage(Long homeworkId);
+    Image getImage(Long homeworkId, int version);
+    Timestamp getDeliveryDate(Long homeworkId, int version);
+    List<Image> getAllImages(Long homeworkId);
+    String getHomeworkStudentId(Long homeworkId);
+    String getHomeworkCourse(Long homeworkId);
 }

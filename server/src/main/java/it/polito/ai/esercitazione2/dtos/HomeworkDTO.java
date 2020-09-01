@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class HomeworkDTO extends RepresentationModel<HomeworkDTO> {
 
-    Integer id;
+    Long id;
     @NotBlank
     Homework.states state;
     @NotBlank

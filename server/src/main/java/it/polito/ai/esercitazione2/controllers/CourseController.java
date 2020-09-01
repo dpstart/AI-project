@@ -325,7 +325,7 @@ public class CourseController {
 
         List<String> members = (List<String>) input.get("members");
         String team = input.get("team").toString().trim();
-        Long duration = (Long) input.get("timeout");
+        Long duration = (Long) input.get("timeout") * 1000 * 60; //Vengono ricevuti minuti, convertiamo a millisecondi
 
         if (team.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Specify a valid team name");
@@ -533,7 +533,7 @@ public class CourseController {
     }
 
     @GetMapping("/{name}/homeworks/{id}/assignmentId")
-    Integer getHomeworkAssignmentId(@PathVariable String name, @PathVariable Integer id) {
+    Integer getHomeworkAssignmentId(@PathVariable String name, @PathVariable Long id) {
         try {
             return homeworkService.getAssignmentId(id);
         } catch (Exception e) {
@@ -554,7 +554,7 @@ public class CourseController {
     }
 
     @GetMapping("/{name}/assignments/{id1}/homeworks/{id2}")
-    HomeworkDTO getHomework(@PathVariable String name, @PathVariable Integer id1, @PathVariable Integer id2) {
+    HomeworkDTO getHomework(@PathVariable String name, @PathVariable Integer id1, @PathVariable Long id2) {
         try {
             return ModelHelper.enrich(homeworkService.getHomework(id2), name, id1);
         } catch (Exception e) {
@@ -592,7 +592,7 @@ public class CourseController {
     }
 
     @GetMapping("/{name}/assignments/{id1}/homeworks/{id2}/versions")
-    List<HomeworkVersionDTO> getHomeworkVersions(@PathVariable String name, @PathVariable Integer id1, @PathVariable Integer id2) {
+    List<HomeworkVersionDTO> getHomeworkVersions(@PathVariable String name, @PathVariable Integer id1, @PathVariable Long id2) {
         try {
             List<Image> versions = homeworkService.getAllImages(id2);
             List<HomeworkVersionDTO> enriched = new ArrayList<>();
@@ -611,7 +611,7 @@ public class CourseController {
     @GetMapping("/{name}/assignments/{id1}/homeworks/{id2}/versions/{id3}")
     HomeworkVersionDTO getHomeworkVersion(@PathVariable String name,
                                           @PathVariable Integer id1,
-                                          @PathVariable Integer id2,
+                                          @PathVariable Long id2,
                                           @PathVariable Integer id3) {
         try {
             return ModelHelper.enrich(homeworkService.getImage(id2, id3), name, id1, id2, id3);
@@ -623,7 +623,7 @@ public class CourseController {
     @GetMapping("/{name}/assignments/{id1}/homeworks/{id2}/versions/{id3}/date")
     Timestamp getHomeworkVersionDeliveryDate(@PathVariable String name,
                                              @PathVariable Integer id1,
-                                             @PathVariable Integer id2,
+                                             @PathVariable Long id2,
                                              @PathVariable Integer id3) {
         try {
             return homeworkService.getDeliveryDate(id2, id3);
@@ -635,7 +635,7 @@ public class CourseController {
     @GetMapping("/{name}/assignments/{id1}/homeworks/{id2}/versions/latest")
     HomeworkVersionDTO getHomeworkLatestVersion(@PathVariable String name,
                                                 @PathVariable Integer id1,
-                                                @PathVariable Integer id2) {
+                                                @PathVariable Long id2) {
         try {
             return ModelHelper.enrich(homeworkService.getImage(id2), name, id1, id2);
         } catch (Exception e) {
@@ -644,7 +644,7 @@ public class CourseController {
     }
 
     @GetMapping("/{name}/assignments/{id1}/homeworks/{id2}/studentId")
-    String getHomeworkStudentId(@PathVariable String name, @PathVariable Integer id1, @PathVariable Integer id2) {
+    String getHomeworkStudentId(@PathVariable String name, @PathVariable Integer id1, @PathVariable Long id2) {
         try {
             return homeworkService.getHomeworkStudentId(id2);
         } catch (Exception e) {

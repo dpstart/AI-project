@@ -155,7 +155,7 @@ public class ProfessorController {
     }
 
     @GetMapping("/{name}/homeworks/{hId}/")
-    public HomeworkDTO getHomework(@PathVariable String name, @PathVariable Integer hId){
+    public HomeworkDTO getHomework(@PathVariable String name, @PathVariable Long hId){
         try{
             String course = homeworkService.getHomeworkCourse(hId);
             Integer aId = homeworkService.getAssignmentId(hId);
