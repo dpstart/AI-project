@@ -59,7 +59,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             throw new CourseNotFoundException("Course " + courseId + " not found");
         Course c = courseRepository.getOne(courseId);
         // il docente è il docente del corso?
-        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(professor)))
+        if (c.getProfessors().stream().noneMatch(x->x.getId().equals(professor)))
             throw new CourseAuthorizationException("User "+professor+ " has not the rights to modify this course: he's not the professor for this course");
         if (assignmentRepository.existsById(a.getId())) {
             if (getAssignment(a.getId()).equals(a))
@@ -266,7 +266,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             if(!professorRepository.existsById(principal)){
                 throw new ProfessorNotFoundException("Professor " + principal + " not found");
             }
-            if(!professorRepository.getOne(principal).getCourses().contains(courseId)){
+            if(!professorRepository.getOne(principal).getCourses().stream().map(c -> c.getName()).collect(Collectors.toList()).contains(courseId)){
                 throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + course.getName());
             }
         }

@@ -331,7 +331,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Specify a valid team name");
 
         //almeno 10 minuti
-        if (duration <= (60 * 1000 * 10)) {
+        if (duration < (60 * 1000 * 10)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Impossible to set a tiemout less than 10 minutes");
         }
 

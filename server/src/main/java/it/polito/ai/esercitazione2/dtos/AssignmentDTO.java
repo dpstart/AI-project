@@ -4,15 +4,16 @@ import lombok.Data;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
 @Data
 public class AssignmentDTO extends RepresentationModel<AssignmentDTO> {
 
     Integer id;
-    @NotBlank
+    @NotNull
     Timestamp releaseDate;
-    @NotBlank
+    @NotNull
     Timestamp expirationDate;
 
 }

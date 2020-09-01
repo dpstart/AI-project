@@ -4,12 +4,13 @@ import lombok.Data;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 
 @Data
 public class TeamDTO extends RepresentationModel<TeamDTO> {
 
-    @NotBlank
+    @NotNull
     Long id;
     @NotBlank
     String name;

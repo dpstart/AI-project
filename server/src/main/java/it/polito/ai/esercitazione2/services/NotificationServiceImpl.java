@@ -49,13 +49,16 @@ public class NotificationServiceImpl implements NotificationService {
     @Qualifier("templateActivationMessage")
     public SimpleMailMessage activation_template;
 
+
+
+
     @Override
     @Async
     public void sendMessage(String address, String subject, String body) {
 
         SimpleMailMessage message = new SimpleMailMessage();
         //message.setTo(address);
-        message.setTo("s262829@studenti.polito.it");
+        message.setTo("walt3r1996@gmail.com");
         message.setSubject(subject);
         message.setText(body);
         try {
