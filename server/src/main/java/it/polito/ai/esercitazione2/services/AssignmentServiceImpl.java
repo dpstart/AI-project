@@ -247,7 +247,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             if(!studentRepository.existsById(principal)){
                 throw new StudentNotFoundException("Student " + principal + " not found");
             }
-            if(!studentRepository.getOne(principal).getCourses().contains(courseId)){
+            if(!studentRepository.getOne(principal).getCourses().contains(course)){
                 throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course " + course.getName());
             }
             return assignmentRepository.getAssignmentsForCourse(courseId)
@@ -266,7 +266,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             if(!professorRepository.existsById(principal)){
                 throw new ProfessorNotFoundException("Professor " + principal + " not found");
             }
-            if(!professorRepository.getOne(principal).getCourses().stream().map(c -> c.getName()).collect(Collectors.toList()).contains(courseId)){
+            if(!professorRepository.getOne(principal).getCourses().contains(course)){
                 throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + course.getName());
             }
         }
@@ -288,13 +288,13 @@ public class AssignmentServiceImpl implements AssignmentService {
             if(!studentRepository.existsById(principal)){
                 throw new StudentNotFoundException("Student " + principal + " not found");
             }
-            if(!studentRepository.getOne(principal).getCourses().contains(courseId)){
+            if(!studentRepository.getOne(principal).getCourses().contains(course)){
                 throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course " + course.getName());
             }
             return assignmentRepository.getAssignmentsForCourse(courseId)
                     .stream()
                     .flatMap(a -> a.getHomeworks().stream())
-                    .filter(h -> h.getStudent().getId() == principal)
+                    .filter(h -> h.getStudent().getId().equals(principal))
                     .peek(h -> {
                         if(h.getState() == Homework.states.unread) {
                             h.setState(Homework.states.read);
@@ -308,7 +308,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             if(!professorRepository.existsById(principal)){
                 throw new ProfessorNotFoundException("Professor " + principal + " not found");
             }
-            if(!professorRepository.getOne(principal).getCourses().contains(courseId)){
+            if(!professorRepository.getOne(principal).getCourses().contains(course)){
                 throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + course.getName());
             }
         }
