@@ -325,7 +325,7 @@ public class CourseController {
 
         List<String> members = (List<String>) input.get("members");
         String team = input.get("team").toString().trim();
-        Long duration = (Long) input.get("timeout") * 1000 * 60; //Vengono ricevuti minuti, convertiamo a millisecondi
+        Long duration = ((Integer) input.get("timeout")).longValue() * 1000 * 60; //Vengono ricevuti minuti, convertiamo a millisecondi
 
         if (team.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Specify a valid team name");
