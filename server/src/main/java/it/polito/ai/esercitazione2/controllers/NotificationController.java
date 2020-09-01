@@ -27,11 +27,9 @@ public class NotificationController {
             else
                 m.addAttribute("message","You accepted the invitation!\n The team is now activated!");
 
-        }catch(NotificationServiceException e){
+        }catch(NotificationServiceException | TeamNotFoundException e){
             m.addAttribute("message", e.getMessage());
-        }catch(TeamNotFoundException e){
-            m.addAttribute("message", e.getMessage());
-        }catch(HttpClientErrorException e){
+        } catch(HttpClientErrorException e){
             m.addAttribute("message",e.getStatusCode()+"");
         }
         return "confirm";
@@ -44,11 +42,9 @@ public class NotificationController {
                 m.addAttribute("message","Some problems occurs");
             else
                 m.addAttribute("message","You rejected the invitation!\nThe team is now evicted");
-        }catch(NotificationServiceException e){
+        }catch(NotificationServiceException | TeamNotFoundException e){
             m.addAttribute("message", e.getMessage());
-        }catch(TeamNotFoundException e){
-            m.addAttribute("message", e.getMessage());
-        }catch(HttpClientErrorException e){
+        } catch(HttpClientErrorException e){
             m.addAttribute("message",e.getStatusCode()+"");
         }
         return "reject";
@@ -63,11 +59,9 @@ public class NotificationController {
                 m.addAttribute("message","Your account has been succesfully activated!");
 
 
-        }catch(NotificationServiceException e){
+        }catch(NotificationServiceException | TeamNotFoundException e){
             m.addAttribute("message", e.getMessage());
-        }catch(TeamNotFoundException e){
-            m.addAttribute("message", e.getMessage());
-        }catch(HttpClientErrorException e){
+        } catch(HttpClientErrorException e){
             m.addAttribute("message",e.getStatusCode()+"");
         }
         return "confirm";

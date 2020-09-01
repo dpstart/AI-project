@@ -323,32 +323,24 @@ public class CourseController {
         if (input.keySet().size() > 3)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "More keys then expected");
 
-        List<String> members = (List<String>) input.get("members");
-        String team = input.get("team").toString().trim();
-        Long duration = ((Integer) input.get("timeout")).longValue() * 1000 * 60; //Vengono ricevuti minuti, convertiamo a millisecondi
-
-        if (team.isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Specify a valid team name");
-
-        //almeno 10 minuti
-        if (duration < (60 * 1000 * 10)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Impossible to set a tiemout less than 10 minutes");
-        }
-
 
         try {
-            TeamDTO t = teamService.proposeTeam(name, team, members, duration);
-        } catch (AlreadyInACourseTeamException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-        } catch (DuplicatePartecipantsException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (ProposerNotPartOfTheTeamException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (TeamSizeConstraintsException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            List<String> members = (List<String>) input.get("members");
+            String team = input.get("team").toString().trim();
+            Long duration = ((Integer) input.get("timeout")).longValue() * 1000 * 60; //Vengono ricevuti minuti, convertiamo a millisecondi
 
-        } catch (TeamNameAlreadyPresentInCourse e) {
+            if (team.isEmpty())
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Specify a valid team name");
+
+            //almeno 10 minuti
+            if (duration < (60 * 1000 * 10)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Impossible to set a tiemout less than 10 minutes");
+            }
+            TeamDTO t = teamService.proposeTeam(name, team, members, duration);
+        } catch (AlreadyInACourseTeamException | TeamNameAlreadyPresentInCourse e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        } catch (DuplicatePartecipantsException | ProposerNotPartOfTheTeamException | TeamSizeConstraintsException | ClassCastException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
@@ -402,15 +394,11 @@ public class CourseController {
 
         try {
             return teamService.setSettings(name, id, settings);
-        } catch (CourseNotFoundException e) {
+        } catch (CourseNotFoundException | TeamNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (CourseAuthorizationException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
-        } catch (TeamNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        } catch (NotExpectedStatusException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (IncoherenceException e) {
+        } catch (NotExpectedStatusException | IncoherenceException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
 
@@ -425,7 +413,7 @@ public class CourseController {
     @GetMapping("/{name}/teams/{id}/members")
     List<StudentDTO> getTeamMembers(@PathVariable String name, @PathVariable Long id) {
         try {
-            return teamService.getMembers(name, id).stream().map(x -> ModelHelper.enrich(x)).collect(Collectors.toList());
+            return teamService.getMembers(name, id).stream().map(ModelHelper::enrich).collect(Collectors.toList());
         } catch (TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
@@ -435,7 +423,7 @@ public class CourseController {
     List<StudentDTO> getStudentsInTeams(@PathVariable String name) {
         try {
             return teamService.getStudentsInTeams(name).stream()
-                    .map(x -> ModelHelper.enrich(x))
+                    .map(ModelHelper::enrich)
                     .collect(Collectors.toList());
         } catch (CourseNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -447,7 +435,7 @@ public class CourseController {
     List<StudentDTO> getAvailableStudents(@PathVariable String name) {
         try {
             return teamService.getAvailableStudents(name).stream()
-                    .map(x -> ModelHelper.enrich(x))
+                    .map(ModelHelper::enrich)
                     .collect(Collectors.toList());
         } catch (CourseNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -496,7 +484,6 @@ public class CourseController {
         try {
             if (!assignmentService.removeAssignment(id))
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You can only remove assignments if none of the students has read it");
-            return;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -564,6 +551,7 @@ public class CourseController {
 
     /**
      * Used for both reviewing and assigning the final mark, the usage depends on the dto object
+     *
      * @param name course name
      * @param id1  id assignment
      * @param id2  id homework
@@ -660,7 +648,7 @@ public class CourseController {
         ex.getBindingResult().getFieldErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
 
-            int size_codes = error.getCodes().length;
+            int size_codes = Objects.requireNonNull(error.getCodes()).length;
             int i = 0;
             String errorMessage = "";
             while (i < size_codes) {

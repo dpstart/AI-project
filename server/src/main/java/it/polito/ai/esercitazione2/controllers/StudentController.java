@@ -71,9 +71,7 @@ public class StudentController {
                 if (!teamservice.addStudent(dto, true, file))
                     throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getId());
             }
-        } catch (IncoherenceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-        } catch (AuthenticationServiceException e) {
+        } catch (IncoherenceException | AuthenticationServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
 
@@ -87,9 +85,7 @@ public class StudentController {
         List<StudentDTO> finalRes = new ArrayList<>();
         try {
             res = teamservice.addAll(original, true);
-        } catch (IncoherenceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-        } catch (AuthenticationServiceException e) {
+        } catch (IncoherenceException | AuthenticationServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
 
@@ -105,7 +101,7 @@ public class StudentController {
     public List<CourseDTO> getCourses() {
         try {
             return teamservice.getCourses(SecurityContextHolder.getContext().getAuthentication().getName()).stream()
-                    .map(x -> ModelHelper.enrich(x)).collect(Collectors.toList());
+                    .map(ModelHelper::enrich).collect(Collectors.toList());
         } catch (StudentNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
@@ -132,8 +128,7 @@ public class StudentController {
 
     @GetMapping("/image")
     public Image getProfileImage() {
-        Image img = teamservice.getProfileImage();
-        return img;
+        return teamservice.getProfileImage();
     }
 
     @GetMapping("/courses/{name}/team")
@@ -185,7 +180,7 @@ public class StudentController {
         try {
             return assignmentService.getByStudent(SecurityContextHolder.getContext().getAuthentication().getName())
                     .stream()
-                    .map(x -> ModelHelper.enrich(x))
+                    .map(ModelHelper::enrich)
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -217,7 +212,7 @@ public class StudentController {
             return assignmentService.getByStudent(id)
                     .stream()
                     .flatMap(a -> assignmentService.getAssignmentHomeworks(a.getId()).stream())
-                    .map(x -> ModelHelper.enrich(x))
+                    .map(ModelHelper::enrich)
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -251,7 +246,7 @@ public class StudentController {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
-            int size_codes = error.getCodes().length;
+            int size_codes = Objects.requireNonNull(error.getCodes()).length;
             int i = 0;
             String errorMessage = "";
             while (i < size_codes) {

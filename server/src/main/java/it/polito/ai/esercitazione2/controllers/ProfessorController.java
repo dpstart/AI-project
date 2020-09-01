@@ -29,11 +29,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -69,9 +66,7 @@ public class ProfessorController {
                 if (!teamservice.addProfessor(p,file))
                     throw new ResponseStatusException(HttpStatus.CONFLICT, p.getId());
             }
-        } catch (IncoherenceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-        } catch(AuthenticationServiceException e){
+        } catch (IncoherenceException | AuthenticationServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
         return ModelHelper.enrich(p);
@@ -80,7 +75,7 @@ public class ProfessorController {
     @GetMapping({"","/"})
     List<ProfessorDTO> all(){
         return teamservice.getAllProfessors().stream()
-                .map(x->ModelHelper.enrich(x)).collect(Collectors.toList());
+                .map(ModelHelper::enrich).collect(Collectors.toList());
     }
 
     @GetMapping("/{name}")
@@ -93,7 +88,7 @@ public class ProfessorController {
     List<CourseDTO> getCourses(){
         try {
             return teamservice.getCoursesByProf(null).stream()
-                    .map(x->ModelHelper.enrich(x)).collect(Collectors.toList());
+                    .map(ModelHelper::enrich).collect(Collectors.toList());
         }catch (ProfessorNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
@@ -103,7 +98,7 @@ public class ProfessorController {
     List<CourseDTO> getCourses(@PathVariable String name){
         try {
             return teamservice.getCoursesByProf(name).stream()
-                    .map(x->ModelHelper.enrich(x)).collect(Collectors.toList());
+                    .map(ModelHelper::enrich).collect(Collectors.toList());
         }catch (ProfessorNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
@@ -112,8 +107,7 @@ public class ProfessorController {
     @GetMapping("/image")
     Image getProfileImage(){
 
-        Image img = teamservice.getProfileImage();
-        return img;
+        return teamservice.getProfileImage();
     }
 
     @GetMapping("/{name}/assignments")
@@ -121,7 +115,7 @@ public class ProfessorController {
         try{
             return assignmentService.getByProfessor(name)
                     .stream()
-                    .map(x -> ModelHelper.enrich(x))
+                    .map(ModelHelper::enrich)
                     .collect(Collectors.toList());
         }
         catch (Exception e){
@@ -173,7 +167,7 @@ public class ProfessorController {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
-            int size_codes=error.getCodes().length;
+            int size_codes = Objects.requireNonNull(error.getCodes()).length;
             int i=0;
             String errorMessage="";
             while(i<size_codes){

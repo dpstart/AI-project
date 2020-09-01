@@ -42,13 +42,9 @@ public class VMController {
     Image connectToVM(@PathVariable Long id){
         try{
             return vmservice.connectToVM(id);
-        }catch (CourseNotEnabledException e){
+        }catch (CourseNotEnabledException | OffMachineException e){
             throw new ResponseStatusException(HttpStatus.PRECONDITION_REQUIRED,e.getMessage());
-        }
-        catch(OffMachineException e){
-            throw new ResponseStatusException(HttpStatus.PRECONDITION_REQUIRED,e.getMessage());
-        }
-        catch(TeamServiceException e){
+        } catch(TeamServiceException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }
     }
@@ -61,9 +57,7 @@ public class VMController {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
             } catch(TeamAuthorizationException e){
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN,e.getMessage());
-            } catch(UnavailableResourcesForTeamException e){
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
-            } catch (VMAlreadyInExecutionException e){
+            } catch(UnavailableResourcesForTeamException | VMAlreadyInExecutionException e){
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
             } catch (CourseNotEnabledException e){
                 throw new ResponseStatusException(HttpStatus.PRECONDITION_REQUIRED,e.getMessage());
@@ -81,11 +75,7 @@ public class VMController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         } catch(TeamAuthorizationException e){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,e.getMessage());
-        } catch(UnavailableResourcesForTeamException e){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
-        } catch (VMAlreadyInExecutionException e){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
-        }catch (ImageException e){
+        } catch(UnavailableResourcesForTeamException | VMAlreadyInExecutionException | ImageException e){
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
         }
     }
@@ -98,9 +88,7 @@ public class VMController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         } catch(TeamAuthorizationException e){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,e.getMessage());
-        } catch(UnavailableResourcesForTeamException e){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
-        } catch (VMAlreadyInExecutionException e){
+        } catch(UnavailableResourcesForTeamException | VMAlreadyInExecutionException e){
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
         }
     }
