@@ -13,10 +13,10 @@ export class RegisterDialogComponent implements OnInit {
   constructor(private dialogRef: MatDialogRef<RegisterDialogComponent>, private auth: AuthService) { }
 
   form: FormGroup = new FormGroup({
-    first_name: new FormControl('', Validators.required),
-    last_name: new FormControl('', Validators.required),
+    firstName: new FormControl('', Validators.required),
+    name: new FormControl('', Validators.required),
     id: new FormControl('', Validators.required),
-    email: new FormControl('', [Validators.required, Validators.pattern("/(^(s|d){0,1}\d{6}((@studenti.polito.it)|(@polito.it))$)/g")]),
+    email: new FormControl('', Validators.pattern('^(s|d){0,1}[0-9]{6}((@studenti.polito.it)|(@polito.it))$')),
     password: new FormControl('', Validators.required),
   });
 

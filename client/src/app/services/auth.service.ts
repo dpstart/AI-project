@@ -56,21 +56,24 @@ export class AuthService {
     );
   }
 
-  register(user: RegisteredUser):Observable<RegisteredUser>{
+  register(user: RegisteredUser): Observable<RegisteredUser> {
 
-    let url = '';
-    let key = "";
+    const formData = new FormData();
 
     let headers = new HttpHeaders()
-    headers.append('Content-Type', 'multipart/form-data; boundary=Inflow');
+    headers.set('Content-Type', 'multipart/form-data;');
 
+    console.log(headers)
 
     // Il tentativo di discernere la fine della mail non è un aggiunta di un livello di sicurezza ma serve solo a discernere quale API contattare
     if (user.email.includes("@studenti.polito.it")) {
-      url = `${this.URL}/students`;
-      key = "student"
+      console.log(user);
 
-      return this.http.post<RegisteredUser>(url, { student: user }, { "headers": headers }).pipe(
+      let url = `${this.URL}/students`;
+      formData.append('student', new Blob([JSON.stringify(user)], {
+        type: "application/json"
+      }))
+      return this.http.post<RegisteredUser>(url, formData, { "headers": headers }).pipe(
         retry(3),
         catchError(this.handleError)
       );
@@ -78,11 +81,12 @@ export class AuthService {
       if (!user.email.includes("@docenti.polito.it")) {
         throwError("Wrong Format")
       }
-      url = `${this.URL}/professors`;
-      key = "professor"
+      let url = `${this.URL}/professors`;
 
-
-      return this.http.post<RegisteredUser>(url, { professor: user }, { "headers": headers }).pipe(
+      formData.append('professor', new Blob([JSON.stringify(user)], {
+        type: "application/json"
+      }))
+      return this.http.post<RegisteredUser>(url, formData, { "headers": headers }).pipe(
         retry(3),
         catchError(this.handleError)
       );
