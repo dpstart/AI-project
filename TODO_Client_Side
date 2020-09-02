@@ -1,0 +1,12 @@
+-CONSEGNE ED ELABORATI:
+ -- gestire aggiunta e modifica hw versione 
+ -- capire come dover settare timestamp per hw
+ -- Paginator funziona parzialmente in groups 
+ 
+ 
+-REGISTRAZIONE
+ --messaggio di errore e di successo
+ 
+ 
+-GENERALE
+--Aggiungere timeout per loading e visualizzare errore
