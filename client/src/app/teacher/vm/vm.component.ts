@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild, AfterViewInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { TeacherService } from '../../services/teacher.service';
 import { Team } from '../../model/team.model';
@@ -9,6 +9,8 @@ import { ActivatedRoute } from '@angular/router';
 import { RouteStateService } from 'src/app/services/route-state.service';
 import { StudentService } from 'src/app/services/student.service';
 import { Student } from 'src/app/model/student.model';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 
 
 
@@ -32,9 +34,24 @@ export class VMComponent implements OnInit {
     innerDisplayedColumns = ['id', 'n_cpu', 'disk_space', 'ram', 'status'];
     dataSourceTeams: MatTableDataSource<any> = new MatTableDataSource<any>();
 
+    private paginator: MatPaginator;
+    private sort: MatSort;
+
+
     expandedElement: Team | null;
 
     isAllLoaded: boolean
+
+    @ViewChild(MatSort) set matSort(ms: MatSort) {
+        this.sort = ms;
+        this.setDataSourceAttributes();
+    }
+
+    @ViewChild(MatPaginator) set matPaginator(mp: MatPaginator) {
+        this.paginator = mp;
+        this.setDataSourceAttributes();
+    }
+
 
     constructor(
         private teacherService: TeacherService,
@@ -42,6 +59,12 @@ export class VMComponent implements OnInit {
         private dialog: MatDialog,
         private routerStateService: RouteStateService) {
         this.isAllLoaded = false
+    }
+
+
+    setDataSourceAttributes() {
+        this.dataSourceTeams.paginator = this.paginator;
+        this.dataSourceTeams.sort = this.sort;
     }
 
 
@@ -89,4 +112,8 @@ export class VMComponent implements OnInit {
 
         this.getData()
     }
+
+
+
+
 }

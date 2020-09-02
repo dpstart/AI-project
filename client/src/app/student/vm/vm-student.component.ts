@@ -1,10 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, AfterViewInit } from '@angular/core';
 import { RouteStateService } from 'src/app/services/route-state.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { StudentService } from 'src/app/services/student.service';
 import { Team } from 'src/app/model/team.model';
-import { error } from 'protractor';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-vm-student',
@@ -18,15 +19,27 @@ export class VmStudentComponent implements OnInit {
 
   dataSourceVm: MatTableDataSource<Vm>
 
+  private paginator: MatPaginator;
+  private sort: MatSort;
 
   isAllLoaded: boolean
 
   @ViewChild("innerTables") innerTables: MatTable<Vm>;
 
+  @ViewChild(MatSort) set matSort(ms: MatSort) {
+    this.sort = ms;
+    this.setDataSourceAttributes();
+  }
+
+  @ViewChild(MatPaginator) set matPaginator(mp: MatPaginator) {
+    this.paginator = mp;
+    this.setDataSourceAttributes();
+  }
+
   constructor(private routeStateService: RouteStateService, private activatedRoute: ActivatedRoute, private studentService: StudentService, private change: ChangeDetectorRef) {
 
     this.isAllLoaded = false
-    this.dataSourceVm = new MatTableDataSource();
+    this.dataSourceVm = new MatTableDataSource<Vm>();
     this.innerDisplayedColumns = ['id', 'n_cpu', 'disk_space', 'ram', 'status'];
 
     this.displayedColumns = ['actions', 'id', 'n_cpu', 'disk_space', 'ram', 'status', 'delete'];
@@ -62,6 +75,12 @@ export class VmStudentComponent implements OnInit {
 
     })
   }
+
+  setDataSourceAttributes() {
+    this.dataSourceVm.paginator = this.paginator;
+    this.dataSourceVm.sort = this.sort;
+  }
+  
 
 
   deleteVm(vm: Vm) {

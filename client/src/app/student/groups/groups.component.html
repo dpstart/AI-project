@@ -34,7 +34,7 @@
                 not created try with another name. </ngb-alert>
 
 
-            <table #table mat-table [dataSource]="dataSourceStudentNotYetInTeam" matSort class="mat-elevation-z8">
+            <table #table mat-table [dataSource]="dataSourceStudentNotYetInTeam" matSort #matSortNotInTeam = matSort class="mat-elevation-z8">
 
                 <!-- ID Column -->
                 <ng-container matColumnDef="id">
@@ -80,7 +80,7 @@
                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
             </table>
-            <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+            <mat-paginator #paginatorNotInTeam [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
 
         </div>
 
@@ -93,7 +93,7 @@
 
             <h2 class="mat-h2 tabtitle"> Elenco proposte ricevute</h2>
 
-            <table mat-table [dataSource]="dataSourceProposals" class="mat-elevation-z8">
+            <table mat-table [dataSource]="dataSourceProposals" matSort  #matSortProposal = matSort class="mat-elevation-z8">
 
                 <!--- Note that these columns can be defined in any order.
                           The actual rendered columns are set as a property on the row definition" -->
@@ -130,7 +130,7 @@
                 <tr mat-header-row *matHeaderRowDef="displayedColumnsProposals"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumnsProposals;"></tr>
             </table>
-            <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+            <mat-paginator #paginatorProposal [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
         </div>
     </ng-template>
 
@@ -139,7 +139,7 @@
 
         <h2 class="mat-h2 tabtitle">Elenco studenti in team.</h2>
 
-        <table #table mat-table [dataSource]="dataSourceStudentInTeam" matSort class="mat-elevation-z8">
+        <table #table mat-table [dataSource]="dataSourceStudentInTeam" matSort #matSortInTeam = matSort class="mat-elevation-z8">
 
             <!-- Group Column -->
             <!-- Groups are not modelled yet, providing a default value. -->
@@ -170,7 +170,7 @@
             <tr mat-header-row *matHeaderRowDef="displayedColumnsInTeam"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumnsInTeam;"></tr>
         </table>
-        <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+        <mat-paginator #paginatorNotInTeam [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
 
     </ng-template>
 

@@ -1,5 +1,3 @@
-import { link } from "fs";
-
 export class Link {
     public get href(): string {
         return this._href;

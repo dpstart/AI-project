@@ -1,15 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { StudentService, ServerError } from 'src/app/services/student.service';
 import { Student } from 'src/app/model/student.model';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
-import { TeacherService } from 'src/app/services/teacher.service';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Course } from 'src/app/model/course.model';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from 'src/app/services/auth.service';
 import { RouteStateService } from 'src/app/services/route-state.service';
-import { group } from 'console';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-groups',
@@ -57,6 +57,47 @@ export class GroupsComponent implements OnInit {
   isErrorAlertOpen: boolean
 
   isInTeam: boolean
+
+  private paginatorNotInTeam: MatPaginator;
+  private matSortNotInTeam: MatSort;
+
+  private _paginatorInTeam: MatPaginator;
+  private _matSortInTeam: MatSort;
+
+  private _paginatorProposal: MatPaginator;
+  private _matSortProposal: MatSort;
+
+
+
+  @ViewChild('matSortNotInTeam') set matSort(ms: MatSort) {
+    this.matSortNotInTeam = ms;
+    this.setDataSourceAttributes();
+  }
+
+  @ViewChild('paginatorNotInTeam') set matPaginator(mp: MatPaginator) {
+    this.paginatorNotInTeam = mp;
+    this.setDataSourceAttributes();
+  }
+
+  @ViewChild('matSortInTeam') set matSortInTeam(ms: MatSort) {
+    this._matSortInTeam = ms;
+    this.setDataSourceAttributes();
+  }
+
+  @ViewChild('paginatorInTeam') set matPaginatorInTeam(mp: MatPaginator) {
+    this._paginatorInTeam = mp;
+    this.setDataSourceAttributes();
+  }
+
+  @ViewChild('matSortProposal') set matSortProposal(ms: MatSort) {
+    this._matSortProposal = ms;
+    this.setDataSourceAttributes();
+  }
+
+  @ViewChild('paginatorProposal') set matPaginatorProposal(mp: MatPaginator) {
+    this._paginatorProposal = mp;
+    this.setDataSourceAttributes();
+  }
 
   constructor(private activatedRoute: ActivatedRoute, private _studentService: StudentService, private authService: AuthService, private routeStateService: RouteStateService) {
     this.isInTeam = false // inizializzato a false indica che lo studente non è in un team
@@ -126,6 +167,18 @@ export class GroupsComponent implements OnInit {
       }
     })
 
+  }
+
+
+  setDataSourceAttributes() {
+    this.dataSourceStudentNotYetInTeam.paginator = this.paginatorNotInTeam;
+    this.dataSourceStudentNotYetInTeam.sort = this.matSortNotInTeam;
+
+    this.dataSourceStudentInTeam.paginator = this._paginatorInTeam;
+    this.dataSourceStudentInTeam.sort = this._matSortInTeam;
+
+    this.dataSourceProposals.paginator = this._paginatorProposal;
+    this.dataSourceProposals.sort = this._matSortProposal;
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */

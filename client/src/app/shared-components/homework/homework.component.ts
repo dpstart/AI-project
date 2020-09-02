@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild, Input } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, Input, AfterViewInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { Homework } from 'src/app/model/homework.model';
 import { trigger, state, style, transition, animate } from '@angular/animations';
@@ -11,6 +11,8 @@ import { ENTER, COMMA } from '@angular/cdk/keycodes';
 import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { startWith, map } from 'rxjs/operators';
 import { MatChipInputEvent } from '@angular/material/chips';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 
 export interface DisplayedHomework {
   homeworkId:number,
@@ -43,7 +45,7 @@ export interface DisplayedAssignment {
     ]),
   ]
 })
-export class HomeworkComponent implements OnInit {
+export class HomeworkComponent implements OnInit,AfterViewInit {
 
 
 
@@ -83,6 +85,9 @@ export class HomeworkComponent implements OnInit {
   @ViewChild('optionInput') optionInput: ElementRef<HTMLInputElement>;
   @ViewChild('auto') matAutocomplete: MatAutocomplete;
 
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
+
   //************ */
 
   constructor(private dialog: MatDialog) {
@@ -104,12 +109,18 @@ export class HomeworkComponent implements OnInit {
 
 
 
+
   ngOnInit(): void {
 
     this.homeworksDataSource.data = [...this.displayedHomeworks];
     this.consegneDataSource.data = [...this.displayedAssignments];
     this.allHomeworks = [...this.displayedHomeworks]
   }
+
+  ngAfterViewInit() {
+    this.consegneDataSource.paginator = this.paginator;
+    this.consegneDataSource.sort = this.sort;
+}
 
 
   //*****************chips methods*******************************//
