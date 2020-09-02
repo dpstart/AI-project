@@ -1,11 +1,8 @@
 import { Component, OnInit, ElementRef, ViewChild, Input } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { Homework, states } from 'src/app/model/homework.model';
-import { TeacherService } from 'src/app/services/teacher.service';
+import { Homework } from 'src/app/model/homework.model';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { Assignment } from 'src/app/model/assignment.model';
-import { ActivatedRoute } from '@angular/router';
-import { RouteStateService } from 'src/app/services/route-state.service';
 import { MatDialog } from '@angular/material/dialog';
 import { HomeworkDialogComponent } from './dialog/homework-dialog.component';
 import { FormControl } from '@angular/forms';
@@ -14,7 +11,6 @@ import { ENTER, COMMA } from '@angular/cdk/keycodes';
 import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { startWith, map } from 'rxjs/operators';
 import { MatChipInputEvent } from '@angular/material/chips';
-import { AuthService } from 'src/app/services/auth.service';
 
 export interface DisplayedHomework {
   homeworkId:number,
@@ -23,6 +19,14 @@ export interface DisplayedHomework {
   freshman: string,
   state: string,
   timestamp: string
+}
+
+
+
+export interface DisplayedAssignment {
+  id: number,
+  releaseDate: String,
+  expirationDate: String
 }
 
 
@@ -51,11 +55,11 @@ export class HomeworkComponent implements OnInit {
   allHomeworks: DisplayedHomework[]
 
   consegneDisplayedColumns: string[] = ['id', 'releaseDate', 'expirationDate']
-  consegneDataSource: MatTableDataSource<Assignment>
+  consegneDataSource: MatTableDataSource<DisplayedAssignment>
 
 
   @Input() selectedCourse: string
-  @Input() assignments: Assignment[]
+  @Input() displayedAssignments: DisplayedAssignment[]
   @Input() displayedHomeworks: DisplayedHomework[]
 
   assignmentExpandedElement: Assignment | null;
@@ -84,7 +88,7 @@ export class HomeworkComponent implements OnInit {
   constructor(private dialog: MatDialog) {
 
     this.homeworksDataSource = new MatTableDataSource<DisplayedHomework>();
-    this.consegneDataSource = new MatTableDataSource<Assignment>();
+    this.consegneDataSource = new MatTableDataSource<DisplayedAssignment>();
 
 
     //chips
@@ -103,7 +107,7 @@ export class HomeworkComponent implements OnInit {
   ngOnInit(): void {
 
     this.homeworksDataSource.data = [...this.displayedHomeworks];
-    this.consegneDataSource.data = [...this.assignments];
+    this.consegneDataSource.data = [...this.displayedAssignments];
     this.allHomeworks = [...this.displayedHomeworks]
   }
 

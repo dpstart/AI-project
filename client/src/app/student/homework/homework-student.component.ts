@@ -1,13 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { RouteStateService } from 'src/app/services/route-state.service';
 import { ActivatedRoute } from '@angular/router';
-import { DisplayedHomework } from 'src/app/shared-components/homework/homework.component';
+import { DisplayedHomework, DisplayedAssignment } from 'src/app/shared-components/homework/homework.component';
 import { Assignment } from 'src/app/model/assignment.model';
 import { TeacherService } from 'src/app/services/teacher.service';
 import { Homework, states } from 'src/app/model/homework.model';
 import { StudentService } from 'src/app/services/student.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { Student } from 'src/app/model/student.model';
+
+
+const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
 
 @Component({
   selector: 'app-homework-student',
@@ -20,7 +23,7 @@ export class HomeworkStudentComponent implements OnInit {
   selectedCourse: string
 
   displayedHomeworks: DisplayedHomework[];
-  assignments: Assignment[]
+  displayedAssignments: DisplayedAssignment[]
 
 
   isAllLoaded: boolean
@@ -30,7 +33,6 @@ export class HomeworkStudentComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private routeStateService: RouteStateService,
     private studentService: StudentService,
-    private authService: AuthService
   ) {
     this.isAllLoaded = false
   }
@@ -47,10 +49,25 @@ export class HomeworkStudentComponent implements OnInit {
         //TODO le richieste falliscono perchè non esistono gli url
         this.studentService.getAssignmentByCourse(this.selectedCourse).subscribe((assignments: Assignment[]) => {
 
-          this.assignments = assignments
+
+          //New Source
+          let displayedAssignments: DisplayedAssignment[] = []
+
           this.displayedHomeworks = []
 
           assignments.forEach(assignment => {
+
+            console.log(new Date(assignment.releaseDate));
+
+            //convertion to displayed assignment
+            let displayedAssignment: DisplayedAssignment = {
+              id: assignment.id,
+              releaseDate: new Date(assignment.releaseDate).toLocaleDateString(undefined, options),
+              expirationDate: new Date(assignment.expirationDate).toLocaleDateString(undefined, options)
+            }
+            //add converted element to assignment source
+            displayedAssignments.push(displayedAssignment)
+
 
             this.studentService.getHomeworksByAssignment(this.selectedCourse, assignment.id).subscribe((homeworks: Homework[]) => {
 
@@ -80,7 +97,7 @@ export class HomeworkStudentComponent implements OnInit {
 
                 }
 
-                
+
 
                 //Retrieve info about the corresponding student
 
@@ -105,16 +122,16 @@ export class HomeworkStudentComponent implements OnInit {
                       surname: student.firstName,
                       freshman: student.id,
                       state: state,
-                      timestamp: Date.now().toLocaleString()
+                      timestamp: new Date().toLocaleDateString(undefined, options) // TODO settare data coerentemente con stato
                     })
-                    this.assignments = assignments
+                    this.displayedAssignments = displayedAssignments
                     this.displayedHomeworks = displayHomeworks
                     this.isAllLoaded = true
                     //  console.log(this.assignments, this.displayedHomeworks)
                   })
                 }
 
-              })   
+              })
             })
           })
         });

@@ -22,6 +22,7 @@ import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -84,8 +85,8 @@ public class ProfessorController {
         return ModelHelper.enrich(c);
     }
 
-    @GetMapping("/courses")
-    List<CourseDTO> getCourses(){
+    @GetMapping("/allCourses")
+    List<CourseDTO> getAllCourses(){
         try {
             return teamservice.getCoursesByProf(null).stream()
                     .map(ModelHelper::enrich).collect(Collectors.toList());
@@ -94,10 +95,10 @@ public class ProfessorController {
         }
     }
 
-    @GetMapping("/{name}/courses")
-    List<CourseDTO> getCourses(@PathVariable String name){
+    @GetMapping("/courses")
+    List<CourseDTO> getCourses(){
         try {
-            return teamservice.getCoursesByProf(name).stream()
+            return teamservice.getCoursesByProf(SecurityContextHolder.getContext().getAuthentication().getName()).stream()
                     .map(ModelHelper::enrich).collect(Collectors.toList());
         }catch (ProfessorNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());

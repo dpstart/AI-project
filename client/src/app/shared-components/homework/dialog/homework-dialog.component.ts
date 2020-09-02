@@ -348,7 +348,7 @@ export class HomeworkDialogComponent implements OnInit {
 
         this.historyHomeworkDataSource.data = [...source]
       })
-  }
+  } 
 
 
   //TODO
