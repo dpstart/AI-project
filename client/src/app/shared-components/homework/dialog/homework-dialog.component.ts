@@ -40,7 +40,7 @@ export class HomeworkDialogComponent implements OnInit {
   historyHomeworkColumnsToDisplay: string[]
   courseName: string
   selectedAssignment: Assignment
-  selectedHomework: Homework
+  idSelectedHomework: number
 
 
   //image to be expanded
@@ -64,8 +64,10 @@ export class HomeworkDialogComponent implements OnInit {
     private sanitizer: DomSanitizer,
     @Inject(MAT_DIALOG_DATA) public data) {
 
+      
+
     this.selectedAssignment = data.assignment
-    this.selectedHomework = data.homework
+    this.idSelectedHomework = data.homeworkId
     this.historyHomeworkColumnsToDisplay = ['id', 'content', 'deliveryDate', 'review']
     this.historyHomeworkDataSource = new MatTableDataSource<HomeworkVersionDisplayed>()
 
@@ -95,26 +97,26 @@ export class HomeworkDialogComponent implements OnInit {
       this.courseName = courseName
     })
 
-    this.teacherService.getHomeworkVersions(this.courseName, this.selectedAssignment.id, this.selectedHomework.id).subscribe((data) => {
-
-      // data.push(new HomeworkVersion(1, "tree", new Date()))
-      // data.push(new HomeworkVersion(2, "tree", new Date()))
+    this.teacherService.getHomeworkVersions(this.courseName, this.selectedAssignment.id, this.idSelectedHomework).subscribe((data) => {
 
       // this.httpClient.get('http://localhost:8080/image/get/' + this.imageName)
       //   .subscribe(
       //     res => {
+
+      
       let retrieveResponse = data;
 
       let source: HomeworkVersionDisplayed[] = []
 
-
       let position = 0
+
+
+      console.log(retrieveResponse);
+      
       retrieveResponse.forEach(version => {
         let base64Data = version.content;
         let formattedImage = 'data:image/jpeg;base64,' + '\n' + base64Data;
         version.content = this.sanitizer.bypassSecurityTrustResourceUrl(formattedImage);
-
-
 
         let id = version.id
         let content = version.content
@@ -123,6 +125,9 @@ export class HomeworkDialogComponent implements OnInit {
         source.push({ position, id, content, deliveryDate })
         position++
       })
+
+      console.log(source);
+      
 
       this.historyHomeworkDataSource.data = [...source]
 
@@ -368,7 +373,7 @@ export class HomeworkDialogComponent implements OnInit {
     uploadImageData.append('imageFile', this.selectedFile, this.selectedFile.name);
 
 
-    this.teacherService.uploadRevision(this.courseName, this.selectedAssignment.id, this.selectedHomework.id, uploadImageData).subscribe(
+    this.teacherService.uploadRevision(this.courseName, this.selectedAssignment.id, this.idSelectedHomework, uploadImageData).subscribe(
       (response) => {
         console.log(response)
         this.alertType = "success"

@@ -52,7 +52,7 @@ export class StudentsContComponent implements OnInit {
 
 
 
-        this.studentService.getStudentsInCourse(this.selectedCourse).subscribe(data => {
+        this.studentService.getStudentsInCourse(this.selectedCourse).subscribe(data => {          
           this.allStudents = data;
           this.enrolledStudents = data;
           this.isAllStudentsLoaded = true;

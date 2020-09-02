@@ -91,6 +91,7 @@ export class HomeworkStudentComponent implements OnInit {
                 // })
 
                 displayHomeworks.push({
+                  homeworkId:homework.id,
                   name: "student.name",
                   surname: "student.firstName",
                   freshman: "student.id",
@@ -138,6 +139,7 @@ export class HomeworkStudentComponent implements OnInit {
                   // })
 
                   displayHomeworks.push({
+                    homeworkId:homework.id,
                     name: "student.name",
                     surname: "student.firstName",
                     freshman: "student.id",

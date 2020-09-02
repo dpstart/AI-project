@@ -1,6 +1,13 @@
+import { Link } from './link.model';
 
 
 export class Homework {
+    public get links(): Link[] {
+        return this._links;
+    }
+    public set links(value: Link[]) {
+        this._links = value;
+    }
     public get mark(): number {
         return this._mark;
     }
@@ -34,7 +41,11 @@ export class Homework {
     // @NotBlank
     // Float mark;
 
-    constructor(private _id: number, private _state: states, private _isFinal: boolean, private _mark: number) { }
+    constructor(private _id: number, private _state: states, private _isFinal: boolean, private _mark: number,private _links: Link[] = [],) { }
+
+
+    
+
 }
 
 export enum states {

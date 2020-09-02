@@ -50,3 +50,12 @@ tr.example-element-row:not(.example-expanded-row):active {
       margin-left: 20px;
   }
 
+  .centeredContent{
+      display: flex;
+      flex-direction: column;
+      width: auto;
+      height: auto;
+      justify-content: center;
+      align-content: center;
+  }
+

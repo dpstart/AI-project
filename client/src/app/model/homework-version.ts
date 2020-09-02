@@ -1,4 +1,12 @@
+import { Link } from './link.model';
+
 export class HomeworkVersion {
+    public get links(): Link[] {
+        return this._links;
+    }
+    public set links(value: Link[]) {
+        this._links = value;
+    }
     public get deliveryDate(): Date {
         return this._deliveryDate;
     }
@@ -18,7 +26,9 @@ export class HomeworkVersion {
         this._id = value;
     }
 
-    constructor(private _id: number, private _content: any, private _deliveryDate: Date) {
-
+    constructor(private _id: number, private _content: any, private _deliveryDate: Date,private _links: Link[] = []) {
     }
+
+   
+
 }

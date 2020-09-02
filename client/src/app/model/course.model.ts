@@ -8,9 +8,17 @@
 // int max=50;
 // Boolean enabled;
 
+import { Link } from './link.model';
+
 
 
 export class Course {
+    public get links(): Link[] {
+        return this._links;
+    }
+    public set links(value: Link[]) {
+        this._links = value;
+    }
     public get max(): Number {
         return this._max;
     }
@@ -44,7 +52,21 @@ export class Course {
     // @NotBlank
     // Float mark;
 
-    constructor(private _name: string, private _acronime: string, private _min: Number, private _max: Number) { }
+    constructor(private _name: string, private _acronime: string, private _min: Number,  private _links: Link[] = [],private _max: Number) { }
+
+
+
+    // getHrefByRel(rel: string): string {
+
+    //     let href = "";
+
+    //     if (this._links.some(link => {
+    //         if (link.rel == rel)
+    //             href = link.href
+    //     }))
+    //         return href;
+    // }
+
 }
 
 

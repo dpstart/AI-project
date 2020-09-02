@@ -17,6 +17,7 @@ import { MatChipInputEvent } from '@angular/material/chips';
 import { AuthService } from 'src/app/services/auth.service';
 
 export interface DisplayedHomework {
+  homeworkId:number,
   name: string,
   surname: string,
   freshman: string,
@@ -170,14 +171,14 @@ export class HomeworkComponent implements OnInit {
     //assignmentExpandedElement === assignment ? null : assignment
     this.selectedAssignment = assignment
   }
-  seeHomeworkDetails(homework: Homework) {
+  seeHomeworkDetails(homework: DisplayedHomework) {
 
     const dialogRef = this.dialog.open(HomeworkDialogComponent, {
       height: '95%',
       width: '95%',
       data: {
         assignment: this.assignmentExpandedElement,
-        homework: homework
+        homeworkId: homework.homeworkId
       }
     });
     event.stopPropagation();

@@ -1,14 +1,38 @@
+import { Link } from './link.model';
+
 export class Student {
+    public get courseId() {
+        return this._courseId;
+    }
+    public set courseId(value) {
+        this._courseId = value;
+    }
+    public get links(): Link[] {
+        return this._links;
+    }
+    public set links(value: Link[]) {
+        this._links = value;
+    }
+    public get firstName(): string {
+        return this._firstName;
+    }
+    public set firstName(value: string) {
+        this._firstName = value;
+    }
+    public get name(): string {
+        return this._name;
+    }
+    public set name(value: string) {
+        this._name = value;
+    }
+    public get id(): string {
+        return this._id;
+    }
+    public set id(value: string) {
+        this._id = value;
+    }
 
-    id: string;
-    name: string;
-    firstName: string;
-    courseId: number;
 
-    constructor(id: string, name: string, firstName: string) {
-        this.id = id;
-        this.name = name;
-        this.firstName = firstName;
-        this.courseId = 0;
+    constructor(private _id: string, private _name: string, private _firstName: string, private _links: Link[] = [], private _courseId = 0) {
     }
 }

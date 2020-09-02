@@ -6,8 +6,16 @@
     
 */
 
+import { Link } from './link.model';
+
 
 export class Assignment {
+    public get links(): Link[] {
+        return this._links;
+    }
+    public set links(value: Link[]) {
+        this._links = value;
+    }
     public get expirationDate(): string {
         return this._expirationDate;
     }
@@ -28,9 +36,11 @@ export class Assignment {
         this._id = value;
     }
 
-    constructor(private _id: number, private _releaseDate: string, private _expirationDate: string) {
+    constructor(private _id: number, private _releaseDate: string, private _expirationDate: string, private _links: Link[] = []) {
 
     }
+
+
 
 
 }

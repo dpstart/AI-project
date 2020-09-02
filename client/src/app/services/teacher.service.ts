@@ -42,6 +42,15 @@ export class TeacherService {
 
 
 
+    getResourceByUrl(href:string):Observable<any>{
+        return this.http.get<any>(href).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+    }
+
+
+
     getStudentById(id: string): Observable<Student> {
 
         const url = `${this.URL}/students/${id}`
@@ -52,7 +61,7 @@ export class TeacherService {
 
     }
 
-    //{name}/assignments/{id1}/homeworks/{id2}/studentId
+    //TODO: modificare url {name}/assignments/{id1}/homeworks/{id2}/studentId
     getStudentIdByHomework(courseName: string, assignmentId: number, homeworkId: number): Observable<string> {
         const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}/studentId`;
         return this.http.get<string>(url).pipe(
