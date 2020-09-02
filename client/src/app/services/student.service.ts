@@ -53,12 +53,6 @@ export class StudentService {
     this.navStudentLinks = [{ link: 'groups', label: 'Groups' }, { link: 'vms', label: 'VMs' }, { link: 'homework', label: 'Elaborati' }]
   }
 
-  getNavStudentLinks() {
-    return this.navStudentLinks;
-  }
-
-
-
   URL = "http://localhost:4200/API"
 
   // CREATE
@@ -92,19 +86,37 @@ export class StudentService {
     );
   }
 
+
+
   //RESEARCH
+
+
+
+  getResourceByUrl(href:string):Observable<any>{
+    return this.http.get<any>(href).pipe(
+        retry(3),
+        catchError(this.handleError)
+    );
+}
+
+
+  getNavStudentLinks(): NavStudentLinks[] {
+    return this.navStudentLinks;
+  }
+
+
+  getCourses(): Observable<Course[]> {
+    const url = `${this.URL}/students/courses/`
+    return this.http.get<Course[]>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+
+  }
 
   getCourse(course_name: string): Observable<Course> {
     const url = `${this.URL}/courses/${course_name}`
     return this.http.get<Course>(url).pipe(
-      retry(3),
-      catchError(this.handleError)
-    );
-  }
-
-  getStudents(): Observable<Array<Student>> {
-    const url = `${this.URL}/students`;
-    return this.http.get<Array<Student>>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
@@ -118,15 +130,22 @@ export class StudentService {
     );
   }
 
-
-  //{name}/assignments/{id1}/homeworks/{id2}/studentId
-  getStudentIdByHomework(courseName: string, assignmentId: number, homeworkId: number): Observable<string> {
-    const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}/studentId`;
-    return this.http.get<string>(url).pipe(
+  getStudents(): Observable<Array<Student>> {
+    const url = `${this.URL}/students`;
+    return this.http.get<Array<Student>>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
   }
+
+  // //{name}/assignments/{id1}/homeworks/{id2}/studentId
+  // getStudentIdByHomework(courseName: string, assignmentId: number, homeworkId: number): Observable<string> {
+  //   const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}/studentId`;
+  //   return this.http.get<string>(url).pipe(
+  //     retry(3),
+  //     catchError(this.handleError)
+  //   );
+  // }
 
 
   getStudentsInCourse(course_name: string): Observable<Student[]> {
@@ -193,8 +212,8 @@ export class StudentService {
   }
 
   //TODO url da modificare perchè non deve ritornare tutta la lista di assignement, ma quella per un determinato corso.
-  getAssignmentByCourse(): Observable<Assignment[]> {
-    const url = `${this.URL}/students/assignments/`
+  getAssignmentByCourse(courseName:string): Observable<Assignment[]> {
+    const url = `${this.URL}/courses/${courseName}/assignments`
     return this.http.get<Assignment[]>(url).pipe(
       retry(3),
       catchError(this.handleError)

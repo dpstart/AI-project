@@ -7,6 +7,7 @@ import { TeacherService } from 'src/app/services/teacher.service';
 import { Homework, states } from 'src/app/model/homework.model';
 import { StudentService } from 'src/app/services/student.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { Student } from 'src/app/model/student.model';
 
 @Component({
   selector: 'app-homework-student',
@@ -44,9 +45,7 @@ export class HomeworkStudentComponent implements OnInit {
 
 
         //TODO le richieste falliscono perchè non esistono gli url
-        this.studentService.getAssignmentByCourse().subscribe((assignments: Assignment[]) => {
-          let date = new Date().toDateString()
-          assignments.push(new Assignment(1, date.toString(), date.toString()))
+        this.studentService.getAssignmentByCourse(this.selectedCourse).subscribe((assignments: Assignment[]) => {
 
           this.assignments = assignments
           this.displayedHomeworks = []
@@ -54,10 +53,6 @@ export class HomeworkStudentComponent implements OnInit {
           assignments.forEach(assignment => {
 
             this.studentService.getHomeworksByAssignment(this.selectedCourse, assignment.id).subscribe((homeworks: Homework[]) => {
-
-              //******************************TODO: remove fake homeworks***************************************//
-              homeworks.push(new Homework(1, states.delivered, false, 25))
-
 
               let displayHomeworks: DisplayedHomework[] = []
 
@@ -85,76 +80,42 @@ export class HomeworkStudentComponent implements OnInit {
 
                 }
 
-                // this.teacherService.getStudentIdByHomework(this.selectedCourse, assignment.id, homework.id).subscribe(matricola => {
-                //   this.teacherService.getStudentById(matricola).subscribe(student => {
-                //   })
-                // })
+                
 
-                displayHomeworks.push({
-                  homeworkId:homework.id,
-                  name: "student.name",
-                  surname: "student.firstName",
-                  freshman: "student.id",
-                  state: state,
-                  timestamp: Date.now().toLocaleString()
-                })
-                this.assignments = assignments
-                this.displayedHomeworks = displayHomeworks
-                this.isAllLoaded = true
-                console.log(this.assignments, this.displayedHomeworks)
-              })
-            },
+                //Retrieve info about the corresponding student
 
-              //***************REMOVE THIS BRANCH **************************************/
-              (error) => {
-                //TODO: remove fake homeworks
-                let homeworks: Homework[] = []
-
-                homeworks.push(new Homework(1, states.delivered, false, 25))
-                let displayHomeworks: DisplayedHomework[] = []
-
-                homeworks.forEach(homework => {
-                  let state = ""
-                  switch (homework.state) {
-                    case 1:
-                      state = "LETTO"
-                      break;
-                    case 2:
-                      state = "CONSEGNATO"
-                      break;
-                    case 3:
-                      state = "RIVISTO"
-                      break;
-
-                    default:
-                      state = "NON LETTO"
-                      break;
-                  }
+                let href = ""
+                homework.links.forEach(link => {
+                  if (link.rel === "student")
+                    href = link.href
+                });
 
 
-                  //TODO per il momento i dati sono fake è da vedere come ricavarli
-                  // this.teacherService.getStudentIdByHomework(this.selectedCourse, assignment.id, homework.id).subscribe(matricola => {
-                  //   this.teacherService.getStudentById(matricola).subscribe(student => {
-                  //   })
-                  // })
+                if (href != "") {
+                  this.studentService.getResourceByUrl(href).subscribe(element => {
 
-                  displayHomeworks.push({
-                    homeworkId:homework.id,
-                    name: "student.name",
-                    surname: "student.firstName",
-                    freshman: "student.id",
-                    state: state,
-                    timestamp: new Date().toLocaleString()
+
+                    console.log(element);
+
+                    let student: Student = element
+
+                    displayHomeworks.push({
+                      homeworkId: homework.id,
+                      name: student.name,
+                      surname: student.firstName,
+                      freshman: student.id,
+                      state: state,
+                      timestamp: Date.now().toLocaleString()
+                    })
+                    this.assignments = assignments
+                    this.displayedHomeworks = displayHomeworks
+                    this.isAllLoaded = true
+                    //  console.log(this.assignments, this.displayedHomeworks)
                   })
-                  this.assignments = assignments
-                  this.displayedHomeworks = displayHomeworks
-                  this.isAllLoaded = true
-                  console.log(this.assignments, this.displayedHomeworks)
-                  console.log("ERRORE");
+                }
 
-
-                })
-              })
+              })   
+            })
           })
         });
       }

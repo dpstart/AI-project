@@ -29,8 +29,14 @@ export class AppComponent implements OnInit {
   @ViewChild(MatSidenav) sidenav: MatSidenav;
 
 
-  constructor(public dialog: MatDialog, public authService: AuthService, private router: Router, private activatedRoute: ActivatedRoute,
-    private teacherService: TeacherService, studentService: StudentService, private routeStateService: RouteStateService) {
+  constructor(
+    public dialog: MatDialog,
+    public authService: AuthService,
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private teacherService: TeacherService,
+    private studentService: StudentService,
+    private routeStateService: RouteStateService) {
 
 
 
@@ -60,27 +66,23 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.selectedCourse = this.routeStateService.pathParam
-
-    // if (this.authService.isLoggedIn()) {
-
-    //   // se risulta loggato e si trova su un url col corso settato allora
-    //   // il selected course sarà quello, altrimenti viene settato di default 
-    //   // al primo corso nella lista se presente 
-    //   this.activatedRoute.params.subscribe((params) => {
-
-    //     console.log(params)
+    this.retrieveCourses()
+  }
 
 
+  private retrieveCourses() {
 
-    // if (params['course_name'])
-    //   this.selectedCourse = params['course_name']
-    // else
-    //   // user is logged
-    this.teacherService.getCourses().subscribe((data: Course[]) => {
-      this.courses = data;
-      //   if (this.courses[0].name)
-      //     this.selectedCourse = this.courses[0].name
-    })
+    if (this.authService.isLoggedIn()) {
+
+      if (this.authService.isRoleTeacher())
+        this.teacherService.getCourses().subscribe((data: Course[]) => {
+          this.courses = data;
+        })
+      else
+        this.studentService.getCourses().subscribe((data: Course[]) => {
+          this.courses = data;
+        })
+    }
   }
 
 
@@ -125,17 +127,7 @@ export class AppComponent implements OnInit {
         this.router.navigate(["home"]);
       }
       else {
-        //     // user is logged
-        this.teacherService.getCourses().subscribe((data: Course[]) => {
-          this.courses = data;
-          //       if (this.courses[0].name)
-          //         this.selectedCourse = this.courses[0].name
-          //     });
-          //     if (redirectUrl == null)
-          //       this.router.navigate(["home"]);
-          //     else
-          //       this.router.navigate([redirectUrl]);
-        })
+        this.retrieveCourses()
       };
     })
   }

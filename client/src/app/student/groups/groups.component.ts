@@ -102,25 +102,19 @@ export class GroupsComponent implements OnInit {
 
               //Now we can see if the student is already in team or not by looking to the length of the studentsInTeam array:
               this.studentService.getTeamMembers(this.selectedCourse.name, teams.id).subscribe((students) => {
-                students.push(new Student("<sdsa", "Aa", "bbb"))
 
                 students.forEach(element => {
                   element["group"] = teams.name
                 });
                 this.dataSourceStudentInTeam.data = [...students]
               })
-
-
             }, (error: ServerError) => {
-
+              console.log("ERRORE MA E' OK");
               this.isLoading = false
               this.isInTeam = false
               if (error.status == 417) {
                 //students is not yet in team: we have to upload in the table only the students that are not in a team
                 this.studentService.getStudentsAvailableInCourse(this.selectedCourse.name).subscribe((studentsNotInTeam: Student[]) => {
-                  studentsNotInTeam.push(new Student("<sdsa", "Aa", "bbb"))
-                  studentsNotInTeam.push(new Student("<sdsa", "Aa", "bbb"))
-
                   this.dataSourceStudentNotYetInTeam.data = [...studentsNotInTeam]
                 })
 
