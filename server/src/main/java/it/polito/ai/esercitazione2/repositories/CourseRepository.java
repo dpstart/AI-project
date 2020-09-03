@@ -22,7 +22,7 @@ public interface CourseRepository extends JpaRepository<Course,String> {
 
 
     @Query("SELECT s1 FROM Student s1 INNER JOIN s1.courses c  WHERE c.name=:courseName AND s1.id NOT IN (" +
-            "SELECT s.id FROM Student s INNER JOIN s.teams t INNER JOIN t.course c WHERE c.name=:courseName OR c.acronime=:courseName)")
+            "SELECT s.id FROM Student s INNER JOIN s.teams t INNER JOIN t.course c WHERE (c.name=:courseName OR c.acronime=:courseName) AND t.status=1)")
     List<Student> getStudentsNotInTeams(String courseName);
 
     boolean existsByAcronime(String courseName);
