@@ -11,5 +11,4 @@
 -GENERALE
 --Aggiungere timeout per loading e visualizzare errore
 
--LOGIN
---Authenticate URL soffre di CORS, funziona per grazia del signore
+

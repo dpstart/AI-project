@@ -49,7 +49,7 @@ export class AuthService {
   constructor(private http: HttpClient, private routeStateService: RouteStateService) { }
 
   login(email: string, password: string) {
-    const url = `${this.UrlLogin}/authenticate`;
+    const url = `${this.URL}/authenticate`;
     return this.http.post<string>(url, { username: email, password: password }).pipe(
       retry(3),
       catchError(this.handleError)
