@@ -1,12 +1,13 @@
 -CONSEGNE ED ELABORATI:
  -- gestire aggiunta e modifica hw versione 
  -- capire come dover settare timestamp per hw
- -- Paginator funziona parzialmente in groups 
+ -- loading non termina in caso di errore ????!!!
  
- 
+  
 -REGISTRAZIONE
  --messaggio di errore e di successo
  
- 
 -GENERALE
 --Aggiungere timeout per loading e visualizzare errore
+
+-Authenticate URL soffre di CORS, funziona per grazia del signore

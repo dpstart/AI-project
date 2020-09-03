@@ -127,7 +127,7 @@ public class ModelHelper {
         p.add(l);
 
         Link courses = linkTo(methodOn(ProfessorController.class)
-                .getCourses(p.getId())).withRel("courses");
+                .getCourses()).withRel("courses");
         p.add(courses);
 
         Link image = linkTo(methodOn(ProfessorController.class)

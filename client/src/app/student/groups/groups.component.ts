@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
 import { StudentService, ServerError } from 'src/app/services/student.service';
 import { Student } from 'src/app/model/student.model';
 import { MatTableDataSource } from '@angular/material/table';
@@ -125,6 +125,7 @@ export class GroupsComponent implements OnInit {
     this.isErrorAlertOpen = false
 
   }
+
 
   ngOnInit(): void {
     this.activatedRoute.params.subscribe(params => {

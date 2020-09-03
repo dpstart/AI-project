@@ -69,7 +69,7 @@ export class VmStudentComponent implements OnInit {
         })
 
       }, (error) => {
-        console.log(error)
+        this.isAllLoaded = true
       });
 
 

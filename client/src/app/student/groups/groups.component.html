@@ -170,7 +170,7 @@
             <tr mat-header-row *matHeaderRowDef="displayedColumnsInTeam"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumnsInTeam;"></tr>
         </table>
-        <mat-paginator #paginatorNotInTeam [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+        <mat-paginator #paginatorInTeam [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
 
     </ng-template>
 

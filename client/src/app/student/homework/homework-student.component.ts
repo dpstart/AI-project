@@ -3,10 +3,8 @@ import { RouteStateService } from 'src/app/services/route-state.service';
 import { ActivatedRoute } from '@angular/router';
 import { DisplayedHomework, DisplayedAssignment } from 'src/app/shared-components/homework/homework.component';
 import { Assignment } from 'src/app/model/assignment.model';
-import { TeacherService } from 'src/app/services/teacher.service';
 import { Homework, states } from 'src/app/model/homework.model';
 import { StudentService } from 'src/app/services/student.service';
-import { AuthService } from 'src/app/services/auth.service';
 import { Student } from 'src/app/model/student.model';
 
 
