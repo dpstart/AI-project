@@ -10,7 +10,14 @@ import { AuthService, RegisteredUser } from '../services/auth.service';
 })
 export class RegisterDialogComponent implements OnInit {
 
-  constructor(private dialogRef: MatDialogRef<RegisterDialogComponent>, private auth: AuthService) { }
+  message: string | null;
+
+  alertType: string
+
+  constructor(private dialogRef: MatDialogRef<RegisterDialogComponent>, private auth: AuthService) {
+    this.message = ""
+    this.alertType = ""
+  }
 
   form: FormGroup = new FormGroup({
     firstName: new FormControl('', Validators.required),
@@ -20,7 +27,6 @@ export class RegisterDialogComponent implements OnInit {
     password: new FormControl('', Validators.required),
   });
 
-  @Input() error: string | null;
 
   ngOnInit(): void {
   }
@@ -36,8 +42,15 @@ export class RegisterDialogComponent implements OnInit {
     let user: RegisteredUser = this.form.value;
     this.auth.register(user)
       .subscribe(
-        data => { console.log(data) },
-        error => this.error = error.message)
+        data => { 
+          console.log(data)
+          this.alertType="success"
+          this.message = "An email was sent to your account, please click on the link to confirm."
+         },
+        error => {
+          this.alertType = "danger"
+          this.message = error.message
+        })
   }
 
   close() {

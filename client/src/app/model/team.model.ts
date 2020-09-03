@@ -1,6 +1,12 @@
 import { Link } from './link.model';
 
 export class Team {
+    public get id_creator(): string {
+        return this._id_creator;
+    }
+    public set id_creator(value: string) {
+        this._id_creator = value;
+    }
     public get links(): Link[] {
         return this._links;
     }
@@ -75,6 +81,7 @@ export class Team {
         private _n_cpu: number,
         private _ram: number,
         private _vmmodel_name: string,
+        private _id_creator: string,
         private _links: Link[] = [],) {
 
 

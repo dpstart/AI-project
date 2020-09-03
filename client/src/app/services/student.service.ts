@@ -74,11 +74,8 @@ export class StudentService {
     members.forEach((student) => {
       membersIds.push(student.id)
     })
-    let milliTimeout = timeout * 60 * 1000
-    console.log(courseName, team, membersIds, milliTimeout)
 
-
-    return this.http.post(url, { "team": team, "members": membersIds, "timeout": 66000000000 }, {
+    return this.http.post(url, { "team": team, "members": membersIds, "timeout": timeout }, {
       observe: 'response'
     }).pipe(
       retry(3),
@@ -87,11 +84,15 @@ export class StudentService {
   }
 
 
+
+
+
+
   uploadHomework(courseName: string, assignmentId: number, uploadImageData: FormData) {
 
     const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}`
 
-    
+
     return this.http.post(url, uploadImageData).pipe(
       retry(3),
       catchError(this.handleError)
@@ -100,6 +101,16 @@ export class StudentService {
 
 
   //RESEARCH
+
+
+  getProposalsToStudent(courseName): Observable<Team[]> {
+    ///courses/{name}/teamsProposals
+    const url = `${this.URL}/students/courses/${courseName}/teamsProposals/`
+    return this.http.get<Team[]>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+  }
 
   getResourceByUrl(href: string): Observable<any> {
     return this.http.get<any>(href).pipe(

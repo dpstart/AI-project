@@ -502,7 +502,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public Optional<StudentDTO> getStudent(String studentId) {
-        return studentRepository.findById(studentId).filter(x->x.getEnabled()).map(x->modelMapper.map(x,StudentDTO.class));
+        return studentRepository.findById(studentId).filter(Student::getEnabled).map(x->modelMapper.map(x,StudentDTO.class));
     }
 
 
@@ -510,7 +510,7 @@ public class TeamServiceImpl implements TeamService {
     public List<StudentDTO> getAllStudents() {
         return studentRepository.findAll()
                 .stream()
-                .filter(x->x.getEnabled())
+                .filter(Student::getEnabled)
                 .map(s->modelMapper.map(s,StudentDTO.class))
                 .collect(Collectors.toList());
     }
@@ -537,7 +537,7 @@ public class TeamServiceImpl implements TeamService {
         if (notify) {
             Map<Integer,String> pwds=new HashMap<>();
             for (int i=0;i<students.size();i++) {
-                if(res.get(i)==true) {
+                if(res.get(i)) {
 
 
                     pwds.put(i, students.get(i).getPassword());
@@ -572,7 +572,7 @@ public class TeamServiceImpl implements TeamService {
         List<Boolean> resEnroll = enrollAll(users_ids,courseName);
 
         //check for incoherence
-        users.stream().forEach(x->{
+        users.forEach(x->{
                 if (!getStudent(x.getId()).get().equals(x))
                     throw new IncoherenceException("Student with id "+x.getId()+" already exist with different names");
             });
@@ -660,7 +660,7 @@ public class TeamServiceImpl implements TeamService {
             throw new CourseNotFoundException("Course: "+courseName+" not found!");
         Course c = courseRepository.getOne(courseName);
         Optional<Team> t = teamRepository.findById(teamID);
-        if (!t.isPresent() || !t.get().getCourse().getName().equals(courseName)){
+        if (t.isEmpty() || !t.get().getCourse().getName().equals(courseName)){
             throw new TeamNotFoundException("Team "+ teamID+ " not found");
         }
         Team team = teamRepository.getOne(teamID);
@@ -736,7 +736,7 @@ public class TeamServiceImpl implements TeamService {
         // check se già in un gruppo associato a quel corso
         boolean alreadyInATeam = members.stream()
                 .flatMap(x->x.getTeams().stream().filter( t -> t.getStatus() == 1))
-                .anyMatch(x->teams.contains(x));
+                .anyMatch(teams::contains);
         if (alreadyInATeam)
             throw new AlreadyInACourseTeamException("One or more among specified students is already part of a team inside course "+courseId);
 
@@ -774,7 +774,7 @@ public class TeamServiceImpl implements TeamService {
             throw new CourseNotFoundException("Course: "+courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
         // il docente è il docente del corso?
-        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)))
+        if (c.getProfessors().stream().noneMatch(x->x.getId().equals(prof)))
             throw new CourseAuthorizationException("User "+prof+ " has not the rights to modify this course: he's not the professor for this course");
          // il team esiste?
         if (!teamRepository.existsById(teamId))
@@ -831,7 +831,7 @@ public class TeamServiceImpl implements TeamService {
             throw new CourseNotFoundException("Course: "+courseName+" not found!");
         Course c = courseRepository.getOne(courseName);
         Optional<Team> t = teamRepository.findById(teamID);
-        if (!t.isPresent() || !t.get().getCourse().getName().equals(courseName)){
+        if (t.isEmpty() || !t.get().getCourse().getName().equals(courseName)){
             throw new TeamNotFoundException("Team "+ teamID+ " not found");
         }
         return modelMapper.map(t.get(),TeamDTO.class);
@@ -858,7 +858,7 @@ public class TeamServiceImpl implements TeamService {
 
         return courseRepository.getStudentsNotInTeams(courseName)
                 .stream()
-                .filter(x->x.getEnabled())
+                .filter(Student::getEnabled)
                 .map(x->modelMapper.map(x,StudentDTO.class))
                 .collect(Collectors.toList());
     }
@@ -866,7 +866,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public boolean activateTeam(Long ID) {
         Optional<Team> t = teamRepository.findById(ID);
-        if(!t.isPresent())
+        if(t.isEmpty())
             return false;
         t.get().setStatus(1);
         for(Student s : t.get().getMembers()){
@@ -881,12 +881,12 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public List<Boolean> evictAll(Set<Long> teams){
-        return teams.stream().map(x->evictTeam(x)).collect(Collectors.toList());
+        return teams.stream().map(this::evictTeam).collect(Collectors.toList());
     }
     @Override
     public boolean evictTeam(Long ID) {
         Optional<Team> t =teamRepository.findById(ID);
-        if (!t.isPresent())
+        if (t.isEmpty())
             return false;
         Team team = t.get();
         team.setCourse(null);
@@ -897,7 +897,7 @@ public class TeamServiceImpl implements TeamService {
     public List<ProfessorDTO> getAllProfessors(){
         return professorRepository.findAll()
                 .stream()
-                .filter(x->x.getEnabled())
+                .filter(Professor::getEnabled)
                 .map(s->modelMapper.map(s,ProfessorDTO.class))
                 .collect(Collectors.toList());
     }
@@ -914,7 +914,7 @@ public class TeamServiceImpl implements TeamService {
         }
         try {
             outputStream.close();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
         System.out.println("Compressed Image Byte Size - " + outputStream.toByteArray().length);
         return outputStream.toByteArray();
@@ -931,8 +931,7 @@ public class TeamServiceImpl implements TeamService {
                 outputStream.write(buffer, 0, count);
             }
             outputStream.close();
-        } catch (IOException ioe) {
-        } catch (DataFormatException e) {
+        } catch (IOException | DataFormatException ignored) {
         }
         return outputStream.toByteArray();
     }

@@ -56,7 +56,7 @@ public class CourseController {
     @GetMapping({"", "/"})
     List<CourseDTO> all() {
         return teamService.getAllCourses().stream()
-                .map(x -> ModelHelper.enrich(x)).collect(Collectors.toList());
+                .map(ModelHelper::enrich).collect(Collectors.toList());
     }
 
     @GetMapping("/{name}")
@@ -86,7 +86,7 @@ public class CourseController {
         try {
             return teamService.getEnrolledStudents(name)
                     .stream()
-                    .map(x -> ModelHelper.enrich(x))
+                    .map(ModelHelper::enrich)
                     .collect(Collectors.toList());
         } catch (CourseNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -292,14 +292,10 @@ public class CourseController {
 
         try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             teamService.addAndEnroll(reader, name);
-        } catch (IncoherenceException e) {
+        } catch (IncoherenceException | AuthenticationServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-        } catch (NotExpectedStatusException e) {
+        } catch (NotExpectedStatusException | IOException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (AuthenticationServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         } catch (CourseAuthorizationException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         } catch (TeamServiceException e) {

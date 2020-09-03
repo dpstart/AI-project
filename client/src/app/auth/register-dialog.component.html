@@ -3,6 +3,9 @@
     <mat-card-content>
         <form [formGroup]="form" (ngSubmit)="submit()">
 
+
+            <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
+            
             <p>
                 <mat-form-field>
                     <input type="text" matInput placeholder="First name" formControlName="firstName">
@@ -33,7 +36,6 @@
                 </mat-form-field>
             </p>
 
-            <ngb-alert *ngIf="error" type='danger' (close)="error=null">{{ error }}</ngb-alert>
 
             <div>
                 <button mat-raised-button color="primary">Register</button>

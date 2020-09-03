@@ -6,9 +6,11 @@
  -- forse è bene modificare la struttura per gli studenti o usare un altro componente
    
 -REGISTRAZIONE
- --messaggio di errore e di successo
+ --messaggio di errore e di successo 
  
 -GENERALE
---Aggiungere timeout per loading e visualizzare errore
+--Aggiungere timeout per loading e visualizzare errore (Vedere se ne vale la pena)
 
-
+-GROUPS
+--definire se va bene la visualizzazione delle proposte come una semplice tabella o se decidere di modificarla con un expansion panel dove vediamo la proposta con id Creatore, Nome e Cognome e aprendo l'expansion panel andiamo a vedere l'elenco delle matricole che dovrebbero partecipare al team.
+--dare allo studente la possibilità di rifiutare la proposta ricevuta

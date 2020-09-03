@@ -150,21 +150,53 @@ export class GroupsComponent implements OnInit {
                 });
                 this.dataSourceStudentInTeam.data = [...students]
               })
-            }, (error: ServerError) => {
-              console.log("ERRORE MA E' OK");
-              this.isLoading = false
+            },
+
+            (error: ServerError) => {
+              console.log("RAMO ERRORE MA E' OK");
               this.isInTeam = false
               if (error.status == 417) {
                 //students is not yet in team: we have to upload in the table only the students that are not in a team
                 this.studentService.getStudentsAvailableInCourse(this.selectedCourse.name).subscribe((studentsNotInTeam: Student[]) => {
+
                   this.dataSourceStudentNotYetInTeam.data = [...studentsNotInTeam]
-                })
+                }, (_) => this.isLoading = false
+                )
+
+                this.studentService.getProposalsToStudent(this.selectedCourse.name).subscribe(proposedTeams => {
+
+
+                  if (proposedTeams.length != 0) {
+
+                    // Add the new proposals 
+                    let proposals: Proposal[] = []
+                    proposedTeams.forEach(team => {
+                      this.studentService.getTeamMembers(this.selectedCourse.name, team.id).subscribe((studentsInTeamProposed) => {
+
+                        studentsInTeamProposed.forEach(student => {
+                          // controlli che non sia lo studente stesso ad aver fatto la proposta
+                          if (team.id_creator != this.authService.getEmail()) {
+                            proposals.push({ idCreator: team.id_creator, groupName: team.name, matricola: student.id, name: student.name, firstName: student.firstName })
+                          }
+                        })
+
+                        this.dataSourceProposals.data = [...proposals]
+                        this.isLoading = false
+                      }, (_) => {
+                        this.isLoading = false
+                      })
+                    });
+                  } else this.isLoading = false
+
+
+                }, (_) => this.isLoading = false)
 
               }
 
             })
 
-        })
+        }, (_) => this.isLoading = false
+        )
       }
     })
 
@@ -197,15 +229,6 @@ export class GroupsComponent implements OnInit {
     const numSelected = this.selection.selected.length;
     const numRows = this.dataSourceStudentNotYetInTeam.data.length;
     return numSelected === numRows;
-  }
-
-
-  /**
-   * This method is called whenever a student has defined the configuration of the group and press the add group button.
-   */
-  addStudentsToGroup() {
-    //this method needs to call the service
-    console.log("add group")
   }
 
   /**
@@ -248,21 +271,28 @@ export class GroupsComponent implements OnInit {
           if (resp.status === 201) { // Ok created
             // TODO: fill dataSourceProposals with the proposed members in the team
 
-
-            let studentsSelected = this.selection.selected
-            let idCreator = this.authService.getEmail()
-            let groupName = this.form.get('groupNameControl').value
+            this.studentService.getProposalsToStudent(this.selectedCourse.name).subscribe(proposedTeams => {
 
 
-            // Add the new proposals 
-            let proposals: Proposal[] = []
+              if (proposedTeams.length != 0) {
 
-            for (let student of studentsSelected) {
-              proposals.push({ idCreator: idCreator, groupName: groupName, matricola: student.id, name: student.name, firstName: student.firstName })
-            }
-            // New data source
-            this.dataSourceProposals = new MatTableDataSource<Proposal>(proposals)
+                // Add the new proposals 
+                let proposals: Proposal[] = []
+                proposedTeams.forEach(team => {
+                  this.studentService.getTeamMembers(this.selectedCourse.name, team.id).subscribe((studentsInTeamProposed) => {
 
+                    studentsInTeamProposed.forEach(student => {
+                      // controlli che non sia lo studente stesso ad aver fatto la proposta
+                      if (team.id_creator != this.authService.getEmail())
+                        proposals.push({ idCreator: team.id_creator, groupName: team.name, matricola: student.id, name: student.name, firstName: student.firstName })
+                    })
+
+                    this.dataSourceProposals.data = [...proposals]
+                    this.isLoading = false
+                  })
+                });
+              }
+            })
             // Remove students selected
             this.selection.clear()
           } else
