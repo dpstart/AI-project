@@ -74,7 +74,7 @@ public class HomeworkServiceImpl implements HomeworkService {
             throw new IllegalHomeworkStateChangeException("You already delivered this homework, wait for the professor to review it");
         Image img = null;
         try {
-            imageService.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
+            img = imageService.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
         }
         catch (IOException e) {
             throw new ImageException("Homework content didn't load on database correctly");

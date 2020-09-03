@@ -87,17 +87,26 @@ export class StudentService {
   }
 
 
+  uploadHomework(courseName: string, assignmentId: number, uploadImageData: FormData) {
+
+    const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}`
+
+    
+    return this.http.post(url, uploadImageData).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+  }
+
 
   //RESEARCH
 
-
-
-  getResourceByUrl(href:string):Observable<any>{
+  getResourceByUrl(href: string): Observable<any> {
     return this.http.get<any>(href).pipe(
-        retry(3),
-        catchError(this.handleError)
+      retry(3),
+      catchError(this.handleError)
     );
-}
+  }
 
 
   getNavStudentLinks(): NavStudentLinks[] {
@@ -212,7 +221,7 @@ export class StudentService {
   }
 
   //TODO url da modificare perchè non deve ritornare tutta la lista di assignement, ma quella per un determinato corso.
-  getAssignmentByCourse(courseName:string): Observable<Assignment[]> {
+  getAssignmentByCourse(courseName: string): Observable<Assignment[]> {
     const url = `${this.URL}/courses/${courseName}/assignments`
     return this.http.get<Assignment[]>(url).pipe(
       retry(3),

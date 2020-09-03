@@ -13,9 +13,10 @@ import { startWith, map } from 'rxjs/operators';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { AuthService } from 'src/app/services/auth.service';
 
 export interface DisplayedHomework {
-  homeworkId:number,
+  homeworkId: number,
   name: string,
   surname: string,
   freshman: string,
@@ -45,9 +46,7 @@ export interface DisplayedAssignment {
     ]),
   ]
 })
-export class HomeworkComponent implements OnInit,AfterViewInit {
-
-
+export class HomeworkComponent implements OnInit, AfterViewInit {
 
   selectedAssignment: Assignment
 
@@ -90,7 +89,9 @@ export class HomeworkComponent implements OnInit,AfterViewInit {
 
   //************ */
 
-  constructor(private dialog: MatDialog) {
+  constructor(
+    private dialog: MatDialog,
+    private _authService: AuthService) {
 
     this.homeworksDataSource = new MatTableDataSource<DisplayedHomework>();
     this.consegneDataSource = new MatTableDataSource<DisplayedAssignment>();
@@ -120,7 +121,17 @@ export class HomeworkComponent implements OnInit,AfterViewInit {
   ngAfterViewInit() {
     this.consegneDataSource.paginator = this.paginator;
     this.consegneDataSource.sort = this.sort;
-}
+  }
+
+
+
+
+  //getters
+  public get authService(): AuthService {
+    return this._authService;
+  }
+
+
 
 
   //*****************chips methods*******************************//

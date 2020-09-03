@@ -1,13 +1,15 @@
 -CONSEGNE ED ELABORATI:
  -- gestire aggiunta e modifica hw versione 
- -- capire come dover settare timestamp per hw
+ -- capire come dover settare timestamp per hw (quale API chiamare)
  -- loading non termina in caso di errore ????!!!
- 
-  
+
+ -- forse è bene modificare la struttura per gli studenti o usare un altro componente
+   
 -REGISTRAZIONE
  --messaggio di errore e di successo
  
 -GENERALE
 --Aggiungere timeout per loading e visualizzare errore
 
--Authenticate URL soffre di CORS, funziona per grazia del signore
+-LOGIN
+--Authenticate URL soffre di CORS, funziona per grazia del signore

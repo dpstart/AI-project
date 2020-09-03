@@ -9,6 +9,7 @@ import { TeacherService } from 'src/app/services/teacher.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { AuthService } from 'src/app/services/auth.service';
+import { StudentService } from 'src/app/services/student.service';
 
 
 const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
@@ -60,11 +61,12 @@ export class HomeworkDialogComponent implements OnInit {
   constructor(
     private _authService: AuthService,
     private teacherService: TeacherService,
+    private studentService: StudentService,
     private routeStateService: RouteStateService,
     private sanitizer: DomSanitizer,
     @Inject(MAT_DIALOG_DATA) public data) {
 
-      
+
 
     this.selectedAssignment = data.assignment
     this.idSelectedHomework = data.homeworkId
@@ -103,7 +105,7 @@ export class HomeworkDialogComponent implements OnInit {
       //   .subscribe(
       //     res => {
 
-      
+
       let retrieveResponse = data;
 
       let source: HomeworkVersionDisplayed[] = []
@@ -112,7 +114,7 @@ export class HomeworkDialogComponent implements OnInit {
 
 
       console.log(retrieveResponse);
-      
+
       retrieveResponse.forEach(version => {
         let base64Data = version.content;
         let formattedImage = 'data:image/jpeg;base64,' + '\n' + base64Data;
@@ -127,7 +129,7 @@ export class HomeworkDialogComponent implements OnInit {
       })
 
       console.log(source);
-      
+
 
       this.historyHomeworkDataSource.data = [...source]
 
@@ -348,7 +350,7 @@ export class HomeworkDialogComponent implements OnInit {
 
         this.historyHomeworkDataSource.data = [...source]
       })
-  } 
+  }
 
 
   //TODO
@@ -370,21 +372,35 @@ export class HomeworkDialogComponent implements OnInit {
 
     //FormData API provides methods and properties to allow us easily prepare form data to be sent with POST HTTP requests.
     const uploadImageData = new FormData();
-    uploadImageData.append('imageFile', this.selectedFile, this.selectedFile.name);
+    uploadImageData.append('image', this.selectedFile, this.selectedFile.name);
 
 
-    this.teacherService.uploadRevision(this.courseName, this.selectedAssignment.id, this.idSelectedHomework, uploadImageData).subscribe(
-      (response) => {
-        console.log(response)
-        this.alertType = "success"
-        this.message = 'Image uploaded successfully';
-      }, error => {
-        console.log(error)
-        this.alertType = "danger"
-        this.message = 'Sorry something went wrong, try later...';
+    if (this.authService.isRoleTeacher())
+      this.teacherService.reviewHomework(this.courseName, this.selectedAssignment.id, this.idSelectedHomework, uploadImageData).subscribe(
+        (response) => {
+          console.log(response)
+          this.alertType = "success"
+          this.message = 'Image uploaded successfully';
+        }, error => {
+          console.log(error)
+          this.alertType = "danger"
+          this.message = 'Sorry something went wrong, try later...';
 
-      }
-    );
+        }
+      );
+
+    if (this.authService.isRoleStudent())
+      this.studentService.uploadHomework(this.courseName, this.selectedAssignment.id, uploadImageData).subscribe(
+        (response) => {
+          console.log(response)
+          this.alertType = "success"
+          this.message = 'Image uploaded successfully';
+        }, error => {
+          console.log(error)
+          this.alertType = "danger"
+          this.message = 'Sorry something went wrong, try later...';
+        }
+      );
   }
 
 

@@ -49,7 +49,7 @@ public class StudentController {
     @GetMapping({"", "/"})
     public List<StudentDTO> all() {
         return teamservice.getAllStudents().stream()
-                .map(x -> ModelHelper.enrich(x)).collect(Collectors.toList());
+                .map(ModelHelper::enrich).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")

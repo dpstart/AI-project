@@ -42,7 +42,7 @@ export class TeacherService {
 
 
 
-    getResourceByUrl(href:string):Observable<any>{
+    getResourceByUrl(href: string): Observable<any> {
         return this.http.get<any>(href).pipe(
             retry(3),
             catchError(this.handleError)
@@ -156,9 +156,8 @@ export class TeacherService {
     //CREATE
 
 
-    uploadRevision(courseName: string, assignmentId: number, homeworkId: number, uploadImageData: FormData): Observable<any> {
-
-        const url = `${this.URL}/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}`
+    reviewHomework(courseName: string, assignmentId: number, homeworkId: number, uploadImageData: FormData): Observable<any> {
+        const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}`
         return this.http.post<any>(url, uploadImageData).pipe(
             retry(3),
             catchError(this.handleError)
