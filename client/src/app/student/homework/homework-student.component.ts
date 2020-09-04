@@ -115,6 +115,7 @@ export class HomeworkStudentComponent implements OnInit {
                     let student: Student = element
 
                     displayHomeworks.push({
+                      assignmentId: assignment.id,
                       homeworkId: homework.id,
                       name: student.name,
                       surname: student.firstName,

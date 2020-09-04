@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ChangeDetectorRef, OnChanges, SimpleChange } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
-import { Student } from '../model/student.model';
+import { Student } from '../../model/student.model';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatTable } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';

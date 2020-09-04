@@ -5,7 +5,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home.component';
 import { VMComponent } from 'src/app/teacher/vm/vm.component';
 import { PageNotFoundComponent } from './page-not-found.component';
-import { StudentsContComponent } from './teacher/students-cont.component';
+import { StudentsContComponent } from './teacher/students-container/students-cont.component';
 
 import { TeacherGuard } from './auth/teacher.guard';
 import { StudentGuard } from './auth/student.guard';
