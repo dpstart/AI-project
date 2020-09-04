@@ -48,7 +48,7 @@ export class GroupsComponent implements OnInit {
   //Table related properties
   dataSourceStudentInTeam: MatTableDataSource<Student>
   dataSourceStudentNotYetInTeam: MatTableDataSource<Student>
-  displayedColumns: string[]
+  displayedColumnsNotInTeam: string[]
   expandedStudent: Student | null;
   expandedProposal: Proposal | null;
 
@@ -56,6 +56,9 @@ export class GroupsComponent implements OnInit {
   dataSourceProposals: MatTableDataSource<Proposal>
   displayedColumnsProposals: string[]
 
+  //innerTable of members of a proposal:
+  dataSourceMembersProposal: MatTableDataSource<MemberOfProposal>[]
+  displayedColumnsMembers: string[]
   displayedColumnsInTeam: string[]
 
 
@@ -117,13 +120,16 @@ export class GroupsComponent implements OnInit {
     this.studentsInTeam = []
     this.dataSourceStudentInTeam = new MatTableDataSource<Student>();
     this.dataSourceStudentNotYetInTeam = new MatTableDataSource<Student>();
-    this.displayedColumns = ['select', 'id', 'name', 'first name', 'group'];
+    this.displayedColumnsNotInTeam = ['select', 'id', 'name', 'first name', 'group'];
 
     //proposals table
     this.dataSourceProposals = new MatTableDataSource()
     this.displayedColumnsProposals = ['idCreator', 'groupName', 'name', 'firstName'];
     this.displayedColumnsInTeam = ['group', 'id', 'name', 'first name']
 
+    //inner members table
+    this.dataSourceMembersProposal = []
+    this.displayedColumnsMembers = ['id', 'name', 'firstname', 'status']
 
     this.form = new FormGroup({
       groupNameControl: new FormControl('', [Validators.required]),
@@ -183,19 +189,34 @@ export class GroupsComponent implements OnInit {
 
                     // Add the new proposals 
                     let proposals: Proposal[] = []
-                    proposedTeams.forEach(team => {
-                      this.studentService.getTeamMembers(this.selectedCourse.name, team.id).subscribe((studentsInTeamProposed) => {
 
-                        //TODO modificare nome e cognome creatore
-                        proposals.push({ idCreator: team.id_creator, groupName: team.name, name: "NOME CREATORE", firstName: "COGNOME CREATORE", members: studentsInTeamProposed })
+                    for (let i = 0; i < proposedTeams.length; i++) {
+
+                      this.dataSourceMembersProposal.push(new MatTableDataSource<MemberOfProposal>())
+
+                      this.studentService.getTeamMembers(this.selectedCourse.name, proposedTeams[i].id).subscribe((studentsInTeamProposed) => {
 
 
-                        this.dataSourceProposals.data = [...proposals]
-                        this.isLoading = false
+                        let members: MemberOfProposal[] = []
+                        studentsInTeamProposed.forEach((member) => {
+                          //TODO lo status per ora è false ma l'informazione va ritirata
+                          members.push({ id: member.id, name: member.name, firstname: member.firstName, status: false })
+                        })
+
+                        this.studentService.getStudentById(proposedTeams[i].id_creator).subscribe(creator => {
+                          proposals.push({ row: i, idCreator: proposedTeams[i].id_creator, groupName: proposedTeams[i].name, name: creator.name, firstName: creator.firstName, members: members })
+
+                          this.dataSourceProposals.data = [...proposals]
+
+                          this.dataSourceMembersProposal[i].data = [...members]
+
+                          this.isLoading = false
+                        })
+
                       }, (_) => {
                         this.isLoading = false
                       })
-                    });
+                    }
                   } else this.isLoading = false
 
 
@@ -288,16 +309,34 @@ export class GroupsComponent implements OnInit {
 
                 // Add the new proposals 
                 let proposals: Proposal[] = []
-                proposedTeams.forEach(team => {
-                  this.studentService.getTeamMembers(this.selectedCourse.name, team.id).subscribe((studentsInTeamProposed) => {
+
+                // per ogni proposal per un team
+                for (let i = 0; i < proposedTeams.length; i++) {
+                  this.dataSourceMembersProposal[i] = new MatTableDataSource<MemberOfProposal>()
 
 
-                    proposals.push({ idCreator: team.id_creator, groupName: team.name, name: "NOME CREATORE", firstName: "COGNOME CREATORE", members: studentsInTeamProposed })
+                  //raccolgo i membri
+                  this.studentService.getTeamMembers(this.selectedCourse.name, proposedTeams[i].id).subscribe((studentsInTeamProposed) => {
 
-                    this.dataSourceProposals.data = [...proposals]
-                    this.isLoading = false
+
+                    let members: MemberOfProposal[] = []
+
+                    //Converto students to members
+                    studentsInTeamProposed.forEach((member) => {
+                      //TODO lo status per ora è false ma l'informazione va ritirata
+                      members.push({ id: member.id, name: member.name, firstname: member.firstName, status: false })
+                    })
+
+                    this.studentService.getStudentById(proposedTeams[i].id_creator).subscribe(creator => {
+                      proposals.push({ row: i, idCreator: proposedTeams[i].id_creator, groupName: proposedTeams[i].name, name: creator.name, firstName: creator.firstName, members: members })
+
+                      this.dataSourceProposals.data = [...proposals]
+
+                      this.dataSourceMembersProposal[i].data = [...members]
+                    })
+
                   })
-                });
+                }
               }
             })
             // Remove students selected
@@ -317,11 +356,18 @@ export class GroupsComponent implements OnInit {
 }
 
 export interface Proposal {
+  row: number
   idCreator: string
   groupName: string
   name: string
   firstName: string
-  members: Student[]
+  members: MemberOfProposal[]
+}
+export interface MemberOfProposal {
+  id: string
+  name: string
+  firstname: string
+  status: boolean
 }
 
 export interface StudentInGroup {

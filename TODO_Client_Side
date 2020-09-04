@@ -2,15 +2,17 @@
  -- gestire aggiunta e modifica hw versione 
  -- capire come dover settare timestamp per hw (quale API chiamare)
  -- loading non termina in caso di errore ????!!!
-
  -- forse è bene modificare la struttura per gli studenti o usare un altro componente
+ -- gli hw vengono caricati non in base alla selezione ma a prescindere
    
 -REGISTRAZIONE
  --messaggio di errore e di successo 
+
+-GROUPS
+--  Ritirare info riguardo stato della proposta(da implementare server side)... Per il momento sempre false
+--  Dare allo studente la possibilità di rifiutare la proposta ricevuta
+
  
 -GENERALE
 --Aggiungere timeout per loading e visualizzare errore (Vedere se ne vale la pena)
 
--GROUPS
---definire se va bene la visualizzazione delle proposte come una semplice tabella o se decidere di modificarla con un expansion panel dove vediamo la proposta con id Creatore, Nome e Cognome e aprendo l'expansion panel andiamo a vedere l'elenco delle matricole che dovrebbero partecipare al team.
---dare allo studente la possibilità di rifiutare la proposta ricevuta

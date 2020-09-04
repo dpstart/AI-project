@@ -1,6 +1,14 @@
 TODO SERVER_SIDE:
--implementare login con matricola, email (nome.cognome) e email con s/d matricola.
+
 -implmentare degli endPoint da contattare per ottenere informazioni su se stesso. (le info necessarie sono: nome cognome email(nei due formati), matricola)
+
 -risolvere bug UPLOAD HOMEWORK nel return crasha (è un problema col model mapper)
--Aggiungere metodo per ottenere info riguardo a studente se ha accettato o meno la proposta (id studente deve essere un parametro)
+
+-Aggiungere metodo per ottenere info riguardo a studente se ha accettato o meno la proposta in un determinato corso (id studente deve essere un parametro), magari continuando la URL con
+teamProposals
+-Salvataggio e generazione alias utenti,
+
+-Login con mail1, mall2, matricola o alias,
+
+-Possibilità di riempimento automatico del db all'accensione del server
 
