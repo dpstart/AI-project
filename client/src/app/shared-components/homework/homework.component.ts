@@ -16,6 +16,7 @@ import { MatSort } from '@angular/material/sort';
 import { AuthService } from 'src/app/services/auth.service';
 
 export interface DisplayedHomework {
+  assignmentId:number,
   homeworkId: number,
   name: string,
   surname: string,

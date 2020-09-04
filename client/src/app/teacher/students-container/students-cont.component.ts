@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Student } from '../model/student.model';
+import { Student } from '../../model/student.model';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { StudentService } from '../services/student.service';
+import { StudentService } from '../../services/student.service';
 import { ActivatedRoute } from '@angular/router';
-import { RouteStateService } from '../services/route-state.service';
+import { RouteStateService } from '../../services/route-state.service';
 
 
 @Component({

@@ -50,14 +50,14 @@ export class HomeworkContainerComponent implements OnInit {
 
           //New Source
           let displayedAssignments: DisplayedAssignment[] = []
-         
 
-          
+
+
           assignments.forEach(assignment => {
 
             console.log(new Date(assignment.releaseDate));
-            
-          //convertion to displayed assignment
+
+            //convertion to displayed assignment
             let displayedAssignment: DisplayedAssignment = {
               id: assignment.id,
               releaseDate: new Date(assignment.releaseDate).toLocaleDateString(undefined, options),
@@ -68,7 +68,7 @@ export class HomeworkContainerComponent implements OnInit {
 
             //get homeworks that corresponds to assignment
             this.teacherService.getHomeworksByAssignment(this.selectedCourse, assignment.id).subscribe((homeworks: Homework[]) => {
-              
+
               let counter = 0
 
               let displayHomeworks: DisplayedHomework[] = []
@@ -112,6 +112,7 @@ export class HomeworkContainerComponent implements OnInit {
                     let student: Student = element
 
                     displayHomeworks.push({
+                      assignmentId: assignment.id,
                       homeworkId: homework.id,
                       name: student.name,
                       surname: student.firstName,
