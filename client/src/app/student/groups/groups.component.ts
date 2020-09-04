@@ -111,41 +111,43 @@ export class GroupsComponent implements OnInit {
     this.setDataSourceAttributes();
   }
 
-  constructor(private activatedRoute: ActivatedRoute, private _studentService: StudentService, private authService: AuthService, private routeStateService: RouteStateService) {
-    this.isInTeam = false // inizializzato a false indica che lo studente non è in un team
-    this.isLoading = true // caricamento 
-    this.isDisabled = true // indica se il bottone può essere premuto o meno
-
-    //students table
-    this.studentsInTeam = []
-    this.dataSourceStudentInTeam = new MatTableDataSource<Student>();
-    this.dataSourceStudentNotYetInTeam = new MatTableDataSource<Student>();
-    this.displayedColumnsNotInTeam = ['select', 'id', 'name', 'first name', 'group'];
-
-    //proposals table
-    this.dataSourceProposals = new MatTableDataSource()
-    this.displayedColumnsProposals = ['idCreator', 'groupName', 'name', 'firstName'];
-    this.displayedColumnsInTeam = ['group', 'id', 'name', 'first name']
-
-    //inner members table
-    this.dataSourceMembersProposal = []
-    this.displayedColumnsMembers = ['id', 'name', 'firstname', 'status']
-
-    this.form = new FormGroup({
-      groupNameControl: new FormControl('', [Validators.required]),
-      timeoutControl: new FormControl(10, [Validators.required, Validators.min(10)]) //10 min
-    })
-
-
-    this.isErrorAlertOpen = false
-
-  }
+  constructor(private activatedRoute: ActivatedRoute, private _studentService: StudentService, private authService: AuthService, private routeStateService: RouteStateService) {}
 
 
   ngOnInit(): void {
     this.activatedRoute.params.subscribe(params => {
       if (params["course_name"]) {
 
+
+
+        this.isInTeam = false // inizializzato a false indica che lo studente non è in un team
+        this.isLoading = true // caricamento 
+        this.isDisabled = true // indica se il bottone può essere premuto o meno
+    
+        //students table
+        this.studentsInTeam = []
+        this.dataSourceStudentInTeam = new MatTableDataSource<Student>();
+        this.dataSourceStudentNotYetInTeam = new MatTableDataSource<Student>();
+        this.displayedColumnsNotInTeam = ['select', 'id', 'name', 'first name', 'group'];
+    
+        //proposals table
+        this.dataSourceProposals = new MatTableDataSource()
+        this.displayedColumnsProposals = ['idCreator', 'groupName', 'name', 'firstName'];
+        this.displayedColumnsInTeam = ['group', 'id', 'name', 'first name']
+    
+        //inner members table
+        this.dataSourceMembersProposal = []
+        this.displayedColumnsMembers = ['id', 'name', 'firstname', 'status']
+    
+        this.form = new FormGroup({
+          groupNameControl: new FormControl('', [Validators.required]),
+          timeoutControl: new FormControl(10, [Validators.required, Validators.min(10)]) //10 min
+        })
+    
+    
+        this.isErrorAlertOpen = false
+
+        
         // Update the course into the service so that all the other components will know it
         this.routeStateService.updatePathParamState(params['course_name'])
 
