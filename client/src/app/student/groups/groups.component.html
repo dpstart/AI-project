@@ -22,8 +22,7 @@
                     <input matInput type="number" formControlName="timeoutControl" min=10 (input)="checkValidity()">
                 </mat-form-field>
 
-                <button type="submit" mat-raised-button color="primary"
-                    [disabled]="isDisabled">Add to group</button>
+                <button type="submit" mat-raised-button color="primary" [disabled]="isDisabled">Add to group</button>
 
 
             </form>
@@ -34,7 +33,8 @@
                 not created try with another name. </ngb-alert>
 
 
-            <table #table mat-table [dataSource]="dataSourceStudentNotYetInTeam" matSort #matSortNotInTeam = matSort class="mat-elevation-z8">
+            <table #table mat-table [dataSource]="dataSourceStudentNotYetInTeam" matSort #matSortNotInTeam=matSort
+                class="mat-elevation-z8">
 
                 <!-- ID Column -->
                 <ng-container matColumnDef="id">
@@ -93,7 +93,8 @@
 
             <h2 class="mat-h2 tabtitle"> Elenco proposte ricevute</h2>
 
-            <table mat-table [dataSource]="dataSourceProposals" matSort  #matSortProposal = matSort class="mat-elevation-z8">
+            <table mat-table [dataSource]="dataSourceProposals" matSort #matSortProposal=matSort multiTemplateDataRows
+                class="mat-elevation-z8">
 
                 <!--- Note that these columns can be defined in any order.
                           The actual rendered columns are set as a property on the row definition" -->
@@ -109,12 +110,6 @@
                     <td mat-cell *matCellDef="let element"> {{element.groupName}} </td>
                 </ng-container>
 
-                <!-- matricola Column -->
-                <ng-container matColumnDef="matricola">
-                    <th mat-header-cell *matHeaderCellDef> Freshman </th>
-                    <td mat-cell *matCellDef="let element"> {{element.matricola}} </td>
-                </ng-container>
-
                 <!-- name Column -->
                 <ng-container matColumnDef="name">
                     <th mat-header-cell *matHeaderCellDef> Name </th>
@@ -127,8 +122,30 @@
                     <td mat-cell *matCellDef="let element"> {{element.firstName}} </td>
                 </ng-container>
 
+
+                <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+                <ng-container matColumnDef="expandedDetail">
+                    <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumnsProposals.length">
+                        <div class="example-element-detail"
+                            [@detailExpand]="element == expandedProposal ? 'expanded' : 'collapsed'">
+                               
+                            <mat-list role="list">
+                                <mat-list-item *ngFor="let member of element.members" role="listitem"> {{member.id}} {{member.name }} {{member.firstName}} </mat-list-item>
+                              </mat-list>
+                              
+                            
+                        </div>
+                    </td>
+                </ng-container>
+            
+
                 <tr mat-header-row *matHeaderRowDef="displayedColumnsProposals"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumnsProposals;"></tr>
+                <tr mat-row *matRowDef="let element; columns: displayedColumnsProposals;"
+                    class="example-element-row"
+                    [class.example-expanded-row]="expandedProposal === element"
+                    (click)="expandedProposal = expandedProposal === element ? null : element">
+                </tr>
+                <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
             </table>
             <mat-paginator #paginatorProposal [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
         </div>
@@ -139,7 +156,8 @@
 
         <h2 class="mat-h2 tabtitle">Elenco studenti in team.</h2>
 
-        <table #table mat-table [dataSource]="dataSourceStudentInTeam" matSort #matSortInTeam = matSort class="mat-elevation-z8">
+        <table #table mat-table [dataSource]="dataSourceStudentInTeam" matSort #matSortInTeam=matSort
+            class="mat-elevation-z8">
 
             <!-- Group Column -->
             <!-- Groups are not modelled yet, providing a default value. -->

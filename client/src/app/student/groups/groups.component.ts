@@ -10,11 +10,19 @@ import { AuthService } from 'src/app/services/auth.service';
 import { RouteStateService } from 'src/app/services/route-state.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-groups',
   templateUrl: './groups.component.html',
-  styleUrls: ['./groups.component.css']
+  styleUrls: ['./groups.component.css'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ]
 })
 export class GroupsComponent implements OnInit {
 
@@ -41,14 +49,15 @@ export class GroupsComponent implements OnInit {
   dataSourceStudentInTeam: MatTableDataSource<Student>
   dataSourceStudentNotYetInTeam: MatTableDataSource<Student>
   displayedColumns: string[]
-  expandedElement: Student | null;
-
+  expandedStudent: Student | null;
+  expandedProposal: Proposal | null;
 
   //Table of proposals:
   dataSourceProposals: MatTableDataSource<Proposal>
   displayedColumnsProposals: string[]
 
   displayedColumnsInTeam: string[]
+
 
   form: FormGroup
 
@@ -112,7 +121,7 @@ export class GroupsComponent implements OnInit {
 
     //proposals table
     this.dataSourceProposals = new MatTableDataSource()
-    this.displayedColumnsProposals = ['idCreator', 'groupName', 'matricola', 'name', 'firstName'];
+    this.displayedColumnsProposals = ['idCreator', 'groupName', 'name', 'firstName'];
     this.displayedColumnsInTeam = ['group', 'id', 'name', 'first name']
 
 
@@ -159,6 +168,10 @@ export class GroupsComponent implements OnInit {
                 //students is not yet in team: we have to upload in the table only the students that are not in a team
                 this.studentService.getStudentsAvailableInCourse(this.selectedCourse.name).subscribe((studentsNotInTeam: Student[]) => {
 
+                  //Filtro lo studente che fa la richiesta
+                  studentsNotInTeam = studentsNotInTeam.filter((student) => student.id != this.authService.getEmail())
+
+                  //aggiorno source
                   this.dataSourceStudentNotYetInTeam.data = [...studentsNotInTeam]
                 }, (_) => this.isLoading = false
                 )
@@ -173,12 +186,9 @@ export class GroupsComponent implements OnInit {
                     proposedTeams.forEach(team => {
                       this.studentService.getTeamMembers(this.selectedCourse.name, team.id).subscribe((studentsInTeamProposed) => {
 
-                        studentsInTeamProposed.forEach(student => {
-                          // controlli che non sia lo studente stesso ad aver fatto la proposta
-                          if (team.id_creator != this.authService.getEmail()) {
-                            proposals.push({ idCreator: team.id_creator, groupName: team.name, matricola: student.id, name: student.name, firstName: student.firstName })
-                          }
-                        })
+                        //TODO modificare nome e cognome creatore
+                        proposals.push({ idCreator: team.id_creator, groupName: team.name, name: "NOME CREATORE", firstName: "COGNOME CREATORE", members: studentsInTeamProposed })
+
 
                         this.dataSourceProposals.data = [...proposals]
                         this.isLoading = false
@@ -281,11 +291,8 @@ export class GroupsComponent implements OnInit {
                 proposedTeams.forEach(team => {
                   this.studentService.getTeamMembers(this.selectedCourse.name, team.id).subscribe((studentsInTeamProposed) => {
 
-                    studentsInTeamProposed.forEach(student => {
-                      // controlli che non sia lo studente stesso ad aver fatto la proposta
-                      if (team.id_creator != this.authService.getEmail())
-                        proposals.push({ idCreator: team.id_creator, groupName: team.name, matricola: student.id, name: student.name, firstName: student.firstName })
-                    })
+
+                    proposals.push({ idCreator: team.id_creator, groupName: team.name, name: "NOME CREATORE", firstName: "COGNOME CREATORE", members: studentsInTeamProposed })
 
                     this.dataSourceProposals.data = [...proposals]
                     this.isLoading = false
@@ -312,9 +319,9 @@ export class GroupsComponent implements OnInit {
 export interface Proposal {
   idCreator: string
   groupName: string
-  matricola: string
   name: string
   firstName: string
+  members: Student[]
 }
 
 export interface StudentInGroup {
