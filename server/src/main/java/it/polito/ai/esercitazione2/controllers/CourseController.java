@@ -303,6 +303,7 @@ public class CourseController {
         }
     }
 
+
     @PostMapping("/{name}/proposeTeam")
     @ResponseStatus(HttpStatus.CREATED)
     void proposeTeam(@PathVariable String name, @RequestBody Map<String, Object> input) {

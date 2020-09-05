@@ -195,6 +195,7 @@ export class GroupsComponent implements OnInit {
                 }, (_) => this.isLoading = false
                 )
 
+
                 this.studentService.getProposalsToStudent(this.selectedCourse.name).subscribe(proposedTeams => {
 
 
@@ -211,20 +212,40 @@ export class GroupsComponent implements OnInit {
 
 
                         let members: MemberOfProposal[] = []
-                        studentsInTeamProposed.forEach((member) => {
-                          //TODO lo status per ora è false ma l'informazione va ritirata
-                          members.push({ id: member.id, name: member.name, firstname: member.firstName, status: true })
+
+
+                        // setTimeout((_) => {
+
+                        this.studentService.getAdhesionInfo(this.selectedCourse.name, proposedTeams[i].id).subscribe((data) => {
+
+                          console.log("MAP", data);
+
+                          studentsInTeamProposed.forEach((member) => {
+                            //TODO lo status per ora è false ma l'informazione va ritirata
+                            members.push({ id: member.id, name: member.name, firstname: member.firstName, status: data[member.id] })
+                          })
+
+                          this.studentService.getStudentById(proposedTeams[i].id_creator).subscribe(creator => {
+                            proposals.push(
+                              {
+                                row: i,
+                                idCreator: proposedTeams[i].id_creator,
+                                groupName: proposedTeams[i].name,
+                                name: creator.name,
+                                firstName: creator.firstName,
+                                members: members
+                              })
+
+                            this.dataSourceProposals.data = [...proposals]
+
+                            this.dataSourceMembersProposal[i].data = [...members]
+
+                            this.isLoading = false
+                          })
+
                         })
+                        // }, 3000)
 
-                        this.studentService.getStudentById(proposedTeams[i].id_creator).subscribe(creator => {
-                          proposals.push({ row: i, idCreator: proposedTeams[i].id_creator, groupName: proposedTeams[i].name, name: creator.name, firstName: creator.firstName, members: members })
-
-                          this.dataSourceProposals.data = [...proposals]
-
-                          this.dataSourceMembersProposal[i].data = [...members]
-
-                          this.isLoading = false
-                        })
 
                       }, (_) => {
                         this.isLoading = false
@@ -234,7 +255,6 @@ export class GroupsComponent implements OnInit {
 
 
                 }, (_) => this.isLoading = false)
-
               }
 
             })
@@ -305,6 +325,7 @@ export class GroupsComponent implements OnInit {
 
   //TODO: check if submission has gone well 
   onSubmit() {
+
     // Check if all fields are correctly setted.
     if (!this.isDisabled) {
       //avendo fatto accesso a questa pagina qui il metodo getSelf può ritornare solo uno studente
@@ -320,47 +341,42 @@ export class GroupsComponent implements OnInit {
             if (resp.status === 201) { // Ok created
               // TODO: fill dataSourceProposals with the proposed members in the team
 
-              this.studentService.getProposalsToStudent(this.selectedCourse.name).subscribe(proposedTeams => {
+              this.dataSourceMembersProposal.push(new MatTableDataSource<MemberOfProposal>())
 
 
-                if (proposedTeams.length != 0) {
-
-                  // Add the new proposals 
-                  let proposals: Proposal[] = []
-
-                  // per ogni proposal per un team
-                  for (let i = 0; i < proposedTeams.length; i++) {
-                    this.dataSourceMembersProposal[i] = new MatTableDataSource<MemberOfProposal>()
+              this.authService.getSelf().subscribe((me: Student) => {
+                let selected = this.selection.selected
+                selected.push(me)
 
 
-                    //raccolgo i membri
-                    this.studentService.getTeamMembers(this.selectedCourse.name, proposedTeams[i].id).subscribe((studentsInTeamProposed) => {
+                let members: MemberOfProposal[] = []
 
+                selected.forEach((member) => {
+                  //TODO lo status per ora è false ma l'informazione va ritirata
+                  members.push({ id: member.id, name: member.name, firstname: member.firstName, status: member.id == me.id })
+                })
 
-                      let members: MemberOfProposal[] = []
-
-                      //Converto students to members
-                      studentsInTeamProposed.forEach((member) => {
-                        //TODO lo status per ora è false ma l'informazione va ritirata
-                        members.push({ id: member.id, name: member.name, firstname: member.firstName, status: true })
-                      })
-
-                      this.studentService.getStudentById(proposedTeams[i].id_creator).subscribe(creator => {
-                        proposals.push({ row: i, idCreator: proposedTeams[i].id_creator, groupName: proposedTeams[i].name, name: creator.name, firstName: creator.firstName, members: members })
-
-                        this.dataSourceProposals.data = [...proposals]
-
-                        this.dataSourceMembersProposal[i].data = [...members]
-                      })
-
-                    })
-                  }
+                let proposal =
+                {
+                  row: this.dataSourceMembersProposal.length - 1,
+                  idCreator: me.id,
+                  groupName: this.form.get('groupNameControl').value,
+                  name: me.name,
+                  firstName: me.firstName,
+                  members: members
                 }
-                this.alertType = "success"
-                this.message = "Your proposal has been succesfully sent."
+
+                this.dataSourceProposals.data = [...this.dataSourceProposals.data, proposal]
+
+
+                this.dataSourceMembersProposal[this.dataSourceMembersProposal.length - 1].data = [...members]
+
+                console.log(this.dataSourceMembersProposal[this.dataSourceMembersProposal.length - 1].data);
+
+                this.selection.clear()
+
               })
-              // Remove students selected
-              this.selection.clear()
+
             } else {
 
               this.alertType = "danger"
@@ -382,6 +398,7 @@ export class GroupsComponent implements OnInit {
     }
 
   }
+
 
 
 

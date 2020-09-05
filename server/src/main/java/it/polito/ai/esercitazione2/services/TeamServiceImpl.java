@@ -8,10 +8,12 @@ import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.entities.*;
 import it.polito.ai.esercitazione2.exceptions.*;
 import it.polito.ai.esercitazione2.repositories.*;
+import lombok.Synchronized;
 import net.minidev.json.JSONObject;
 import org.apache.commons.text.RandomStringGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.access.method.P;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import javax.persistence.LockModeType;
 import javax.swing.*;
 import javax.transaction.Transactional;
 
@@ -715,7 +718,6 @@ public class TeamServiceImpl implements TeamService {
                 .map(x -> modelMapper.map(x, CourseDTO.class))
                 .collect(Collectors.toList());
     }
-
 
     @Override
     public TeamDTO proposeTeam(String courseId, String name, List<String> memberIds, Long duration) {

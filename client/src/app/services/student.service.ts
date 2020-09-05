@@ -84,10 +84,7 @@ export class StudentService {
   }
 
 
-
-
-
-
+ 
   uploadHomework(courseName: string, assignmentId: number, uploadImageData: FormData) {
 
     const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}`
@@ -101,6 +98,17 @@ export class StudentService {
 
 
   //RESEARCH
+
+   /*
+    @GetMapping("/{name}/teams/{id}/adhesion")
+    Map<String, Boolean> getAdhesionInfo(@PathVariable String name, @PathVariable Long id) */
+    getAdhesionInfo(courseName:string,teamId:number):Observable<Map<string,boolean>>{
+      const url =`${this.URL}/courses/${courseName}/teams/${teamId}/adhesion`
+      return this.http.get<Map<string,boolean>>(url).pipe(
+        retry(3),
+        catchError(this.handleError)
+      ); 
+    }
 
 
   getProposalsToStudent(courseName): Observable<Team[]> {

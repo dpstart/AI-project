@@ -27,10 +27,7 @@
 
             </form>
 
-
-
             <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
-
 
             <table #table mat-table [dataSource]="dataSourceStudentNotYetInTeam" matSort #matSortNotInTeam=matSort
                 class="mat-elevation-z8">
