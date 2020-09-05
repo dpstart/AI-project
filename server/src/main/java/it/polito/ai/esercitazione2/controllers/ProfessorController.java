@@ -79,11 +79,20 @@ public class ProfessorController {
                 .map(ModelHelper::enrich).collect(Collectors.toList());
     }
 
-    @GetMapping("/{name}")
-    ProfessorDTO getOne(@PathVariable String name) {
-        ProfessorDTO c = teamservice.getProfessor(name).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, name));
+    @GetMapping("/{professorId}")
+    ProfessorDTO getOne(@PathVariable String professorId) {
+        ProfessorDTO c = teamservice.getProfessor(professorId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, professorId));
         return ModelHelper.enrich(c);
     }
+
+
+    @GetMapping("/self")
+    ProfessorDTO getSelf() {
+        String professorId = SecurityContextHolder.getContext().getAuthentication().getName();
+        ProfessorDTO c = teamservice.getProfessor(professorId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, professorId));
+        return ModelHelper.enrich(c);
+    }
+
 
     @GetMapping("/allCourses")
     List<CourseDTO> getAllCourses(){
@@ -111,12 +120,12 @@ public class ProfessorController {
         return teamservice.getProfileImage();
     }
 
-    @GetMapping("/{name}/assignments")
-    List<AssignmentDTO> getAssignments(@PathVariable String name){
+    @GetMapping("/{professorId}/assignments")
+    List<AssignmentDTO> getAssignments(@PathVariable String professorId){
         try{
-            return assignmentService.getByProfessor(name)
+            return assignmentService.getByProfessor(professorId)
                     .stream()
-                    .map(x -> ModelHelper.enrich(x, assignmentService.getAssignmentCourse(x.getId()), name))
+                    .map(x -> ModelHelper.enrich(x, assignmentService.getAssignmentCourse(x.getId()), professorId))
                     .collect(Collectors.toList());
         }
         catch (Exception e){
@@ -124,8 +133,8 @@ public class ProfessorController {
         }
     }
 
-    @GetMapping("/{name}/assignments/{aId}/")
-    public AssignmentDTO getAssignment(@PathVariable String name, @PathVariable Integer aId){
+    @GetMapping("/{professorId}/assignments/{aId}/")
+    public AssignmentDTO getAssignment(@PathVariable String professorId, @PathVariable Integer aId){
         try{
             String course = assignmentService.getAssignmentCourse(aId);
             return courseController.getAssignment(course, aId);
@@ -135,17 +144,17 @@ public class ProfessorController {
         }
     }
 
-    @GetMapping("/{name}/homeworks")
-    List<HomeworkDTO> getHomeworks(@PathVariable String name){
+    @GetMapping("/{professorId}/homeworks")
+    List<HomeworkDTO> getHomeworks(@PathVariable String professorId){
         try{
-            return assignmentService.getByProfessor(name)
+            return assignmentService.getByProfessor(professorId)
                     .stream()
                     .flatMap(a -> assignmentService.getAssignmentHomeworks(a.getId()).stream())
                     .map(h -> {
                         String courseId = homeworkService.getHomeworkCourse(h.getId());
                         Integer assignmentId = homeworkService.getAssignmentId(h.getId());
                         String studentId = homeworkService.getHomeworkStudentId(h.getId());;
-                        return ModelHelper.enrich(h, courseId, assignmentId, name, studentId);
+                        return ModelHelper.enrich(h, courseId, assignmentId, professorId, studentId);
                     })
                     .collect(Collectors.toList());
         }
@@ -154,8 +163,8 @@ public class ProfessorController {
         }
     }
 
-    @GetMapping("/{name}/homeworks/{hId}/")
-    public HomeworkDTO getHomework(@PathVariable String name, @PathVariable Long hId){
+    @GetMapping("/{professorId}/homeworks/{hId}/")
+    public HomeworkDTO getHomework(@PathVariable String professorId, @PathVariable Long hId){
         try{
             String course = homeworkService.getHomeworkCourse(hId);
             Integer aId = homeworkService.getAssignmentId(hId);

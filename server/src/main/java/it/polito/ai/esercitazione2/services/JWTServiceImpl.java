@@ -88,7 +88,7 @@ public class JWTServiceImpl implements JWTService {
     @Override
     public String getUsernameFromAlias(String alias) {
         String username = getProfUsernameByAlias(alias);
-        if (alias != username)
+        if (!alias.equals(username))
             return username;
         return getStudentUsernameByAlias(alias);
     }

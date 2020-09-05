@@ -43,18 +43,21 @@ public class JwtAuthenticationController {
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
         String username = authenticationRequest.getUsername();
-        if(username.matches("^(s[0-9]{6}@studenti.polito.it)$")
-                || username.matches("^(d[0-9]{6}@polito.it)$")){
-            authenticationRequest.setUsername(username.substring(8));
+
+        username = username.toLowerCase();
+
+        if (username.matches("^(s[0-9]{6}@studenti\\.polito\\.it)$")
+                || username.matches("^(d[0-9]{6}@polito\\.it)$")) {
+            authenticationRequest.setUsername(username.substring(1, 7));
         }
-        if(username.matches("^([a-z]+\\.[a-z]+)$")){
+        if (username.matches("^([a-z]+\\.[a-z]+)$")) {
             authenticationRequest.setUsername(jwtservice.getUsernameFromAlias(username));
         }
-        if(username.matches("^([a-z]+\\.[a-z]+@polito.it)$")){
-            authenticationRequest.setUsername(jwtservice.getProfUsernameByAlias(username.substring(0,username.indexOf("@"))));
+        if (username.matches("^([a-z]+\\.[a-z]+@polito\\.it)$")) {
+            authenticationRequest.setUsername(jwtservice.getProfUsernameByAlias(username.substring(0, username.indexOf("@"))));
         }
-        if(username.matches("^([a-z]+\\.[a-z]+@studenti.polito.it)$")){
-            authenticationRequest.setUsername(jwtservice.getStudentUsernameByAlias(username.substring(0,username.indexOf("@"))));
+        if (username.matches("^([a-z]+\\.[a-z]+@studenti\\.polito\\.it)$")) {
+            authenticationRequest.setUsername(jwtservice.getStudentUsernameByAlias(username.substring(0, username.indexOf("@"))));
         }
         jwtservice.authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
         final UserDetails userDetails = jwtservice.getUser(authenticationRequest.getUsername());
@@ -67,22 +70,21 @@ public class JwtAuthenticationController {
         String token = input.getToken();
         String username = null;
         String pwd = null;
-        Collection<GrantedAuthority> roles=null;
+        Collection<GrantedAuthority> roles = null;
         try {
 
             username = jwtTokenUtil.getUsernameFromToken(token);
             roles = jwtTokenUtil.getAuthorities(token);
             pwd = jwtTokenUtil.getPassword(token);
-            System.out.println(username+"..."+roles+"..."+pwd);
+            System.out.println(username + "..." + roles + "..." + pwd);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.ok(false);
         }
 
         try {
-            jwtservice.createUser(username,pwd,roles);
+            jwtservice.createUser(username, pwd, roles);
 
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             //throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Problems with the insertion of a new user");
             return ResponseEntity.ok(false);
         }
@@ -91,14 +93,14 @@ public class JwtAuthenticationController {
 
     @RequestMapping(value = "/registerMany", method = RequestMethod.POST)
     public ResponseEntity<?> registerUsers(@RequestBody @Valid ValidUserList users) throws InterruptedException {
-        String token =null;
+        String token = null;
         String username = null;
         String pwd = null;
-        Collection<GrantedAuthority> roles=null;
-        for (JSONObject input:  users.getList()) {
-              if (!input.containsKey("token")  || input.size() > 1)
+        Collection<GrantedAuthority> roles = null;
+        for (JSONObject input : users.getList()) {
+            if (!input.containsKey("token") || input.size() > 1)
                 return ResponseEntity.ok(false);
-            token = (String)input.get("token");
+            token = (String) input.get("token");
             try {
                 username = jwtTokenUtil.getUsernameFromToken(token);
                 roles = jwtTokenUtil.getAuthorities(token);
@@ -108,10 +110,9 @@ public class JwtAuthenticationController {
             }
 
             try {
-                jwtservice.createUser(username,pwd,roles);
-            }
-            catch(Exception e){
-               // throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Problems with the insertion of a new user");
+                jwtservice.createUser(username, pwd, roles);
+            } catch (Exception e) {
+                // throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Problems with the insertion of a new user");
                 return ResponseEntity.ok(false);
             }
         }
@@ -133,8 +134,7 @@ public class JwtAuthenticationController {
 
         try {
             jwtservice.activate(username);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             //throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Problems with the insertion of a new user");
             return ResponseEntity.ok(false);
         }
@@ -143,12 +143,12 @@ public class JwtAuthenticationController {
 
     @RequestMapping(value = "/removeMany", method = RequestMethod.POST)
     public ResponseEntity<?> deleteUsers(@RequestBody @Valid ValidUserList users) throws InterruptedException {
-        String token=null;
-        String id=null;
-        for (JSONObject input:  users.getList()) {
-            if (!input.containsKey("token")  || input.size() > 1)
+        String token = null;
+        String id = null;
+        for (JSONObject input : users.getList()) {
+            if (!input.containsKey("token") || input.size() > 1)
                 return ResponseEntity.ok(false);
-            token = (String)input.get("token");
+            token = (String) input.get("token");
             try {
 
                 id = jwtTokenUtil.getUsernameFromToken(token);
@@ -160,15 +160,13 @@ public class JwtAuthenticationController {
 
             try {
                 jwtservice.deleteUser(id);
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 // throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Problems with the insertion of a new user");
                 return ResponseEntity.ok(false);
             }
         }
         return ResponseEntity.ok(true);
     }
-
 
 
 }

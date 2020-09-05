@@ -102,71 +102,71 @@ public class TeamServiceImpl implements TeamService {
     public boolean addCourse(CourseDTO c) {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!professorRepository.existsById(prof) || !professorRepository.getOne(prof).getEnabled())
-            throw new ProfessorNotFoundException("Professor "+prof+ " not found!");
+            throw new ProfessorNotFoundException("Professor " + prof + " not found!");
         Professor p = professorRepository.findById(prof).get();
         if (courseRepository.existsById(c.getName()) || courseRepository.existsByAcronime(c.getAcronime()))
-                return false;
+            return false;
 
-        if(c.getMin()>c.getMax())
+        if (c.getMin() > c.getMax())
             throw new TeamSizeConstraintsException("The maximum number of team members for a course should be greater or equal to the minimum one");
         c.setEnabled(false);
-        Course course = modelMapper.map(c,Course.class);
+        Course course = modelMapper.map(c, Course.class);
         course.addProfessor(p);
         courseRepository.save(course);
         return true;
     }
 
     @Override
-    public void removeCourse(String courseName){
+    public void removeCourse(String courseName) {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: "+courseName + " not found!");
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
-        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)))
-            throw new CourseAuthorizationException("Professor "+prof+ "has not the rights to modify this course");
+        if (!c.getProfessors().stream().anyMatch(x -> x.getId().equals(prof)))
+            throw new CourseAuthorizationException("Professor " + prof + "has not the rights to modify this course");
 
         if (c.getEnabled())
             throw new CourseEnabledException("Impossible to remove an active course");
 
 
+        c.getAssignments().stream().map(x -> {
+            imageService.remove(x.getContentId());
+            return x;
+        }).flatMap(x -> x.getHomeworks().stream()).flatMap(x -> x.getVersionIds().stream()).forEach((Long x) -> imageService.remove(x));
 
 
-        c.getAssignments().stream().map(x->{imageService.remove(x.getContentId());return x;}).flatMap(x->x.getHomeworks().stream()).flatMap(x->x.getVersionIds().stream()).forEach((Long x)->imageService.remove(x));
+        c.getTeams().stream().flatMap(x -> x.getVMs().stream()).forEach(x -> imageService.remove(x.getImageId()));
 
 
-        c.getTeams().stream().flatMap(x->x.getVMs().stream()).forEach(x->imageService.remove(x.getImageId()));
-
-
-
-       courseRepository.delete(c);
+        courseRepository.delete(c);
 
     }
 
     @Override
-    public CourseDTO updateCourse(CourseDTO c){
+    public CourseDTO updateCourse(CourseDTO c) {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!courseRepository.existsById(c.getName()) && !courseRepository.existsByAcronime(c.getAcronime()))
-            throw new CourseNotFoundException("Course: "+c.getName()+ " not found!");
+            throw new CourseNotFoundException("Course: " + c.getName() + " not found!");
         Course co = courseRepository.getOne(c.getName());
-        if (!co.getProfessors().stream().anyMatch(x->x.getId().equals(prof)))
-            throw new CourseAuthorizationException("Professor "+prof+ "has not the rights to modify this course");
+        if (!co.getProfessors().stream().anyMatch(x -> x.getId().equals(prof)))
+            throw new CourseAuthorizationException("Professor " + prof + "has not the rights to modify this course");
 
         String acronime = c.getAcronime();
         int min = c.getMin();
         int max = c.getMax();
 
-        if (min>max)
+        if (min > max)
             throw new IncoherenceException("Impossible to set a minimum number of members greater than the maximum one");
 
         co.setAcronime(acronime);
 
-        if (co.getTeams().stream().map(x->x.getMembers().size()).filter((Integer x)->x<min || x>max).count()>0)
+        if (co.getTeams().stream().map(x -> x.getMembers().size()).filter((Integer x) -> x < min || x > max).count() > 0)
             throw new TeamSizeConstraintsException("Impossible to change members size constraints so that invalidate already existinf teams ");
         co.setMin(min);
         co.setMax(max);
         courseRepository.save(co);
 
-        return modelMapper.map(co,CourseDTO.class);
+        return modelMapper.map(co, CourseDTO.class);
 
     }
 
@@ -174,15 +174,15 @@ public class TeamServiceImpl implements TeamService {
     public Optional<CourseDTO> getCourse(String name) {
         Optional<Course> c = courseRepository.findById(name);
         if (c.isEmpty() && courseRepository.existsByAcronime(name))
-            c= Optional.of(courseRepository.getOne(name));
-        return c.map(x->modelMapper.map(x,CourseDTO.class));
+            c = Optional.of(courseRepository.getOne(name));
+        return c.map(x -> modelMapper.map(x, CourseDTO.class));
     }
 
     @Override
     public List<CourseDTO> getAllCourses() {
         return courseRepository.findAll()
                 .stream()
-                .map(c->modelMapper.map(c,CourseDTO.class))
+                .map(c -> modelMapper.map(c, CourseDTO.class))
                 .collect(Collectors.toList());
     }
 
@@ -191,18 +191,18 @@ public class TeamServiceImpl implements TeamService {
     public boolean addStudentToCourse(String studentId, String courseName) {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: "+courseName + " not found!");
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
-        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)) && !SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
-            throw new CourseAuthorizationException("User "+prof+ " has not the rights to modify this course: he's not the admin or the professor for this course");
+        if (!c.getProfessors().stream().anyMatch(x -> x.getId().equals(prof)) && !SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+            throw new CourseAuthorizationException("User " + prof + " has not the rights to modify this course: he's not the admin or the professor for this course");
         if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
-            throw new StudentNotFoundException("Student: "+studentId + " not found!");
+            throw new StudentNotFoundException("Student: " + studentId + " not found!");
 
         if (!c.getEnabled())
-            throw new CourseNotEnabledException("Course "+courseName+" is not enabled");
+            throw new CourseNotEnabledException("Course " + courseName + " is not enabled");
 
 
-        Student s =  studentRepository.getOne(studentId);
+        Student s = studentRepository.getOne(studentId);
         // TO DO: anyMatch(), equals() o compareTo
         if (c.getStudents().contains(s))
             return false;
@@ -220,30 +220,30 @@ public class TeamServiceImpl implements TeamService {
     public boolean removeStudentFromCourse(String studentId, String courseName) {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: "+courseName + " not found!");
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
-        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)) && !SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
-            throw new CourseAuthorizationException("User "+prof+ " has not the rights to modify this course: he's not the admin or the professor for this course");
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)) && !SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+            throw new CourseAuthorizationException("User " + prof + " has not the rights to modify this course: he's not the admin or the professor for this course");
         if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
-            throw new StudentNotFoundException("Student: "+studentId + " not found!");
+            throw new StudentNotFoundException("Student: " + studentId + " not found!");
 
         if (!c.getEnabled())
-            throw new CourseNotEnabledException("Course "+courseName+" is not enabled");
+            throw new CourseNotEnabledException("Course " + courseName + " is not enabled");
 
-        if (!c.getStudents().stream().anyMatch(x->x.getId().equals(studentId)))
-            throw new StudentNotFoundException("Student: "+studentId + " not enrolled in this course!");
+        if (c.getStudents().stream().noneMatch(x -> x.getId().equals(studentId)))
+            throw new StudentNotFoundException("Student: " + studentId + " not enrolled in this course!");
 
 
-        Student s =  studentRepository.getOne(studentId);
+        Student s = studentRepository.getOne(studentId);
 
         // remove homerwork of the student
-        s.getHomeworks().stream().map(x->{x.getVersionIds().stream().forEach((Long y)->imageService.remove(y)); return x;}).forEach((Homework x)->homeworkRepository.delete(x));
+        s.getHomeworks().stream().peek(x -> x.getVersionIds().forEach((Long y) -> imageService.remove(y))).forEach((Homework x) -> homeworkRepository.delete(x));
         // rimuovere relazione ownership con VM, se è l'unico rimuovere proprio la VM
-        s.getVMs().stream().filter(x->x.getOwners().size()==1).map(x->{imageService.remove(x.getImageId());return x;}).forEach((VM x)->vmRepository.delete(x));
+        s.getVMs().stream().filter(x -> x.getOwners().size() == 1).peek(x -> imageService.remove(x.getImageId())).forEach((VM x) -> vmRepository.delete(x));
         // rimuovere dal team: se il team va sotto la soglia minima, rimuoverlo
-        Team t =  s.getTeams().stream().filter(x->x.getCourse().getName().equals(courseName)).findFirst().orElse(null);
+        Team t = s.getTeams().stream().filter(x -> x.getCourse().getName().equals(courseName)).findFirst().orElse(null);
 
-        if (t!=null) {
+        if (t != null) {
             t.removeStudent(s);
             if (t.getMembers().size() < c.getMin())
                 teamRepository.delete(t);
@@ -253,18 +253,18 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public List<Boolean> unsubscribeAll(List<String> studentIds, String courseName){
-        return studentIds.stream().map(x->removeStudentFromCourse(x,courseName)).collect(Collectors.toList());
+    public List<Boolean> unsubscribeAll(List<String> studentIds, String courseName) {
+        return studentIds.stream().map(x -> removeStudentFromCourse(x, courseName)).collect(Collectors.toList());
     }
 
     @Override
     public void enableCourse(String courseName) {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course "+courseName + " not found!");
+            throw new CourseNotFoundException("Course " + courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
-        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)))
-            throw new CourseAuthorizationException("Professor "+prof+ "has not the rights to modify this course");
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)))
+            throw new CourseAuthorizationException("Professor " + prof + "has not the rights to modify this course");
         c.setEnabled(true);
     }
 
@@ -272,14 +272,17 @@ public class TeamServiceImpl implements TeamService {
     public void disableCourse(String courseName) {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: "+courseName + " not found!");
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
-        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof)))
-            throw new CourseAuthorizationException("Professor "+prof+ "has not the rights to modify this course");
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)))
+            throw new CourseAuthorizationException("Professor " + prof + "has not the rights to modify this course");
 
         //stop all Virtual machines of this course
-        c.getTeams().stream().flatMap(x->x.getVMs().stream()).forEach(
-                x->{x.setStatus(0); vmRepository.save(x);}
+        c.getTeams().stream().flatMap(x -> x.getVMs().stream()).forEach(
+                x -> {
+                    x.setStatus(0);
+                    vmRepository.save(x);
+                }
         );
         c.setEnabled(false);
     }
@@ -287,7 +290,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public List<CourseDTO> getCourses(String studentId) {
         if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
-            throw new StudentNotFoundException("Student: "+studentId+" not found!");
+            throw new StudentNotFoundException("Student: " + studentId + " not found!");
         Student s = studentRepository.getOne(studentId);
         return s.getCourses()
                 .stream()
@@ -298,38 +301,35 @@ public class TeamServiceImpl implements TeamService {
 
     // Professors
     @Override
-    public boolean addProfessor(ProfessorDTO p,MultipartFile file) {
+    public boolean addProfessor(ProfessorDTO p, MultipartFile file) {
         if (professorRepository.existsById(p.getId())) {
             if (getProfessor(p.getId()).get().equals(p))
                 return false;
             else
-                throw new IncoherenceException("Professor with id "+p.getId()+" already exist with different names");
+                throw new IncoherenceException("Professor with id " + p.getId() + " already exist with different names");
         }
         Image img = null;
         try {
             img = imageService.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
         }
         Professor prof = modelMapper.map(p, Professor.class);
-        String alias = prof.getFirstName() + prof.getName();
-        if(professorRepository.getByAlias(alias) != null){
-            Integer i=3;
-            for(alias += "2"; professorRepository.getByAlias(alias) != null; i++){
-                alias = alias.substring(0, alias.length()- Integer.toString(i - 1).length());
+        String alias = prof.getFirstName().toLowerCase() + "." + prof.getName().toLowerCase();
+        if (professorRepository.getByAlias(alias) != null) {
+            Integer i = 3;
+            for (alias += "2"; professorRepository.getByAlias(alias) != null; i++) {
+                alias = alias.substring(0, alias.length() - Integer.toString(i - 1).length());
                 alias += i.toString();
             }
         }
         prof.setAlias(alias);
-        if(img != null)
+        if (img != null)
             prof.setImage_id(img.getName());
 
         professorRepository.save(prof);
 
 
-
-
-        if (!registerUser(p.getId(),enc.encode(p.getPassword()),"ROLE_PROFESSOR"))
+        if (!registerUser(p.getId(), enc.encode(p.getPassword()), "ROLE_PROFESSOR"))
             throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
         notificationService.notifyProfessor(p);
 
@@ -343,15 +343,15 @@ public class TeamServiceImpl implements TeamService {
             if (getProfessor(p.getId()).get().equals(p))
                 return false;
             else
-                throw new IncoherenceException("Professor with id "+p.getId()+" already exist with different names");
+                throw new IncoherenceException("Professor with id " + p.getId() + " already exist with different names");
         }
 
         Professor prof = modelMapper.map(p, Professor.class);
-        String alias = prof.getFirstName() + prof.getName();
-        if(professorRepository.getByAlias(alias) != null){
-            Integer i=3;
-            for(alias += "2"; professorRepository.getByAlias(alias) != null; i++){
-                alias = alias.substring(0, alias.length()- Integer.toString(i - 1).length());
+        String alias = prof.getFirstName().toLowerCase() + "." + prof.getName().toLowerCase();
+        if (professorRepository.getByAlias(alias) != null) {
+            Integer i = 3;
+            for (alias += "2"; professorRepository.getByAlias(alias) != null; i++) {
+                alias = alias.substring(0, alias.length() - Integer.toString(i - 1).length());
                 alias += i.toString();
             }
         }
@@ -359,9 +359,7 @@ public class TeamServiceImpl implements TeamService {
         professorRepository.save(prof);
 
 
-
-
-        if (!registerUser(p.getId(),enc.encode(p.getPassword()),"ROLE_PROFESSOR"))
+        if (!registerUser(p.getId(), enc.encode(p.getPassword()), "ROLE_PROFESSOR"))
             throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
         notificationService.notifyProfessor(p);
 
@@ -371,46 +369,45 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public Optional<ProfessorDTO> getProfessor(String professorId) {
-        return professorRepository.findById(professorId).filter(x->x.getEnabled()).map(x->modelMapper.map(x,ProfessorDTO.class));
+        return professorRepository.findById(professorId).filter(Professor::getEnabled).map(x -> modelMapper.map(x, ProfessorDTO.class));
     }
 
     //Students
     @Override
-    public boolean addStudent(StudentDTO s, boolean notify, MultipartFile file)  {
+    public boolean addStudent(StudentDTO s, boolean notify, MultipartFile file) {
         if (studentRepository.existsById(s.getId())) {
             if (getStudent(s.getId()).get().equals(s))
                 return false;
             else
-                throw new IncoherenceException("Student with id "+s.getId()+" already exist with different names");
+                throw new IncoherenceException("Student with id " + s.getId() + " already exist with different names");
         }
         Image img = null;
         try {
             img = new Image(file.getContentType(), compressBytes(file.getBytes()));
             img = imageService.save(img);
+        } catch (IOException e) {
         }
-        catch (IOException e) {
-        }
-        Student stud = modelMapper.map(s,Student.class);
-        String alias = stud.getFirstName() + stud.getName();
-        if(studentRepository.getByAlias(alias) != null){
-            Integer i=3;
-            for(alias += "2"; studentRepository.getByAlias(alias) != null; i++){
-                alias = alias.substring(0, alias.length()- Integer.toString(i - 1).length());
+        Student stud = modelMapper.map(s, Student.class);
+        String alias = stud.getFirstName().toLowerCase() + "." + stud.getName().toLowerCase();
+        if (studentRepository.getByAlias(alias) != null) {
+            Integer i = 3;
+            for (alias += "2"; studentRepository.getByAlias(alias) != null; i++) {
+                alias = alias.substring(0, alias.length() - Integer.toString(i - 1).length());
                 alias += i.toString();
             }
         }
         stud.setAlias(alias);
-        if(img!=null)
+        if (img != null)
             stud.setImage_id(img.getName());
 
         studentRepository.save(stud);
 
 
-        if (notify==true) {
+        if (notify) {
 
-          if (!registerUser(stud.getId(), enc.encode(s.getPassword()), "ROLE_STUDENT"))
-                  throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
-          notificationService.notifyStudent(s);
+            if (!registerUser(stud.getId(), enc.encode(s.getPassword()), "ROLE_STUDENT"))
+                throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
+            notificationService.notifyStudent(s);
 
         }
 
@@ -419,20 +416,20 @@ public class TeamServiceImpl implements TeamService {
 
     //Students
     @Override
-    public boolean addStudent(StudentDTO s, boolean notify)  {
+    public boolean addStudent(StudentDTO s, boolean notify) {
         if (studentRepository.existsById(s.getId())) {
             if (getStudent(s.getId()).get().equals(s))
                 return false;
             else
-                throw new IncoherenceException("Student with id "+s.getId()+" already exist with different names");
+                throw new IncoherenceException("Student with id " + s.getId() + " already exist with different names");
         }
-        Student stud = modelMapper.map(s,Student.class);
+        Student stud = modelMapper.map(s, Student.class);
 
-        String alias = stud.getFirstName() + stud.getName();
-        if(studentRepository.getByAlias(alias) != null){
-            Integer i=3;
-            for(alias += "2"; studentRepository.getByAlias(alias) != null; i++){
-                alias = alias.substring(0, alias.length()- Integer.toString(i - 1).length());
+        String alias = stud.getFirstName().toLowerCase() + "." + stud.getName().toLowerCase();
+        if (studentRepository.getByAlias(alias) != null) {
+            Integer i = 3;
+            for (alias += "2"; studentRepository.getByAlias(alias) != null; i++) {
+                alias = alias.substring(0, alias.length() - Integer.toString(i - 1).length());
                 alias += i.toString();
             }
         }
@@ -441,7 +438,7 @@ public class TeamServiceImpl implements TeamService {
         studentRepository.save(stud);
 
 
-        if (notify==true) {
+        if (notify) {
 
             if (!registerUser(stud.getId(), enc.encode(s.getPassword()), "ROLE_STUDENT"))
                 throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
@@ -453,43 +450,41 @@ public class TeamServiceImpl implements TeamService {
     }
 
 
+    public boolean registerUser(String id, String pwd, String role) {
 
 
-    public boolean registerUser( String id, String pwd,String role)  {
+        List<String> roles = new ArrayList<>();
+        roles.add(role);
+        Boolean a = w.post()
+                .uri("/register")
+                .body(Mono.just(jwtTokenUtil.generateRegisterRequest(id, pwd, roles)), JwtResponse.class)
+                /*
+                .exchange().flatMap(x->{
+                    if (x.statusCode().is4xxClientError()||x.statusCode().is5xxServerError()) {
+                        Mono<String> msg=x.bodyToMono(String.class);
+                        return msg.flatMap(y->{
+                            throw new AuthenticationServiceException(y);
+                        });
+                    }
+                    return  x.bodyToMono(String.class);
+                })
+                .subscribe(response -> {
+                    if (dto instanceof StudentDTO)
+                        notificationService.notifyStudent((StudentDTO) dto, pwd);
+                    else if (dto instanceof ProfessorDTO)
+                        notificationService.notifyProfessor((ProfessorDTO) dto, pwd);
+                });
 
+                 */
+                .retrieve()
+                .bodyToMono(Boolean.class)
+                .block();
+        // .onStatus(HttpStatus::is4xxClientError, response -> Mono.error(new CustomRuntimeException("Error")));
 
-         List<String> roles = new ArrayList<>();
-         roles.add(role);
-         Boolean a= w.post()
-                    .uri("/register")
-                    .body(Mono.just(jwtTokenUtil.generateRegisterRequest(id,pwd,roles)), JwtResponse.class)
-                    /*
-                    .exchange().flatMap(x->{
-                        if (x.statusCode().is4xxClientError()||x.statusCode().is5xxServerError()) {
-                            Mono<String> msg=x.bodyToMono(String.class);
-                            return msg.flatMap(y->{
-                                throw new AuthenticationServiceException(y);
-                            });
-                        }
-                        return  x.bodyToMono(String.class);
-                    })
-                    .subscribe(response -> {
-                        if (dto instanceof StudentDTO)
-                            notificationService.notifyStudent((StudentDTO) dto, pwd);
-                        else if (dto instanceof ProfessorDTO)
-                            notificationService.notifyProfessor((ProfessorDTO) dto, pwd);
-                    });
-
-                     */
-                    .retrieve()
-                    .bodyToMono(Boolean.class)
-                    .block();
-                   // .onStatus(HttpStatus::is4xxClientError, response -> Mono.error(new CustomRuntimeException("Error")));
-
-                    if (a==null)
-                        return false;
-                    else
-                        return a;
+        if (a == null)
+            return false;
+        else
+            return a;
                     /*
                     .subscribe(response -> {
                         if (dto instanceof StudentDTO)
@@ -499,36 +494,33 @@ public class TeamServiceImpl implements TeamService {
                     });
 
                      */
-
-
 
 
     }
 
-    public boolean registerUsers(Map<String,String> input,String role) {
+    public boolean registerUsers(Map<String, String> input, String role) {
 
-        List<JSONObject> list=new ArrayList<>();
-        List<String> roles=new ArrayList<>();
+        List<JSONObject> list = new ArrayList<>();
+        List<String> roles = new ArrayList<>();
         roles.add(role);
-        for (String key: input.keySet()) {
+        for (String key : input.keySet()) {
             JSONObject personJsonObject = new JSONObject();
             personJsonObject.put("token", jwtTokenUtil.generateRegisterRequest(key, input.get(key), roles));
             list.add(personJsonObject);
         }
 
-        ValidUserList usersList=new ValidUserList();
+        ValidUserList usersList = new ValidUserList();
         usersList.setList(list);
 
 
+        Boolean result = w.post()
+                .uri("/registerMany")
+                .body(Mono.just(usersList), ValidUserList.class)
 
-        Boolean result=w.post()
-                    .uri("/registerMany")
-                    .body(Mono.just(usersList), ValidUserList.class)
-
-                    .retrieve()
-                    .bodyToMono(Boolean.class)
-                    .block();
-        if (result==null)
+                .retrieve()
+                .bodyToMono(Boolean.class)
+                .block();
+        if (result == null)
             return false;
         else
             return result;
@@ -538,7 +530,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public Optional<StudentDTO> getStudent(String studentId) {
-        return studentRepository.findById(studentId).filter(Student::getEnabled).map(x->modelMapper.map(x,StudentDTO.class));
+        return studentRepository.findById(studentId).filter(Student::getEnabled).map(x -> modelMapper.map(x, StudentDTO.class));
     }
 
 
@@ -547,18 +539,18 @@ public class TeamServiceImpl implements TeamService {
         return studentRepository.findAll()
                 .stream()
                 .filter(Student::getEnabled)
-                .map(s->modelMapper.map(s,StudentDTO.class))
+                .map(s -> modelMapper.map(s, StudentDTO.class))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<StudentDTO> getEnrolledStudents(String courseName) {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: "+courseName + " not found!");
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
         return c.getStudents()
                 .stream()
-                .map(s->modelMapper.map(s,StudentDTO.class))
+                .map(s -> modelMapper.map(s, StudentDTO.class))
                 .collect(Collectors.toList());
     }
 
@@ -566,23 +558,23 @@ public class TeamServiceImpl implements TeamService {
     // Operations on multiple students
 
     @Override
-    public List<Boolean> addAll(List<StudentDTO> students,boolean notify) {
-        List<Boolean> res=students.stream().map(x->addStudent(x,false)).collect(Collectors.toList());
+    public List<Boolean> addAll(List<StudentDTO> students, boolean notify) {
+        List<Boolean> res = students.stream().map(x -> addStudent(x, false)).collect(Collectors.toList());
 
 
         if (notify) {
-            Map<Integer,String> pwds=new HashMap<>();
-            for (int i=0;i<students.size();i++) {
-                if(res.get(i)) {
+            Map<Integer, String> pwds = new HashMap<>();
+            for (int i = 0; i < students.size(); i++) {
+                if (res.get(i)) {
 
 
                     pwds.put(i, students.get(i).getPassword());
                 }
             }
-            if (!registerUsers(pwds.entrySet().stream().collect(Collectors.toMap(x->students.get(x.getKey()).getId(),x->enc.encode(x.getValue()))),"ROLE_STUDENT"))
+            if (!registerUsers(pwds.entrySet().stream().collect(Collectors.toMap(x -> students.get(x.getKey()).getId(), x -> enc.encode(x.getValue()))), "ROLE_STUDENT"))
                 throw new AuthenticationServiceException("Some errors occurs with the registration of users in the system: retry!");
 
-            for (Integer pos: pwds.keySet())
+            for (Integer pos : pwds.keySet())
                 notificationService.notifyStudent(students.get(pos));
         }
         return res;
@@ -590,11 +582,11 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public List<Boolean> enrollAll(List<String> studentIds, String courseName) {
-        return studentIds.stream().map(x->addStudentToCourse(x,courseName)).collect(Collectors.toList());
+        return studentIds.stream().map(x -> addStudentToCourse(x, courseName)).collect(Collectors.toList());
     }
 
     @Override
-    public List<Boolean> enrollCSV(Reader r, String courseName){
+    public List<Boolean> enrollCSV(Reader r, String courseName) {
 
         CsvToBean<StudentDTO> csvToBean = new CsvToBeanBuilder(r)
                 .withType(StudentDTO.class)
@@ -605,13 +597,13 @@ public class TeamServiceImpl implements TeamService {
         List<String> users_ids = users.stream()
                 .map(StudentDTO::getId).collect(Collectors.toList());
 
-        List<Boolean> resEnroll = enrollAll(users_ids,courseName);
+        List<Boolean> resEnroll = enrollAll(users_ids, courseName);
 
         //check for incoherence
-        users.forEach(x->{
-                if (!getStudent(x.getId()).get().equals(x))
-                    throw new IncoherenceException("Student with id "+x.getId()+" already exist with different names");
-            });
+        users.forEach(x -> {
+            if (!getStudent(x.getId()).get().equals(x))
+                throw new IncoherenceException("Student with id " + x.getId() + " already exist with different names");
+        });
 
 
         return resEnroll;
@@ -630,29 +622,29 @@ public class TeamServiceImpl implements TeamService {
         // convert `CsvToBean` object to list of users
         List<StudentDTO> users = csvToBean.parse();
         List<String> users_ids = users.stream().map(StudentDTO::getId).collect(Collectors.toList());
-        List<Boolean> resAdd = addAll(users,false);
+        List<Boolean> resAdd = addAll(users, false);
 
 
-        List<Boolean> resEnroll = enrollAll(users_ids,courseName);
+        List<Boolean> resEnroll = enrollAll(users_ids, courseName);
 
-        Map<Integer,String> pwds=new HashMap<>();
-        for(int i = 0; i < resAdd.size(); i++) {
+        Map<Integer, String> pwds = new HashMap<>();
+        for (int i = 0; i < resAdd.size(); i++) {
 
             // paranoia
             if (resAdd.get(i) && !resEnroll.get(i))
                 throw new NotExpectedStatusException("It's impossible that a not existing student is already enrolled in a course");
 
-            if (resAdd.get(i)){
+            if (resAdd.get(i)) {
 
 
-                pwds.put(i,users.get(i).getPassword());
+                pwds.put(i, users.get(i).getPassword());
             }
             resAdd.set(i, resAdd.get(i) | resEnroll.get(i));
         }
 
-        if(!registerUsers(pwds.entrySet().stream().collect(Collectors.toMap(x->users.get(x.getKey()).getId(),x->enc.encode(x.getValue()))),"ROLE_STUDENT"))
+        if (!registerUsers(pwds.entrySet().stream().collect(Collectors.toMap(x -> users.get(x.getKey()).getId(), x -> enc.encode(x.getValue()))), "ROLE_STUDENT"))
             throw new AuthenticationServiceException("Some errors occurs with the registration of users in the system: retry!");
-        for (Integer pos: pwds.keySet())
+        for (Integer pos : pwds.keySet())
             notificationService.notifyStudent(users.get(pos));
 
         return resAdd;
@@ -661,7 +653,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public List<TeamDTO> getTeamsforStudent(String studentId) {
         if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
-            throw new StudentNotFoundException("Student: "+studentId+" not found!");
+            throw new StudentNotFoundException("Student: " + studentId + " not found!");
         Student s = studentRepository.getOne(studentId);
         return s.getTeams()
                 .stream()
@@ -675,7 +667,7 @@ public class TeamServiceImpl implements TeamService {
         if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled()) {
             throw new StudentNotFoundException("Student: " + studentId + " not found!");
         }
-            Student s = studentRepository.getOne(studentId);
+        Student s = studentRepository.getOne(studentId);
         return s.getTeams()
                 .stream()
                 .filter(t -> t.getCourse().getName().equals(courseId))
@@ -685,19 +677,19 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public String getTeamCourse(Long teamId) {
-        if(!teamRepository.existsById(teamId) || teamRepository.getOne(teamId).getCourse() == null)
-            throw new TeamNotFoundException("Team "+ teamId+ " not found");
+        if (!teamRepository.existsById(teamId) || teamRepository.getOne(teamId).getCourse() == null)
+            throw new TeamNotFoundException("Team " + teamId + " not found");
         return teamRepository.getOne(teamId).getCourse().getName();
     }
 
     @Override
-    public List<StudentDTO> getMembers(String courseName,Long teamID) {
+    public List<StudentDTO> getMembers(String courseName, Long teamID) {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: "+courseName+" not found!");
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
         Optional<Team> t = teamRepository.findById(teamID);
-        if (t.isEmpty() || !t.get().getCourse().getName().equals(courseName)){
-            throw new TeamNotFoundException("Team "+ teamID+ " not found");
+        if (t.isEmpty() || !t.get().getCourse().getName().equals(courseName)) {
+            throw new TeamNotFoundException("Team " + teamID + " not found");
         }
         Team team = teamRepository.getOne(teamID);
         return team.getMembers()
@@ -707,37 +699,37 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public List<CourseDTO> getCoursesByProf(String profID){
-        String message="Prof "+profID + " not found";
-        if (profID==null || profID.isEmpty()) {
+    public List<CourseDTO> getCoursesByProf(String profID) {
+        String message = "Prof " + profID + " not found";
+        if (profID == null || profID.isEmpty()) {
             profID = SecurityContextHolder.getContext().getAuthentication().getName();
-            message="Currently authenticated user is not a professor";
+            message = "Currently authenticated user is not a professor";
         }
         if (!professorRepository.existsById(profID))
             throw new ProfessorNotFoundException(message);
 
-        if(!professorRepository.getOne(profID).getEnabled())
+        if (!professorRepository.getOne(profID).getEnabled())
             throw new ProfessorNotFoundException("Not activated account");
         Professor p = professorRepository.getOne(profID);
-        return  p.getCourses().stream()
-                .map(x->modelMapper.map(x, CourseDTO.class))
+        return p.getCourses().stream()
+                .map(x -> modelMapper.map(x, CourseDTO.class))
                 .collect(Collectors.toList());
     }
 
 
     @Override
-    public TeamDTO proposeTeam(String courseId, String name, List<String> memberIds,Long duration) {
+    public TeamDTO proposeTeam(String courseId, String name, List<String> memberIds, Long duration) {
         String proposer = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // il corso esiste?
         if (!courseRepository.existsById(courseId) && !courseRepository.existsByAcronime(courseId))
-            throw new CourseNotFoundException("Course: "+courseId + " not found!");
+            throw new CourseNotFoundException("Course: " + courseId + " not found!");
         Course c = courseRepository.getOne(courseId);
         // il corso è abilitato?
         if (!c.getEnabled())
-            throw new CourseNotEnabledException("Course: "+courseId + " is not enabled!");
+            throw new CourseNotEnabledException("Course: " + courseId + " is not enabled!");
 
-        if (memberIds.size()==0)
+        if (memberIds.size() == 0)
             throw new TeamSizeConstraintsException("It need to specify at least one student for  a team");
 
         if (!memberIds.contains(proposer))
@@ -750,12 +742,12 @@ public class TeamServiceImpl implements TeamService {
                     if (studentRepository.existsById(x) && studentRepository.getOne(x).getEnabled())
                         return studentRepository.getOne(x);
                     else
-                        throw new  StudentNotFoundException("Student: "+x+" not found!");
+                        throw new StudentNotFoundException("Student: " + x + " not found!");
                 })
-                .map(x-> {
+                .map(x -> {
                     if (enrolled.contains(x))
                         return x;
-                    throw new NotAllEnrolledException("Student: "+x.getId()+" not enrolled in the course: "+courseId);
+                    throw new NotAllEnrolledException("Student: " + x.getId() + " not enrolled in the course: " + courseId);
 
                 })
                 .collect(Collectors.toList());
@@ -764,25 +756,25 @@ public class TeamServiceImpl implements TeamService {
         List<Team> teams = c.getTeams();
 
         //check se esiste un team con lo stesso nome nel corso
-        boolean nameAlreadyPresent = teams.stream().map(Team::getName).anyMatch(x->x.equals(name));
+        boolean nameAlreadyPresent = teams.stream().map(Team::getName).anyMatch(x -> x.equals(name));
 
         if (nameAlreadyPresent)
             throw new TeamNameAlreadyPresentInCourse("A team with this name already exists for this course");
 
         // check se già in un gruppo associato a quel corso
         boolean alreadyInATeam = members.stream()
-                .flatMap(x->x.getTeams().stream().filter( t -> t.getStatus() == 1))
+                .flatMap(x -> x.getTeams().stream().filter(t -> t.getStatus() == 1))
                 .anyMatch(teams::contains);
         if (alreadyInATeam)
-            throw new AlreadyInACourseTeamException("One or more among specified students is already part of a team inside course "+courseId);
+            throw new AlreadyInACourseTeamException("One or more among specified students is already part of a team inside course " + courseId);
 
         Set<String> set = new HashSet<String>(memberIds);
 
-        if (set.size()<memberIds.size())
+        if (set.size() < memberIds.size())
             throw new DuplicatePartecipantsException("Duplicated team members");
 
-        if (memberIds.size()<c.getMin() || memberIds.size()>c.getMax())
-            throw new TeamSizeConstraintsException("Size costraints for teams in course "+courseId+" Min: "+c.getMin()+" Max: "+c.getMax());
+        if (memberIds.size() < c.getMin() || memberIds.size() > c.getMax())
+            throw new TeamSizeConstraintsException("Size costraints for teams in course " + courseId + " Min: " + c.getMin() + " Max: " + c.getMax());
 
         Team t = new Team();
         t.setName(name);
@@ -790,37 +782,37 @@ public class TeamServiceImpl implements TeamService {
         t.setStatus(0);
         t.setId_creator(proposer);
 
-        for (Student s: members)
+        for (Student s : members)
             t.addStudent(s);
 
-        TeamDTO dto = modelMapper.map(teamRepository.save(t),TeamDTO.class);
+        TeamDTO dto = modelMapper.map(teamRepository.save(t), TeamDTO.class);
         memberIds.remove(proposer);
-        notificationService.notifyTeam(dto,memberIds,duration);
+        notificationService.notifyTeam(dto, memberIds, duration);
         return dto;
 
     }
 
     @Override
-    public TeamDTO setSettings(String courseName, Long teamId, SettingsDTO settings){
+    public TeamDTO setSettings(String courseName, Long teamId, SettingsDTO settings) {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
 
 
         // il corso esiste?
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: "+courseName + " not found!");
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
         // il docente è il docente del corso?
-        if (c.getProfessors().stream().noneMatch(x->x.getId().equals(prof)))
-            throw new CourseAuthorizationException("User "+prof+ " has not the rights to modify this course: he's not the professor for this course");
-         // il team esiste?
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)))
+            throw new CourseAuthorizationException("User " + prof + " has not the rights to modify this course: he's not the professor for this course");
+        // il team esiste?
         if (!teamRepository.existsById(teamId))
-           throw new TeamNotFoundException("Team: "+teamId + " not found!");
+            throw new TeamNotFoundException("Team: " + teamId + " not found!");
 
         Team t = teamRepository.getOne(teamId);
 
         //check  se il team è associato al corso
         if (!t.getCourse().getName().equals(courseName))
-            throw new IncoherenceException("Team " +   teamId +" doens't belong to this course");
+            throw new IncoherenceException("Team " + teamId + " doens't belong to this course");
 
         //check on the single fields
 
@@ -829,15 +821,14 @@ public class TeamServiceImpl implements TeamService {
 
         // check che siano almeno pari a quelle già occupate in caso di modifiche a runtime
 
-        if (t.getVMs().size()>settings.getMax_available() ||
-            t.getVMs().stream().map(VM::getRam).mapToInt(Integer::intValue).sum()>settings.getRam() ||
-            t.getVMs().stream().map(VM::getDisk_space).mapToInt(Integer::intValue).sum()>settings.getDisk_space() ||
-            t.getVMs().stream().map(VM::getN_cpu).mapToInt(Integer::intValue).sum()>settings.getN_cpu() ||
-            t.getVMs().stream().map(VM::getStatus).mapToInt(Integer::intValue).sum()>settings.getMax_active())
+        if (t.getVMs().size() > settings.getMax_available() ||
+                t.getVMs().stream().map(VM::getRam).mapToInt(Integer::intValue).sum() > settings.getRam() ||
+                t.getVMs().stream().map(VM::getDisk_space).mapToInt(Integer::intValue).sum() > settings.getDisk_space() ||
+                t.getVMs().stream().map(VM::getN_cpu).mapToInt(Integer::intValue).sum() > settings.getN_cpu() ||
+                t.getVMs().stream().map(VM::getStatus).mapToInt(Integer::intValue).sum() > settings.getMax_active())
             throw new NotExpectedStatusException("It's not possible assign less resources than already allocated!");
 
         //AGGIUNGERE CONTROLLO RELATIVO A RIMODULAZIONE DELLE MACCHINE ATTIVE
-
 
 
         t.setN_cpu(settings.getN_cpu());
@@ -847,30 +838,30 @@ public class TeamServiceImpl implements TeamService {
         t.setMax_available(settings.getMax_available());
 
 
-        return modelMapper.map(teamRepository.save(t),TeamDTO.class);
+        return modelMapper.map(teamRepository.save(t), TeamDTO.class);
     }
 
 
     @Override
     public List<TeamDTO> getTeamForCourse(String courseName) {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: "+courseName+" not found!");
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
-        return teamRepository.getByCourse(c).stream().map(x->modelMapper.map(x,TeamDTO.class))
+        return teamRepository.getByCourse(c).stream().map(x -> modelMapper.map(x, TeamDTO.class))
                 .collect(Collectors.toList());
 
     }
 
     @Override
-    public TeamDTO getOneTeamForCourse(String courseName,Long teamID){
+    public TeamDTO getOneTeamForCourse(String courseName, Long teamID) {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: "+courseName+" not found!");
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
         Optional<Team> t = teamRepository.findById(teamID);
-        if (t.isEmpty() || !t.get().getCourse().getName().equals(courseName)){
-            throw new TeamNotFoundException("Team "+ teamID+ " not found");
+        if (t.isEmpty() || !t.get().getCourse().getName().equals(courseName)) {
+            throw new TeamNotFoundException("Team " + teamID + " not found");
         }
-        return modelMapper.map(t.get(),TeamDTO.class);
+        return modelMapper.map(t.get(), TeamDTO.class);
 
     }
 
@@ -878,11 +869,11 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public List<StudentDTO> getStudentsInTeams(String courseName) {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: "+courseName + " not found!");
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
 
         return courseRepository.getStudentsInTeams(courseName)
                 .stream()
-                .map(x->modelMapper.map(x,StudentDTO.class))
+                .map(x -> modelMapper.map(x, StudentDTO.class))
                 .collect(Collectors.toList());
     }
 
@@ -890,22 +881,22 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public List<StudentDTO> getAvailableStudents(String courseName) {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: "+courseName + " not found!");
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
 
         return courseRepository.getStudentsNotInTeams(courseName)
                 .stream()
                 .filter(Student::getEnabled)
-                .map(x->modelMapper.map(x,StudentDTO.class))
+                .map(x -> modelMapper.map(x, StudentDTO.class))
                 .collect(Collectors.toList());
     }
 
     @Override
     public boolean activateTeam(Long ID) {
         Optional<Team> t = teamRepository.findById(ID);
-        if(t.isEmpty())
+        if (t.isEmpty())
             return false;
         t.get().setStatus(1);
-        for(Student s : t.get().getMembers()){
+        for (Student s : t.get().getMembers()) {
             s.getTeams().stream()
                     .filter(x -> x.getCourse() == t.get().getCourse() && x.getStatus() == 0)
                     .forEach(x -> {
@@ -916,12 +907,13 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public List<Boolean> evictAll(Set<Long> teams){
+    public List<Boolean> evictAll(Set<Long> teams) {
         return teams.stream().map(this::evictTeam).collect(Collectors.toList());
     }
+
     @Override
     public boolean evictTeam(Long ID) {
-        Optional<Team> t =teamRepository.findById(ID);
+        Optional<Team> t = teamRepository.findById(ID);
         if (t.isEmpty())
             return false;
         Team team = t.get();
@@ -930,11 +922,11 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public List<ProfessorDTO> getAllProfessors(){
+    public List<ProfessorDTO> getAllProfessors() {
         return professorRepository.findAll()
                 .stream()
                 .filter(Professor::getEnabled)
-                .map(s->modelMapper.map(s,ProfessorDTO.class))
+                .map(s -> modelMapper.map(s, ProfessorDTO.class))
                 .collect(Collectors.toList());
     }
 
@@ -955,6 +947,7 @@ public class TeamServiceImpl implements TeamService {
         System.out.println("Compressed Image Byte Size - " + outputStream.toByteArray().length);
         return outputStream.toByteArray();
     }
+
     // uncompress the image bytes before returning it to the angular application
     public static byte[] decompressBytes(byte[] data) {
         Inflater inflater = new Inflater();
@@ -973,7 +966,6 @@ public class TeamServiceImpl implements TeamService {
     }
 
 
-
     public Image getProfileImage() {
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
         if (studentRepository.existsById(principal))
@@ -983,14 +975,14 @@ public class TeamServiceImpl implements TeamService {
         throw new UsernameNotFoundException("Can't retrieve profile image for the specified user");
     }
 
-    public void activateAccount(String id){
+    public void activateAccount(String id) {
 
 
-        if (studentRepository.existsById(id)){
+        if (studentRepository.existsById(id)) {
             studentRepository.getOne(id).setEnabled(true);
-        }else if (professorRepository.existsById(id)){
+        } else if (professorRepository.existsById(id)) {
             professorRepository.getOne(id).setEnabled(true);
-        }else
+        } else
             throw new UsernameNotFoundException("Impossible to activate not existing user");
 
 
@@ -1037,7 +1029,7 @@ public class TeamServiceImpl implements TeamService {
                      */
     }
 
-    public void removeAccount(String id){
+    public void removeAccount(String id) {
         //TO DO: gestire eventuali casi di errore con il reinvio
 
 
@@ -1050,16 +1042,16 @@ public class TeamServiceImpl implements TeamService {
     }
 
 
-    public void removeAccounts(Set<String> users){
+    public void removeAccounts(Set<String> users) {
         //TO DO: gestire eventuali casi di errore con il reinvio
-        List<JSONObject> list=new ArrayList<>();
-        for (String key: users) {
+        List<JSONObject> list = new ArrayList<>();
+        for (String key : users) {
             JSONObject personJsonObject = new JSONObject();
             personJsonObject.put("token", jwtTokenUtil.generateIdRequest(key));
             list.add(personJsonObject);
         }
 
-        ValidUserList usersList=new ValidUserList();
+        ValidUserList usersList = new ValidUserList();
         usersList.setList(list);
         w.post()
                 .uri("/removeMany")
@@ -1070,31 +1062,30 @@ public class TeamServiceImpl implements TeamService {
     }
 
 
-
     @Override
     public void deleteAll(Set<String> users) {
-        studentRepository.deleteAll(users.stream().filter(x->studentRepository.existsById(x)).map(x->studentRepository.getOne(x)).collect(Collectors.toList()));
-        professorRepository.deleteAll(users.stream().filter(x->professorRepository.existsById(x)).map(x->professorRepository.getOne(x)).collect(Collectors.toList()));
+        studentRepository.deleteAll(users.stream().filter(x -> studentRepository.existsById(x)).map(x -> studentRepository.getOne(x)).collect(Collectors.toList()));
+        professorRepository.deleteAll(users.stream().filter(x -> professorRepository.existsById(x)).map(x -> professorRepository.getOne(x)).collect(Collectors.toList()));
         removeAccounts(users);
     }
 
     @Override
-    public void shareOwnership(String courseName,String profId){
+    public void shareOwnership(String courseName, String profId) {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!courseRepository.existsById(courseName))
-            throw new CourseNotFoundException("Course "+courseName+ " not found");
+            throw new CourseNotFoundException("Course " + courseName + " not found");
         Course c = courseRepository.getOne(courseName);
-        if (!c.getProfessors().stream().anyMatch(x->x.getId().equals(prof))){
+        if (!c.getProfessors().stream().anyMatch(x -> x.getId().equals(prof))) {
             throw new AuthorizationServiceException("Autenticated user is not a professor for this course");
         }
         if (!professorRepository.existsById(profId))
-            throw new ProfessorNotFoundException("Professor "+profId+" not found");
+            throw new ProfessorNotFoundException("Professor " + profId + " not found");
         Professor p = professorRepository.getOne(profId);
         if (!p.getEnabled())
-            throw new ProfessorNotFoundException("Professor "+profId+" not found");
+            throw new ProfessorNotFoundException("Professor " + profId + " not found");
 
-        if (c.getProfessors().stream().anyMatch(x->x.getId().equals(profId)))
-            throw new IncoherenceException("Professor "+profId+" already a professor for this course");
+        if (c.getProfessors().stream().anyMatch(x -> x.getId().equals(profId)))
+            throw new IncoherenceException("Professor " + profId + " already a professor for this course");
 
         c.addProfessor(p);
         courseRepository.save(c);
@@ -1102,15 +1093,15 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public Map<String,Boolean> getAdhesionInfo(Long teamID){
+    public Map<String, Boolean> getAdhesionInfo(Long teamID) {
 
         Team t = teamRepository.getOne(teamID);
-        Map<String,Boolean> m=new HashMap<>();
+        Map<String, Boolean> m = new HashMap<>();
         List<Student> members = t.getMembers();
         List<Token> tokens = tokenRepository.findAllByTeamId(teamID);
 
-        for(Student s: members){
-            m.put(s.getId(), tokens.stream().noneMatch(x->x.getUserId().equals(s.getId())));
+        for (Student s : members) {
+            m.put(s.getId(), tokens.stream().noneMatch(x -> x.getUserId().equals(s.getId())));
         }
 
         return m;

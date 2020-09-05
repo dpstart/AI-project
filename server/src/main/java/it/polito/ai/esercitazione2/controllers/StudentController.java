@@ -16,6 +16,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -51,6 +52,14 @@ public class StudentController {
         return teamservice.getAllStudents().stream()
                 .map(ModelHelper::enrich).collect(Collectors.toList());
     }
+
+    @GetMapping("/self")
+    public StudentDTO getSelf() {
+        String id = SecurityContextHolder.getContext().getAuthentication().getName();
+        StudentDTO c = teamservice.getStudent(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, id));
+        return ModelHelper.enrich(c);
+    }
+
 
     @GetMapping("/{id}")
     public StudentDTO getOne(@PathVariable String id) {

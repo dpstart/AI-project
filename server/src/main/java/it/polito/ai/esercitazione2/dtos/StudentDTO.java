@@ -19,12 +19,12 @@ public class StudentDTO extends RepresentationModel<StudentDTO> {
     @JsonProperty("id")
     String id;
     @CsvBindByName
-    @Pattern(regexp = "^[a-zA-Z0-]+$")
+    @Pattern(regexp = "^[a-zA-Z]+$")
     @NotBlank
     @JsonProperty("name")
     String name;
     @CsvBindByName
-    @Pattern(regexp = "^[a-zA-Z0-]+$")
+    @Pattern(regexp = "^[a-zA-Z]+$")
     @NotBlank
     @JsonProperty("firstName")
     String firstName;
@@ -35,6 +35,9 @@ public class StudentDTO extends RepresentationModel<StudentDTO> {
     @JsonProperty("password")
     String password;
 
+    @JsonProperty("alias")
+    @CsvBindByName
+    String alias;
     @CsvBindByName
     @JsonProperty("email")
     @Email(regexp="^(((s[0-9]{6})|([a-z]+\\.[a-z]+))@studenti\\.polito\\.it)$")
