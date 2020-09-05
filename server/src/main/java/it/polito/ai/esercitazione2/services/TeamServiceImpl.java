@@ -312,6 +312,15 @@ public class TeamServiceImpl implements TeamService {
         catch (IOException e) {
         }
         Professor prof = modelMapper.map(p, Professor.class);
+        String alias = prof.getFirstName() + prof.getName();
+        if(professorRepository.getByAlias(alias) != null){
+            Integer i=3;
+            for(alias += "2"; professorRepository.getByAlias(alias) != null; i++){
+                alias = alias.substring(0, alias.length()- Integer.toString(i - 1).length());
+                alias += i.toString();
+            }
+        }
+        prof.setAlias(alias);
         if(img != null)
             prof.setImage_id(img.getName());
 
@@ -338,7 +347,15 @@ public class TeamServiceImpl implements TeamService {
         }
 
         Professor prof = modelMapper.map(p, Professor.class);
-
+        String alias = prof.getFirstName() + prof.getName();
+        if(professorRepository.getByAlias(alias) != null){
+            Integer i=3;
+            for(alias += "2"; professorRepository.getByAlias(alias) != null; i++){
+                alias = alias.substring(0, alias.length()- Integer.toString(i - 1).length());
+                alias += i.toString();
+            }
+        }
+        prof.setAlias(alias);
         professorRepository.save(prof);
 
 
@@ -374,6 +391,15 @@ public class TeamServiceImpl implements TeamService {
         catch (IOException e) {
         }
         Student stud = modelMapper.map(s,Student.class);
+        String alias = stud.getFirstName() + stud.getName();
+        if(studentRepository.getByAlias(alias) != null){
+            Integer i=3;
+            for(alias += "2"; studentRepository.getByAlias(alias) != null; i++){
+                alias = alias.substring(0, alias.length()- Integer.toString(i - 1).length());
+                alias += i.toString();
+            }
+        }
+        stud.setAlias(alias);
         if(img!=null)
             stud.setImage_id(img.getName());
 
@@ -401,6 +427,16 @@ public class TeamServiceImpl implements TeamService {
                 throw new IncoherenceException("Student with id "+s.getId()+" already exist with different names");
         }
         Student stud = modelMapper.map(s,Student.class);
+
+        String alias = stud.getFirstName() + stud.getName();
+        if(studentRepository.getByAlias(alias) != null){
+            Integer i=3;
+            for(alias += "2"; studentRepository.getByAlias(alias) != null; i++){
+                alias = alias.substring(0, alias.length()- Integer.toString(i - 1).length());
+                alias += i.toString();
+            }
+        }
+        stud.setAlias(alias);
 
         studentRepository.save(stud);
 

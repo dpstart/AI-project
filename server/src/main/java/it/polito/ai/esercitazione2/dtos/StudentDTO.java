@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 
@@ -18,10 +19,12 @@ public class StudentDTO extends RepresentationModel<StudentDTO> {
     @JsonProperty("id")
     String id;
     @CsvBindByName
+    @Pattern(regexp = "^[a-zA-Z0-]+$")
     @NotBlank
     @JsonProperty("name")
     String name;
     @CsvBindByName
+    @Pattern(regexp = "^[a-zA-Z0-]+$")
     @NotBlank
     @JsonProperty("firstName")
     String firstName;
@@ -34,7 +37,7 @@ public class StudentDTO extends RepresentationModel<StudentDTO> {
 
     @CsvBindByName
     @JsonProperty("email")
-    @Email(regexp="^(((s[0-9]{6})|([a-z]+\\.[a-z]+))@studenti.polito.it)$")
+    @Email(regexp="^(((s[0-9]{6})|([a-z]+\\.[a-z]+))@studenti\\.polito\\.it)$")
     String email;
 
     Boolean enabled=false;

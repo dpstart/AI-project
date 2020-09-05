@@ -42,6 +42,20 @@ public class JwtAuthenticationController {
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
+        String username = authenticationRequest.getUsername();
+        if(username.matches("^(s[0-9]{6}@studenti.polito.it)$")
+                || username.matches("^(d[0-9]{6}@polito.it)$")){
+            authenticationRequest.setUsername(username.substring(8));
+        }
+        if(username.matches("^([a-z]+\\.[a-z]+)$")){
+            authenticationRequest.setUsername(jwtservice.getUsernameFromAlias(username));
+        }
+        if(username.matches("^([a-z]+\\.[a-z]+@polito.it)$")){
+            authenticationRequest.setUsername(jwtservice.getProfUsernameByAlias(username.substring(0,username.indexOf("@"))));
+        }
+        if(username.matches("^([a-z]+\\.[a-z]+@studenti.polito.it)$")){
+            authenticationRequest.setUsername(jwtservice.getStudentUsernameByAlias(username.substring(0,username.indexOf("@"))));
+        }
         jwtservice.authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
         final UserDetails userDetails = jwtservice.getUser(authenticationRequest.getUsername());
         final String token = jwtservice.generateToken(userDetails);

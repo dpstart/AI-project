@@ -1,6 +1,10 @@
 package it.polito.ai.esercitazione2.services;
 
 import it.polito.ai.esercitazione2.config.JwtTokenUtil;
+import it.polito.ai.esercitazione2.entities.Professor;
+import it.polito.ai.esercitazione2.entities.Student;
+import it.polito.ai.esercitazione2.repositories.ProfessorRepository;
+import it.polito.ai.esercitazione2.repositories.StudentRepository;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,7 +25,7 @@ import java.util.List;
 
 @Service
 @Transactional
-@Log(topic = "IWT Service")
+@Log(topic = "JWT Service")
 public class JWTServiceImpl implements JWTService {
 
     @Autowired
@@ -30,6 +34,10 @@ public class JWTServiceImpl implements JWTService {
     JwtTokenUtil jwtTokenUtil;
     @Autowired
     JdbcUserDetailsManager jdbcUserDetailsManager;
+    @Autowired
+    ProfessorRepository professorRepository;
+    @Autowired
+    StudentRepository studentRepository;
 
     @Override
     public void authenticate(String username, String password) throws Exception {
@@ -75,6 +83,30 @@ public class JWTServiceImpl implements JWTService {
     @Override
     public void deleteUser(String id) throws Exception{
         jdbcUserDetailsManager.deleteUser(id);
+    }
+
+    @Override
+    public String getUsernameFromAlias(String alias) {
+        String username = getProfUsernameByAlias(alias);
+        if (alias != username)
+            return username;
+        return getStudentUsernameByAlias(alias);
+    }
+
+    @Override
+    public String getStudentUsernameByAlias(String alias) {
+        Student stud = studentRepository.getByAlias(alias);
+        if(stud != null)
+            return stud.getId();
+        return alias;
+    }
+
+    @Override
+    public String getProfUsernameByAlias(String alias) {
+        Professor prof = professorRepository.getByAlias(alias);
+        if(prof != null)
+            return prof.getId();
+        return alias;
     }
 
 }

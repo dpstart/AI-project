@@ -18,6 +18,8 @@ public class Student {
     String id;
     String name;
     String firstName;
+    @Column(unique=true)
+    String alias;
     String email;
     Long image_id;
     Boolean enabled=false;
