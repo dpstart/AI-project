@@ -1,10 +1,6 @@
 TODO SERVER_SIDE:
 
 -risolvere bug UPLOAD HOMEWORK nel return crasha (è un problema col model mapper)
-
--Aggiungere metodo per ottenere info riguardo a studente se ha accettato o meno la proposta per un gruppo in un determinato corso (id studente deve essere un parametro), magari continuando la URL con
-teamProposals oppure andando a richiedere le info per tutti i partecipanti facendo la richiesta con teamId che forse è meglio
+	Damiano: mi serve una mano a replicare la condizione
 
 -Possibilità di riempimento automatico del db all'accensione del server
-
-- proposeTeam: stesso studente non può creare più team con l'unica cosa diversa il nome, non ha senso

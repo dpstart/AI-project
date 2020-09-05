@@ -776,6 +776,16 @@ public class TeamServiceImpl implements TeamService {
         if (memberIds.size() < c.getMin() || memberIds.size() > c.getMax())
             throw new TeamSizeConstraintsException("Size costraints for teams in course " + courseId + " Min: " + c.getMin() + " Max: " + c.getMax());
 
+        if(teams.stream()
+                .anyMatch( x -> x.getMembers()
+                        .stream()
+                        .map(s -> s.getId())
+                        .collect(Collectors.toList())
+                        .containsAll(memberIds))){
+            throw new DuplicateTeamException("A team proposal with the same members is already existing");
+        }
+
+
         Team t = new Team();
         t.setName(name);
         t.setCourse(c);
