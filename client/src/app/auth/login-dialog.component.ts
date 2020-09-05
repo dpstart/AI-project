@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { MatDialogRef } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -11,7 +12,12 @@ import { MatDialogRef } from '@angular/material/dialog';
 })
 export class LoginDialogComponent {
 
-  constructor(private dialogRef: MatDialogRef<LoginDialogComponent>, private authService: AuthService) { }
+  constructor(private dialogRef: MatDialogRef<LoginDialogComponent>, private authService: AuthService, private router: Router) {
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['home'])
+      this.close()
+    }
+  }
 
   form: FormGroup = new FormGroup({
     email: new FormControl(''),
@@ -29,11 +35,6 @@ export class LoginDialogComponent {
     this.authService.login(this.form.value.email, this.form.value.password).subscribe(data => {
 
       var sess = {};
-
-
-
-
-
 
       sess["info"] = JSON.parse(atob(data["token"].split('.')[1]));
       sess["token"] = data["token"]
@@ -63,7 +64,7 @@ export class LoginDialogComponent {
 
       })
 
-      this.dialogRef.close();
+      this.close()
 
     }, error => {
       this.error = error.message;
@@ -73,7 +74,7 @@ export class LoginDialogComponent {
 
   close() {
     this.dialogRef.close();
-
+    this.router.navigate(['home'])
   }
 
 }
