@@ -14,6 +14,9 @@ export class RegisterDialogComponent implements OnInit {
 
   alertType: string
 
+  //hide password
+  hide = true
+
   constructor(private dialogRef: MatDialogRef<RegisterDialogComponent>, private auth: AuthService) {
     this.message = ""
     this.alertType = ""
@@ -42,11 +45,11 @@ export class RegisterDialogComponent implements OnInit {
     let user: RegisteredUser = this.form.value;
     this.auth.register(user)
       .subscribe(
-        data => { 
+        data => {
           console.log(data)
-          this.alertType="success"
+          this.alertType = "success"
           this.message = "An email was sent to your account, please click on the link to confirm."
-         },
+        },
         error => {
           this.alertType = "danger"
           this.message = error.message

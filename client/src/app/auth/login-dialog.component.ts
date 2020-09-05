@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -12,6 +12,8 @@ import { Router } from '@angular/router';
 })
 export class LoginDialogComponent {
 
+  hide = true;
+
   constructor(private dialogRef: MatDialogRef<LoginDialogComponent>, private authService: AuthService, private router: Router) {
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['home'])
@@ -20,8 +22,11 @@ export class LoginDialogComponent {
   }
 
   form: FormGroup = new FormGroup({
-    email: new FormControl(''),
-    password: new FormControl(''),
+    email: new FormControl('',
+      [Validators.required,
+      Validators.pattern("(^[0-9]{6}$)|(^d[0-9]{6}@polito\.it$)|(^s[0-9]{6}@studenti\.polito\.it$)|(^[a-z]+\.[a-z]+$)|(^[a-z]+\.[a-z]+@polito\.it$)|(^[a-z]+\.[a-z]+@studenti\.polito\.it$)")
+      ]),
+    password: new FormControl('', Validators.required),
   });
 
   submit() {
