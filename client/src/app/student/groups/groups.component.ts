@@ -66,7 +66,10 @@ export class GroupsComponent implements OnInit {
 
   isLoading: boolean // loading
 
-  isErrorAlertOpen: boolean
+
+  //Alert for notification
+  message: string
+  alertType: string
 
   isInTeam: boolean
 
@@ -111,7 +114,15 @@ export class GroupsComponent implements OnInit {
     this.setDataSourceAttributes();
   }
 
-  constructor(private activatedRoute: ActivatedRoute, private _studentService: StudentService, private authService: AuthService, private routeStateService: RouteStateService) { }
+  constructor(
+    private activatedRoute: ActivatedRoute,
+    private _studentService: StudentService,
+    private authService: AuthService,
+    private routeStateService: RouteStateService) {
+    this.message = ""
+    this.alertType = "danger"
+  }
+
 
 
   ngOnInit(): void {
@@ -145,7 +156,6 @@ export class GroupsComponent implements OnInit {
         })
 
 
-        this.isErrorAlertOpen = false
 
 
         // Update the course into the service so that all the other components will know it
@@ -346,13 +356,24 @@ export class GroupsComponent implements OnInit {
                     })
                   }
                 }
+                this.alertType = "success"
+                this.message = "Your proposal has been succesfully sent."
               })
               // Remove students selected
               this.selection.clear()
-            } else
-              this.isErrorAlertOpen = true
+            } else {
+
+              this.alertType = "danger"
+              this.message = "Sorry something went wrong, try later..."
+              this.selection.clear()
+
+            }
+
           }, (_) => {
-            this.isErrorAlertOpen = true
+            this.alertType = "danger"
+            this.message = "Sorry something went wrong, try later..."
+            this.selection.clear()
+
           })
 
       })

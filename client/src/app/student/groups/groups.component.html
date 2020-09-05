@@ -29,8 +29,7 @@
 
 
 
-            <ngb-alert *ngIf="isErrorAlertOpen" type='danger' (close)="isErrorAlertOpen=false">Sorry... the group was
-                not created try with another name. </ngb-alert>
+            <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
 
 
             <table #table mat-table [dataSource]="dataSourceStudentNotYetInTeam" matSort #matSortNotInTeam=matSort

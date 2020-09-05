@@ -7,3 +7,4 @@ teamProposals oppure andando a richiedere le info per tutti i partecipanti facen
 
 -Possibilità di riempimento automatico del db all'accensione del server
 
+- proposeTeam: stesso studente non può creare più team con l'unica cosa diversa il nome, non ha senso
