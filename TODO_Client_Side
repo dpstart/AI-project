@@ -8,6 +8,12 @@
 -REGISTRAZIONE
  --messaggio di errore e di successo 
 
+
+-LOGIN 
+-- Modificare regex per accettare le quattro modalità
+-- TOGLIERE POSSIBILTA' di accedere a login una volta effettuato
+
+
 -GROUPS
 --  Ritirare info riguardo stato della proposta(da implementare server side)... Per il momento sempre false
 --  Dare allo studente la possibilità di rifiutare la proposta ricevuta

@@ -148,8 +148,8 @@ export class AppComponent implements OnInit {
     return this.authService.isLoggedIn();
   }
 
-  getEmail() {
-    return this.authService.getEmail()
+  getUserNameAndSurname() {
+    return this.authService.getUserNameAndSurname()
   }
 
   logout() {

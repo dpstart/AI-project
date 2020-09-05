@@ -111,7 +111,7 @@ export class GroupsComponent implements OnInit {
     this.setDataSourceAttributes();
   }
 
-  constructor(private activatedRoute: ActivatedRoute, private _studentService: StudentService, private authService: AuthService, private routeStateService: RouteStateService) {}
+  constructor(private activatedRoute: ActivatedRoute, private _studentService: StudentService, private authService: AuthService, private routeStateService: RouteStateService) { }
 
 
   ngOnInit(): void {
@@ -123,31 +123,31 @@ export class GroupsComponent implements OnInit {
         this.isInTeam = false // inizializzato a false indica che lo studente non è in un team
         this.isLoading = true // caricamento 
         this.isDisabled = true // indica se il bottone può essere premuto o meno
-    
+
         //students table
         this.studentsInTeam = []
         this.dataSourceStudentInTeam = new MatTableDataSource<Student>();
         this.dataSourceStudentNotYetInTeam = new MatTableDataSource<Student>();
         this.displayedColumnsNotInTeam = ['select', 'id', 'name', 'first name', 'group'];
-    
+
         //proposals table
         this.dataSourceProposals = new MatTableDataSource()
         this.displayedColumnsProposals = ['idCreator', 'groupName', 'name', 'firstName'];
         this.displayedColumnsInTeam = ['group', 'id', 'name', 'first name']
-    
+
         //inner members table
         this.dataSourceMembersProposal = []
         this.displayedColumnsMembers = ['id', 'name', 'firstname', 'status']
-    
+
         this.form = new FormGroup({
           groupNameControl: new FormControl('', [Validators.required]),
           timeoutControl: new FormControl(10, [Validators.required, Validators.min(10)]) //10 min
         })
-    
-    
+
+
         this.isErrorAlertOpen = false
 
-        
+
         // Update the course into the service so that all the other components will know it
         this.routeStateService.updatePathParamState(params['course_name'])
 
@@ -176,8 +176,9 @@ export class GroupsComponent implements OnInit {
                 //students is not yet in team: we have to upload in the table only the students that are not in a team
                 this.studentService.getStudentsAvailableInCourse(this.selectedCourse.name).subscribe((studentsNotInTeam: Student[]) => {
 
+
                   //Filtro lo studente che fa la richiesta
-                  studentsNotInTeam = studentsNotInTeam.filter((student) => student.id != this.authService.getEmail())
+                  studentsNotInTeam = studentsNotInTeam.filter((student) => student.id != this.authService.getId())
 
                   //aggiorno source
                   this.dataSourceStudentNotYetInTeam.data = [...studentsNotInTeam]
@@ -202,7 +203,7 @@ export class GroupsComponent implements OnInit {
                         let members: MemberOfProposal[] = []
                         studentsInTeamProposed.forEach((member) => {
                           //TODO lo status per ora è false ma l'informazione va ritirata
-                          members.push({ id: member.id, name: member.name, firstname: member.firstName, status: false })
+                          members.push({ id: member.id, name: member.name, firstname: member.firstName, status: true })
                         })
 
                         this.studentService.getStudentById(proposedTeams[i].id_creator).subscribe(creator => {
@@ -296,58 +297,66 @@ export class GroupsComponent implements OnInit {
   onSubmit() {
     // Check if all fields are correctly setted.
     if (!this.isDisabled) {
+      //avendo fatto accesso a questa pagina qui il metodo getSelf può ritornare solo uno studente
+      this.authService.getSelf().subscribe((student: Student) => {
+        let studentsForProposal = [...this.selection.selected]
 
-      this.studentService.proposeTeam(this.selectedCourse.name,
-        this.form.get('groupNameControl').value,
-        this.selection.selected,
-        this.form.get('timeoutControl').value).subscribe((resp) => {
-          if (resp.status === 201) { // Ok created
-            // TODO: fill dataSourceProposals with the proposed members in the team
+        studentsForProposal.push(student)
 
-            this.studentService.getProposalsToStudent(this.selectedCourse.name).subscribe(proposedTeams => {
+        this.studentService.proposeTeam(this.selectedCourse.name,
+          this.form.get('groupNameControl').value,
+          studentsForProposal,
+          this.form.get('timeoutControl').value).subscribe((resp) => {
+            if (resp.status === 201) { // Ok created
+              // TODO: fill dataSourceProposals with the proposed members in the team
 
-
-              if (proposedTeams.length != 0) {
-
-                // Add the new proposals 
-                let proposals: Proposal[] = []
-
-                // per ogni proposal per un team
-                for (let i = 0; i < proposedTeams.length; i++) {
-                  this.dataSourceMembersProposal[i] = new MatTableDataSource<MemberOfProposal>()
+              this.studentService.getProposalsToStudent(this.selectedCourse.name).subscribe(proposedTeams => {
 
 
-                  //raccolgo i membri
-                  this.studentService.getTeamMembers(this.selectedCourse.name, proposedTeams[i].id).subscribe((studentsInTeamProposed) => {
+                if (proposedTeams.length != 0) {
+
+                  // Add the new proposals 
+                  let proposals: Proposal[] = []
+
+                  // per ogni proposal per un team
+                  for (let i = 0; i < proposedTeams.length; i++) {
+                    this.dataSourceMembersProposal[i] = new MatTableDataSource<MemberOfProposal>()
 
 
-                    let members: MemberOfProposal[] = []
+                    //raccolgo i membri
+                    this.studentService.getTeamMembers(this.selectedCourse.name, proposedTeams[i].id).subscribe((studentsInTeamProposed) => {
 
-                    //Converto students to members
-                    studentsInTeamProposed.forEach((member) => {
-                      //TODO lo status per ora è false ma l'informazione va ritirata
-                      members.push({ id: member.id, name: member.name, firstname: member.firstName, status: false })
+
+                      let members: MemberOfProposal[] = []
+
+                      //Converto students to members
+                      studentsInTeamProposed.forEach((member) => {
+                        //TODO lo status per ora è false ma l'informazione va ritirata
+                        members.push({ id: member.id, name: member.name, firstname: member.firstName, status: true })
+                      })
+
+                      this.studentService.getStudentById(proposedTeams[i].id_creator).subscribe(creator => {
+                        proposals.push({ row: i, idCreator: proposedTeams[i].id_creator, groupName: proposedTeams[i].name, name: creator.name, firstName: creator.firstName, members: members })
+
+                        this.dataSourceProposals.data = [...proposals]
+
+                        this.dataSourceMembersProposal[i].data = [...members]
+                      })
+
                     })
-
-                    this.studentService.getStudentById(proposedTeams[i].id_creator).subscribe(creator => {
-                      proposals.push({ row: i, idCreator: proposedTeams[i].id_creator, groupName: proposedTeams[i].name, name: creator.name, firstName: creator.firstName, members: members })
-
-                      this.dataSourceProposals.data = [...proposals]
-
-                      this.dataSourceMembersProposal[i].data = [...members]
-                    })
-
-                  })
+                  }
                 }
-              }
-            })
-            // Remove students selected
-            this.selection.clear()
-          } else
+              })
+              // Remove students selected
+              this.selection.clear()
+            } else
+              this.isErrorAlertOpen = true
+          }, (_) => {
             this.isErrorAlertOpen = true
-        }, (_) => {
-          this.isErrorAlertOpen = true
-        })
+          })
+
+      })
+
 
     }
 

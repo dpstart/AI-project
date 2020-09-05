@@ -25,6 +25,7 @@ export interface RegisteredUser {
 })
 export class AuthService {
 
+
   private handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {
       // A client-side or network error occurred. Handle it accordingly.ù
@@ -98,6 +99,24 @@ export class AuthService {
     this.routeStateService.updatePathParamState("Home")
   }
 
+
+  getSelf(): Observable<any> {
+
+    let url = "";
+    //TODO admin??
+    if (this.isRoleTeacher()) {
+
+      url = `${this.URL}/professors/self`;
+
+    } else {
+      url = `${this.URL}/students/self`;
+    }
+
+    return this.http.get<any>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    )
+  }
   getAccessToken() {
 
     var session = localStorage.getItem('session');
@@ -129,6 +148,23 @@ export class AuthService {
     let session = JSON.parse(localStorage.getItem('session'));
     return session['email']
   }
+
+  getUserNameAndSurname(): string {
+    let session = JSON.parse(localStorage.getItem('session'));
+    return `${session['firstName']} ${session['name']}`
+  }
+
+  getId():string{
+    let session = JSON.parse(localStorage.getItem('session'));
+    return session['id']
+  }
+
+  /*
+  getEmail(): string {
+    let session = JSON.parse(localStorage.getItem('session'));
+    return session['email']
+  }
+  */
 
   isRoleStudent() {
     return this.getRole() == ROLE.STUDENT

@@ -11,7 +11,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 })
 export class LoginDialogComponent {
 
-  constructor(private dialogRef: MatDialogRef<LoginDialogComponent>, private auth: AuthService) { }
+  constructor(private dialogRef: MatDialogRef<LoginDialogComponent>, private authService: AuthService) { }
 
   form: FormGroup = new FormGroup({
     email: new FormControl(''),
@@ -26,16 +26,42 @@ export class LoginDialogComponent {
   @Input() error: string | null;
 
   save() {
-    this.auth.login(this.form.value.email, this.form.value.password).subscribe(data => {
+    this.authService.login(this.form.value.email, this.form.value.password).subscribe(data => {
 
       var sess = {};
 
-      sess["email"] = this.form.value.email;
+
+
+
+
+
       sess["info"] = JSON.parse(atob(data["token"].split('.')[1]));
       sess["token"] = data["token"]
 
       localStorage.setItem("session", JSON.stringify(sess));
-      
+
+
+
+      this.authService.getSelf().subscribe((data) => {
+
+        console.log(data);
+
+
+        if (data.email)
+          sess["email"] = data.email;
+        if (data.alias)
+          sess["alias"] = data.alias;
+        if (data.firstName)
+          sess["firstName"] = data.firstName;
+        if (data.name)
+          sess["name"] = data.name;
+        if (data.id)
+          sess["id"] = data.id;
+
+
+        localStorage.setItem("session", JSON.stringify(sess));
+
+      })
 
       this.dialogRef.close();
 
