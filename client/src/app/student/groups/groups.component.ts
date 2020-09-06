@@ -25,7 +25,9 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
   ]
 })
 export class GroupsComponent implements OnInit {
-
+  public get authService(): AuthService {
+    return this._authService;
+  }
 
 
   public get studentService(): StudentService {
@@ -117,7 +119,7 @@ export class GroupsComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private _studentService: StudentService,
-    private authService: AuthService,
+    private _authService: AuthService,
     private routeStateService: RouteStateService) {
     this.message = ""
     this.alertType = "danger"
@@ -199,31 +201,31 @@ export class GroupsComponent implements OnInit {
                 this.studentService.getProposalsToStudent(this.selectedCourse.name).subscribe(proposedTeams => {
 
 
+
                   if (proposedTeams.length != 0) {
 
                     // Add the new proposals 
-                    let proposals: Proposal[] = []
+                    let proposals: Proposal[] = [];
 
                     for (let i = 0; i < proposedTeams.length; i++) {
 
-                      this.dataSourceMembersProposal.push(new MatTableDataSource<MemberOfProposal>())
+                      this.dataSourceMembersProposal.push(new MatTableDataSource<MemberOfProposal>());
 
                       this.studentService.getTeamMembers(this.selectedCourse.name, proposedTeams[i].id).subscribe((studentsInTeamProposed) => {
 
 
-                        let members: MemberOfProposal[] = []
+                        let members: MemberOfProposal[] = [];
 
 
                         // setTimeout((_) => {
-
                         this.studentService.getAdhesionInfo(this.selectedCourse.name, proposedTeams[i].id).subscribe((data) => {
 
                           console.log("MAP", data);
 
                           studentsInTeamProposed.forEach((member) => {
                             //TODO lo status per ora è false ma l'informazione va ritirata
-                            members.push({ id: member.id, name: member.name, firstname: member.firstName, status: data[member.id] })
-                          })
+                            members.push({ id: member.id, name: member.name, firstname: member.firstName, statusToken: data[member.id] });
+                          });
 
                           this.studentService.getStudentById(proposedTeams[i].id_creator).subscribe(creator => {
                             proposals.push(
@@ -234,27 +236,25 @@ export class GroupsComponent implements OnInit {
                                 name: creator.name,
                                 firstName: creator.firstName,
                                 members: members
-                              })
+                              });
 
-                            this.dataSourceProposals.data = [...proposals]
+                            this.dataSourceProposals.data = [...proposals];
 
-                            this.dataSourceMembersProposal[i].data = [...members]
+                            this.dataSourceMembersProposal[i].data = [...members];
 
-                            this.isLoading = false
-                          })
+                            this.isLoading = false;
+                          });
 
-                        })
+                        });
                         // }, 3000)
-
-
                       }, (_) => {
-                        this.isLoading = false
-                      })
+                        this.isLoading = false;
+                      });
                     }
-                  } else this.isLoading = false
-
-
-                }, (_) => this.isLoading = false)
+                  }
+                  else
+                    this.isLoading = false;
+                }, (_) => this.isLoading = false);
               }
 
             })
@@ -265,6 +265,10 @@ export class GroupsComponent implements OnInit {
     })
 
   }
+
+
+
+
 
 
   setDataSourceAttributes() {
@@ -323,6 +327,30 @@ export class GroupsComponent implements OnInit {
 
   }
 
+
+  actionToken(member: MemberOfProposal, isAccepted: boolean) {
+
+    console.log(member, isAccepted);
+
+    this.studentService.actionToken(member.statusToken, isAccepted).subscribe(result => {
+
+      if (result) {
+        this.ngOnInit()
+        isAccepted ? this.message = "Proposal succesfully accepted" : this.message = "Proposal succesfully rejected"
+        this.alertType = 'success'
+      }
+
+
+    }, (_) => {
+
+      this.message = "Sorry your view was not up to date..."
+      this.alertType = 'danger'
+
+      this.ngOnInit()
+    })
+
+  }
+
   //TODO: check if submission has gone well 
   onSubmit() {
 
@@ -353,7 +381,8 @@ export class GroupsComponent implements OnInit {
 
                 selected.forEach((member) => {
                   //TODO lo status per ora è false ma l'informazione va ritirata
-                  members.push({ id: member.id, name: member.name, firstname: member.firstName, status: member.id == me.id })
+                  let status = member.id == me.id ? "true" : "false"
+                  members.push({ id: member.id, name: member.name, firstname: member.firstName, statusToken: status })
                 })
 
                 let proposal =
@@ -416,7 +445,7 @@ export interface MemberOfProposal {
   id: string
   name: string
   firstname: string
-  status: boolean
+  statusToken: string
 }
 
 export interface StudentInGroup {

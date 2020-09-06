@@ -39,10 +39,10 @@ export class StudentService {
       // The response body may contain clues as to what went wrong,
       console.error(
         `Backend returned code ${error.status}, ` +
-        `body was: ${error.error.message}`);
+        `body was: ${error.message}`);
     }
     // return an observable with a user-facing error message
-    return throwError({ status: error.status, message: error.error.message });
+    return throwError({ status: error.status, message: error.message });
   };
 
 
@@ -84,7 +84,7 @@ export class StudentService {
   }
 
 
- 
+
   uploadHomework(courseName: string, assignmentId: number, uploadImageData: FormData) {
 
     const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}`
@@ -99,16 +99,30 @@ export class StudentService {
 
   //RESEARCH
 
-   /*
-    @GetMapping("/{name}/teams/{id}/adhesion")
-    Map<String, Boolean> getAdhesionInfo(@PathVariable String name, @PathVariable Long id) */
-    getAdhesionInfo(courseName:string,teamId:number):Observable<Map<string,boolean>>{
-      const url =`${this.URL}/courses/${courseName}/teams/${teamId}/adhesion`
-      return this.http.get<Map<string,boolean>>(url).pipe(
-        retry(3),
-        catchError(this.handleError)
-      ); 
-    }
+  /*
+   @GetMapping("/{name}/teams/{id}/adhesion")
+   Map<String, Boolean> getAdhesionInfo(@PathVariable String name, @PathVariable Long id) */
+  getAdhesionInfo(courseName: string, teamId: number): Observable<Map<string, string>> {
+    const url = `${this.URL}/courses/${courseName}/teams/${teamId}/adhesion`
+    return this.http.get<Map<string, string>>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+  }
+
+
+
+  actionToken(token: string, isAccepted: boolean): Observable<boolean> {
+
+    let url = isAccepted ? `http://localhost:4200/notification/confirm/${token}` : `http://localhost:4200/notification/reject/${token}`
+
+    return this.http.get<boolean>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+
+  }
+
 
 
   getProposalsToStudent(courseName): Observable<Team[]> {
