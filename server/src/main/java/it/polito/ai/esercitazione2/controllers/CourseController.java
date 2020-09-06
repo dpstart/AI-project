@@ -623,7 +623,11 @@ public class CourseController {
         try {
             Image image = homeworkService.getImage(id2);
             int version = homeworkService.getAllImages(id2).size() - 1;
-            return ModelHelper.enrich(image, name, id1, id2, version);
+            HomeworkVersionDTO hv = new HomeworkVersionDTO();
+            hv.setId(version);
+            hv.setContent(image);
+            hv.setDeliveryDate(new Timestamp(System.currentTimeMillis()));
+            return ModelHelper.enrich(hv, name, id1, id2, version);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }

@@ -116,7 +116,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public String getToken(String userID,Long teamID){
-        Optional<Token> t=tokenRepository.findByUserIdAndByTeamId(userID,teamID);
+        Optional<Token> t=tokenRepository.findByUserIdAndTeamId(userID,teamID);
         if (!t.isPresent())
             throw new TokenNotFoundException("Token for the specified (teamID,userID) pair not found");
 

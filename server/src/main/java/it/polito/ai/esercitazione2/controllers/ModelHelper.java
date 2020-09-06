@@ -262,17 +262,17 @@ public class ModelHelper {
         return h;
     }
 
-    public static HomeworkVersionDTO enrich(Image i, String courseName, Integer assignmentId, Long homeworkId, Integer index) {
-        HomeworkVersionDTO hv = new HomeworkVersionDTO();
-        hv.setId(index);
-        hv.setContent(i);
-        hv.setDeliveryDate(methodOn(CourseController.class)
-                .getHomeworkVersionDeliveryDate(courseName, assignmentId, homeworkId, index));
+    public static HomeworkVersionDTO enrich(HomeworkVersionDTO hv, String courseName, Integer assignmentId, Long homeworkId, Integer index) {
+
+
         Link self = linkTo(methodOn(CourseController.class)
                 .getHomeworkVersion(courseName, assignmentId, homeworkId, index))
                 .withSelfRel();
-        hv.add(self);
+        Link timestamp = linkTo(methodOn(CourseController.class)
+                .getHomeworkVersionDeliveryDate(courseName, assignmentId, homeworkId, index)).withRel("deliveryDate");
 
+        hv.add(self);
+        hv.add(timestamp);
         return hv;
     }
 

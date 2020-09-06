@@ -177,7 +177,7 @@ public class StudentController {
                     .collect(Collectors.toList());
             Map<String,TeamDTO> proposals_token=new HashMap<>();
             for (TeamDTO t : proposals){
-                proposals_token.put(notificationService.getToken(SecurityContextHolder.getContext().getAuthentication().getName(),t.getId()));
+                proposals_token.put(notificationService.getToken(SecurityContextHolder.getContext().getAuthentication().getName(),t.getId()),t);
             }
             return proposals_token;
 

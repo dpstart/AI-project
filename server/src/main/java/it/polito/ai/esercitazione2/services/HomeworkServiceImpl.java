@@ -31,7 +31,7 @@ import static it.polito.ai.esercitazione2.services.TeamServiceImpl.compressBytes
 @Service
 @Transactional
 @Log(topic = "Homework Service")
-public class HomeworkServiceImpl implements HomeworkService {
+public class  HomeworkServiceImpl implements HomeworkService {
 
     @Autowired
     AssignmentRepository assignmentRepository;
