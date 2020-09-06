@@ -401,7 +401,7 @@ public class CourseController {
     }
 
     @GetMapping("/{name}/teams/{id}/adhesion")
-    Map<String, Boolean> getAdhesionInfo(@PathVariable String name, @PathVariable Long id) {
+    Map<String, String> getAdhesionInfo(@PathVariable String name, @PathVariable Long id) {
         return teamService.getAdhesionInfo(id);
 
     }

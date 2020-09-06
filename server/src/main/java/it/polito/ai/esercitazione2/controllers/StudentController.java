@@ -161,10 +161,9 @@ public class StudentController {
     }
 
     @GetMapping("/courses/{name}/teamsProposals")
-    public Map<String,TeamDTO> getTeamsProposalsForCourse(@PathVariable String name) {
-
+    public List<TeamDTO> getTeamsProposalsForCourse(@PathVariable String name) {
         try {
-            List<TeamDTO> proposals= teamservice.getTeamsforStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
+            return teamservice.getTeamsforStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
                     .stream()
                     .peek(x -> {
                         if (x.getStatus() == 1)
@@ -175,18 +174,11 @@ public class StudentController {
                     .filter(t -> t.getStatus() == 0)
                     .map(t -> ModelHelper.enrich(t, name))
                     .collect(Collectors.toList());
-            Map<String,TeamDTO> proposals_token=new HashMap<>();
-            for (TeamDTO t : proposals){
-                proposals_token.put(notificationService.getToken(SecurityContextHolder.getContext().getAuthentication().getName(),t.getId()),t);
-            }
-            return proposals_token;
 
-        } catch (StudentNotFoundException | CourseNotFoundException | TokenNotFoundException e) {
+        } catch (StudentNotFoundException | CourseNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
-
-
 
     /**
      * It provides the list of the assignments related to a student

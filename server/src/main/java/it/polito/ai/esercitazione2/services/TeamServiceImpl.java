@@ -778,12 +778,12 @@ public class TeamServiceImpl implements TeamService {
         if (memberIds.size() < c.getMin() || memberIds.size() > c.getMax())
             throw new TeamSizeConstraintsException("Size costraints for teams in course " + courseId + " Min: " + c.getMin() + " Max: " + c.getMax());
 
-        if(teams.stream()
-                .anyMatch( x -> x.getMembers()
+        if (teams.stream()
+                .anyMatch(x -> x.getMembers()
                         .stream()
                         .map(s -> s.getId())
                         .collect(Collectors.toList())
-                        .containsAll(memberIds))){
+                        .containsAll(memberIds))) {
             throw new DuplicateTeamException("A team proposal with the same members is already existing");
         }
 
@@ -1105,17 +1105,25 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public Map<String, Boolean> getAdhesionInfo(Long teamID) {
+    public Map<String, String> getAdhesionInfo(Long teamID) {
 
         Team t = teamRepository.getOne(teamID);
-        Map<String, Boolean> m = new HashMap<>();
+        Map<String, String> m = new HashMap<>();
         List<Student> members = t.getMembers();
         List<Token> tokens = tokenRepository.findAllByTeamId(teamID);
 
         for (Student s : members) {
-            m.put(s.getId(), tokens.stream().noneMatch(x -> x.getUserId().equals(s.getId())));
-        }
+            String token = notificationService.getToken(s.getId(), t.getId());
 
+            if (token == null) { //ha già accettato
+                token = "true";
+            } else {
+                if (!s.getId().equals(SecurityContextHolder.getContext().getAuthentication().getName())) {
+                    token = "false";
+                }
+            }
+            m.put(s.getId(), token);
+        }
         return m;
     }
 

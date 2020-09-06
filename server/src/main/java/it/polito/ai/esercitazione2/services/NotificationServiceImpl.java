@@ -50,8 +50,6 @@ public class NotificationServiceImpl implements NotificationService {
     public SimpleMailMessage activation_template;
 
 
-
-
     @Override
     @Async
     public void sendMessage(String address, String subject, String body) {
@@ -63,8 +61,7 @@ public class NotificationServiceImpl implements NotificationService {
         message.setText(body);
         try {
             emailSender.send(message);
-        }
-        catch (MailException e){
+        } catch (MailException e) {
             //si può gestire meglio
             log.severe("Some problems occur with the mail sending ");
         }
@@ -74,7 +71,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public boolean confirm(String token) {
         Timestamp today = new Timestamp(System.currentTimeMillis());
-        Optional<Token> t=tokenRepository.findById(token);
+        Optional<Token> t = tokenRepository.findById(token);
         if (!t.isPresent())
             throw new TokenNotFoundException("Specified token not found");
         Token to = t.get();
@@ -84,8 +81,8 @@ public class NotificationServiceImpl implements NotificationService {
 
         tokenRepository.deleteById(token);
 
-        List<Token> lt=tokenRepository.findAllByTeamId(to.getTeamId());
-        if  (lt.size()>0)
+        List<Token> lt = tokenRepository.findAllByTeamId(to.getTeamId());
+        if (lt.size() > 0)
             return false;
 
         if (!teamService.activateTeam(to.getTeamId()))
@@ -97,7 +94,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public boolean reject(String token) {
         Timestamp today = new Timestamp(System.currentTimeMillis());
-        Optional<Token> t=tokenRepository.findById(token);
+        Optional<Token> t = tokenRepository.findById(token);
         if (!t.isPresent())
             throw new TokenNotFoundException("Specified token not found");
 
@@ -115,19 +112,18 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public String getToken(String userID,Long teamID){
-        Optional<Token> t=tokenRepository.findByUserIdAndTeamId(userID,teamID);
-        if (!t.isPresent())
-            throw new TokenNotFoundException("Token for the specified (teamID,userID) pair not found");
-
+    public String getToken(String userID, Long teamID) {
+        Optional<Token> t = tokenRepository.findByUserIdAndTeamId(userID, teamID);
+        if (t.isEmpty())
+            return null;
         return t.get().getId();
     }
 
     @Override
     @Async
-    public void notifyTeam(TeamDTO dto, List<String> memberIds,Long expiration){
-        Timestamp expiryDate =  new Timestamp(System.currentTimeMillis()+expiration);
-        for(String s: memberIds){
+    public void notifyTeam(TeamDTO dto, List<String> memberIds, Long expiration) {
+        Timestamp expiryDate = new Timestamp(System.currentTimeMillis() + expiration);
+        for (String s : memberIds) {
             String token = UUID.randomUUID().toString();
             Token t = new Token();
             t.setId(token);
@@ -135,17 +131,17 @@ public class NotificationServiceImpl implements NotificationService {
             t.setUserId(s);
             t.setExpiryDate(expiryDate);
             tokenRepository.save(t);
-            String body = String.format(template.getText(), "http://localhost:8080/notification/confirm/"+token,"http://localhost:8080/notification/reject/"+token);
+            String body = String.format(template.getText(), "http://localhost:8080/notification/confirm/" + token, "http://localhost:8080/notification/reject/" + token);
             //sendMessage("s"+s+"@studenti.polito.it","Invitation to join team: "+dto.getName(),body);
-            sendMessage("giuseppe.pastore10@libero.it","Invitation to join team: "+dto.getName(),body);
+            sendMessage("giuseppe.pastore10@libero.it", "Invitation to join team: " + dto.getName(), body);
 
         }
     }
 
     @Override
     @Async
-    public void notifyStudent(StudentDTO s){
-        Timestamp expiryDate =  new Timestamp(System.currentTimeMillis()+(60 * 60 * 1000));
+    public void notifyStudent(StudentDTO s) {
+        Timestamp expiryDate = new Timestamp(System.currentTimeMillis() + (60 * 60 * 1000));
 
         String token = UUID.randomUUID().toString();
         ConfirmAccount ca = new ConfirmAccount();
@@ -153,15 +149,16 @@ public class NotificationServiceImpl implements NotificationService {
         ca.setUserId(s.getId());
         ca.setExpiryDate(expiryDate);
         confirmAccountRepository.save(ca);
-        String body = String.format(activation_template.getText(), s.getName(),"http://localhost:8080/notification/activate/"+token);
-       // sendMessage(s.getEmail(),"Activate your account",body);
-        sendMessage("giuseppe.pastore10@libero.it","Activate your account",body);
+        String body = String.format(activation_template.getText(), s.getName(), "http://localhost:8080/notification/activate/" + token);
+        // sendMessage(s.getEmail(),"Activate your account",body);
+        sendMessage("giuseppe.pastore10@libero.it", "Activate your account", body);
 
     }
+
     @Override
     @Async
-    public void notifyProfessor(ProfessorDTO s){
-        Timestamp expiryDate =  new Timestamp(System.currentTimeMillis()+(60 * 60 * 1000));
+    public void notifyProfessor(ProfessorDTO s) {
+        Timestamp expiryDate = new Timestamp(System.currentTimeMillis() + (60 * 60 * 1000));
 
         String token = UUID.randomUUID().toString();
         ConfirmAccount ca = new ConfirmAccount();
@@ -169,15 +166,15 @@ public class NotificationServiceImpl implements NotificationService {
         ca.setUserId(s.getId());
         ca.setExpiryDate(expiryDate);
         confirmAccountRepository.save(ca);
-        String body = String.format(activation_template.getText(), s.getName(),"http://localhost:8080/notification/activate/"+token);
+        String body = String.format(activation_template.getText(), s.getName(), "http://localhost:8080/notification/activate/" + token);
         //sendMessage(s.getEmail(),"Activate your account",body);
-        sendMessage("giusepe.pastore10@libero.it","Activate your account",body);
+        sendMessage("giusepe.pastore10@libero.it", "Activate your account", body);
     }
 
     @Override
     public boolean activate(String token) {
         Timestamp today = new Timestamp(System.currentTimeMillis());
-        Optional<ConfirmAccount> t=confirmAccountRepository.findById(token);
+        Optional<ConfirmAccount> t = confirmAccountRepository.findById(token);
         if (!t.isPresent())
             throw new TokenNotFoundException("Specified token not found");
         ConfirmAccount ca = t.get();
@@ -193,13 +190,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
 
-
-
-    @Scheduled(initialDelay = 6*1000, fixedRate = 10*1000)
+    @Scheduled(initialDelay = 6 * 1000, fixedRate = 10 * 1000)
     public void run() {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         List<Token> expired = tokenRepository.findAllByExpiryDateBefore(now);
-        if(expired.size()!=0) {
+        if (expired.size() != 0) {
             Set<Long> teams = expired.stream().map(x -> x.getTeamId()).collect(Collectors.toSet());
             tokenRepository.deleteAll(expired);
             teams.stream().forEach(x -> tokenRepository.deleteAll(tokenRepository.findAllByTeamId(x)));
@@ -208,13 +203,12 @@ public class NotificationServiceImpl implements NotificationService {
 
         //TO DO: move on a separated file for authentication service
         List<ConfirmAccount> expired_accounts = confirmAccountRepository.findAllByExpiryDateBefore(now);
-        if(expired_accounts.size()!=0){
-            Set<String> users = expired_accounts.stream().map(x->x.getUserId()).collect(Collectors.toSet());
+        if (expired_accounts.size() != 0) {
+            Set<String> users = expired_accounts.stream().map(x -> x.getUserId()).collect(Collectors.toSet());
             confirmAccountRepository.deleteAll(expired_accounts);
             teamService.deleteAll(users);
         }
     }
-
 
 
 }

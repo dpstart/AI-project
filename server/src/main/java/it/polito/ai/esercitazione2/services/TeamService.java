@@ -78,7 +78,7 @@ public interface TeamService {
     boolean activateTeam(Long ID);
     boolean evictTeam(Long ID);
     List<Boolean> evictAll(Set<Long> teams);
-    Map<String,Boolean> getAdhesionInfo(Long teamID);
+    Map<String,String> getAdhesionInfo(Long teamID);
 
     //Images
     Image getProfileImage();
