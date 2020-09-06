@@ -119,7 +119,7 @@ export class HomeworkStudentComponent implements OnInit {
                       homeworkId: homework.id,
                       name: student.name,
                       surname: student.firstName,
-                      freshman: student.id,
+                      id: student.id,
                       state: state,
                       timestamp: new Date().toLocaleDateString(undefined, options) // TODO settare data coerentemente con stato
                     })

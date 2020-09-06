@@ -126,16 +126,6 @@
                         <div class="example-element-detail"
                             [@detailExpand]="element == expandedProposal ? 'expanded' : 'collapsed'">
 
-                            <!-- <mat-selection-list>
-                                <mat-list-option *ngFor="let member of element.members" disabled="true">
-                                    <div style="display: flex; justify-content: space-around;">
-                                        <span>{{member.id}}</span> <span>{{member.name}}</span>
-                                        <span>{{member.firstName}}</span>
-                                    </div>
-
-                                </mat-list-option>
-                            </mat-selection-list> -->
-
                             <table mat-table [dataSource]="dataSourceMembersProposal[element.row]"
                                 class="mat-elevation-z8">
 

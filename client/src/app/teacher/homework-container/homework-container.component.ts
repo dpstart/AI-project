@@ -52,26 +52,26 @@ export class HomeworkContainerComponent implements OnInit {
           let displayedAssignments: DisplayedAssignment[] = []
 
 
+          let displayHomeworks: DisplayedHomework[] = []
 
-          assignments.forEach(assignment => {
+          let counter = 0
 
-            console.log(new Date(assignment.releaseDate));
+
+          for (let i = 0; i < assignments.length; i++) {
 
             //convertion to displayed assignment
             let displayedAssignment: DisplayedAssignment = {
-              id: assignment.id,
-              releaseDate: new Date(assignment.releaseDate).toLocaleDateString(undefined, options),
-              expirationDate: new Date(assignment.expirationDate).toLocaleDateString(undefined, options)
+              id: assignments[i].id,
+              releaseDate: new Date(assignments[i].releaseDate).toLocaleDateString(undefined, options),
+              expirationDate: new Date(assignments[i].expirationDate).toLocaleDateString(undefined, options)
             }
             //add converted element to assignment source
             displayedAssignments.push(displayedAssignment)
 
             //get homeworks that corresponds to assignment
-            this.teacherService.getHomeworksByAssignment(this.selectedCourse, assignment.id).subscribe((homeworks: Homework[]) => {
+            this.teacherService.getHomeworksByAssignment(this.selectedCourse, assignments[i].id).subscribe((homeworks: Homework[]) => {
 
-              let counter = 0
-
-              let displayHomeworks: DisplayedHomework[] = []
+              let counterHw = 0
 
               /*  unread,
                   read,
@@ -79,6 +79,8 @@ export class HomeworkContainerComponent implements OnInit {
                   reviewed */
 
               homeworks.forEach(homework => {
+
+
                 let state = ""
                 switch (homework.state) {
                   case 1:
@@ -108,32 +110,37 @@ export class HomeworkContainerComponent implements OnInit {
 
                 if (href != "") {
                   this.teacherService.getResourceByUrl(href).subscribe(element => {
+                    counterHw++
 
                     let student: Student = element
 
                     displayHomeworks.push({
-                      assignmentId: assignment.id,
+                      assignmentId: assignments[i].id,
                       homeworkId: homework.id,
                       name: student.name,
                       surname: student.firstName,
-                      freshman: student.id,
+                      id: student.id,
                       state: state,
                       timestamp: new Date().toLocaleDateString(undefined, options) // TODO: il formato è giusto la data no.
                     })
 
 
-                    // le chiamate vengono fatte sequenzialmente per ogni homework => solo quando sono caricati tutti vengono visualizzati
-                    if (++counter == homeworks.length) {
-                      this.displayedAssignments = displayedAssignments
-                      this.displayedHomeworks = displayHomeworks
-                      this.isAllLoaded = true
-                    }
+                    console.log(counter, assignments.length, homeworks.length, counterHw);
 
+                    if (homeworks.length == counterHw) {
+                      counter++
+                      if (counter == assignments.length) {
+                        this.displayedAssignments = displayedAssignments
+                        this.displayedHomeworks = displayHomeworks
+                        this.isAllLoaded = true
+                      }
+                    }
+                    // le chiamate vengono fatte sequenzialmente per ogni homework => solo quando sono caricati tutti vengono visualizzati
                   })
                 }
               })
             })
-          })
+          }
         });
       }
     })

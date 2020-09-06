@@ -2,8 +2,6 @@
     <h2 class="mat-h2 tabtitle">Elenco Consegne </h2>
 
     <div class="tabContainer">
-
-
         <div class="contentContainer">
 
             <table mat-table [dataSource]="consegneDataSource" multiTemplateDataRows class="mat-elevation-z8">
@@ -27,7 +25,7 @@
                                     <mat-form-field class="example-chip-list">
                                         <mat-chip-list #chipList aria-label="Filter Options">
                                             <mat-chip *ngFor="let option of options" [selectable]="selectable"
-                                                [removable]="removable" (removed)="removeOption(option)">
+                                                [removable]="removable" (removed)="removeOption(option,assignment.id)">
                                                 {{option}}
                                                 <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
                                             </mat-chip>
@@ -37,15 +35,17 @@
                                                 [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                                                 (matChipInputTokenEnd)="addOption($event)">
                                         </mat-chip-list>
-                                        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+                                        <mat-autocomplete #auto="matAutocomplete"
+                                            (optionSelected)="selected($event,assignment.id)">
                                             <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
                                                 {{option}}
                                             </mat-option>
                                         </mat-autocomplete>
                                     </mat-form-field>
 
-                                    <table mat-table [dataSource]="homeworksDataSource" multiTemplateDataRows
-                                        class="mat-elevation-z8">
+                                    <table mat-table
+                                        [dataSource]="homeworksDataSource[displayedAssignments.indexOf(assignment)]"
+                                        multiTemplateDataRows class="mat-elevation-z8">
                                         <div *ngFor="let column of homeworksColumnsToDisplay">
                                             <ng-container matColumnDef="{{column}}">
                                                 <th mat-header-cell *matHeaderCellDef> {{column|uppercase}} </th>

@@ -16,11 +16,11 @@ import { MatSort } from '@angular/material/sort';
 import { AuthService } from 'src/app/services/auth.service';
 
 export interface DisplayedHomework {
-  assignmentId:number,
+  assignmentId: number,
   homeworkId: number,
+  id: string,
   name: string,
   surname: string,
-  freshman: string,
   state: string,
   timestamp: string
 }
@@ -52,9 +52,9 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   selectedAssignment: Assignment
 
   // nome, cognome, matricola,  state,  timestamp  
-  homeworksColumnsToDisplay: string[] = ['name', 'surname', 'freshman', 'state', 'timestamp'];
-  homeworksDataSource: MatTableDataSource<DisplayedHomework>
-  allHomeworks: DisplayedHomework[]
+  homeworksColumnsToDisplay: string[] = ['name', 'surname', 'id', 'state', 'timestamp'];
+  homeworksDataSource: Array<MatTableDataSource<DisplayedHomework>>
+  allHomeworks: DisplayedHomework[][]
 
   consegneDisplayedColumns: string[] = ['id', 'releaseDate', 'expirationDate']
   consegneDataSource: MatTableDataSource<DisplayedAssignment>
@@ -94,8 +94,9 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
     private dialog: MatDialog,
     private _authService: AuthService) {
 
-    this.homeworksDataSource = new MatTableDataSource<DisplayedHomework>();
+    this.homeworksDataSource = new Array<MatTableDataSource<DisplayedHomework>>();
     this.consegneDataSource = new MatTableDataSource<DisplayedAssignment>();
+    this.allHomeworks = []
 
 
     //chips
@@ -103,9 +104,6 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
       startWith(null),
       map((option: string | null) => option ? this._filter(option) : this.allOptions.slice().sort()));
 
-    this.allHomeworks = []
-
-    this.filterRowsAccordingToOptions()
   }
 
 
@@ -114,9 +112,32 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
 
-    this.homeworksDataSource.data = [...this.displayedHomeworks];
-    this.consegneDataSource.data = [...this.displayedAssignments];
-    this.allHomeworks = [...this.displayedHomeworks]
+
+
+
+
+    for (let i = 0; i < this.displayedAssignments.length; i++) {
+      this.homeworksDataSource.push(new MatTableDataSource<DisplayedHomework>())
+      this.allHomeworks.push([])
+      let newSource = []
+
+      this.displayedHomeworks.forEach(x => {
+        // console.log(x);
+      
+        if (x.assignmentId == this.displayedAssignments[i].id) {
+          newSource.push(x)
+        }
+      })
+      this.homeworksDataSource[i].data = [...newSource]
+      this.allHomeworks[i] = this.homeworksDataSource[i].data
+      this.filterRowsAccordingToOptions(this.displayedAssignments[i].id)
+
+    }
+    this.consegneDataSource.data = this.displayedAssignments;
+
+    // console.log(this.consegneDataSource.data, this.homeworksDataSource, this.allHomeworks);
+
+
   }
 
   ngAfterViewInit() {
@@ -156,7 +177,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
   }
 
-  removeOption(option: string): void {
+  removeOption(option: string, assignmentId: number): void {
     const index = this.options.indexOf(option);
     this.allOptions.push(option);
 
@@ -166,16 +187,17 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
       this.options.splice(index, 1);
     }
 
-    this.filterRowsAccordingToOptions()
+    this.filterRowsAccordingToOptions(assignmentId)
   }
 
-  selected(event: MatAutocompleteSelectedEvent): void {
+  selected(event: MatAutocompleteSelectedEvent, assignmentId: number): void {
+
     this.options.push(event.option.viewValue);
     this.allOptions.splice(this.allOptions.indexOf(event.option.viewValue), 1)
     this.optionInput.nativeElement.value = '';
     this.optionCtrl.setValue(null);
 
-    this.filterRowsAccordingToOptions()
+    this.filterRowsAccordingToOptions(assignmentId)
   }
 
   private _filter(value: string): string[] {
@@ -186,10 +208,11 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   //****************************************************//
 
 
-  private filterRowsAccordingToOptions() {
-    let filteredDataSource = [...this.allHomeworks]
+  private filterRowsAccordingToOptions(assignmentId: number) {
+    let i = this.displayedAssignments.findIndex(assignment => assignment.id == assignmentId)
+    let filteredDataSource = this.allHomeworks[i]
     filteredDataSource = filteredDataSource.filter(element => this.options.includes(element.state))
-    this.homeworksDataSource.data = [...filteredDataSource]
+    this.homeworksDataSource[i].data = filteredDataSource
   }
 
 
