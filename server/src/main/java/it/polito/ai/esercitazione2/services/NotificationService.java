@@ -18,5 +18,7 @@ public interface NotificationService {
     void notifyProfessor(ProfessorDTO p);
     boolean activate(String token);
 
+    String getToken(String userID,Long teamID);
+
 
 }

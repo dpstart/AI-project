@@ -35,6 +35,8 @@ public class NotificationController {
         return "confirm";
     }
 
+
+
     @GetMapping("/reject/{token}")
     public String reject(@PathVariable String token,Model m){
         try{

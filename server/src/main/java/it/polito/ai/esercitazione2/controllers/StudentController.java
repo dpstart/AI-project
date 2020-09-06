@@ -3,12 +3,10 @@ package it.polito.ai.esercitazione2.controllers;
 
 import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.entities.Image;
-import it.polito.ai.esercitazione2.exceptions.AuthenticationServiceException;
-import it.polito.ai.esercitazione2.exceptions.CourseNotFoundException;
-import it.polito.ai.esercitazione2.exceptions.IncoherenceException;
-import it.polito.ai.esercitazione2.exceptions.StudentNotFoundException;
+import it.polito.ai.esercitazione2.exceptions.*;
 import it.polito.ai.esercitazione2.services.AssignmentService;
 import it.polito.ai.esercitazione2.services.HomeworkService;
+import it.polito.ai.esercitazione2.services.NotificationService;
 import it.polito.ai.esercitazione2.services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -42,6 +40,9 @@ public class StudentController {
 
     @Autowired
     CourseController courseController;
+
+    @Autowired
+    NotificationService notificationService;
 
     @Autowired
     @Qualifier("messageSource")
@@ -160,9 +161,10 @@ public class StudentController {
     }
 
     @GetMapping("/courses/{name}/teamsProposals")
-    public List<TeamDTO> getTeamsProposalsForCourse(@PathVariable String name) {
+    public Map<String,TeamDTO> getTeamsProposalsForCourse(@PathVariable String name) {
+
         try {
-            return teamservice.getTeamsforStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
+            List<TeamDTO> proposals= teamservice.getTeamsforStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
                     .stream()
                     .peek(x -> {
                         if (x.getStatus() == 1)
@@ -173,11 +175,18 @@ public class StudentController {
                     .filter(t -> t.getStatus() == 0)
                     .map(t -> ModelHelper.enrich(t, name))
                     .collect(Collectors.toList());
+            Map<String,TeamDTO> proposals_token=new HashMap<>();
+            for (TeamDTO t : proposals){
+                proposals_token.put(notificationService.getToken(SecurityContextHolder.getContext().getAuthentication().getName(),t.getId()));
+            }
+            return proposals_token;
 
-        } catch (StudentNotFoundException | CourseNotFoundException e) {
+        } catch (StudentNotFoundException | CourseNotFoundException | TokenNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
+
+
 
     /**
      * It provides the list of the assignments related to a student

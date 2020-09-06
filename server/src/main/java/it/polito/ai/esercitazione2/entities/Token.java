@@ -16,6 +16,4 @@ public class Token {
      Timestamp expiryDate;
 
 
-
-
 }
