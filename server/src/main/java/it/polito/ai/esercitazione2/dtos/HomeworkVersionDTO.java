@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
 @Data
-public class HomeworkVersionDTO extends RepresentationModel<HomeworkDTO> {
+public class HomeworkVersionDTO extends RepresentationModel<HomeworkVersionDTO> {
 
     @NotNull
     Integer id;

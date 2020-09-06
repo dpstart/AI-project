@@ -575,13 +575,18 @@ public class CourseController {
         }
     }
 
-    @GetMapping("/{name}/assignments/{id1}/homeworks/{id2}/versions")
-    List<HomeworkVersionDTO> getHomeworkVersions(@PathVariable String name, @PathVariable Integer id1, @PathVariable Long id2) {
+    @GetMapping("/{name}/assignments/{assignmentId}/homeworks/{hwId}/versions")
+    List<HomeworkVersionDTO> getHomeworkVersions(@PathVariable String name, @PathVariable Integer assignmentId, @PathVariable Long hwId) {
         try {
-            List<Image> versions = homeworkService.getAllImages(id2);
+            List<Image> versions = homeworkService.getAllImages(hwId);
             List<HomeworkVersionDTO> enriched = new ArrayList<>();
             for (int i = 0; i < versions.size(); i++) {
-                enriched.add(ModelHelper.enrich(versions.get(i), name, id1, id2, i));
+                HomeworkVersionDTO hv = new HomeworkVersionDTO();
+                hv.setId(i);
+                Image image = versions.get(i);
+                hv.setContent(image);
+                hv.setDeliveryDate(new Timestamp(System.currentTimeMillis()));
+                enriched.add(ModelHelper.enrich(hv, name, assignmentId, hwId, i));
             }
 
             enriched.sort(Comparator.comparing(HomeworkVersionDTO::getDeliveryDate));
@@ -592,13 +597,18 @@ public class CourseController {
         }
     }
 
-    @GetMapping("/{name}/assignments/{id1}/homeworks/{id2}/versions/{id3}")
+    @GetMapping("/{name}/assignments/{assignmentId}/homeworks/{hwId}/versions/{versionId}")
     HomeworkVersionDTO getHomeworkVersion(@PathVariable String name,
-                                          @PathVariable Integer id1,
-                                          @PathVariable Long id2,
-                                          @PathVariable Integer id3) {
+                                          @PathVariable Integer assignmentId,
+                                          @PathVariable Long hwId,
+                                          @PathVariable Integer versionId) {
         try {
-            return ModelHelper.enrich(homeworkService.getImage(id2, id3), name, id1, id2, id3);
+            HomeworkVersionDTO hv = new HomeworkVersionDTO();
+            hv.setId(versionId);
+            Image image = homeworkService.getImage(hwId, versionId);
+            hv.setContent(image);
+            hv.setDeliveryDate(new Timestamp(System.currentTimeMillis()));
+            return ModelHelper.enrich(hv, name, assignmentId, hwId, versionId);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
