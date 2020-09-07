@@ -20,9 +20,10 @@ docker run --name teams -p 3306:3306 -v <Dtabase volume on the local filesystem>
 | 2002 | w.forcignano | STUDENT | Walter | Forcignano | walter.forcignano@studenti.polito.it|
 | 2003 | d.paliotta | STUDENT | Daniele | Paliotta | daniele.paliotta@studenti.polito.it|
 
-| Course |     Acronime  | Min | Max | Professors (C = Creator)|
-|----------|:-------------:|------:|-----:|-----------:|
-| Applicazioni Internet | AI | 1 | 10 | Servetti (C), Malnati |
+| Course |     Acronime  | Min | Max | Professors (C = Creator)| Studenti|
+|--------|:-------------:|----:|----:|------------------------:|--------:|
+| Applicazioni Internet | AI | 1 | 10 | Servetti (C), Malnati | 2000,2001,2002,2003|
+| Programmazione di Sistema | PDS | 1 | 10 | Servetti (C) | 2000,2001|
 
 
 
@@ -76,5 +77,23 @@ Authentication required
 {
 	"id":"<id del prof con cui condividere>"
 }
+
+EnrollOne:  http://localhost:8080/API/courses/<nome oppure acronime del corso>/enrollOne (POST)
+Authentication required
+{
+	"id":"<id delLO STUDENTE DA enroll>"
+}
+
+
+EnrollManyCSV:  http://localhost:8080/API/courses/<nome oppure acronime del corso>/enrollManyCSV (POST)
+Authentication required
+
+"file"(part): file.csv
+
+file.csv (colonna "id" con id dei vari studenti si vuole aggiungere
+
+
+
+
 
 
