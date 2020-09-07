@@ -28,7 +28,7 @@ docker run --name teams -p 3306:3306 -v <Dtabase volume on the local filesystem>
 
 
 
-###Professors:
+### Professors:
 
 Registration: localhost:8080/API/professors (POST)
 
@@ -46,7 +46,7 @@ Registration: localhost:8080/API/professors (POST)
 
 "image" (part) ... the image
 
-###Students :
+### Students :
 
 Registration: localhost:8080/API/students (POST)
 
@@ -65,9 +65,11 @@ Registration: localhost:8080/API/students (POST)
 "image" (part) ... the image
 
 
-###Courses:
+### Courses:
 
-Creation: http://localhost:8080/API/courses/ (POST)
+**Creation**: http://localhost:8080/API/courses/ (POST)   
+
+  
 Authentication required
 
 ```json
@@ -81,11 +83,13 @@ Authentication required
 }
 ```
 
-Enable:  http://localhost:8080/API/courses/<nome oppure acronime del corso>/enable (get)
+**Enable**:  http://localhost:8080/API/courses/<nome oppure acronime del corso>/enable (get)
 
 
 
-Share ownership: http://localhost:8080/API/courses/<nome oppure acronime del corso>/share (POST)
+**Share ownership** : http://localhost:8080/API/courses/<nome oppure acronime del corso>/share (POST)
+
+
 
 Authentication required
 ```json
@@ -95,7 +99,9 @@ Authentication required
 }
 ```
 
-EnrollOne:  http://localhost:8080/API/courses/<nome oppure acronime del corso>/enrollOne (POST)
+**EnrollOne**:  http://localhost:8080/API/courses/<nome oppure acronime del corso>/enrollOne (POST)
+
+
 Authentication required
 ```json
 {
@@ -105,7 +111,10 @@ Authentication required
 ```
 
 
-EnrollManyCSV:  http://localhost:8080/API/courses/<nome oppure acronime del corso>/enrollManyCSV (POST)
+**EnrollManyCSV**:  http://localhost:8080/API/courses/<nome oppure acronime del corso>/enrollManyCSV (POST)
+
+
+
 Authentication required
 
 "file"(part): file.csv
