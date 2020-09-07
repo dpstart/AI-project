@@ -1,3 +1,6 @@
 mat-spinner{
     margin: 4%;
 }
+#deleteIcon{
+    cursor: pointer;
+}

@@ -108,6 +108,10 @@ export class VMComponent implements OnInit {
         event.stopPropagation();
     }
 
+    openVmImage(element, event) {
+        event.stopPropagation();
+    }
+
     ngOnInit() {
 
         this.getData()

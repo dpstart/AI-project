@@ -36,11 +36,12 @@ import { EditTeamDialogComponent } from './teacher/vm/edit/edit-team-dialog.comp
 import { GroupsComponent } from './student/groups/groups.component';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import {MatChipsModule} from '@angular/material/chips';
+import { MatChipsModule } from '@angular/material/chips';
 import { HomeworkComponent } from './shared-components/homework/homework.component';
 import { HomeworkDialogComponent } from './shared-components/homework/dialog/homework-dialog.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HomeworkContainerComponent } from './shared-components/homework-container/homework-container.component';
+import { CreateDialogComponent } from 'src/app/student/vm/create/create-dialog.component';
 
 
 
@@ -60,6 +61,7 @@ import { HomeworkContainerComponent } from './shared-components/homework-contain
     GroupsComponent,
     HomeworkDialogComponent,
     HomeworkContainerComponent,
+    CreateDialogComponent,
   ],
   imports: [
     BrowserModule,

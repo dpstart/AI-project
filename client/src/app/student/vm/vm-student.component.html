@@ -4,7 +4,9 @@
 <ng-template #loadedBlock>
     <div class="tabContainer">
 
-        <h2 class="mat-h2 tabtitle">Elenco team.</h2>
+        <h2 class="mat-h2 tabtitle">Elenco VM.</h2>
+
+        <button mat-raised-button (click)="createVm()">Create new VM</button>
 
         <table #innerTables mat-table #innerSort="matSort" [dataSource]=dataSourceVm matSort>
             <ng-container matColumnDef="{{innerColumn}}" *ngFor="let innerColumn of innerDisplayedColumns">
@@ -24,13 +26,16 @@
                             Stop
                         </ng-template>
                     </button>
+                    <button mat-raised-button (click)="openVmImage(vm)">Open</button>
+                    <button mat-raised-button (click)="openEditDialog(vm, $event)">Edit</button>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="delete">
                 <th mat-header-cell *matHeaderCellDef> Delete </th>
                 <td mat-cell *matCellDef="let vm">
-                    <mat-icon aria-hidden="false" aria-label="Example home icon" (click)="deleteVm(vm)">delete
+                    <mat-icon id="deleteIcon" aria-hidden="false" aria-label="Example home icon" (click)="deleteVm(vm)">
+                        delete
                     </mat-icon>
                 </td>
             </ng-container>

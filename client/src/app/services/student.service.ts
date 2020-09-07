@@ -21,6 +21,15 @@ export interface ServerError {
   message: string
 }
 
+export interface VmSettings {
+  n_cpu: number,
+  disk_space: number,
+  ram: number,
+  max_active: number,
+  max_available: number
+}
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -56,6 +65,15 @@ export class StudentService {
   URL = "http://localhost:4200/API"
 
   // CREATE
+
+  createVM(course_name: string, teamId: number, vm_settings: VmSettings) {
+    const url = `${this.URL}/courses/${course_name}/teams/${teamId}/createVM`;
+    return this.http.post(url, vm_settings).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+
+  }
 
   addStudent(s: Student) {
 
@@ -95,6 +113,7 @@ export class StudentService {
       catchError(this.handleError)
     );
   }
+
 
 
   //RESEARCH

@@ -6,6 +6,10 @@ import { StudentService } from 'src/app/services/student.service';
 import { Team } from 'src/app/model/team.model';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { VMComponent } from 'src/app/teacher/vm/vm.component';
+import { MatDialog } from '@angular/material/dialog';
+import { EditTeamDialogComponent } from 'src/app/teacher/vm/edit/edit-team-dialog.component';
+import { CreateDialogComponent } from './create/create-dialog.component';
 
 @Component({
   selector: 'app-vm-student',
@@ -16,6 +20,8 @@ export class VmStudentComponent implements OnInit {
 
   innerDisplayedColumns: string[]
   displayedColumns: string[]
+
+  selectedCourse: string
 
   dataSourceVm: MatTableDataSource<Vm>
 
@@ -36,7 +42,12 @@ export class VmStudentComponent implements OnInit {
     this.setDataSourceAttributes();
   }
 
-  constructor(private routeStateService: RouteStateService, private activatedRoute: ActivatedRoute, private studentService: StudentService, private change: ChangeDetectorRef) {
+  constructor(
+    private routeStateService: RouteStateService,
+    private dialog: MatDialog,
+    private activatedRoute: ActivatedRoute,
+    private studentService: StudentService,
+    private change: ChangeDetectorRef) {
 
     this.isAllLoaded = false
     this.dataSourceVm = new MatTableDataSource<Vm>();
@@ -46,12 +57,18 @@ export class VmStudentComponent implements OnInit {
 
   }
 
-  ngOnInit(): void {
 
+  ngOnInit(): void {
+    this.getData()
+
+  }
+
+  getData() {
     this.activatedRoute.params.subscribe(params => {
       if (params['course_name'])
         this.routeStateService.updatePathParamState(params['course_name'])
 
+      this.selectedCourse = params["course_name"]
 
       this.studentService.getTeamForCourse(params['course_name']).subscribe((team: Team) => {
 
@@ -72,7 +89,6 @@ export class VmStudentComponent implements OnInit {
         this.isAllLoaded = true
       });
 
-
     })
   }
 
@@ -80,7 +96,18 @@ export class VmStudentComponent implements OnInit {
     this.dataSourceVm.paginator = this.paginator;
     this.dataSourceVm.sort = this.sort;
   }
-  
+
+  createVm() {
+
+    const dialogRef = this.dialog.open(CreateDialogComponent, {
+      width: '500px',
+      data: { course: this.selectedCourse }
+    });
+
+    dialogRef.afterClosed().subscribe(() => this.getData())
+    event.stopPropagation();
+
+  }
 
 
   deleteVm(vm: Vm) {
@@ -89,6 +116,22 @@ export class VmStudentComponent implements OnInit {
       this.dataSourceVm._updateChangeSubscription()
     })
   }
+
+  openVmImage(vm: Vm) {
+
+  }
+
+  openEditDialog(element, event) {
+
+    const dialogRef = this.dialog.open(EditTeamDialogComponent, {
+      width: '500px',
+      data: { team: element, course: this.selectedCourse }
+    });
+
+    dialogRef.afterClosed().subscribe(() => this.getData())
+    event.stopPropagation();
+  }
+
 
   changeVmStatus(vm: Vm) {
     this.studentService.changeVmStatus(vm).subscribe((_) => {
@@ -112,3 +155,5 @@ export interface Vm {
   ram: number,
   status: number // TODO ricordare gli stati
 }
+
+
