@@ -1,7 +1,9 @@
 package it.polito.ai.esercitazione2.services;
 
+import com.opencsv.CSVReader;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 import it.polito.ai.esercitazione2.config.JwtResponse;
 import it.polito.ai.esercitazione2.config.JwtTokenUtil;
 import it.polito.ai.esercitazione2.dtos.*;
@@ -31,6 +33,7 @@ import javax.persistence.LockModeType;
 import javax.swing.*;
 import javax.transaction.Transactional;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Reader;
@@ -589,24 +592,40 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public List<Boolean> enrollCSV(Reader r, String courseName) {
+    public List<Boolean> enrollCSV(Reader r, String courseName) throws IOException, CsvValidationException {
 
-        CsvToBean<StudentDTO> csvToBean = new CsvToBeanBuilder(r)
-                .withType(StudentDTO.class)
+        List<String> users_ids = new ArrayList<>();
+        try (CSVReader csvReader = new CSVReader(r)) {
+            String[] values = null;
+            csvReader.readNext(); //skip header
+            while ((values = csvReader.readNext()) != null) {
+                users_ids.add(values[0]);
+            }
+        } catch (IOException | CsvValidationException e) {
+            throw e;
+        }
+
+/*
+        CsvToBean<String> users = new CsvToBeanBuilder(r)
+                .withType(String.class)
                 .withIgnoreLeadingWhiteSpace(true)
                 .build();
         // convert `CsvToBean` object to list of users
-        List<StudentDTO> users = csvToBean.parse();
-        List<String> users_ids = users.stream()
-                .map(StudentDTO::getId).collect(Collectors.toList());
+        // List<StudentDTO> users = csvToBean.parse();
+        = users.stream()
+                                .collect(Collectors.toList());
+
+ */
 
         List<Boolean> resEnroll = enrollAll(users_ids, courseName);
 
-        //check for incoherence
+        /*//check for incoherence
         users.forEach(x -> {
             if (!getStudent(x.getId()).get().equals(x))
                 throw new IncoherenceException("Student with id " + x.getId() + " already exist with different names");
         });
+
+         */
 
 
         return resEnroll;
@@ -1084,7 +1103,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public void shareOwnership(String courseName, String profId) {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!courseRepository.existsById(courseName))
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course " + courseName + " not found");
         Course c = courseRepository.getOne(courseName);
         if (!c.getProfessors().stream().anyMatch(x -> x.getId().equals(prof))) {

@@ -56,7 +56,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         SimpleMailMessage message = new SimpleMailMessage();
         //message.setTo(address);
-        message.setTo("walt3r1996@gmail.com");
+        message.setTo("giuseppe.pastore10@libero.it");
         message.setSubject(subject);
         message.setText(body);
         try {
@@ -168,7 +168,7 @@ public class NotificationServiceImpl implements NotificationService {
         confirmAccountRepository.save(ca);
         String body = String.format(activation_template.getText(), s.getName(), "http://localhost:8080/notification/activate/" + token);
         //sendMessage(s.getEmail(),"Activate your account",body);
-        sendMessage("giusepe.pastore10@libero.it", "Activate your account", body);
+        sendMessage("giuseppe.pastore10@libero.it", "Activate your account", body);
     }
 
     @Override

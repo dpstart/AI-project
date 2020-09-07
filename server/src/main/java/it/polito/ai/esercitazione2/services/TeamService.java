@@ -1,10 +1,12 @@
 package it.polito.ai.esercitazione2.services;
 
+import com.opencsv.exceptions.CsvValidationException;
 import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.entities.Image;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +52,7 @@ public interface TeamService {
     @PreAuthorize("hasRole('ADMIN')")
     List<Boolean> addAndEnroll(Reader r, String courseName);
     @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
-    List<Boolean> enrollCSV(Reader r, String courseName);
+    List<Boolean> enrollCSV(Reader r, String courseName) throws IOException, CsvValidationException;
 
     // Students
     boolean addStudent(StudentDTO s,boolean notify);

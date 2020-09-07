@@ -30,13 +30,13 @@ public class StudentDTO extends RepresentationModel<StudentDTO> {
     String firstName;
 
     @Size(min=8, max = 12)
-    @CsvBindByName
+
     @NotBlank
     @JsonProperty("password")
     String password;
 
     @JsonProperty("alias")
-    @CsvBindByName
+
     String alias;
     @CsvBindByName
     @JsonProperty("email")

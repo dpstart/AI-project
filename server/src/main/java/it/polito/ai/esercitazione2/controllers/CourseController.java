@@ -1,5 +1,6 @@
 package it.polito.ai.esercitazione2.controllers;
 
+import com.opencsv.exceptions.CsvValidationException;
 import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.entities.Image;
 import it.polito.ai.esercitazione2.exceptions.*;
@@ -272,9 +273,7 @@ public class CourseController {
 
         try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             teamService.enrollCSV(reader, name);
-        } catch (IncoherenceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-        } catch (IOException e) {
+        } catch (IOException | CsvValidationException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (CourseAuthorizationException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());

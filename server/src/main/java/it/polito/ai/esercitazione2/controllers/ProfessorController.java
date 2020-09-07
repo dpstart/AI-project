@@ -55,7 +55,9 @@ public class ProfessorController {
     MessageSource msg;
 
 
-    @PostMapping({"","/"})
+
+
+   @PostMapping({"","/"})
    ProfessorDTO addProfessor(@Valid @RequestPart("professor") ProfessorDTO p,  @RequestPart(value="image",required=false) MultipartFile file) {
 
         try {
