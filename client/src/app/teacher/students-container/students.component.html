@@ -7,6 +7,12 @@
     .inputStudentField {
         width: 300px;
     }
+
+
+    .fileUploadingArea{
+        display: inline;
+        justify-content: flex-end;
+    }
 </style>
 
 <div class="tabContainer">
@@ -26,9 +32,29 @@
             </mat-autocomplete>
         </mat-form-field>
         <button mat-button (click)="addStudentEvent()">Add</button>
+        <button mat-button color="warn" [disabled]="isDeleteButtonDisabled()" (click)="_deleteStudents()">Delete</button>
     </form>
 
-    <button mat-button color="warn" [disabled]="isDeleteButtonDisabled()" (click)="_deleteStudents()">Delete</button>
+    <div class="fileUploadingArea">
+        <button mat-fab color="primary"
+            aria-label="Example icon button with a delete icon"
+            (click)="fileInput.click()">
+            <mat-icon>folder</mat-icon>
+            <input #fileInput type="file" (change)="onFileChanged($event)"
+                style="display:none;" />
+        </button>
+        <mat-form-field>
+            <mat-label>Add students</mat-label>
+            <input matInput placeholder="No file selected" [(ngModel)]="fileName"
+                readonly="true">
+        </mat-form-field>
+
+        <button id="uploadButton" [disabled]="isDisabled" mat-flat-button
+            color="primary" (click)="onUpload()">Upload</button>
+
+    </div>
+
+
 
 
     <table #table mat-table [dataSource]="enrolledStudentsDataSource" matSort class="mat-elevation-z8">

@@ -3,9 +3,11 @@
 </div>
 <ng-template #loadedBlock>
 <app-students 
-[allStudents]="allStudents"
+[studentsNotInCourse]="studentsNotInCourse"
 [enrolledStudents]="enrolledStudents" 
 (addStudent)="addStudent($event)" 
-(deleteStudents)="deleteStudents($event)">
+(deleteStudents)="deleteStudents($event)"
+(enrollManyCsvEvent)="enrollManyCSV($event)">
+
 </app-students>
 </ng-template>

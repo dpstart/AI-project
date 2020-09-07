@@ -18,7 +18,12 @@ import { map, startWith } from 'rxjs/operators';
 })
 export class StudentsComponent implements OnInit {
 
-  constructor(private ref: ChangeDetectorRef) { }
+  selectedFile: File;
+  fileName: string
+
+  isDisabled: boolean
+
+  constructor(private ref: ChangeDetectorRef) { this.isDisabled = true }
 
   @ViewChild(MatSidenav) sidenav: MatSidenav;
   @ViewChild(MatTable) table: MatTable<any>;
@@ -32,7 +37,10 @@ export class StudentsComponent implements OnInit {
 
   // Data sources
   @Input() _enrolledStudents: Student[];
-  @Input() allStudents: Student[];
+  @Input() studentsNotInCourse: Student[];
+
+  
+  
   enrolledStudentsDataSource: MatTableDataSource<Student>;
 
   @Input() set enrolledStudents(students: Student[]) {
@@ -48,7 +56,7 @@ export class StudentsComponent implements OnInit {
   // Communicate with container
   @Output() addStudent: EventEmitter<Student> = new EventEmitter<Student>();
   @Output() deleteStudents: EventEmitter<Student[]> = new EventEmitter<Student[]>();
-
+  @Output() enrollManyCsvEvent: EventEmitter<File> = new EventEmitter<File>()
 
   // Table selection
   selection = new SelectionModel<Student>(true, []);
@@ -87,7 +95,7 @@ export class StudentsComponent implements OnInit {
     //  - Name Surname
     //  - ID
 
-    return this.allStudents.filter(option => option.id.toLowerCase().indexOf(value) === 0
+    return this.studentsNotInCourse.filter(option => option.id.toLowerCase().indexOf(value) === 0
       || option.name.toLowerCase().indexOf(value) === 0 || option.firstName.toLowerCase().indexOf(value) === 0
       || (option.firstName.toLowerCase() + " " + option.name.toLowerCase()).indexOf(value) === 0)
 
@@ -145,4 +153,16 @@ export class StudentsComponent implements OnInit {
     //this.enrolledStudents.data = this.enrolledStudents.data.filter(s => this.selection.selected.indexOf(s) == -1);
   }
 
+  //Gets called when the user selects an image
+  public onFileChanged(event) {
+    //Select File
+    this.selectedFile = event.target.files[0];
+    this.fileName = this.selectedFile.name
+    if (this.fileName)
+      this.isDisabled = false
+  }
+  //Gets called when the user clicks on submit to upload the image
+  onUpload() {
+    this.enrollManyCsvEvent.emit(this.selectedFile);
+  }
 }

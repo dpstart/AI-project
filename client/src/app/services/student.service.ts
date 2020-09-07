@@ -86,6 +86,51 @@ export class StudentService {
 
   }
 
+  enrollOne(courseName: string, studentId: string) {
+    const url = `${this.URL}/courses/${courseName}/enrollOne`;
+    return this.http.post<Student>(url, { id: studentId })
+      .pipe(
+        retry(3),
+        catchError(this.handleError)
+      );
+  }
+  /* @PostMapping("/{name}/enrollManyCSV")
+      @ResponseStatus(HttpStatus.CREATED)
+      void enrollStudentsCSV(@PathVariable String name, @RequestParam("file") MultipartFile file) { */
+  enrollManyCSV(courseName: string, file: File) {
+
+    //FormData API provides methods and properties to allow us easily prepare form data to be sent with POST HTTP requests.
+    const uploadData = new FormData();
+    uploadData.append('file', file, file.name);
+
+    const url = `${this.URL}/courses/${courseName}/enrollManyCSV`
+
+    return this.http.post(url, uploadData).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+
+
+  }
+
+  unsubscribeMany(courseName: string, students: Student[]) {
+
+    let studentIds = []
+
+    students.forEach(student => studentIds.push(student.id))
+
+    const url = `${this.URL}/courses/${courseName}/unsubscribeMany`;
+    return this.http.post<Student>(url, { students: studentIds })
+      .pipe(
+        retry(3),
+        catchError(this.handleError)
+      );
+
+
+
+
+  }
+
   proposeTeam(courseName: string, team: string, members: Student[], timeout: number) {
     const url = `${this.URL}/courses/${courseName}/proposeTeam`
     let membersIds: string[] = []
@@ -106,7 +151,6 @@ export class StudentService {
   uploadHomework(courseName: string, assignmentId: number, uploadImageData: FormData) {
 
     const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}`
-
 
     return this.http.post(url, uploadImageData).pipe(
       retry(3),
@@ -310,14 +354,6 @@ export class StudentService {
 
   }
 
-  unenrollStudents(students: Student[], courseId: number) {
-
-    students.forEach(element => {
-      element.courseId = 0;
-      this.updateStudent(element);
-    });
-
-  }
 
 
   changeVmStatus(vm: Vm) {

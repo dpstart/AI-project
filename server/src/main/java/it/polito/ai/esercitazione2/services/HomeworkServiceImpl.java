@@ -22,6 +22,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -74,11 +75,14 @@ public class  HomeworkServiceImpl implements HomeworkService {
             throw new IllegalHomeworkStateChangeException("You already delivered this homework, wait for the professor to review it");
         Image img = null;
         try {
+            System.out.println(Arrays.toString(file.getBytes()));
             img = imageService.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
         }
         catch (IOException e) {
             throw new ImageException("Homework content didn't load on database correctly");
         }
+        if (img == null)
+            throw new ImageException("Homework content didn't load on database correctly");
         h.getVersionIds().add(img.getName());
         h.getVersionDates().add(new Timestamp(System.currentTimeMillis()));
         h.setState(Homework.states.delivered);

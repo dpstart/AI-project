@@ -17,7 +17,7 @@ const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
 })
 export class HomeworkContainerComponent implements OnInit {
 
- 
+
   courseName: string
   selectedCourse: string
 
@@ -71,6 +71,9 @@ export class HomeworkContainerComponent implements OnInit {
             //get homeworks that corresponds to assignment
             this.teacherService.getHomeworksByAssignment(this.selectedCourse, assignments[i].id).subscribe((homeworks: Homework[]) => {
 
+
+              console.log(homeworks);
+
               let counterHw = 0
 
               /*  unread,
@@ -83,16 +86,16 @@ export class HomeworkContainerComponent implements OnInit {
 
                 let state = ""
                 switch (homework.state) {
-                  case 1:
+                  case "read":
                     state = "LETTO"
                     break;
-                  case 2:
+                  case "delivered":
                     state = "CONSEGNATO"
                     break;
-                  case 3:
+                  case "reviewed":
                     state = "RIVISTO"
                     break;
-
+                    
                   default:
                     state = "NON LETTO"
                     break;

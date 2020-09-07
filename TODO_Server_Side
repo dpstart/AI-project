@@ -1,7 +1,5 @@
 TODO SERVER_SIDE:
 
--risolvere bug UPLOAD HOMEWORK nel return crasha (è un problema col model mapper) --- Damiano: mi serve una mano a replicare la condizione
-
--Aggiungere metodo per rifiutare proposta ad un team
+-l'aggiunta homework version ha successo ma nel db non salva i picByte, c'è qualcosa che non va
 
 -Possibilità di riempimento automatico del db all'accensione del server

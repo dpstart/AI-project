@@ -2,6 +2,12 @@ import { Link } from './link.model';
 
 
 export class Homework {
+    public get state(): string {
+        return this._state;
+    }
+    public set state(value: string) {
+        this._state = value;
+    }
     public get links(): Link[] {
         return this._links;
     }
@@ -20,12 +26,7 @@ export class Homework {
     public set isFinal(value: boolean) {
         this._isFinal = value;
     }
-    public get state(): states {
-        return this._state;
-    }
-    public set state(value: states) {
-        this._state = value;
-    }
+ 
     public get id(): number {
         return this._id;
     }
@@ -41,17 +42,11 @@ export class Homework {
     // @NotBlank
     // Float mark;
 
-    constructor(private _id: number, private _state: states, private _isFinal: boolean, private _mark: number,private _links: Link[] = [],) { }
+    constructor(private _id: number, private _state: string, private _isFinal: boolean, private _mark: number,private _links: Link[] = [],) { }
 
 
     
 
 }
 
-export enum states {
-    unread,
-    read,
-    delivered,
-    reviewed
-}
 

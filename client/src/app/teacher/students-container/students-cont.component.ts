@@ -21,13 +21,13 @@ export class StudentsContComponent implements OnInit {
   isEnrolledStudentsLoaded: boolean = false;
 
   // Data sources
-  allStudents: Student[];
+  studentsNotInCourse: Student[];
   enrolledStudents: Student[];
 
   studentsToDelete: Student[];
 
   selectedCourse: string
-  course;
+  
 
   constructor(
     private http: HttpClient,
@@ -51,11 +51,23 @@ export class StudentsContComponent implements OnInit {
 
 
 
-        this.studentService.getStudentsInCourse(this.selectedCourse).subscribe(data => {          
-          this.allStudents = data;
-          this.enrolledStudents = data;
-          this.isAllStudentsLoaded = true;
-          this.isEnrolledStudentsLoaded = true;
+        this.studentService.getStudentsInCourse(this.selectedCourse).subscribe(enrolledStudents => {
+          this.enrolledStudents = enrolledStudents;
+
+          this.studentService.getStudents().subscribe(allStudents => {
+
+            let allStudentsNotInCourse = []
+
+            for (let student of allStudents) {
+              if (this.enrolledStudents.findIndex(x => student.id === x.id) == -1)
+                allStudentsNotInCourse.push(student)
+            }
+
+            this.studentsNotInCourse = allStudentsNotInCourse
+            this.isAllStudentsLoaded = true;
+            this.isEnrolledStudentsLoaded = true;
+          })
+
         });
       }
     })
@@ -68,25 +80,48 @@ export class StudentsContComponent implements OnInit {
       return;
 
     this.studentService
-      .addStudent(student)
+      .enrollOne(this.selectedCourse, student.id)
       .subscribe(s => {
-        s.courseId = this.course.id;
         var data = this.enrolledStudents;
         data.push(s);
         this.enrolledStudents = [].concat(data);
-
+        //remove from all students not in course
+        this.studentsNotInCourse = [...this.studentsNotInCourse.slice(this.studentsNotInCourse.indexOf(s), 1)]
       })
 
   }
 
   deleteStudents(students: Student[]) {
+    this.studentService.unsubscribeMany(this.selectedCourse, students).subscribe(_ => {
 
-    students.forEach(s => {
-      this.studentService.deleteStudent(s.id).subscribe(_ =>
-        this.enrolledStudents = this.enrolledStudents.filter(s2 => s2.id != s.id)
-      );
+
+      let studentsEnrolled:Student[] = []
+      let studentsNotInCourse = [...this.studentsNotInCourse]
+
+      students.forEach(s => {
+        studentsEnrolled = this.enrolledStudents.filter(student => student.id != s.id)
+        studentsNotInCourse.push(s)
+      });
+
+      console.log(this.enrolledStudents,studentsEnrolled,this.studentsNotInCourse,studentsNotInCourse);
+      
+      this.enrolledStudents = [... studentsEnrolled]
+      this.studentsNotInCourse = [...studentsNotInCourse]
     });
 
+  }
+
+  enrollManyCSV(file: File) {
+    console.log("upload", file.name)
+
+    this.studentService.enrollManyCSV(this.selectedCourse, file).subscribe(success => {
+      this.studentService.getStudentsInCourse(this.selectedCourse).subscribe(data => {
+        this.studentsNotInCourse = data;
+        this.enrolledStudents = data;
+        this.isAllStudentsLoaded = true;
+        this.isEnrolledStudentsLoaded = true;
+      });
+    })
   }
 
   public getJSON(path): Observable<any> {

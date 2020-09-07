@@ -106,15 +106,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
   }
 
-
-
-
-
   ngOnInit(): void {
-
-
-
-
 
     for (let i = 0; i < this.displayedAssignments.length; i++) {
       this.homeworksDataSource.push(new MatTableDataSource<DisplayedHomework>())
@@ -122,7 +114,6 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
       let newSource = []
 
       this.displayedHomeworks.forEach(x => {
-        // console.log(x);
       
         if (x.assignmentId == this.displayedAssignments[i].id) {
           newSource.push(x)
@@ -135,9 +126,6 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
     }
     this.consegneDataSource.data = this.displayedAssignments;
 
-    // console.log(this.consegneDataSource.data, this.homeworksDataSource, this.allHomeworks);
-
-
   }
 
   ngAfterViewInit() {
@@ -145,16 +133,10 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
     this.consegneDataSource.sort = this.sort;
   }
 
-
-
-
   //getters
   public get authService(): AuthService {
     return this._authService;
   }
-
-
-
 
   //*****************chips methods*******************************//
 
