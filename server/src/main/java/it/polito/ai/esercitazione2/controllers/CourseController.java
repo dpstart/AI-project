@@ -54,18 +54,54 @@ public class CourseController {
     @Qualifier("messageSource")
     MessageSource msg;
 
+
+    /**
+     * Metodi per la gestione generale dei corsi
+     * */
+
+    //aggiunge un corso (T)
+    @PostMapping({"", "/"})
+    CourseDTO addCourse(@Valid @RequestBody CourseDTO dto) {
+
+        try {
+            if (!teamService.addCourse(dto))
+                throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getName());
+        } catch (ProfessorNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+
+        return ModelHelper.enrich(dto);
+    }
+
+    // Rimuove un corso
+    @GetMapping("/{name}/remove")
+    void removeCourse(@PathVariable String name) {
+        try {
+            teamService.removeCourse(name);
+        } catch (CourseAuthorizationException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        } catch (CourseEnabledException e) {
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_REQUIRED, e.getMessage());
+        } catch (CourseNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    // Ritorna tutti i corsi
     @GetMapping({"", "/"})
     List<CourseDTO> all() {
         return teamService.getAllCourses().stream()
                 .map(ModelHelper::enrich).collect(Collectors.toList());
     }
 
+    // Ritorna il corso specificato
     @GetMapping("/{name}")
     CourseDTO getOne(@PathVariable String name) {
         CourseDTO c = teamService.getCourse(name).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, name));
         return ModelHelper.enrich(c);
     }
 
+    //condivide l'ownership del corso specificato con un altro docente (T)
     @PostMapping("/{name}/share")
     void share(@PathVariable String name, @RequestBody Map<String, String> input) {
         if (!input.containsKey("id") || input.keySet().size() > 1)
@@ -82,44 +118,9 @@ public class CourseController {
         }
     }
 
-    @GetMapping("/{name}/enrolled")
-    List<StudentDTO> enrolledStudents(@PathVariable String name) {
-        try {
-            return teamService.getEnrolledStudents(name)
-                    .stream()
-                    .map(ModelHelper::enrich)
-                    .collect(Collectors.toList());
-        } catch (CourseNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
-    }
 
-    @PostMapping({"", "/"})
-    CourseDTO addCourse(@Valid @RequestBody CourseDTO dto) {
 
-        try {
-            if (!teamService.addCourse(dto))
-                throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getName());
-        } catch (ProfessorNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
-
-        return ModelHelper.enrich(dto);
-    }
-
-    @GetMapping("/{name}/remove")
-    void removeCourse(@PathVariable String name) {
-        try {
-            teamService.removeCourse(name);
-        } catch (CourseAuthorizationException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
-        } catch (CourseEnabledException e) {
-            throw new ResponseStatusException(HttpStatus.PRECONDITION_REQUIRED, e.getMessage());
-        } catch (CourseNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
-    }
-
+    // AGGIORNA le informazioni di un corso
     @PostMapping("/update")
     CourseDTO updateCourse(@Valid @RequestBody CourseDTO dto) {
         try {
@@ -135,6 +136,7 @@ public class CourseController {
         }
     }
 
+    // abilita il corso specificato (T)
     @GetMapping("/{name}/enable")
     public void enableCourse(@PathVariable String name) {
         try {
@@ -146,6 +148,7 @@ public class CourseController {
         }
     }
 
+    // disabilita un corso (T)
     @GetMapping("/{name}/disable")
     public void disableCourse(@PathVariable String name) {
         try {
@@ -157,24 +160,10 @@ public class CourseController {
         }
     }
 
-    @PostMapping("/{name}/model")
-        // ragionare su se è più logico accedere direttamente a qualuenue team perdendo il riferimento al corso oppure /APU/courses/PDS/{teamID}
-    void defineVMmodelForACourse(@PathVariable String name, @RequestBody Map<String, String> input) {
-        if (!input.containsKey("model") || input.keySet().size() > 1) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Expected one parameter: usage 'model':<modelName>");
-        }
 
-        try {
-            vmService.defineVMModel(name, input.get("model"));
-        } catch (AuthorizationServiceException e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());  //DA CAMBIARE!!!!
-        } catch (IncoherenceException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
-
-    }
+    /**
+     *   Gestione iscritti
+     * */
 
     @PostMapping("/{name}/enrollOne")
     @ResponseStatus(HttpStatus.CREATED)
@@ -302,6 +291,22 @@ public class CourseController {
         }
     }
 
+    // ritorna gli studenti iscritti al corso
+    @GetMapping("/{name}/enrolled")
+    List<StudentDTO> enrolledStudents(@PathVariable String name) {
+        try {
+            return teamService.getEnrolledStudents(name)
+                    .stream()
+                    .map(ModelHelper::enrich)
+                    .collect(Collectors.toList());
+        } catch (CourseNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    /**
+     *   Gestione Team
+     * */
 
     @PostMapping("/{name}/proposeTeam")
     @ResponseStatus(HttpStatus.CREATED)
@@ -360,6 +365,71 @@ public class CourseController {
         }
     }
 
+    @GetMapping("/{name}/teams/{id}/adhesion")
+    Map<String, String> getAdhesionInfo(@PathVariable String name, @PathVariable Long id) {
+        return teamService.getAdhesionInfo(id);
+
+    }
+
+    @GetMapping("/{name}/teams/{id}/members")
+    List<StudentDTO> getTeamMembers(@PathVariable String name, @PathVariable Long id) {
+        try {
+            return teamService.getMembers(name, id).stream().map(ModelHelper::enrich).collect(Collectors.toList());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/inTeams")
+    List<StudentDTO> getStudentsInTeams(@PathVariable String name) {
+        try {
+            return teamService.getStudentsInTeams(name).stream()
+                    .map(ModelHelper::enrich)
+                    .collect(Collectors.toList());
+        } catch (CourseNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+
+    }
+
+    @GetMapping("/{name}/available")
+    List<StudentDTO> getAvailableStudents(@PathVariable String name) {
+        try {
+            return teamService.getAvailableStudents(name).stream()
+                    .map(ModelHelper::enrich)
+                    .collect(Collectors.toList());
+        } catch (CourseNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+
+    /**
+     *   Gestione VM Model & VM instances
+     * */
+
+
+
+    @PostMapping("/{name}/model")
+        // ragionare su se è più logico accedere direttamente a qualuenue team perdendo il riferimento al corso oppure /APU/courses/PDS/{teamID}
+    void defineVMmodelForACourse(@PathVariable String name, @RequestBody Map<String, String> input) {
+        if (!input.containsKey("model") || input.keySet().size() > 1) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Expected one parameter: usage 'model':<modelName>");
+        }
+
+        try {
+            vmService.defineVMModel(name, input.get("model"));
+        } catch (AuthorizationServiceException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());  //DA CAMBIARE!!!!
+        } catch (IncoherenceException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+
+    }
+
+
     @PostMapping("/{name}/teams/{teamId}/createVM")
     VMDTO createVM(@PathVariable Long teamId, @RequestPart(value = "image") MultipartFile file, @Valid @RequestPart("settings") SettingsDTO settings) {
         if (settings.getMax_active() == null) //contemporary active
@@ -399,43 +469,9 @@ public class CourseController {
 
     }
 
-    @GetMapping("/{name}/teams/{id}/adhesion")
-    Map<String, String> getAdhesionInfo(@PathVariable String name, @PathVariable Long id) {
-        return teamService.getAdhesionInfo(id);
-
-    }
-
-    @GetMapping("/{name}/teams/{id}/members")
-    List<StudentDTO> getTeamMembers(@PathVariable String name, @PathVariable Long id) {
-        try {
-            return teamService.getMembers(name, id).stream().map(ModelHelper::enrich).collect(Collectors.toList());
-        } catch (TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
-    }
-
-    @GetMapping("/{name}/inTeams")
-    List<StudentDTO> getStudentsInTeams(@PathVariable String name) {
-        try {
-            return teamService.getStudentsInTeams(name).stream()
-                    .map(ModelHelper::enrich)
-                    .collect(Collectors.toList());
-        } catch (CourseNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
-
-    }
-
-    @GetMapping("/{name}/available")
-    List<StudentDTO> getAvailableStudents(@PathVariable String name) {
-        try {
-            return teamService.getAvailableStudents(name).stream()
-                    .map(ModelHelper::enrich)
-                    .collect(Collectors.toList());
-        } catch (CourseNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
-    }
+    /**
+     *   ASSIGNMENTS
+     * */
 
     @GetMapping("/{name}/assignments")
     List<AssignmentDTO> getAssignments(@PathVariable String name) {
@@ -493,6 +529,10 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
+
+    /**
+     *   HOMEWORKS
+     * */
 
     @GetMapping("/{name}/homeworks")
     List<HomeworkDTO> getCourseHomeworks(@PathVariable String name) {

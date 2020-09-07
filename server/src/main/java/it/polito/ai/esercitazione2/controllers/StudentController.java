@@ -48,6 +48,10 @@ public class StudentController {
     @Qualifier("messageSource")
     MessageSource msg;
 
+    /**
+     * Gestione generale studenti
+     */
+
     @GetMapping({"", "/"})
     public List<StudentDTO> all() {
         return teamservice.getAllStudents().stream()
@@ -60,7 +64,6 @@ public class StudentController {
         StudentDTO c = teamservice.getStudent(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, id));
         return ModelHelper.enrich(c);
     }
-
 
     @GetMapping("/{id}")
     public StudentDTO getOne(@PathVariable String id) {
@@ -107,6 +110,19 @@ public class StudentController {
         return finalRes;
     }
 
+    @GetMapping("/image")
+    public Image getProfileImage() {
+        return teamservice.getProfileImage();
+    }
+
+
+    /**
+     * Corsi & teams
+     */
+
+    /*
+    Ritorna i corsi di uno studente
+     */
     @GetMapping("/courses")
     public List<CourseDTO> getCourses() {
         try {
@@ -136,10 +152,7 @@ public class StudentController {
         }
     }
 
-    @GetMapping("/image")
-    public Image getProfileImage() {
-        return teamservice.getProfileImage();
-    }
+
 
     @GetMapping("/courses/{name}/team")
     public TeamDTO getTeamForCourse(@PathVariable String name) {
@@ -179,6 +192,11 @@ public class StudentController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
+
+
+    /**
+     * ASSIGNMENTS & HOMEWORKS
+     */
 
     /**
      * It provides the list of the assignments related to a student
