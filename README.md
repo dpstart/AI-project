@@ -32,12 +32,17 @@ docker run --name teams -p 3306:3306 -v <Dtabase volume on the local filesystem>
 
 Registration: localhost:8080/API/professors (POST)
 
-"professor" (part) {"id":"1000",
-"name":"Antonio",
-"firstName":"Servetti",
-"email":"antonio.servetti@polito.it",
-"password":"servetti"
-}
+"professor" (part) 
+
+```json
+    {
+       "id":"1000",
+       "name":"Antonio",
+       "firstName":"Servetti",
+       "email":"antonio.servetti@polito.it",
+       "password":"servetti"
+    }
+```
 
 "image" (part) ... the image
 
@@ -45,12 +50,17 @@ Registration: localhost:8080/API/professors (POST)
 
 Registration: localhost:8080/API/students (POST)
 
-"student" (part) {"id":"1000",
-"name":"Antonio",
-"firstName":"Servetti",
-"email":"antonio.servetti@studenti.polito.it",
-"password":"servetti"
-}
+"student" (part) 
+```json
+   {
+       "id":"1000",
+       "name":"Antonio",
+       "firstName":"Servetti",
+       "email":"antonio.servetti@studenti.polito.it",
+       "password":"servetti"
+   }
+```
+
 
 "image" (part) ... the image
 
@@ -60,12 +70,16 @@ Registration: localhost:8080/API/students (POST)
 Creation: http://localhost:8080/API/courses/ (POST)
 Authentication required
 
+```json
 {
     "name":"Applicazioni Internet",
     "acronime":"AI",
     "max":10
     "min": optional
+
+    	
 }
+```
 
 Enable:  http://localhost:8080/API/courses/<nome oppure acronime del corso>/enable (get)
 
@@ -74,15 +88,21 @@ Enable:  http://localhost:8080/API/courses/<nome oppure acronime del corso>/enab
 Share ownership: http://localhost:8080/API/courses/<nome oppure acronime del corso>/share (POST)
 
 Authentication required
+```json
 {
-	"id":"<id del prof con cui condividere>"
+    "id":"<id del proc con cui condividere>"
+    	
 }
+```
 
 EnrollOne:  http://localhost:8080/API/courses/<nome oppure acronime del corso>/enrollOne (POST)
 Authentication required
+```json
 {
-	"id":"<id delLO STUDENTE DA enroll>"
+    "id":"<id delLO STUDENTE DA enroll>"
+    	
 }
+```
 
 
 EnrollManyCSV:  http://localhost:8080/API/courses/<nome oppure acronime del corso>/enrollManyCSV (POST)
