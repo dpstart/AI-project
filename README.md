@@ -83,7 +83,7 @@ Authentication required
 }
 ```
 
-**Enable**:  http://localhost:8080/API/courses/<nome oppure acronime del corso>/enable (get)
+**Enable**:  http://localhost:8080/API/courses/\<nome oppure acronime del corso\>/enable (get)
 
 
 
