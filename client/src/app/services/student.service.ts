@@ -253,8 +253,7 @@ export class StudentService {
     );
   }
 
-  //TODO url da modificare perchè non deve ritornare tutta la lista di assignement, ma quella per un determinato corso.
-  getAssignmentByCourse(courseName: string): Observable<Assignment[]> {
+  getAssignmentsByCourse(courseName: string): Observable<Assignment[]> {
     const url = `${this.URL}/courses/${courseName}/assignments`
     return this.http.get<Assignment[]>(url).pipe(
       retry(3),
@@ -262,10 +261,6 @@ export class StudentService {
     );
   }
 
-
-  //TODO Url da modificare
-
-  ///{name}/assignments/{id}/homeworks
   getHomeworksByAssignment(courseName: string, assignmentId: number): Observable<Homework[]> {
     const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks`
     return this.http.get<Homework[]>(url).pipe(

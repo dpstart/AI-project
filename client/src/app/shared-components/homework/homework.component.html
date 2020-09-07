@@ -17,6 +17,8 @@
                         <div class="example-element-detail"
                             [@detailExpand]="assignment == assignmentExpandedElement ? 'expanded' : 'collapsed'">
                             <div class="example-element-description">
+                            
+                             
                                 <div *ngIf="this.authService.isRoleTeacher()">
 
                                     <h2 class="mat-h2 tabtitle">Elenco Elaborati </h2>
@@ -65,7 +67,7 @@
 
                                     <h2 class="mat-h2 tabtitle">Elaborato </h2>
 
-                                    <table mat-table [dataSource]="homeworksDataSource" multiTemplateDataRows
+                                    <table mat-table [dataSource]="homeworksDataSource[displayedAssignments.indexOf(assignment)]" multiTemplateDataRows
                                         class="mat-elevation-z8">
                                         <div *ngFor="let column of homeworksColumnsToDisplay">
                                             <ng-container matColumnDef="{{column}}">

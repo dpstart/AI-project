@@ -32,7 +32,6 @@ import { RegisterDialogComponent } from './auth/register-dialog.component';
 import { TeacherGuard } from './auth/teacher.guard';
 import { StudentGuard } from './auth/student.guard';
 import { VmStudentComponent } from './student/vm/vm-student.component';
-import { HomeworkStudentComponent } from './student/homework/homework-student.component';
 import { EditTeamDialogComponent } from './teacher/vm/edit/edit-team-dialog.component';
 import { GroupsComponent } from './student/groups/groups.component';
 import { MatDividerModule } from '@angular/material/divider';
@@ -40,8 +39,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {MatChipsModule} from '@angular/material/chips';
 import { HomeworkComponent } from './shared-components/homework/homework.component';
 import { HomeworkDialogComponent } from './shared-components/homework/dialog/homework-dialog.component';
-import { HomeworkContainerComponent } from './teacher/homework-container/homework-container.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { HomeworkContainerComponent } from './shared-components/homework-container/homework-container.component';
 
 
 
@@ -57,7 +56,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     RegisterDialogComponent,
     HomeworkComponent,
     VmStudentComponent,
-    HomeworkStudentComponent,
     EditTeamDialogComponent,
     GroupsComponent,
     HomeworkDialogComponent,

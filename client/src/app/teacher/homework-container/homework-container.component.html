@@ -1,7 +1,0 @@
-<div *ngIf="isAllLoaded == false; else loadedBlock">
-    <mat-spinner diameter="300" strokeWidth="5"></mat-spinner>
-</div>
-<ng-template #loadedBlock>
-    <app-homework [selectedCourse]="selectedCourse" [displayedAssignments]="displayedAssignments"
-        [displayedHomeworks]="displayedHomeworks"></app-homework>
-</ng-template>

@@ -1,22 +1,23 @@
 import { Component, OnInit } from '@angular/core';
-import { RouteStateService } from 'src/app/services/route-state.service';
+import { DisplayedHomework, DisplayedAssignment } from '../homework/homework.component';
 import { ActivatedRoute } from '@angular/router';
-import { DisplayedHomework, DisplayedAssignment } from 'src/app/shared-components/homework/homework.component';
+import { RouteStateService } from 'src/app/services/route-state.service';
+import { TeacherService } from 'src/app/services/teacher.service';
 import { Assignment } from 'src/app/model/assignment.model';
-import { Homework, states } from 'src/app/model/homework.model';
-import { StudentService } from 'src/app/services/student.service';
+import { Homework } from 'src/app/model/homework.model';
 import { Student } from 'src/app/model/student.model';
 
 
 const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
 
 @Component({
-  selector: 'app-homework-student',
-  templateUrl: './homework-student.component.html',
-  styleUrls: ['./homework-student.component.css']
+  selector: 'app-homework-container',
+  templateUrl: './homework-container.component.html',
+  styleUrls: ['./homework-container.component.css']
 })
-export class HomeworkStudentComponent implements OnInit {
+export class HomeworkContainerComponent implements OnInit {
 
+ 
   courseName: string
   selectedCourse: string
 
@@ -30,12 +31,13 @@ export class HomeworkStudentComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private routeStateService: RouteStateService,
-    private studentService: StudentService,
+    private teacherService: TeacherService
   ) {
     this.isAllLoaded = false
   }
 
   ngOnInit(): void {
+
 
     this.activatedRoute.params.subscribe((params) => {
       if (params['course_name']) {
@@ -44,32 +46,32 @@ export class HomeworkStudentComponent implements OnInit {
         this.selectedCourse = params['course_name']
 
 
-        //TODO le richieste falliscono perchè non esistono gli url
-        this.studentService.getAssignmentByCourse(this.selectedCourse).subscribe((assignments: Assignment[]) => {
-
+        this.teacherService.getAssignmentsByCourse(this.selectedCourse).subscribe((assignments: Assignment[]) => {
 
           //New Source
           let displayedAssignments: DisplayedAssignment[] = []
 
-          this.displayedHomeworks = []
 
-          assignments.forEach(assignment => {
+          let displayHomeworks: DisplayedHomework[] = []
 
-            console.log(new Date(assignment.releaseDate));
+          let counter = 0
+
+
+          for (let i = 0; i < assignments.length; i++) {
 
             //convertion to displayed assignment
             let displayedAssignment: DisplayedAssignment = {
-              id: assignment.id,
-              releaseDate: new Date(assignment.releaseDate).toLocaleDateString(undefined, options),
-              expirationDate: new Date(assignment.expirationDate).toLocaleDateString(undefined, options)
+              id: assignments[i].id,
+              releaseDate: new Date(assignments[i].releaseDate).toLocaleDateString(undefined, options),
+              expirationDate: new Date(assignments[i].expirationDate).toLocaleDateString(undefined, options)
             }
             //add converted element to assignment source
             displayedAssignments.push(displayedAssignment)
 
+            //get homeworks that corresponds to assignment
+            this.teacherService.getHomeworksByAssignment(this.selectedCourse, assignments[i].id).subscribe((homeworks: Homework[]) => {
 
-            this.studentService.getHomeworksByAssignment(this.selectedCourse, assignment.id).subscribe((homeworks: Homework[]) => {
-
-              let displayHomeworks: DisplayedHomework[] = []
+              let counterHw = 0
 
               /*  unread,
                   read,
@@ -77,6 +79,8 @@ export class HomeworkStudentComponent implements OnInit {
                   reviewed */
 
               homeworks.forEach(homework => {
+
+
                 let state = ""
                 switch (homework.state) {
                   case 1:
@@ -95,8 +99,6 @@ export class HomeworkStudentComponent implements OnInit {
 
                 }
 
-
-
                 //Retrieve info about the corresponding student
 
                 let href = ""
@@ -107,37 +109,38 @@ export class HomeworkStudentComponent implements OnInit {
 
 
                 if (href != "") {
-                  this.studentService.getResourceByUrl(href).subscribe(element => {
-
-
-                    console.log(element);
+                  this.teacherService.getResourceByUrl(href).subscribe(element => {
+                    counterHw++
 
                     let student: Student = element
 
                     displayHomeworks.push({
-                      assignmentId: assignment.id,
+                      assignmentId: assignments[i].id,
                       homeworkId: homework.id,
                       name: student.name,
                       surname: student.firstName,
                       id: student.id,
                       state: state,
-                      timestamp: new Date().toLocaleDateString(undefined, options) // TODO settare data coerentemente con stato
+                      timestamp: new Date().toLocaleDateString(undefined, options) // TODO: il formato è giusto la data no.
                     })
-                    this.displayedAssignments = displayedAssignments
-                    this.displayedHomeworks = displayHomeworks
-                    this.isAllLoaded = true
-                    //  console.log(this.assignments, this.displayedHomeworks)
+
+                    if (homeworks.length == counterHw) {
+                      counter++
+                      if (counter == assignments.length) {
+                        this.displayedAssignments = displayedAssignments
+                        this.displayedHomeworks = displayHomeworks
+                        this.isAllLoaded = true
+                      }
+                    }
+                    // le chiamate vengono fatte sequenzialmente per ogni homework => solo quando sono caricati tutti vengono visualizzati
                   })
                 }
-
               })
             })
-          })
+          }
         });
       }
-
     })
-
   }
 
 }

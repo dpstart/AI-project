@@ -1,14 +1,14 @@
+
+STUDENT VIEW
+-- aggiungere studenti con file csv
+-- con la master checkbox bisogna far apparire un popup che chiede se la selezione debba essere fatta su tutti gli studenti anche 	quelli che sono su altre pagine
+
+
 -CONSEGNE ED ELABORATI:
  -- gestire aggiunta e modifica hw versione 
  -- capire come dover settare timestamp per hw (quale API chiamare)
  -- loading non termina in caso di errore ????!!!
 
-   
--GROUPS
---  Ritirare info riguardo stato della proposta(da implementare server side)... Per il momento sempre false
---  Dare allo studente la possibilità di rifiutare la proposta ricevuta
-
- 
 -GENERALE
 --Aggiungere timeout per loading e visualizzare errore (Vedere se ne vale la pena)
 --Aggiungere viste e routes per confirm reject token team e per activate account
