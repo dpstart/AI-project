@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ChangeDetectorRef, OnChanges, SimpleChange } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ChangeDetectorRef, OnChanges, SimpleChange, SimpleChanges } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Student } from '../../model/student.model';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -16,14 +16,24 @@ import { map, startWith } from 'rxjs/operators';
   templateUrl: './students.component.html',
   styles: [``]
 })
-export class StudentsComponent implements OnInit {
+export class StudentsComponent implements OnInit, OnChanges {
 
   selectedFile: File;
   fileName: string
 
   isDisabled: boolean
 
-  constructor(private ref: ChangeDetectorRef) { this.isDisabled = true }
+  constructor(private ref: ChangeDetectorRef) {
+    this.enrolledStudentsDataSource = new MatTableDataSource();
+    this.isDisabled = true
+  }
+
+
+  ngOnChanges(changes: SimpleChanges): void {
+
+
+
+  }
 
   @ViewChild(MatSidenav) sidenav: MatSidenav;
   @ViewChild(MatTable) table: MatTable<any>;
@@ -36,21 +46,41 @@ export class StudentsComponent implements OnInit {
   myControl = new FormControl();
 
   // Data sources
-  @Input() _enrolledStudents: Student[];
-  @Input() studentsNotInCourse: Student[];
+  private _enrolledStudents: Student[];
 
-  
-  
+
+  public get enrolledStudents(): Student[] {
+    return this._enrolledStudents;
+  }
+
+
+  @Input()
+  public set enrolledStudents(value: Student[]) {
+    this._enrolledStudents = value;
+    this.enrolledStudentsDataSource.data = [...this.enrolledStudents]
+  }
+
+
+
+  private _studentsNotInCourse: Student[];
+  public get studentsNotInCourse(): Student[] {
+    return this._studentsNotInCourse;
+  }
+
+  @Input()
+  public set studentsNotInCourse(value: Student[]) {
+    this._studentsNotInCourse = value;
+    console.log(this.studentsNotInCourse);
+    this.filteredOptions = this.myControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value))
+    );
+  }
+
+
+
   enrolledStudentsDataSource: MatTableDataSource<Student>;
 
-  @Input() set enrolledStudents(students: Student[]) {
-
-    this._enrolledStudents = students;
-
-    if (this.enrolledStudentsDataSource != undefined) {
-      this.enrolledStudentsDataSource.data = this._enrolledStudents;
-    }
-  }
 
 
   // Communicate with container
@@ -69,15 +99,10 @@ export class StudentsComponent implements OnInit {
   // Lifecycle hooks -------
 
   ngOnInit() {
-
-    this.enrolledStudentsDataSource = new MatTableDataSource(this._enrolledStudents);
-
     this.filteredOptions = this.myControl.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))
     );
-
-
   }
 
   ngAfterViewInit() {

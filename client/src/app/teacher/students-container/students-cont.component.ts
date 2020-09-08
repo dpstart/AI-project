@@ -27,7 +27,7 @@ export class StudentsContComponent implements OnInit {
   studentsToDelete: Student[];
 
   selectedCourse: string
-  
+
 
   constructor(
     private http: HttpClient,
@@ -81,12 +81,15 @@ export class StudentsContComponent implements OnInit {
 
     this.studentService
       .enrollOne(this.selectedCourse, student.id)
-      .subscribe(s => {
+      .subscribe(success => {
         var data = this.enrolledStudents;
-        data.push(s);
+        data.push(student);
         this.enrolledStudents = [].concat(data);
+        console.log("before", this.studentsNotInCourse);
         //remove from all students not in course
-        this.studentsNotInCourse = [...this.studentsNotInCourse.slice(this.studentsNotInCourse.indexOf(s), 1)]
+        this.studentsNotInCourse = this.studentsNotInCourse.filter(s => s.id != student.id)
+        console.log("after", this.studentsNotInCourse);
+
       })
 
   }
@@ -94,19 +97,23 @@ export class StudentsContComponent implements OnInit {
   deleteStudents(students: Student[]) {
     this.studentService.unsubscribeMany(this.selectedCourse, students).subscribe(_ => {
 
+      console.log(students);
 
-      let studentsEnrolled:Student[] = []
+
+      let studentsEnrolled: Student[] = this.enrolledStudents
       let studentsNotInCourse = [...this.studentsNotInCourse]
 
       students.forEach(s => {
-        studentsEnrolled = this.enrolledStudents.filter(student => student.id != s.id)
+        studentsEnrolled = studentsEnrolled.filter(student => student.id != s.id)
         studentsNotInCourse.push(s)
       });
 
-      console.log(this.enrolledStudents,studentsEnrolled,this.studentsNotInCourse,studentsNotInCourse);
-      
-      this.enrolledStudents = [... studentsEnrolled]
-      this.studentsNotInCourse = [...studentsNotInCourse]
+
+      this.enrolledStudents = studentsEnrolled
+      this.studentsNotInCourse = studentsNotInCourse
+
+      console.log("NOSTRO", this.enrolledStudents, studentsNotInCourse);
+
     });
 
   }
