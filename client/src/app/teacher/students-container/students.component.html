@@ -18,9 +18,17 @@
 <div class="tabContainer">
 
     <h2 class="mat-h2 tabtitle">Elenco studenti iscritti al corso.</h2>
-
-
-    <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
+    <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
+        {{ message }}
+        <div *ngIf="alertType=='secondary'">
+            <button *ngIf="masterToggleInPageOption else m" (click)="toggleSelectionOptionAndSelect()" mat-flat-button
+                color="primary">Seleziona tutti </button>
+            <ng-template #m>
+                <button (click)="toggleSelectionOptionAndSelect()" mat-flat-button color="primary">Annulla selezione
+                </button>
+            </ng-template>
+        </div>
+    </ngb-alert>
 
 
     <form class="addStudentForm">
@@ -88,8 +96,8 @@
         <ng-container matColumnDef="select">
             <th mat-header-cell *matHeaderCellDef>
                 <mat-checkbox (change)="$event ? masterToggle() : null"
-                    [checked]="selection.hasValue() && isAllSelectedFromPage()"
-                    [indeterminate]="selection.hasValue() && !isAllSelectedFromPage()">
+                    [checked]="selection.hasValue() && isAllSelectedInPage()"
+                    [indeterminate]="selection.hasValue() && !isAllSelectedInPage()">
                 </mat-checkbox>
             </th>
             <td mat-cell *matCellDef="let row">

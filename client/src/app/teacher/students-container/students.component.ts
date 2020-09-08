@@ -22,6 +22,9 @@ export class StudentsComponent implements OnInit {
   fileName: string
   isDisabled: boolean
 
+
+  masterToggleInPageOption = true
+
   private _message: string;
   private _alertType: string;
 
@@ -46,7 +49,6 @@ export class StudentsComponent implements OnInit {
   constructor() {
     this.enrolledStudentsDataSource = new MatTableDataSource();
     this.isDisabled = true
-    this.paginator.getNumberOfPages
   }
 
   @ViewChild(MatSidenav) sidenav: MatSidenav;
@@ -135,19 +137,86 @@ export class StudentsComponent implements OnInit {
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
-  isAllSelectedFromPage() {
+  isAllSelected(): boolean {
     const numSelected = this.selection.selected.length;
     const numRows = this.enrolledStudentsDataSource.data.length;
     return numSelected === numRows;
   }
 
+  isAllSelectedInPage(): boolean {
+
+    if (this.masterToggleInPageOption) {
+      let indexStartingElement = this.paginator.pageIndex == 0 ? 0 : (this.paginator.pageIndex * this.paginator.pageSize)
+      let indexEndElement = (indexStartingElement + this.paginator.pageSize)
+
+      indexEndElement > (this.enrolledStudentsDataSource.data.length - 1) ?
+        (this.enrolledStudentsDataSource.data.length - 1) : indexEndElement
+
+      let allSelected = true
+
+      for (let i = indexStartingElement; i < indexEndElement; i++) {
+        if (!this.selection.isSelected(this.enrolledStudentsDataSource.data[i])) {
+          allSelected = false
+        }
+      }
+      return allSelected
+
+    } else return this.isAllSelected()
+
+
+  }
+
+  toggleSelectionOptionAndSelect() {
+    //prima volta che clicco su bottone
+    if (this.masterToggleInPageOption) {
+      this.masterToggleInPageOption = false
+      this.masterToggle()
+      this.message = `Tutti i ${this.selection.selected.length} studenti sono stati selezionati.`
+
+    } else {
+      //seconda volta che clicco => annulla
+      this.message = ""
+      this.masterToggle()
+      this.masterToggleInPageOption = true
+    }
+
+  }
+
   /** Selects all rows if they are not all selected; otherwise clear selection. */
   masterToggle() {
-    this.isAllSelectedFromPage() ?
-      this.selection.clear() :
-      this.enrolledStudentsDataSource.data.forEach(row => this.selection.select(row));
+    if (this.isAllSelectedInPage()) {
+      this.selection.clear()
+    } else {
 
-      //TODO implementare selezione elementi su particolare pagina
+
+      if (this.masterToggleInPageOption) {
+        let indexStartingElement = this.paginator.pageIndex == 0 ? 0 : (this.paginator.pageIndex * this.paginator.pageSize)
+        let indexEndElement = indexStartingElement + this.paginator.pageSize
+
+        indexEndElement > (this.enrolledStudentsDataSource.data.length - 1) ? (this.enrolledStudentsDataSource.data.length - 1) : indexEndElement
+
+
+        for (let i = indexStartingElement; i < indexEndElement; i++) {
+          this.selection.select(this.enrolledStudentsDataSource.data[i])
+        }
+
+
+        this.message = `Tutti i ${this.selection.selected.length} studenti in questa pagina sono stati selezionati.`
+        this.alertType = "secondary"
+
+      } else {
+        this.enrolledStudentsDataSource.data.forEach(row => this.selection.select(row));
+
+      }
+
+
+      // //TODO implementare selezione elementi su particolare pagina
+      // console.log(this.paginator.pageIndex);
+      // console.log("IN", indexStartingElement);
+      // console.log("END", indexEndElement)
+      // console.log(this.paginator.getNumberOfPages());
+      // console.log(this.paginator.pageSize);
+    }
   }
 
   displayWith(student: Student): string {
