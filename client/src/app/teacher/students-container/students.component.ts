@@ -16,12 +16,14 @@ import { map, startWith } from 'rxjs/operators';
   templateUrl: './students.component.html',
   styles: [``]
 })
-export class StudentsComponent implements OnInit, OnChanges {
+export class StudentsComponent implements OnInit {
 
   selectedFile: File;
   fileName: string
-
   isDisabled: boolean
+
+
+
 
   constructor(private ref: ChangeDetectorRef) {
     this.enrolledStudentsDataSource = new MatTableDataSource();
@@ -29,11 +31,6 @@ export class StudentsComponent implements OnInit, OnChanges {
   }
 
 
-  ngOnChanges(changes: SimpleChanges): void {
-
-
-
-  }
 
   @ViewChild(MatSidenav) sidenav: MatSidenav;
   @ViewChild(MatTable) table: MatTable<any>;
@@ -75,6 +72,25 @@ export class StudentsComponent implements OnInit, OnChanges {
       startWith(''),
       map(value => this._filter(value))
     );
+  }
+
+  private _message: string;
+  public get message(): string {
+    return this._message;
+  }
+
+  @Input() public set message(value: string) {
+    this._message = value;
+  }
+
+  private _alertType: string;
+
+  public get alertType(): string {
+    return this._alertType;
+  }
+
+  @Input() public set alertType(value: string) {
+    this._alertType = value;
   }
 
 

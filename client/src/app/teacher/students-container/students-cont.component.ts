@@ -28,15 +28,15 @@ export class StudentsContComponent implements OnInit {
 
   selectedCourse: string
 
+  message: string
+  alertType: string
+
 
   constructor(
-    private http: HttpClient,
     private studentService: StudentService,
     private activatedRoute: ActivatedRoute,
     private routeStateService: RouteStateService) {
-    // this.getJSON(this._jsonURLenrolled).subscribe(data => {
-    //   this.enrolledStudents.data = data;
-    // });
+    
   }
 
 
@@ -76,8 +76,12 @@ export class StudentsContComponent implements OnInit {
 
   addStudent(student: Student) {
 
-    if (this.enrolledStudents.indexOf(student) != -1)
+    if (this.enrolledStudents.indexOf(student) != -1) {
+      this.alertType = "danger"
+      this.message = "Sorry something went wrong try later..."
       return;
+    }
+
 
     this.studentService
       .enrollOne(this.selectedCourse, student.id)
@@ -85,11 +89,15 @@ export class StudentsContComponent implements OnInit {
         var data = this.enrolledStudents;
         data.push(student);
         this.enrolledStudents = [].concat(data);
-        console.log("before", this.studentsNotInCourse);
         //remove from all students not in course
         this.studentsNotInCourse = this.studentsNotInCourse.filter(s => s.id != student.id)
-        console.log("after", this.studentsNotInCourse);
 
+        this.alertType = "success"
+        this.message = "Student successfully added."
+
+      }, error => {
+        this.alertType = "danger"
+        this.message = "Sorry something went wrong try later..."
       })
 
   }
@@ -112,9 +120,18 @@ export class StudentsContComponent implements OnInit {
       this.enrolledStudents = studentsEnrolled
       this.studentsNotInCourse = studentsNotInCourse
 
-      console.log("NOSTRO", this.enrolledStudents, studentsNotInCourse);
+      this.alertType = "success"
 
-    });
+      if (students.length == 1)
+        this.message = `Student successfully removed from course ${this.selectedCourse}.`
+      else
+        this.message = `Students successfully removed from course ${this.selectedCourse}.`
+
+    }, error => {
+      this.alertType = "danger"
+      this.message = "Sorry something went wrong try later..."
+    })
+
 
   }
 
@@ -128,11 +145,15 @@ export class StudentsContComponent implements OnInit {
         this.isAllStudentsLoaded = true;
         this.isEnrolledStudentsLoaded = true;
       });
+      this.alertType = "success"
+      this.message = "Student successfully added."
+
+    }, error => {
+      this.alertType = "danger"
+      this.message = "Sorry something went wrong try later..."
     })
   }
 
-  public getJSON(path): Observable<any> {
-    return this.http.get(path);
-  }
+
 
 }

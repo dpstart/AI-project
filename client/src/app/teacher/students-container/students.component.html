@@ -9,7 +9,7 @@
     }
 
 
-    .fileUploadingArea{
+    .fileUploadingArea {
         display: inline;
         justify-content: flex-end;
     }
@@ -18,6 +18,9 @@
 <div class="tabContainer">
 
     <h2 class="mat-h2 tabtitle">Elenco studenti iscritti al corso.</h2>
+
+
+    <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
 
 
     <form class="addStudentForm">
@@ -32,25 +35,22 @@
             </mat-autocomplete>
         </mat-form-field>
         <button mat-button (click)="addStudentEvent()">Add</button>
-        <button mat-button color="warn" [disabled]="isDeleteButtonDisabled()" (click)="_deleteStudents()">Delete</button>
+        <button mat-button color="warn" [disabled]="isDeleteButtonDisabled()"
+            (click)="_deleteStudents()">Delete</button>
     </form>
 
     <div class="fileUploadingArea">
-        <button mat-fab color="primary"
-            aria-label="Example icon button with a delete icon"
-            (click)="fileInput.click()">
+        <button mat-fab color="primary" aria-label="Example icon button with a delete icon" (click)="fileInput.click()">
             <mat-icon>folder</mat-icon>
-            <input #fileInput type="file" (change)="onFileChanged($event)"
-                style="display:none;" />
+            <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;" />
         </button>
         <mat-form-field>
             <mat-label>Add students</mat-label>
-            <input matInput placeholder="No file selected" [(ngModel)]="fileName"
-                readonly="true">
+            <input matInput placeholder="No file selected" [(ngModel)]="fileName" readonly="true">
         </mat-form-field>
 
-        <button id="uploadButton" [disabled]="isDisabled" mat-flat-button
-            color="primary" (click)="onUpload()">Upload</button>
+        <button id="uploadButton" [disabled]="isDisabled" mat-flat-button color="primary"
+            (click)="onUpload()">Upload</button>
 
     </div>
 

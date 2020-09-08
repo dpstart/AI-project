@@ -3,6 +3,8 @@
 </div>
 <ng-template #loadedBlock>
 <app-students 
+[message]="message"
+[alertType]="alertType"
 [studentsNotInCourse]="studentsNotInCourse"
 [enrolledStudents]="enrolledStudents" 
 (addStudent)="addStudent($event)" 
