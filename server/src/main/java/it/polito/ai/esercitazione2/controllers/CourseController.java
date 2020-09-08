@@ -454,6 +454,12 @@ public class CourseController {
 
     }
 
+    /**
+     * Authentication required: any user
+     * @param name: name of the course (path variable)
+     *
+     * @return list of TeamDTO
+     */
     @GetMapping("/{name}/teams")
     List<TeamDTO> getTeams(@PathVariable String name) {
         try {
@@ -463,6 +469,12 @@ public class CourseController {
         }
     }
 
+    /**
+     * Authentication required: any user
+     * @param name: name of the course (path variable)
+     * @param id: team id
+     * @return TeamDTO
+     */
     @GetMapping("/{name}/teams/{id}")
     TeamDTO getTeam(@PathVariable String name, @PathVariable Long id) {
         try {
@@ -472,6 +484,16 @@ public class CourseController {
         }
     }
 
+    /**
+     * Authentication required: student in the team
+     * @param name: name of the course (path variable)
+     * @param id: team id (path varaible)
+     *
+     * @return {
+     *             "2000": true
+     *             "2001": false
+     *          }
+     */
     @GetMapping("/{name}/teams/{id}/adhesion")
     Map<String, String> getAdhesionInfo(@PathVariable String name, @PathVariable Long id) {
         try {

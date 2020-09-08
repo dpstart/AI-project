@@ -184,6 +184,8 @@ Any authenticated user can access to the enrolled students information:
 
 A student enrolled in a course can propose a team for that course. The proposed team is created only after all the team members accepted the invitation.
 
+#### Proposal
+
         propose a team: API/courses/{name}/proposeTeam (POST)
                         {
                           "team":"FirstTeam",
@@ -191,11 +193,22 @@ A student enrolled in a course can propose a team for that course. The proposed 
                           "timeout": 600000   <--- expiration time to accept the invitation
                         }
 
-#### Proposal
+        accept:
+        
+        reject:
+        
+####Team info
 
 
-
-    
+        adhesion info:  API/courses/{course}/teams/{id}/adhesion (GET)
+        
+        one team:       API/courses/{name}/teams/{id}/           (GET)
+        
+        teams for 
+        a course:       API/courses/{name}/teams                 (GET)
+        
+       
+                    
 
 ### VMmodel
 

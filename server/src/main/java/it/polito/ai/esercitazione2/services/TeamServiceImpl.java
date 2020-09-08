@@ -913,7 +913,7 @@ public class TeamServiceImpl implements TeamService {
             throw new CourseNotFoundException("Course: " + courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
         Optional<Team> t = teamRepository.findById(teamID);
-        if (t.isEmpty() || !t.get().getCourse().getName().equals(courseName)) {
+        if (t.isEmpty() || (!t.get().getCourse().getName().equals(courseName) && !t.get().getCourse().getAcronime().equals(courseName))) {
             throw new TeamNotFoundException("Team " + teamID + " not found");
         }
         return modelMapper.map(t.get(), TeamDTO.class);
