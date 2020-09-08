@@ -18,6 +18,9 @@ import { CreateDialogComponent } from './create/create-dialog.component';
 })
 export class VmStudentComponent implements OnInit {
 
+  message: string | null;
+  alertType: string;
+
   innerDisplayedColumns: string[]
   displayedColumns: string[]
 
@@ -79,7 +82,7 @@ export class VmStudentComponent implements OnInit {
 
 
         this.studentService.getVmsForTeam(team.id).subscribe(vms => {
-        
+
           this.dataSourceVm.data = [...vms]
           this.isAllLoaded = true
         })
@@ -106,7 +109,12 @@ export class VmStudentComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(() => this.getData())
+    dialogRef.afterClosed().subscribe((response) => {
+      this.getData();
+      this.message = response.message;
+      this.alertType = response.type;
+
+    })
     event.stopPropagation();
 
   }
@@ -120,6 +128,8 @@ export class VmStudentComponent implements OnInit {
   }
 
   openVmImage(vm: Vm) {
+
+
 
   }
 

@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject, Input } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormControl, FormGroup } from '@angular/forms';
-import { StudentService } from 'src/app/services/student.service';
+import { StudentService, VmSettings } from 'src/app/services/student.service';
 import { Team } from 'src/app/model/team.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { TeacherService } from 'src/app/services/teacher.service';
@@ -21,6 +21,9 @@ export class CreateDialogComponent implements OnInit {
     disk_space: new FormControl(''),
     max_active: new FormControl(''),
     max_available: new FormControl(''),
+    image: new FormControl(''),
+    imageName: new FormControl(''),
+
   });
 
   @Input() message: string | null;
@@ -38,24 +41,27 @@ export class CreateDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
-
-
-
   }
 
-  close() { this.dialogRef.close(); }
+  close(data) { this.dialogRef.close(data); }
 
   submit() {
 
     const formData = new FormData();
-    formData.append('image', this.selectedFile, this.selectedFile.name);
-    formData.append('settings', this.form.value)
 
-
+    let settings: VmSettings = {
+      ram: this.form.value.ram, n_cpu: this.form.value.n_cpu, disk_space: this.form.value.disk_space,
+      max_active: this.form.value.max_active, max_available: this.form.value.max_available
+    }
+    formData.append('image', this.selectedFile, this.fileName);
+    formData.append('settings', new Blob([JSON.stringify(settings)], {
+      type: "application/json"
+    }))
 
     if (this.selectedFile)
-      this.studentService.createVM(this.data.course, this.data.teamId, formData).subscribe(res => res);
+      this.studentService.createVM(this.data.course, this.data.teamId, formData).subscribe(res => {
+        this.close({ message: "VM Successfully Created", type: "success" });
+      });
   }
 
 

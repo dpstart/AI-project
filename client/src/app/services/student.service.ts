@@ -69,12 +69,11 @@ export class StudentService {
 
   createVM(course_name: string, teamId: number, formData: FormData) {
 
-
     let headers = new HttpHeaders()
-    headers.set('Content-Type', 'multipart/form-data;');
+    headers.set('Content-Type', 'multipart/form-data');
 
     const url = `${this.URL}/courses/${course_name}/teams/${teamId}/createVM`;
-    return this.http.post(url, formData, { headers: headers }).pipe(
+    return this.http.post(url, formData, { "headers": headers }).pipe(
       retry(3),
       catchError(this.handleError)
     );
@@ -224,6 +223,11 @@ export class StudentService {
     );
 
   }
+
+  getImageFromId(id: number) {
+
+  }
+
 
   getCourse(course_name: string): Observable<Course> {
     const url = `${this.URL}/courses/${course_name}`

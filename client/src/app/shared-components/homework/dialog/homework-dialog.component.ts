@@ -99,21 +99,21 @@ export class HomeworkDialogComponent implements OnInit {
       this.courseName = courseName
     })
 
-    
+
     if (this.authService.isRoleTeacher()) {
       console.log("SONO QUI");
 
 
       console.log(this.courseName, this.selectedAssignment.id, this.idSelectedHomework);
-      
+
       this.teacherService.getHomeworkVersions(this.courseName, this.selectedAssignment.id, this.idSelectedHomework).subscribe((data) => {
 
         // this.httpClient.get('http://localhost:8080/image/get/' + this.imageName)
         //   .subscribe(
         //     res => {
 
-        console.log("SONO",data);
-        
+        console.log("SONO", data);
+
 
 
         let retrieveResponse = data;

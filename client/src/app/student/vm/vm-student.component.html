@@ -6,6 +6,8 @@
 
         <h2 class="mat-h2 tabtitle">Elenco VM.</h2>
 
+        <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
+
         <button mat-raised-button [disabled]="!teamId" (click)="createVm()">Create new VM</button>
 
         <table #innerTables mat-table #innerSort="matSort" [dataSource]=dataSourceVm matSort>

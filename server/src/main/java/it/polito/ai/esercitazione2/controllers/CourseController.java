@@ -567,6 +567,7 @@ public class CourseController {
 
     @PostMapping("/{name}/teams/{teamId}/createVM")
     VMDTO createVM(@PathVariable Long teamId, @RequestPart(value = "image") MultipartFile file, @Valid @RequestPart("settings") SettingsDTO settings) {
+
         if (settings.getMax_active() == null) //contemporary active
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max active' field not expected here");
         if (settings.getMax_available() == null) //active + off

@@ -38,23 +38,25 @@
             </p>
 
             <div>
-                <button mat-raised-button color="primary">Confirm</button>
-                <button (click)="close()" class="cancel" mat-raised-button>Cancel</button>
+                <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
+                    (click)="fileInput.click()">
+                    <mat-icon>folder</mat-icon>
+                    <input formControlName="image" #fileInput type="file" (change)="onFileChanged($event)"
+                        style="display:none;" />
+                </button>
+                <mat-form-field>
+                    <mat-label>Add VM image</mat-label>
+                    <input required formControlName="imageName" matInput placeholder="No file selected"
+                        [(ngModel)]="fileName" readonly="true">
+                </mat-form-field>
             </div>
 
+            <div>
+                <button mat-raised-button color="primary">Confirm</button>
+                <button (click)="close({})" class="cancel" mat-raised-button>Cancel</button>
+            </div>
 
         </form>
 
-        <div>
-            <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
-                (click)="fileInput.click()">
-                <mat-icon>folder</mat-icon>
-                <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;" />
-            </button>
-            <mat-form-field>
-                <mat-label>Add review</mat-label>
-                <input matInput placeholder="No file selected" [(ngModel)]="fileName" readonly="true">
-            </mat-form-field>
-        </div>
     </mat-card-content>
 </mat-card>
