@@ -42,6 +42,9 @@ export class VmStudentComponent implements OnInit {
     this.setDataSourceAttributes();
   }
 
+
+  teamId: number;
+
   constructor(
     private routeStateService: RouteStateService,
     private dialog: MatDialog,
@@ -60,7 +63,6 @@ export class VmStudentComponent implements OnInit {
 
   ngOnInit(): void {
     this.getData()
-
   }
 
   getData() {
@@ -72,15 +74,12 @@ export class VmStudentComponent implements OnInit {
 
       this.studentService.getTeamForCourse(params['course_name']).subscribe((team: Team) => {
 
-        this.studentService.getVmsForTeam(1).subscribe(vms => {
-          vms.push({
-            id: 2,
-            n_cpu: 1,
-            disk_space: 2,
-            ram: 12,
-            status: 1 // TODO ricordare gli stati} )
-          })
 
+        this.teamId = team.id
+
+
+        this.studentService.getVmsForTeam(team.id).subscribe(vms => {
+        
           this.dataSourceVm.data = [...vms]
           this.isAllLoaded = true
         })
@@ -101,7 +100,10 @@ export class VmStudentComponent implements OnInit {
 
     const dialogRef = this.dialog.open(CreateDialogComponent, {
       width: '500px',
-      data: { course: this.selectedCourse }
+      data: {
+        course: this.selectedCourse,
+        teamId: this.teamId
+      }
     });
 
     dialogRef.afterClosed().subscribe(() => this.getData())

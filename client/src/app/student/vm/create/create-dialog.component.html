@@ -3,6 +3,10 @@
     <mat-card-content>
         <form [formGroup]="form" (ngSubmit)="submit()">
 
+
+            <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
+
+
             <p>
                 <mat-form-field>
                     <input required type="number" matInput placeholder="RAM" formControlName="ram">
@@ -33,8 +37,6 @@
                 </mat-form-field>
             </p>
 
-            <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
-
             <div>
                 <button mat-raised-button color="primary">Confirm</button>
                 <button (click)="close()" class="cancel" mat-raised-button>Cancel</button>
@@ -42,5 +44,17 @@
 
 
         </form>
+
+        <div>
+            <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
+                (click)="fileInput.click()">
+                <mat-icon>folder</mat-icon>
+                <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;" />
+            </button>
+            <mat-form-field>
+                <mat-label>Add review</mat-label>
+                <input matInput placeholder="No file selected" [(ngModel)]="fileName" readonly="true">
+            </mat-form-field>
+        </div>
     </mat-card-content>
 </mat-card>

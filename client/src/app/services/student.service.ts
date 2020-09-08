@@ -9,6 +9,7 @@ import { Team } from '../model/team.model';
 import { HomeworkVersion } from '../model/homework-version';
 import { Assignment } from '../model/assignment.model';
 import { Homework } from '../model/homework.model';
+import { Form } from '@angular/forms';
 
 
 export interface NavStudentLinks {
@@ -66,9 +67,14 @@ export class StudentService {
 
   // CREATE
 
-  createVM(course_name: string, teamId: number, vm_settings: VmSettings) {
+  createVM(course_name: string, teamId: number, formData: FormData) {
+
+
+    let headers = new HttpHeaders()
+    headers.set('Content-Type', 'multipart/form-data;');
+
     const url = `${this.URL}/courses/${course_name}/teams/${teamId}/createVM`;
-    return this.http.post(url, vm_settings).pipe(
+    return this.http.post(url, formData, { headers: headers }).pipe(
       retry(3),
       catchError(this.handleError)
     );
