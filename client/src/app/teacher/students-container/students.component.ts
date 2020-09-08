@@ -22,34 +22,37 @@ export class StudentsComponent implements OnInit {
   fileName: string
   isDisabled: boolean
 
+  private _message: string;
+  private _alertType: string;
+
+  enrolledStudentsDataSource: MatTableDataSource<Student>;
+
+  // Table selection
+  selection = new SelectionModel<Student>(true, []);
+
+  // Autocompletion
+  filteredOptions: Observable<Student[]>;
+  studentSelected: Student = null;
+
+  displayedColumns: string[] = ['select', 'id', 'name', 'first name', 'group'];
 
 
+  myControl = new FormControl();
 
-  constructor(private ref: ChangeDetectorRef) {
+  // Data sources
+  private _enrolledStudents: Student[];
+  private _studentsNotInCourse: Student[];
+
+  constructor() {
     this.enrolledStudentsDataSource = new MatTableDataSource();
     this.isDisabled = true
+    this.paginator.getNumberOfPages
   }
-
-
 
   @ViewChild(MatSidenav) sidenav: MatSidenav;
   @ViewChild(MatTable) table: MatTable<any>;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-
-
-
-  displayedColumns: string[] = ['select', 'id', 'name', 'first name', 'group'];
-  myControl = new FormControl();
-
-  // Data sources
-  private _enrolledStudents: Student[];
-
-
-  public get enrolledStudents(): Student[] {
-    return this._enrolledStudents;
-  }
-
 
   @Input()
   public set enrolledStudents(value: Student[]) {
@@ -57,60 +60,27 @@ export class StudentsComponent implements OnInit {
     this.enrolledStudentsDataSource.data = [...this.enrolledStudents]
   }
 
-
-
-  private _studentsNotInCourse: Student[];
-  public get studentsNotInCourse(): Student[] {
-    return this._studentsNotInCourse;
-  }
-
   @Input()
   public set studentsNotInCourse(value: Student[]) {
     this._studentsNotInCourse = value;
-    console.log(this.studentsNotInCourse);
     this.filteredOptions = this.myControl.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))
     );
   }
 
-  private _message: string;
-  public get message(): string {
-    return this._message;
-  }
-
   @Input() public set message(value: string) {
     this._message = value;
-  }
-
-  private _alertType: string;
-
-  public get alertType(): string {
-    return this._alertType;
   }
 
   @Input() public set alertType(value: string) {
     this._alertType = value;
   }
 
-
-
-  enrolledStudentsDataSource: MatTableDataSource<Student>;
-
-
-
   // Communicate with container
   @Output() addStudent: EventEmitter<Student> = new EventEmitter<Student>();
   @Output() deleteStudents: EventEmitter<Student[]> = new EventEmitter<Student[]>();
   @Output() enrollManyCsvEvent: EventEmitter<File> = new EventEmitter<File>()
-
-  // Table selection
-  selection = new SelectionModel<Student>(true, []);
-
-
-  // Autocompletion
-  filteredOptions: Observable<Student[]>;
-  studentSelected: Student = null;
 
   // Lifecycle hooks -------
 
@@ -127,6 +97,23 @@ export class StudentsComponent implements OnInit {
   }
 
   // ----------------------
+
+
+  //getters
+
+  public get message(): string {
+    return this._message;
+  }
+  public get alertType(): string {
+    return this._alertType;
+  }
+  public get enrolledStudents(): Student[] {
+    return this._enrolledStudents;
+  }
+  public get studentsNotInCourse(): Student[] {
+    return this._studentsNotInCourse;
+  }
+
 
 
   private _isMatchingStudent(value: string) {
@@ -148,7 +135,7 @@ export class StudentsComponent implements OnInit {
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
-  isAllSelected() {
+  isAllSelectedFromPage() {
     const numSelected = this.selection.selected.length;
     const numRows = this.enrolledStudentsDataSource.data.length;
     return numSelected === numRows;
@@ -156,9 +143,11 @@ export class StudentsComponent implements OnInit {
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
   masterToggle() {
-    this.isAllSelected() ?
+    this.isAllSelectedFromPage() ?
       this.selection.clear() :
       this.enrolledStudentsDataSource.data.forEach(row => this.selection.select(row));
+
+      //TODO implementare selezione elementi su particolare pagina
   }
 
   displayWith(student: Student): string {
