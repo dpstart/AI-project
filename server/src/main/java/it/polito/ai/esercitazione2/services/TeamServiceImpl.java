@@ -192,6 +192,69 @@ public class TeamServiceImpl implements TeamService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void enableCourse(String courseName) {
+        String prof = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
+            throw new CourseNotFoundException("Course " + courseName + " not found!");
+        Course c = courseRepository.getOne(courseName);
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)))
+            throw new CourseAuthorizationException("Professor " + prof + "has not the rights to modify this course");
+        c.setEnabled(true);
+    }
+
+    @Override
+    public void disableCourse(String courseName) {
+        String prof = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
+        Course c = courseRepository.getOne(courseName);
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)))
+            throw new CourseAuthorizationException("Professor " + prof + "has not the rights to modify this course");
+
+        //stop all Virtual machines of this course
+        c.getTeams().stream().flatMap(x -> x.getVMs().stream()).forEach(
+                x -> {
+                    x.setStatus(0);
+                    vmRepository.save(x);
+                }
+        );
+        c.setEnabled(false);
+    }
+
+    @Override
+    public List<CourseDTO> getCourses(String studentId) {
+        if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
+            throw new StudentNotFoundException("Student: " + studentId + " not found!");
+        Student s = studentRepository.getOne(studentId);
+        return s.getCourses()
+                .stream()
+                .map(x -> modelMapper.map(x, CourseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void shareOwnership(String courseName, String profId) {
+        String prof = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
+            throw new CourseNotFoundException("Course " + courseName + " not found");
+        Course c = courseRepository.getOne(courseName);
+        if (!c.getProfessors().stream().anyMatch(x -> x.getId().equals(prof))) {
+            throw new AuthorizationServiceException("Autenticated user is not a professor for this course");
+        }
+        if (!professorRepository.existsById(profId))
+            throw new ProfessorNotFoundException("Professor " + profId + " not found");
+        Professor p = professorRepository.getOne(profId);
+        if (!p.getEnabled())
+            throw new ProfessorNotFoundException("Professor " + profId + " not found");
+
+        if (c.getProfessors().stream().anyMatch(x -> x.getId().equals(profId)))
+            throw new IncoherenceException("Professor " + profId + " already a professor for this course");
+
+        c.addProfessor(p);
+        courseRepository.save(c);
+
+    }
 
     @Override
     public boolean addStudentToCourse(String studentId, String courseName) {
@@ -263,46 +326,7 @@ public class TeamServiceImpl implements TeamService {
         return studentIds.stream().map(x -> removeStudentFromCourse(x, courseName)).collect(Collectors.toList());
     }
 
-    @Override
-    public void enableCourse(String courseName) {
-        String prof = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course " + courseName + " not found!");
-        Course c = courseRepository.getOne(courseName);
-        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)))
-            throw new CourseAuthorizationException("Professor " + prof + "has not the rights to modify this course");
-        c.setEnabled(true);
-    }
 
-    @Override
-    public void disableCourse(String courseName) {
-        String prof = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: " + courseName + " not found!");
-        Course c = courseRepository.getOne(courseName);
-        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)))
-            throw new CourseAuthorizationException("Professor " + prof + "has not the rights to modify this course");
-
-        //stop all Virtual machines of this course
-        c.getTeams().stream().flatMap(x -> x.getVMs().stream()).forEach(
-                x -> {
-                    x.setStatus(0);
-                    vmRepository.save(x);
-                }
-        );
-        c.setEnabled(false);
-    }
-
-    @Override
-    public List<CourseDTO> getCourses(String studentId) {
-        if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
-            throw new StudentNotFoundException("Student: " + studentId + " not found!");
-        Student s = studentRepository.getOne(studentId);
-        return s.getCourses()
-                .stream()
-                .map(x -> modelMapper.map(x, CourseDTO.class))
-                .collect(Collectors.toList());
-    }
 
 
     // Professors
@@ -1100,28 +1124,6 @@ public class TeamServiceImpl implements TeamService {
         removeAccounts(users);
     }
 
-    @Override
-    public void shareOwnership(String courseName, String profId) {
-        String prof = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course " + courseName + " not found");
-        Course c = courseRepository.getOne(courseName);
-        if (!c.getProfessors().stream().anyMatch(x -> x.getId().equals(prof))) {
-            throw new AuthorizationServiceException("Autenticated user is not a professor for this course");
-        }
-        if (!professorRepository.existsById(profId))
-            throw new ProfessorNotFoundException("Professor " + profId + " not found");
-        Professor p = professorRepository.getOne(profId);
-        if (!p.getEnabled())
-            throw new ProfessorNotFoundException("Professor " + profId + " not found");
-
-        if (c.getProfessors().stream().anyMatch(x -> x.getId().equals(profId)))
-            throw new IncoherenceException("Professor " + profId + " already a professor for this course");
-
-        c.addProfessor(p);
-        courseRepository.save(c);
-
-    }
 
     @Override
     public Map<String, String> getAdhesionInfo(Long teamID) {
@@ -1129,6 +1131,10 @@ public class TeamServiceImpl implements TeamService {
         Team t = teamRepository.getOne(teamID);
         Map<String, String> m = new HashMap<>();
         List<Student> members = t.getMembers();
+        if (!members.stream().map(Student::getId).anyMatch(x->x.equals(SecurityContextHolder.getContext().getAuthentication().getName())))
+            throw new AuthorizationServiceException("Student not belonging to this team");
+
+
         List<Token> tokens = tokenRepository.findAllByTeamId(teamID);
 
         for (Student s : members) {

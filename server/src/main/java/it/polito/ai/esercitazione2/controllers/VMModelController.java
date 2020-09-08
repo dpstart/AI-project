@@ -23,24 +23,35 @@ public class VMModelController {
     @Autowired
     VMService vmservice;
 
+    /**
+     * Authentication required: Any role
+     * INPUT: none
+     * @return lista di VMModel
+     */
     @GetMapping({"","/"})
     List<VMModelDTO> getVMModels(){
         return vmservice.getVMModels();
     }
 
+    /**
+     * Authentication required: Any role
+     * INPUT: path variable
+     * @return VMModel
+     */
     @GetMapping("/{name}")
     VMModelDTO getVMModel(@PathVariable String name){
         return ModelHelper.enrich(vmservice.getVMModel(name));
     }
 
-    @GetMapping("/{name}/remove")
-    boolean removeVMModel(@PathVariable String name){
-        try {
-            return vmservice.removeVMModel(name);
-        }catch (IncoherenceException e){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-        }
-    }
+
+    /**
+     * Creation of a VMModel
+     * Authentication required: Admin
+     * INPUT: {
+     *          "name": "macOS High Sierra"
+     *        }
+     * @return void
+     */
 
     @PostMapping({"","/"})
     @ResponseStatus(HttpStatus.OK)
@@ -52,5 +63,23 @@ public class VMModelController {
         if (!vmservice.createVMModel(modelName.get("name")))
             throw new ResponseStatusException(HttpStatus.CONFLICT, "already existing VM Model");
     }
+
+
+    /**
+     * Removal of a VMModel
+     * Authentication required: Admin
+     * INPUT: path variable
+     * @return boolean (true: removed; false: not removed)
+     */
+
+    @GetMapping("/{name}/remove")
+    boolean removeVMModel(@PathVariable String name){
+        try {
+            return vmservice.removeVMModel(name);
+        }catch (IncoherenceException e){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
+    }
+
 
 }

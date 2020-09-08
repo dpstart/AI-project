@@ -55,11 +55,20 @@ public class CourseController {
     MessageSource msg;
 
 
-    /**
-     * Metodi per la gestione generale dei corsi
-     * */
+    /************************************************************************************************************************************************************************
+     ***************************************************************************GENERAL CORUSES MANAGEMENT*******************************************************************
+     ************************************************************************************************************************************************************************/
 
-    //aggiunge un corso (T)
+    /**
+     * Authentication required: professor
+     * @param dto:  {
+     *               "name":"Applicazioni Internet",
+     *               "acronime":"AI",
+     *                "max":10
+     *                "min": optional
+     *               }
+     * @return the courseDTO created
+     */
     @PostMapping({"", "/"})
     CourseDTO addCourse(@Valid @RequestBody CourseDTO dto) {
 
@@ -73,7 +82,11 @@ public class CourseController {
         return ModelHelper.enrich(dto);
     }
 
-    // Rimuove un corso
+    /**
+     * Authentication required: professor owning the course
+     * @param name name of the course (path variable)
+     * @return void
+     */
     @GetMapping("/{name}/remove")
     void removeCourse(@PathVariable String name) {
         try {
@@ -87,21 +100,36 @@ public class CourseController {
         }
     }
 
-    // Ritorna tutti i corsi
+    /**
+     * Authentication required: any user
+     * @param
+     * @return list of courseDTO
+     */
     @GetMapping({"", "/"})
     List<CourseDTO> all() {
         return teamService.getAllCourses().stream()
                 .map(ModelHelper::enrich).collect(Collectors.toList());
     }
 
-    // Ritorna il corso specificato
+    /**
+     * Authentication required: any user
+     * @param name: name of the course to return (path variable)
+     * @return courseDTO
+     */
     @GetMapping("/{name}")
     CourseDTO getOne(@PathVariable String name) {
         CourseDTO c = teamService.getCourse(name).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, name));
         return ModelHelper.enrich(c);
     }
 
-    //condivide l'ownership del corso specificato con un altro docente (T)
+    /**
+     * Authentication required: professor owning the course
+     * @param name: name of the course to return (path variable);
+     * @param input: {
+     *                 "id": {id of the professor}
+     *               }
+     * @return courseDTO
+     */
     @PostMapping("/{name}/share")
     void share(@PathVariable String name, @RequestBody Map<String, String> input) {
         if (!input.containsKey("id") || input.keySet().size() > 1)
@@ -118,9 +146,50 @@ public class CourseController {
         }
     }
 
+    /**
+     * Authentication required: professor owning the course
+     * @param name: name of the course to return (path variable);
+     * @return void
+     */
+    @GetMapping("/{name}/enable")
+    public void enableCourse(@PathVariable String name) {
+        try {
+            teamService.enableCourse(name);
+        } catch (CourseNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (CourseAuthorizationException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
+    }
+
+    /**
+     * Authentication required: professor owning the course
+     * @param name: name of the course to return (path variable);
+     * @return void
+     */
+    @GetMapping("/{name}/disable")
+    public void disableCourse(@PathVariable String name) {
+        try {
+            teamService.disableCourse(name);
+        } catch (CourseNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (CourseAuthorizationException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
+    }
 
 
-    // AGGIORNA le informazioni di un corso
+
+    /**
+     * Authentication required: professor owning the course
+     * @param dto: {
+     *                "name":"Applicazioni Internet",
+     *                "acronime":"AI",
+     *                 "max":10
+     *                 "min": optional
+     *                }
+     * @return updated Course
+     */
     @PostMapping("/update")
     CourseDTO updateCourse(@Valid @RequestBody CourseDTO dto) {
         try {
@@ -136,34 +205,17 @@ public class CourseController {
         }
     }
 
-    // abilita il corso specificato (T)
-    @GetMapping("/{name}/enable")
-    public void enableCourse(@PathVariable String name) {
-        try {
-            teamService.enableCourse(name);
-        } catch (CourseNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        } catch (CourseAuthorizationException e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
-        }
-    }
 
-    // disabilita un corso (T)
-    @GetMapping("/{name}/disable")
-    public void disableCourse(@PathVariable String name) {
-        try {
-            teamService.disableCourse(name);
-        } catch (CourseNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        } catch (CourseAuthorizationException e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
-        }
-    }
 
 
     /**
-     *   Gestione iscritti
-     * */
+     * Authentication required: professor owning the course
+     * @param name: name of the course (path variable)
+     * @param input: {
+     *                "id": {student id}
+     *                }
+     * @return void
+     */
 
     @PostMapping("/{name}/enrollOne")
     @ResponseStatus(HttpStatus.CREATED)
@@ -184,50 +236,15 @@ public class CourseController {
         }
     }
 
-    @PostMapping("/{name}/unsubscribeOne")
-    @ResponseStatus(HttpStatus.CREATED)
-    void unsubscribeOne(@PathVariable String name, @RequestBody Map<String, String> input) {
-        if (!input.containsKey("id") || input.get("id").isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please valorize the key ID");
-        if (input.keySet().size() > 1)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Received more keys then expected");
-        String id = input.get("id");
 
-        try {
-            if (!teamService.removeStudentFromCourse(id, name))
-                throw new ResponseStatusException(HttpStatus.CONFLICT, id);
-        } catch (CourseAuthorizationException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
-        } catch (TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
-    }
-
-    @PostMapping("/{name}/unsubscribeMany")
-    @ResponseStatus(HttpStatus.CREATED)
-    void unsubscribeStudents(@PathVariable String name, @RequestBody Map<String, Object> input) {
-
-        if (!input.containsKey("students"))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing 'students' key'");
-
-        if (input.keySet().size() > 1)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "More keys then expected");
-
-        List<String> students = (List<String>) input.get("students");
-
-        try {
-            teamService.unsubscribeAll(students, name);
-        } catch (StudentNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage() + " Ask the administrator to add it!");
-        } catch (CourseAuthorizationException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
-        } catch (TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
-
-    }
-
-
+    /**
+     * Authentication required: professor owning the course
+     * @param name: name of the course (path variable)
+     * @param input: {
+     *                "students": ["2000","2001"]  <--- array of student id
+     *                }
+     * @return void
+     */
     @PostMapping("/{name}/enrollMany")
     @ResponseStatus(HttpStatus.CREATED)
     void enrollStudents(@PathVariable String name, @RequestBody Map<String, Object> input) {
@@ -252,6 +269,12 @@ public class CourseController {
 
     }
 
+    /**
+     * Authentication required: professor owning the course
+     * @param name: name of the course (path variable)
+     * @param file: file.csv containing 'id' column with one student id for each row
+     * @return void
+     */
     @PostMapping("/{name}/enrollManyCSV")
     @ResponseStatus(HttpStatus.CREATED)
     void enrollStudentsCSV(@PathVariable String name, @RequestParam("file") MultipartFile file) {
@@ -272,6 +295,70 @@ public class CourseController {
 
     }
 
+
+    /**
+     * Authentication required: professor owning the course
+     * @param name: name of the course (path variable)
+     * @param input: {
+     *                      "id":{student it}
+     *               }
+     * @return void
+     */
+    @PostMapping("/{name}/unsubscribeOne")
+    @ResponseStatus(HttpStatus.CREATED)
+    void unsubscribeOne(@PathVariable String name, @RequestBody Map<String, String> input) {
+        if (!input.containsKey("id") || input.get("id").isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please valorize the key ID");
+        if (input.keySet().size() > 1)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Received more keys then expected");
+        String id = input.get("id");
+
+        try {
+            teamService.removeStudentFromCourse(id, name);
+        } catch (CourseAuthorizationException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+
+    /**
+     * Authentication required: professor owning the course
+     * @param name: name of the course (path variable)
+     * @param input: {
+     *                      "students":["2000","2001",...] <-- array of student ids
+     *               }
+     * @return void
+     */
+    @PostMapping("/{name}/unsubscribeMany")
+    @ResponseStatus(HttpStatus.CREATED)
+    void unsubscribeStudents(@PathVariable String name, @RequestBody Map<String, Object> input) {
+
+        if (!input.containsKey("students"))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing 'students' key'");
+
+        if (input.keySet().size() > 1)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "More keys then expected");
+
+        List<String> students = (List<String>) input.get("students");
+
+        try {
+            teamService.unsubscribeAll(students, name);
+        } catch (StudentNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (CourseAuthorizationException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+
+    }
+
+
+
+/*
+
     @PostMapping("/{name}/addEnrollMany")
     @ResponseStatus(HttpStatus.CREATED)
     void addEnrollStudents(@PathVariable String name, @RequestParam("file") MultipartFile file) {
@@ -291,7 +378,14 @@ public class CourseController {
         }
     }
 
-    // ritorna gli studenti iscritti al corso
+ */
+
+    /**
+     * Authentication required: any user
+     * @param name: name of the course (path variable)
+     *
+     * @return list of enrolled students
+     */
     @GetMapping("/{name}/enrolled")
     List<StudentDTO> enrolledStudents(@PathVariable String name) {
         try {
@@ -304,10 +398,23 @@ public class CourseController {
         }
     }
 
-    /**
-     *   Gestione Team
-     * */
+    /************************************************************************************************************************************************************************
+     ********************************************************************************TEAM MANAGEMENT*************************************************************************
+     ************************************************************************************************************************************************************************/
 
+
+
+    /**
+     * Authentication required: student enrolled in the course
+     * @param name: name of the course (path variable)
+     * @param input: {
+     *                 "team":"FirstTeam",
+     *                 "members":["2000","2001","2002","2003"],
+     *                 "timeout": 600000
+     *              }
+     *
+     * @return void
+     */
     @PostMapping("/{name}/proposeTeam")
     @ResponseStatus(HttpStatus.CREATED)
     void proposeTeam(@PathVariable String name, @RequestBody Map<String, Object> input) {
@@ -367,7 +474,13 @@ public class CourseController {
 
     @GetMapping("/{name}/teams/{id}/adhesion")
     Map<String, String> getAdhesionInfo(@PathVariable String name, @PathVariable Long id) {
-        return teamService.getAdhesionInfo(id);
+        try {
+            return teamService.getAdhesionInfo(id);
+        }
+        catch(AuthorizationServiceException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        }
+
 
     }
 
