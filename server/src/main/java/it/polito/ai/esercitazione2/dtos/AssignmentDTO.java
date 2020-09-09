@@ -11,7 +11,6 @@ import java.sql.Timestamp;
 public class AssignmentDTO extends RepresentationModel<AssignmentDTO> {
 
     Integer id;
-    @NotNull
     Timestamp releaseDate;
     @NotNull
     Timestamp expirationDate;

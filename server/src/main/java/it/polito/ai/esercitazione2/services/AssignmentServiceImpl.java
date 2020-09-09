@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,6 +78,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         Assignment assignment = modelMapper.map(a, Assignment.class);
         assignment.setCourse(c);
         assignment.setContentId(img.getName());
+        assignment.setReleaseDate(new Timestamp(System.currentTimeMillis()));
         Professor p = professorRepository.getOne(professor);
         assignment.setProfessor(p);
         Assignment as = assignmentRepository.saveAndFlush(assignment);
