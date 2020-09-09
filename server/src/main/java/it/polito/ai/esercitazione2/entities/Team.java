@@ -42,7 +42,7 @@ public class Team {
     public void setCourse(Course c){
         if (course != null) {
 
-            if (c!=null && course.equals(getName())) {
+            if (c!=null && course.equals(c.getName())) {
                 return;
             }
             course.getTeams().remove(this);

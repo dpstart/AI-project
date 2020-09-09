@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.*;
 
 import java.sql.Timestamp;
@@ -596,8 +597,6 @@ public class CourseController {
      * @return void
      */
     @PostMapping("/{name}/model")
-
-
     void defineVMmodelForACourse(@PathVariable String name, @RequestBody Map<String, String> input) {
         if (!input.containsKey("model") || input.keySet().size() > 1) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Expected one parameter: usage 'model':<modelName>");
@@ -636,6 +635,21 @@ public class CourseController {
 
     }
 
+
+    /**
+     * Authentication required: a professor of the course
+     * @param name: name of the course (path variable)
+     * @param id: team id
+     * @param settings: {
+     *                      "n_cpu":"10",
+     *                      "disk_space":"256",
+     *                      "ram":"8",
+     *                      "max_active":"5",
+     *                      "max_available":"10"
+     *                   }
+     *
+     * @return updated teamDTO
+     */
     @PostMapping("/{name}/teams/{id}/settings")
     TeamDTO setSettings(@PathVariable String name, @PathVariable Long id, @Valid @RequestBody SettingsDTO settings) {
         if (settings.getMax_active() == null)
@@ -655,6 +669,9 @@ public class CourseController {
         }
 
     }
+
+
+
 
     /**
      * ASSIGNMENTS

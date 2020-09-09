@@ -20,21 +20,20 @@ docker run --name teams -p 3306:3306 -v <Dtabase volume on the local filesystem>
 | 2002 | w.forcignano | STUDENT | Walter | Forcignano | walter.forcignano@studenti.polito.it|
 | 2003 | d.paliotta | STUDENT | Daniele | Paliotta | daniele.paliotta@studenti.polito.it|
 
-| Course |     Acronime  | Min | Max | Professors (C = Creator)| Studenti|
-|--------|:-------------:|----:|----:|------------------------:|--------:|
-| Applicazioni Internet | AI | 1 | 10 | Servetti (C), Malnati | 2000,2001,2002,2003|
-| Programmazione di Sistema | PDS | 1 | 10 | Servetti (C) | 2000,2001|
+| Course |     Acronime  | Min | Max | Professors (C = Creator)| Studenti|| VM Model          |                                                                                                                                                                                                      
+|--------|:-------------:|----:|----:|------------------------:|--------:| ------------------:|
+| Applicazioni Internet | AI | 1 | 10 | Servetti (C), Malnati | 2000,2001,2002,2003|macOS High Sierra |
+| Programmazione di Sistema | PDS | 1 | 10 | Servetti (C) | 2000,2001|  Windows 10  |
 
 | VM Model          |
 |------------------:|
 | macOS High Sierra |
 | Windows 10 |
 
-| Team          | Course | ID | Members             |
-|--------------:|-------:|---:|--------------------:|
-| FirstTeam     | AI     | 9  | 2000,2001,2002,2003 |
-| SecondTeam    | PDS    | 10 | 2000,2001           |
-
+| Team          | Course | ID | Members                    | #cpu | disk space | ram | max active | max_available |
+|--------------:|-------:|---:|---------------------------:|-----:|-----------:|----:|-----------:|--------------:|
+| FirstTeam     | AI     | 9  | 2000 (C), 2001, 2002, 2003 | 10   |  256       | 8   |     5      |     10        | 
+| SecondTeam    | PDS    | 10 | 2000(C), 2001              | 10   |  256       | 8   |     5      |     10        | 
 
 
 
@@ -221,7 +220,7 @@ Through these methods it's possible to check which students are available or alr
        
                     
 
-### VMmodel
+### VMModel
 
 #### Creation/removal
 
@@ -242,6 +241,28 @@ Any authenticated user can access information about VM models available in the d
 
     All:          API/models (GET)
     One specific: API/models/{name} (GET)
+    
+
+
+#### Definition of a VM Model for a course
+
+A professor owning the course can define the VMM model for that course and the VM settings for each team of the course:
+
+    define VMModel:             API/courses/{name}                       (POST)
+                                {
+                                   "model":"macOS High Sierra"
+                                }
+                    
+    set team settings:          API/courses/{name}/teams/{id}/settings   (POST)
+                                {
+                                    "n_cpu":"10",
+                                    "disk_space":"256",
+                                    "ram":"8",
+                                    "max_active":"5",
+                                    "max_available":"10"
+                  
+                                }
+                    
 
 
 
