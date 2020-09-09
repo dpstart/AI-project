@@ -893,7 +893,14 @@ public class TeamServiceImpl implements TeamService {
     public List<TeamDTO> getTeamForCourse(String courseName) {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: " + courseName + " not found!");
+
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+
         Course c = courseRepository.getOne(courseName);
+        // il principal è un docente o studente del corso? o
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && c.getStudents().stream().noneMatch(x -> x.getId().equals(principal)))
+            throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
+
         return teamRepository.getByCourse(c).stream().map(x -> modelMapper.map(x, TeamDTO.class))
                 .collect(Collectors.toList());
 
@@ -903,7 +910,14 @@ public class TeamServiceImpl implements TeamService {
     public TeamDTO getOneTeamForCourse(String courseName, Long teamID) {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: " + courseName + " not found!");
+
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
         Course c = courseRepository.getOne(courseName);
+
+        // il principal è un docente o studente del corso? o
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && c.getStudents().stream().noneMatch(x -> x.getId().equals(principal)))
+            throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
+
         Optional<Team> t = teamRepository.findById(teamID);
         if (t.isEmpty() || (!t.get().getCourse().getName().equals(courseName) && !t.get().getCourse().getAcronime().equals(courseName))) {
             throw new TeamNotFoundException("Team " + teamID + " not found");
