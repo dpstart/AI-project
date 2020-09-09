@@ -7,9 +7,12 @@
         <div class="contentContainer">
 
 
+            <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
+                {{ message }}
+            </ngb-alert>
 
             <div *ngIf="this.authService.isRoleTeacher()">
-                <form [formGroup]="form" (ngSubmit)="submit()">
+                <form [formGroup]="addAssignmentForm" (ngSubmit)="submit()">
 
                     <mat-form-field appearance="fill">
                         <mat-label>Enter expiration date</mat-label>
@@ -28,12 +31,11 @@
                         </button>
                         <mat-form-field>
                             <mat-label>Add assignment</mat-label>
-                            <input matInput placeholder="No file selected" [(ngModel)]="fileName" readonly="true"
-                                formControlName="fileName">
+                            <input matInput placeholder="No file selected" readonly="true" formControlName="fileName">
                         </mat-form-field>
 
-                        <button id="uploadButton" [disabled]="!form.valid" mat-flat-button color="primary"
-                            (click)="onUpload()">Upload</button>
+                        <button (click)="submit()" id="uploadButton" [disabled]="!addAssignmentForm.valid"
+                            mat-flat-button color="primary">Upload</button>
 
                     </div>
                 </form>

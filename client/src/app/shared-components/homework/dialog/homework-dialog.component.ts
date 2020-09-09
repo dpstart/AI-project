@@ -12,6 +12,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { StudentService } from 'src/app/services/student.service';
 import { Image } from 'src/app/model/image.model';
 import { take } from 'rxjs/operators';
+import { Form, FormGroup, FormControl, Validators } from '@angular/forms';
 
 
 const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
@@ -45,6 +46,11 @@ export class HomeworkDialogComponent implements OnInit {
   selectedAssignment: Assignment
   idSelectedHomework: number
 
+  addReviewForm: FormGroup = new FormGroup({
+    fileName: new FormControl('', Validators.required),
+    markFormControl: new FormControl('', [Validators.pattern('\d{0,1}')])
+  })
+
 
   //image to be expanded
   expandedImage: any
@@ -53,7 +59,6 @@ export class HomeworkDialogComponent implements OnInit {
 
 
   selectedFile: File;
-  fileName: string
 
   isDisabled: boolean
   message: string;
@@ -185,8 +190,9 @@ export class HomeworkDialogComponent implements OnInit {
   public onFileChanged(event) {
     //Select File
     this.selectedFile = event.target.files[0];
-    this.fileName = this.selectedFile.name
-    if (this.fileName)
+    this.addReviewForm.get("fileName").setValue(this.selectedFile.name)
+
+    if (this.addReviewForm.get('fileName').value)
       this.isDisabled = false
   }
   //Gets called when the user clicks on submit to upload the image

@@ -160,6 +160,8 @@ export class TeacherService {
 
 
     addAssignment(courseName: string, formData: FormData): Observable<Assignment> {
+        console.log(formData);
+        
         const url = `${this.URL}/courses/${courseName}/assignments/`
         return this.http.post<Assignment>(url, formData).pipe(
             retry(3),

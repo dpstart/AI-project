@@ -53,13 +53,14 @@ export interface DisplayedAssignment {
 export class HomeworkComponent implements OnInit, AfterViewInit {
 
 
+  selectedFile: File;
+
+
   public get authService(): AuthService {
     return this._authService;
   }
 
 
-  selectedFile: File;
-  fileName: string
   isDisabled: boolean
 
   message: string;
@@ -150,7 +151,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
 
 
-  form: FormGroup = new FormGroup({
+  addAssignmentForm: FormGroup = new FormGroup({
     expirationDate: new FormControl(new Date(), Validators.required),
     file: new FormControl('', Validators.required),
     fileName: new FormControl('', Validators.required),
@@ -158,19 +159,24 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   });
 
   submit() {
-    if (this.form.valid) {
+    if (this.addAssignmentForm.valid) {
 
-      console.log("send information");
+      console.log("send information", this.addAssignmentForm.get('file').value);
       //FormData API provides methods and properties to allow us easily prepare form data to be sent with POST HTTP requests.
       const formData = new FormData();
-      formData.append('assignment', new Blob([JSON.stringify({ expirationDate: this.form.get("expirationDate").value })], {
+      formData.append('assignment', new Blob([JSON.stringify({ expirationDate: this.addAssignmentForm.get("expirationDate").value })], {
         type: "application/json"
       }))
-      formData.append('image', this.selectedFile, this.selectedFile.name);
+
+
+      formData.append('image', this.selectedFile, this.addAssignmentForm.get('fileName').value);
 
 
       this.teacherService.addAssignment(this.selectedCourse, formData).subscribe(success => {
         this.addedAssignment.emit(success)
+
+        this.message = "Assignment succefully added."
+        this.alertType = "success"
 
 
       })
@@ -291,7 +297,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   }
   seeHomeworkVersions(homework: DisplayedHomework) {
 
-  
+
     const dialogRef = this.dialog.open(HomeworkDialogComponent, {
       height: '95%',
       width: '95%',
@@ -308,17 +314,15 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   //Gets called when the user selects an image
   public onFileChanged(event) {
     //Select File
-    this.selectedFile = event.target.files[0];
-    this.fileName = this.selectedFile.name
-    if (this.fileName)
+
+    this.selectedFile = event.target.files[0]
+    this.addAssignmentForm.patchValue({ fileName: event.target.files[0].name });
+
+
+    if (this.addAssignmentForm.get('fileName').value)
       this.isDisabled = false
   }
-  //Gets called when the user clicks on submit to upload the image
-  onUpload() {
-    console.log(this.selectedFile);
 
-
-  }
 
 }
 

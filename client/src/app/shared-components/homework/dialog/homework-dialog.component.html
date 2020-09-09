@@ -21,7 +21,7 @@
                         </button>
                         <mat-form-field>
                             <mat-label>Add homework version</mat-label>
-                            <input matInput placeholder="No file selected" [(ngModel)]="fileName" readonly="true">
+                            <input matInput placeholder="No file selected" formControlName="fileName" readonly="true">
                         </mat-form-field>
 
                         <button id="uploadButton" [disabled]="isDisabled" mat-flat-button color="primary"
@@ -93,7 +93,7 @@
                                                 <mat-form-field>
                                                     <mat-label>Add homework version</mat-label>
                                                     <input matInput placeholder="No file selected"
-                                                        [(ngModel)]="fileName" readonly="true">
+                                                        formControlName="fileName" readonly="true">
                                                 </mat-form-field>
 
                                                 <button id="uploadButton" [disabled]="isDisabled" mat-flat-button
@@ -187,23 +187,32 @@
                                         <!-- //TODO permettere di caricare immagine -->
                                         <div class="row">
                                             <div>
-                                                <button mat-fab color="primary"
-                                                    aria-label="Example icon button with a delete icon"
-                                                    (click)="fileInput.click()">
-                                                    <mat-icon>folder</mat-icon>
-                                                    <input #fileInput type="file" (change)="onFileChanged($event)"
-                                                        style="display:none;" />
-                                                </button>
-                                                <mat-form-field>
-                                                    <mat-label>Add review</mat-label>
-                                                    <input matInput placeholder="No file selected"
-                                                        [(ngModel)]="fileName" readonly="true">
-                                                </mat-form-field>
 
-                                                <button id="uploadButton" [disabled]="isDisabled" mat-flat-button
-                                                    color="primary" (click)="onUpload()">Upload</button>
+                                                <form [formGroup]="addReviewForm" class="example-form">
+                                                    <button mat-fab color="primary"
+                                                        aria-label="Example icon button with a delete icon"
+                                                        (click)="fileInput.click()">
+                                                        <mat-icon>folder</mat-icon>
+                                                        <input #fileInput type="file" (change)="onFileChanged($event)"
+                                                            style="display:none;" />
+                                                    </button>
+                                                    <mat-form-field>
+                                                        <mat-label>Add review</mat-label>
+                                                        <input type="text" matInput placeholder="No file selected"
+                                                            formControlName="fileName" readonly="true">
+                                                    </mat-form-field>
 
+                                                    <button id="uploadButton" [disabled]="isDisabled" mat-flat-button
+                                                        color="primary" (click)="onUpload()">Upload</button>
+
+                                                    <mat-form-field class="example-full-width">
+                                                        <mat-label>Mark</mat-label>
+                                                        <input type="number" matInput formControlName="markFormControl">
+                                                    </mat-form-field>
+                                                </form>
                                             </div>
+
+
                                         </div>
                                         <div class="row">
                                             <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
