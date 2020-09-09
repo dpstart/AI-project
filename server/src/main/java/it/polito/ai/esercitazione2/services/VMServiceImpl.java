@@ -81,7 +81,7 @@ public class VMServiceImpl implements VMService {
     public void defineVMModel(String courseId, String modelName){
         String creator = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        if (!courseRepository.existsById(courseId))
+        if (!courseRepository.existsById(courseId) && !courseRepository.existsByAcronime(courseId))
             throw new CourseNotFoundException("course: "+courseId + " not found!");
 
         Course c = courseRepository.getOne(courseId);

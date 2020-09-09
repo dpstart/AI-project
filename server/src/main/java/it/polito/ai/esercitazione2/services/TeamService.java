@@ -15,7 +15,11 @@ import java.util.Set;
 
 public interface TeamService {
 
-    // Courses
+    /**********************************************************************
+     *
+     *******************************COURSE********************************
+     *
+     ***********************************************************************/
     @PreAuthorize("hasRole('PROFESSOR')")
     boolean addCourse(CourseDTO c);
     @PreAuthorize("hasRole('PROFESSOR')")
@@ -27,7 +31,11 @@ public interface TeamService {
     void shareOwnership(String courseName,String profId);
 
 
-    // Professors
+    /**********************************************************************
+     *
+     *****************************PROFESSORS********************************
+     *
+     ***********************************************************************/
     boolean addProfessor(ProfessorDTO p, MultipartFile file);
     boolean addProfessor(ProfessorDTO p);
     Optional<ProfessorDTO> getProfessor(String professorId);
@@ -54,7 +62,11 @@ public interface TeamService {
     @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
     List<Boolean> enrollCSV(Reader r, String courseName) throws IOException, CsvValidationException;
 
-    // Students
+    /**********************************************************************
+     *
+     *******************************STUDENTS********************************
+     *
+     ***********************************************************************/
     boolean addStudent(StudentDTO s,boolean notify);
     boolean addStudent(StudentDTO s,boolean notify, MultipartFile file);
     Optional<StudentDTO> getStudent(String studentId);
@@ -63,26 +75,56 @@ public interface TeamService {
     @PreAuthorize("hasRole('STUDENT')")
     List<CourseDTO> getCourses(String studentId);
     List<CourseDTO> getCoursesByProf(String profID);
+
+
+
+    /**********************************************************************
+     *
+     *******************************TEAMS***********************************
+     *
+     ***********************************************************************/
+
     @PreAuthorize("hasRole('STUDENT')")
     List<TeamDTO> getTeamsforStudent(String studentId);
     @PreAuthorize("hasRole('STUDENT')")
     List<TeamDTO> getTeamsforStudentAndCourse(String studentId, String courseId);
     String getTeamCourse(Long teamId);
-    List<StudentDTO> getMembers(String courseName, Long TeamId);
-    @PreAuthorize("hasRole('STUDENT')")
-    TeamDTO proposeTeam(String courseId,String name, List<String> memberIds,Long duration);
-    List<TeamDTO> getTeamForCourse(String courseName);
-    TeamDTO getOneTeamForCourse(String courseName,Long TeamID);
+
+
+
+
     @PreAuthorize("hasRole('PROFESSOR')")
     TeamDTO setSettings(String courseName, Long TeamID, SettingsDTO settings);
-    List<StudentDTO> getStudentsInTeams(String courseName);
-    List<StudentDTO> getAvailableStudents(String courseName);
+
     boolean activateTeam(Long ID);
     boolean evictTeam(Long ID);
     List<Boolean> evictAll(Set<Long> teams);
-    Map<String,String> getAdhesionInfo(Long teamID);
 
-    //Images
+
+    //propose a team to a list of students enrolled to a course
+    @PreAuthorize("hasRole('STUDENT')")
+    TeamDTO proposeTeam(String courseId,String name, List<String> memberIds,Long duration);
+    // get all the teams for a course for which the principal is the professor or an enrolled student
+    List<TeamDTO> getTeamForCourse(String courseName);
+    // get one team for a course for which the principal is the professor or an enrolled student
+    TeamDTO getOneTeamForCourse(String courseName,Long TeamID);
+    // get the information about adhesion of  memebrs to a team; only members of the team can call it
+    Map<String,String> getAdhesionInfo(Long teamID);
+    // get all the students members of a team; only students enrolled in the course or the professors for the course can call it
+    List<StudentDTO> getMembers(String courseName, Long TeamId);
+
+    // get the students already in a team for a course
+    List<StudentDTO> getStudentsInTeams(String courseName);
+    // get the available students to form a team for a course
+    List<StudentDTO> getAvailableStudents(String courseName);
+
+
+
+    /**********************************************************************
+     *
+     *******************************IMAGES********************************
+     *
+     ***********************************************************************/
     Image getProfileImage();
     void activateAccount(String ID);
     void deleteAll(Set<String> students);
