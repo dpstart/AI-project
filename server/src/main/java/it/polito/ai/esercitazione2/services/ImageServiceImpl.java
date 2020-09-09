@@ -36,6 +36,7 @@ public class ImageServiceImpl implements ImageService{
     @Override
     public Image save(Image img) throws IOException{
         img = imageRepository.save(img);
+
         return img;
     }
 

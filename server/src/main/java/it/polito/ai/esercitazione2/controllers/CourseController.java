@@ -614,28 +614,6 @@ public class CourseController {
 
     }
 
-
-    @PostMapping("/{name}/teams/{teamId}/createVM")
-    VMDTO createVM(@PathVariable Long teamId, @RequestPart(value = "image") MultipartFile file, @Valid @RequestPart("settings") SettingsDTO settings) {
-
-        if (settings.getMax_active() == null) //contemporary active
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max active' field not expected here");
-        if (settings.getMax_available() == null) //active + off
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max available' field not expected here");
-
-        try {
-            return vmService.createVM(teamId, file, settings);
-        } catch (AuthorizationServiceException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());  //DA CAMBIARE!!!!
-        } catch (TeamNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        } catch (UnavailableResourcesForTeamException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-        }
-
-    }
-
-
     /**
      * Authentication required: a professor of the course
      * @param name: name of the course (path variable)
@@ -669,6 +647,44 @@ public class CourseController {
         }
 
     }
+
+
+
+    /**
+     * Authentication required: a student member of the team
+     * @param teamId: teamId (path variable)
+     * @param file:  image of the VM (.jpg)
+     * @param settings:    settings required for the VM
+     *                       {
+     *                          "n_cpu":"10",
+     *                          "disk_space":"256",
+     *                          "ram":"8",
+     *
+     *                       }
+     *
+     *
+     * @return created VMDTO
+     */
+    @PostMapping("/{courseName}/teams/{teamId}/createVM")
+    VMDTO createVM(@PathVariable String courseName, @PathVariable  Long teamId, @RequestPart(value = "image") MultipartFile file, @Valid @RequestPart("settings") SettingsDTO settings) {
+
+        if (settings.getMax_active() == null) //contemporary active
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max active' field not expected here");
+        if (settings.getMax_available() == null) //active + off
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max available' field not expected here");
+
+        try {
+            return vmService.createVM(courseName,teamId, file, settings);
+        } catch (AuthorizationServiceException|CourseAuthorizationException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());  //DA CAMBIARE!!!!
+        } catch (TeamNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (UnavailableResourcesForTeamException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+
+    }
+
 
 
 
