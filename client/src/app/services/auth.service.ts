@@ -27,7 +27,7 @@ export class AuthService {
 
 
   private _subjectNameAndSurname: Subject<string>;
-  
+
   public get subjectNameAndSurname(): Subject<string> {
     return this._subjectNameAndSurname;
   }
@@ -69,7 +69,6 @@ export class AuthService {
 
     this.subjectNameAndSurname = new Subject<string>()
     this.observableNameAndSurname = this.subjectNameAndSurname.asObservable()
-
   }
 
   login(email: string, password: string) {

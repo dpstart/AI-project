@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy, OnChanges, SimpleChanges, AfterViewInit } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatDialog } from '@angular/material/dialog';
 import { LoginDialogComponent } from './auth/login-dialog.component';
@@ -17,7 +17,7 @@ import { RouteStateService } from './services/route-state.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
 
   courses: Course[];
   selectedCourse: Observable<string>;
@@ -60,6 +60,16 @@ export class AppComponent implements OnInit {
         }
       }
     });
+  }
+  ngAfterViewInit(): void {
+    let session = localStorage.getItem('session')
+    if (session) {
+
+      let sess = JSON.parse(session)
+
+      this.authService.subjectNameAndSurname.next(`${sess['firstName']} ${sess['name']}`)
+
+    }
   }
 
 
