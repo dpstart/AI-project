@@ -19,7 +19,7 @@ import { TeacherService } from 'src/app/services/teacher.service';
 export interface DisplayedHomework {
   assignmentId: number,
   homeworkId: number,
-  id: string,
+  studentId: string,
   name: string,
   surname: string,
   state: string,
@@ -68,7 +68,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   selectedAssignment: Assignment
 
   // nome, cognome, matricola,  state,  timestamp  
-  homeworksColumnsToDisplay: string[] = ['name', 'surname', 'id', 'state', 'timestamp', 'mark'];
+  homeworksColumnsToDisplay: string[] = ['name', 'surname', 'studentId', 'state', 'timestamp', 'mark'];
   homeworksDataSource: Array<MatTableDataSource<DisplayedHomework>>
   allHomeworks: DisplayedHomework[][]
 

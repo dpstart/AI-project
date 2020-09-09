@@ -5,6 +5,8 @@ import { HomeworkVersion } from '../model/homework-version';
 import { retry, catchError } from 'rxjs/operators';
 import { Student } from '../model/student.model';
 import { Assignment } from '../model/assignment.model';
+import { Homework } from '../model/homework.model';
+import { DisplayedHomework } from '../shared-components/homework/homework.component';
 
 
 export interface NavTeacherLinks {
@@ -166,9 +168,9 @@ export class TeacherService {
 
     }
 
-    reviewHomework(courseName: string, assignmentId: number, homeworkId: number, uploadImageData: FormData): Observable<any> {
-        const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}`
-        return this.http.post<any>(url, uploadImageData).pipe(
+    reviewHomework(courseName: string, assignmentId: number, homework: any): Observable<Homework> {
+        const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homework.id}`
+        return this.http.post<Homework>(url, homework).pipe(
             retry(3),
             catchError(this.handleError)
         );

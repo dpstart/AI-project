@@ -125,7 +125,7 @@ export class HomeworkContainerComponent implements OnInit {
                         homeworkId: homework.id,
                         name: student.name,
                         surname: student.firstName,
-                        id: student.id,
+                        studentId: student.id,
                         state: state,
                         isFinal: homework.isFinal,
                         mark: homework.mark===0? "--": homework.mark.toString(),

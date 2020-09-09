@@ -829,9 +829,6 @@ public class CourseController {
                 hv.setDeliveryDate(homeworkService.getDeliveryDate(hwId, i));
                 enriched.add(ModelHelper.enrich(hv, name, assignmentId, hwId, i));
             }
-
-            enriched.sort(Comparator.comparing(HomeworkVersionDTO::getDeliveryDate));
-
             return enriched;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());

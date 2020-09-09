@@ -1,41 +1,43 @@
 <div class="homeworkContainer">
 
-
-
-    <form [formGroup]="form" (ngSubmit)="submit()">
-
-        <mat-form-field appearance="fill">
-            <mat-label>Enter expiration date</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="expirationDate">
-            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
-
-
-        <div>
-            <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
-                (click)="fileInput.click()">
-                <mat-icon>folder</mat-icon>
-                <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;"
-                    formControlName="file" />
-            </button>
-            <mat-form-field>
-                <mat-label>Add assignment</mat-label>
-                <input matInput placeholder="No file selected" [(ngModel)]="fileName" readonly="true"
-                    formControlName="fileName">
-            </mat-form-field>
-
-            <button id="uploadButton" [disabled]="!form.valid" mat-flat-button color="primary"
-                (click)="onUpload()">Upload</button>
-
-        </div>
-    </form>
-
-
     <h2 class="mat-h2 tabtitle">Elenco Consegne </h2>
+
 
     <div class="tabContainer">
         <div class="contentContainer">
+
+
+
+            <div *ngIf="this.authService.isRoleTeacher()">
+                <form [formGroup]="form" (ngSubmit)="submit()">
+
+                    <mat-form-field appearance="fill">
+                        <mat-label>Enter expiration date</mat-label>
+                        <input matInput [matDatepicker]="picker" formControlName="expirationDate">
+                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                    </mat-form-field>
+
+
+                    <div>
+                        <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
+                            (click)="fileInput.click()">
+                            <mat-icon>folder</mat-icon>
+                            <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;"
+                                formControlName="file" />
+                        </button>
+                        <mat-form-field>
+                            <mat-label>Add assignment</mat-label>
+                            <input matInput placeholder="No file selected" [(ngModel)]="fileName" readonly="true"
+                                formControlName="fileName">
+                        </mat-form-field>
+
+                        <button id="uploadButton" [disabled]="!form.valid" mat-flat-button color="primary"
+                            (click)="onUpload()">Upload</button>
+
+                    </div>
+                </form>
+            </div>
 
             <table mat-table [dataSource]="consegneDataSource" multiTemplateDataRows class="mat-elevation-z8">
                 <div *ngFor="let column of consegneDisplayedColumns">
