@@ -3,5 +3,5 @@
 </div>
 <ng-template #loadedBlock>
     <app-homework [selectedCourse]="selectedCourse" [displayedAssignments]="displayedAssignments"
-        [displayedHomeworks]="displayedHomeworks"></app-homework>
+        [displayedHomeworks]="displayedHomeworks" (addedAssignment)="ngOnInit()"></app-homework>
 </ng-template>

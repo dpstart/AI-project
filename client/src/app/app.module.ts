@@ -44,6 +44,9 @@ import { HomeworkContainerComponent } from './shared-components/homework-contain
 import { CreateDialogComponent } from 'src/app/student/vm/create/create-dialog.component';
 
 
+import {MatDatepickerModule} from '@angular/material/datepicker'; 
+
+import {MatNativeDateModule} from '@angular/material/core';
 
 @NgModule({
   declarations: [
@@ -89,6 +92,8 @@ import { CreateDialogComponent } from 'src/app/student/vm/create/create-dialog.c
     MatProgressSpinnerModule,
     MatChipsModule,
     NgbModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
   ],
   entryComponents: [LoginDialogComponent],
   providers: [

@@ -4,6 +4,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { HomeworkVersion } from '../model/homework-version';
 import { retry, catchError } from 'rxjs/operators';
 import { Student } from '../model/student.model';
+import { Assignment } from '../model/assignment.model';
 
 
 export interface NavTeacherLinks {
@@ -156,6 +157,15 @@ export class TeacherService {
     //CREATE
 
 
+    addAssignment(courseName: string, formData: FormData): Observable<Assignment> {
+        const url = `${this.URL}/courses/${courseName}/assignments/`
+        return this.http.post<Assignment>(url, formData).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+
+    }
+
     reviewHomework(courseName: string, assignmentId: number, homeworkId: number, uploadImageData: FormData): Observable<any> {
         const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}`
         return this.http.post<any>(url, uploadImageData).pipe(
@@ -168,17 +178,17 @@ export class TeacherService {
     private handleError(error: HttpErrorResponse) {
         if (error.error instanceof ErrorEvent) {
             // A client-side or network error occurred. Handle it accordingly.
-            console.error('An error occurred:', error.error.message);
+            console.error('An error occurred:', error.message);
         } else {
             // The backend returned an unsuccessful response code.
             // The response body may contain clues as to what went wrong,
             console.error(
                 `Backend returned code ${error.status}, ` +
-                `body was: ${error.error}`);
+                `body was: ${error.message}`);
         }
         // return an observable with a user-facing error message
         return throwError(
-            { status: error.status, message: error.error.message });
+            { status: error.status, message: error.message });
     };
 
 

@@ -50,3 +50,7 @@ tr.example-element-row:not(.example-expanded-row):active {
 mat-form-field{
     width: 50%;
 }
+
+form{
+    width: 25%;
+}

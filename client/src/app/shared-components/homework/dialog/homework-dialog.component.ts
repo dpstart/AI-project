@@ -51,10 +51,10 @@ export class HomeworkDialogComponent implements OnInit {
 
 
   selectedFile: File;
-  message: string;
   fileName: string
 
   isDisabled: boolean
+  message: string;
 
   alertType: string
 
@@ -100,8 +100,6 @@ export class HomeworkDialogComponent implements OnInit {
     })
 
 
-    if (this.authService.isRoleTeacher()) {
-      console.log("SONO QUI");
 
 
       console.log(this.courseName, this.selectedAssignment.id, this.idSelectedHomework);
@@ -141,10 +139,84 @@ export class HomeworkDialogComponent implements OnInit {
 
 
         this.historyHomeworkDataSource.data = [...source]
-
-
       }
-        // ,
+      
+      )
+    }
+  
+
+
+  //TODO
+  addReview(version: HomeworkVersionDisplayed) {
+    this.expandedElement = this.expandedElement === version ? null : version
+  }
+
+  //Gets called when the user selects an image
+  public onFileChanged(event) {
+    //Select File
+    this.selectedFile = event.target.files[0];
+    this.fileName = this.selectedFile.name
+    if (this.fileName)
+      this.isDisabled = false
+  }
+  //Gets called when the user clicks on submit to upload the image
+  onUpload() {
+    console.log(this.selectedFile);
+
+    //FormData API provides methods and properties to allow us easily prepare form data to be sent with POST HTTP requests.
+    const uploadImageData = new FormData();
+    uploadImageData.append('image', this.selectedFile, this.selectedFile.name);
+
+
+    if (this.authService.isRoleTeacher()) {
+      this.teacherService.reviewHomework(this.courseName, this.selectedAssignment.id, this.idSelectedHomework, uploadImageData).subscribe(
+        (response) => {
+          console.log(response)
+          this.alertType = "success"
+          this.message = 'Image uploaded successfully';
+        }, error => {
+          console.log(error)
+          this.alertType = "danger"
+          this.message = 'Sorry something went wrong, try later...';
+
+        }
+      );
+    } else if (this.authService.isRoleStudent()) {
+      this.studentService.uploadHomework(this.courseName, this.selectedAssignment.id, uploadImageData).subscribe(
+        (response) => {
+          console.log(response)
+          this.alertType = "success"
+          this.message = 'Image uploaded successfully';
+        }, error => {
+          console.log(error)
+          this.alertType = "danger"
+          this.message = 'Sorry something went wrong, try later...';
+        }
+      );
+    }
+  }
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // ,
         //   // 
         //   (_) => {
 
@@ -360,63 +432,3 @@ export class HomeworkDialogComponent implements OnInit {
 
         //     this.historyHomeworkDataSource.data = [...source]
         //   })
-      )
-    }
-  }
-
-
-  //TODO
-  addReview(version: HomeworkVersionDisplayed) {
-    this.expandedElement = this.expandedElement === version ? null : version
-  }
-
-  //Gets called when the user selects an image
-  public onFileChanged(event) {
-    //Select File
-    this.selectedFile = event.target.files[0];
-    this.fileName = this.selectedFile.name
-    if (this.fileName)
-      this.isDisabled = false
-  }
-  //Gets called when the user clicks on submit to upload the image
-  onUpload() {
-    console.log(this.selectedFile);
-
-    //FormData API provides methods and properties to allow us easily prepare form data to be sent with POST HTTP requests.
-    const uploadImageData = new FormData();
-    uploadImageData.append('image', this.selectedFile, this.selectedFile.name);
-
-
-    if (this.authService.isRoleTeacher()) {
-      this.teacherService.reviewHomework(this.courseName, this.selectedAssignment.id, this.idSelectedHomework, uploadImageData).subscribe(
-        (response) => {
-          console.log(response)
-          this.alertType = "success"
-          this.message = 'Image uploaded successfully';
-        }, error => {
-          console.log(error)
-          this.alertType = "danger"
-          this.message = 'Sorry something went wrong, try later...';
-
-        }
-      );
-    } else if (this.authService.isRoleStudent()) {
-      this.studentService.uploadHomework(this.courseName, this.selectedAssignment.id, uploadImageData).subscribe(
-        (response) => {
-          console.log(response)
-          this.alertType = "success"
-          this.message = 'Image uploaded successfully';
-        }, error => {
-          console.log(error)
-          this.alertType = "danger"
-          this.message = 'Sorry something went wrong, try later...';
-        }
-      );
-    }
-  }
-
-
-
-
-
-}
