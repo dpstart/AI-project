@@ -12,8 +12,7 @@ public class HomeworkVersionDTO extends RepresentationModel<HomeworkVersionDTO> 
 
     @NotNull
     Integer id;
-    @NotNull
-    Image content;
+
     @NotNull
     Timestamp deliveryDate;
 

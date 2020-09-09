@@ -1,6 +1,7 @@
 package it.polito.ai.esercitazione2.services;
 
 import it.polito.ai.esercitazione2.dtos.HomeworkDTO;
+import it.polito.ai.esercitazione2.dtos.ImageDTO;
 import it.polito.ai.esercitazione2.entities.Image;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,10 +18,10 @@ public interface HomeworkService {
     HomeworkDTO reviewHomework(HomeworkDTO dto);
     HomeworkDTO getHomework(Long id);
     Integer getAssignmentId(Long homeworkId);
-    Image getImage(Long homeworkId);
-    Image getImage(Long homeworkId, int version);
+    ImageDTO getImage(Long homeworkId);
+    ImageDTO getImage(Long homeworkId, int version);
     Timestamp getDeliveryDate(Long homeworkId, int version);
-    List<Image> getAllImages(Long homeworkId);
+    List<ImageDTO> getAllImages(Long homeworkId);
     String getHomeworkStudentId(Long homeworkId);
     String getHomeworkCourse(Long homeworkId);
 }

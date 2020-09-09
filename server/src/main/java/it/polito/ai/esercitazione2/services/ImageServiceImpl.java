@@ -27,7 +27,7 @@ public class ImageServiceImpl implements ImageService{
     public Image getImage(Long imageName) {
         if (!imageRepository.existsById(imageName))
             return null;
-        Image img = new Image(imageRepository.getOne(imageName));
+        Image img = new Image(imageRepository.getById(imageName));
 
         img.setPicByte(decompressBytes(img.getPicByte()));
         return img;
