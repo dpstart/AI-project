@@ -58,7 +58,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     public HomeworkDTO uploadHomework(Integer assignmentId, MultipartFile file) {
         if (!assignmentRepository.existsById(assignmentId))
             throw new AssignmentNotFoundException("Assignment " + assignmentId + " not found");
-        Assignment a = assignmentRepository.getOne(assignmentId);
+        Assignment a = assignmentRepository.getById(assignmentId);
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
         Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
 
@@ -76,7 +76,6 @@ public class HomeworkServiceImpl implements HomeworkService {
             throw new IllegalHomeworkStateChangeException("You already delivered this homework, wait for the professor to review it");
         Image img = null;
         try {
-            System.out.println(Arrays.toString(file.getBytes()));
             img = imageService.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
         } catch (IOException e) {
             throw new ImageException("Homework content didn't load on database correctly");
@@ -86,7 +85,6 @@ public class HomeworkServiceImpl implements HomeworkService {
         h.getVersionIds().add(img.getId());
         h.getVersionDates().add(new Timestamp(System.currentTimeMillis()));
         h.setState(Homework.states.delivered);
-        h = homeworkRepository.save(h);
         return modelMapper.map(h, HomeworkDTO.class);
     }
 
@@ -109,7 +107,6 @@ public class HomeworkServiceImpl implements HomeworkService {
         h.setIsFinal(dto.getIsFinal());
         if (dto.getMark() != 0f)
             h.setMark(dto.getMark());
-        h = homeworkRepository.save(h);
         return modelMapper.map(h, HomeworkDTO.class);
     }
 

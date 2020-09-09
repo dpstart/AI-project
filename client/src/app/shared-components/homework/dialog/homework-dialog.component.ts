@@ -10,6 +10,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { AuthService } from 'src/app/services/auth.service';
 import { StudentService } from 'src/app/services/student.service';
+import { Image } from 'src/app/model/image.model';
+import { take } from 'rxjs/operators';
 
 
 const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
@@ -58,6 +60,8 @@ export class HomeworkDialogComponent implements OnInit {
 
   alertType: string
 
+  isAllLoaded: boolean
+
   constructor(
     private _authService: AuthService,
     private teacherService: TeacherService,
@@ -69,8 +73,21 @@ export class HomeworkDialogComponent implements OnInit {
 
 
     this.selectedAssignment = data.assignment
-    this.idSelectedHomework = data.homeworkId
-    this.historyHomeworkColumnsToDisplay = ['id', 'content', 'deliveryDate', 'review']
+    this.idSelectedHomework = data.homework.homeworkId
+
+    console.log(data.homework.state, data.homework.state === 'CONSEGNATO')
+
+    this.historyHomeworkColumnsToDisplay = ['id', 'content', 'deliveryDate']
+
+
+    if (this.authService.isRoleStudent()) {
+      if (!data.homework.isFinal && data.homework.state !== 'CONSEGNATO') {
+          this.historyHomeworkColumnsToDisplay.push('action');
+      }
+    }else{
+      this.historyHomeworkColumnsToDisplay.push('action')
+    } 
+    
     this.historyHomeworkDataSource = new MatTableDataSource<HomeworkVersionDisplayed>()
 
 
@@ -78,6 +95,7 @@ export class HomeworkDialogComponent implements OnInit {
 
 
     this.isDisabled = true
+    this.isAllLoaded = false
   }
 
 
@@ -100,54 +118,62 @@ export class HomeworkDialogComponent implements OnInit {
     })
 
 
+    this.loadVersions();
+  }
+
+  private loadVersions() {
+    this.teacherService.getHomeworkVersions(this.courseName, this.selectedAssignment.id, this.idSelectedHomework).subscribe((data) => {
+      // this.httpClient.get('http://localhost:8080/image/get/' + this.imageName)
+      //   .subscribe(
+      //     res => {
+
+      let retrieveResponse = data;
+
+      let source: HomeworkVersionDisplayed[] = [];
+
+      let position = 0;
 
 
-      console.log(this.courseName, this.selectedAssignment.id, this.idSelectedHomework);
-
-      this.teacherService.getHomeworkVersions(this.courseName, this.selectedAssignment.id, this.idSelectedHomework).subscribe((data) => {
-
-        // this.httpClient.get('http://localhost:8080/image/get/' + this.imageName)
-        //   .subscribe(
-        //     res => {
-
-        console.log("SONO", data);
-
-
-
-        let retrieveResponse = data;
-
-        let source: HomeworkVersionDisplayed[] = []
-
-        let position = 0
-
-        console.log(retrieveResponse);
-
+      if (retrieveResponse.length != 0) {
         retrieveResponse.forEach(version => {
-          let base64Data = version.content;
-          let formattedImage = 'data:image/jpeg;base64,' + '\n' + base64Data;
-          version.content = this.sanitizer.bypassSecurityTrustResourceUrl(formattedImage);
-
-          let id = version.id
-          let content = version.content
-          let deliveryDate = version.deliveryDate.toLocaleDateString(undefined, options)
-
-          source.push({ position, id, content, deliveryDate })
-          position++
-        })
-
-        console.log(source);
 
 
-        this.historyHomeworkDataSource.data = [...source]
+          this.teacherService.getResourceByUrl(version.links.find(link => link.rel === "image").href).subscribe((success: Image) => {
+
+
+
+
+            let base64Data = success.picByte;
+            let formattedImage = `data:${success.type};base64,` + '\n' + base64Data;
+            let content = this.sanitizer.bypassSecurityTrustResourceUrl(formattedImage);
+
+            let id = version.id;
+            console.log(version.deliveryDate);
+
+            let deliveryDate = new Date(version.deliveryDate).toLocaleDateString(undefined, options);
+
+            source.push({ position, id, content, deliveryDate });
+            position++;
+
+
+            if (position == retrieveResponse.length) {
+              this.historyHomeworkDataSource.data = [...source];
+              this.isAllLoaded = true;
+            }
+          });
+        });
+
+
       }
-      
-      )
-    }
-  
+      else
+        this.isAllLoaded = true;
 
 
-  //TODO
-  addReview(version: HomeworkVersionDisplayed) {
+
+    });
+  }
+
+  expandPanel(version: HomeworkVersionDisplayed) {
     this.expandedElement = this.expandedElement === version ? null : version
   }
 
@@ -161,7 +187,6 @@ export class HomeworkDialogComponent implements OnInit {
   }
   //Gets called when the user clicks on submit to upload the image
   onUpload() {
-    console.log(this.selectedFile);
 
     //FormData API provides methods and properties to allow us easily prepare form data to be sent with POST HTTP requests.
     const uploadImageData = new FormData();
@@ -171,24 +196,25 @@ export class HomeworkDialogComponent implements OnInit {
     if (this.authService.isRoleTeacher()) {
       this.teacherService.reviewHomework(this.courseName, this.selectedAssignment.id, this.idSelectedHomework, uploadImageData).subscribe(
         (response) => {
-          console.log(response)
+          this.loadVersions()
+          this.data.homework.state = "CONSEGNATO"
+          this.historyHomeworkColumnsToDisplay.pop()
           this.alertType = "success"
           this.message = 'Image uploaded successfully';
         }, error => {
-          console.log(error)
           this.alertType = "danger"
           this.message = 'Sorry something went wrong, try later...';
-
         }
       );
     } else if (this.authService.isRoleStudent()) {
       this.studentService.uploadHomework(this.courseName, this.selectedAssignment.id, uploadImageData).subscribe(
         (response) => {
-          console.log(response)
+          this.loadVersions()
+          this.data.homework.state = "CONSEGNATO"
+          this.historyHomeworkColumnsToDisplay.pop()
           this.alertType = "success"
           this.message = 'Image uploaded successfully';
         }, error => {
-          console.log(error)
           this.alertType = "danger"
           this.message = 'Sorry something went wrong, try later...';
         }

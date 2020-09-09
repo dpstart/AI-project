@@ -11,3 +11,7 @@
 -GENERALE
 --Aggiungere timeout per loading e visualizzare errore (Vedere se ne vale la pena)
 --Aggiungere viste e routes per confirm reject token team e per activate account
+
+
+-REGISTER 
+aggiungere foto alla registrazione

@@ -108,11 +108,10 @@ export class HomeworkContainerComponent implements OnInit {
 
                   //Retrieve info about the corresponding student
 
-                  let href = ""
-                  homework.links.forEach(link => {
-                    if (link.rel === "student")
-                      href = link.href
-                  });
+
+
+
+                  let href = homework.links.find(link => link.rel === "student").href
 
 
                   if (href != "") {
@@ -128,6 +127,8 @@ export class HomeworkContainerComponent implements OnInit {
                         surname: student.firstName,
                         id: student.id,
                         state: state,
+                        isFinal: homework.isFinal,
+                        mark: homework.mark===0? "--": homework.mark.toString(),
                         timestamp: new Date().toLocaleDateString(undefined, options) // TODO: il formato è giusto la data no.
                       })
 
@@ -137,8 +138,8 @@ export class HomeworkContainerComponent implements OnInit {
                           this.displayedAssignments = [...displayedAssignments]
                           this.displayedHomeworks = [...displayHomeworks]
                           this.isAllLoaded = true
-                          console.log(this.displayedAssignments,this.displayedHomeworks);
-                          
+                          console.log(this.displayedAssignments, this.displayedHomeworks);
+
                         }
                       }
                       // le chiamate vengono fatte sequenzialmente per ogni homework => solo quando sono caricati tutti vengono visualizzati

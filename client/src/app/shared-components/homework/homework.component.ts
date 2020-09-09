@@ -24,6 +24,8 @@ export interface DisplayedHomework {
   surname: string,
   state: string,
   timestamp: string
+  isFinal: boolean,
+  mark: string
 }
 
 
@@ -66,7 +68,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   selectedAssignment: Assignment
 
   // nome, cognome, matricola,  state,  timestamp  
-  homeworksColumnsToDisplay: string[] = ['name', 'surname', 'id', 'state', 'timestamp'];
+  homeworksColumnsToDisplay: string[] = ['name', 'surname', 'id', 'state', 'timestamp', 'mark'];
   homeworksDataSource: Array<MatTableDataSource<DisplayedHomework>>
   allHomeworks: DisplayedHomework[][]
 
@@ -88,8 +90,8 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   @Input()
   public set displayedAssignments(value: DisplayedAssignment[]) {
     this._displayedAssignments = value;
-    this.consegneDataSource.data =[...this.displayedAssignments]
-    
+    this.consegneDataSource.data = [...this.displayedAssignments]
+
   }
   private _displayedHomeworks: DisplayedHomework[];
 
@@ -287,14 +289,15 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
     //assignmentExpandedElement === assignment ? null : assignment
     this.selectedAssignment = assignment
   }
-  seeHomeworkDetails(homework: DisplayedHomework) {
+  seeHomeworkVersions(homework: DisplayedHomework) {
 
+  
     const dialogRef = this.dialog.open(HomeworkDialogComponent, {
       height: '95%',
       width: '95%',
       data: {
         assignment: this.assignmentExpandedElement,
-        homeworkId: homework.homeworkId
+        homework: homework
       }
     });
     event.stopPropagation();

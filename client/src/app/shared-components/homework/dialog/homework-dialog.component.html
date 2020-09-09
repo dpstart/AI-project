@@ -1,225 +1,230 @@
 <div>
     <h2>Homework versions</h2>
 
-
-
-    <div *ngIf="authService.isRoleStudent(); then studentBlock else professorBlock">
+    <div *ngIf="isAllLoaded == false; else loadedBlock">
+        <mat-spinner diameter="300" strokeWidth="5"></mat-spinner>
     </div>
-    <ng-template #studentBlock>
-
-        <div *ngIf="historyHomeworkDataSource.data.length == 0; then emptyStudentBlock else withDataStudentBlock">
+    <ng-template #loadedBlock>
+        <div *ngIf="authService.isRoleStudent(); then studentBlock else professorBlock">
         </div>
-        <ng-template #emptyStudentBlock>
-            <div>
+        <ng-template #studentBlock>
+
+            <div *ngIf="historyHomeworkDataSource.data.length == 0; then emptyStudentBlock else withDataStudentBlock">
+            </div>
+            <ng-template #emptyStudentBlock>
                 <div>
-                    <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
-                        (click)="fileInput.click()">
-                        <mat-icon>folder</mat-icon>
-                        <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;" />
-                    </button>
-                    <mat-form-field>
-                        <mat-label>Add homework version</mat-label>
-                        <input matInput placeholder="No file selected" [(ngModel)]="fileName" readonly="true">
-                    </mat-form-field>
+                    <div>
+                        <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
+                            (click)="fileInput.click()">
+                            <mat-icon>folder</mat-icon>
+                            <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;" />
+                        </button>
+                        <mat-form-field>
+                            <mat-label>Add homework version</mat-label>
+                            <input matInput placeholder="No file selected" [(ngModel)]="fileName" readonly="true">
+                        </mat-form-field>
 
-                    <button id="uploadButton" [disabled]="isDisabled" mat-flat-button color="primary"
-                        (click)="onUpload()">Upload</button>
+                        <button id="uploadButton" [disabled]="isDisabled" mat-flat-button color="primary"
+                            (click)="onUpload()">Upload</button>
 
-                </div>
-            </div>
-            <div>
-                <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
-            </div>
-        </ng-template>
-        <ng-template #withDataStudentBlock>
-            <div class="entire-table">
-                <table mat-table [dataSource]="historyHomeworkDataSource" multiTemplateDataRows
-                    class="mat-elevation-z8">
-
-
-                    <ng-container matColumnDef="id">
-                        <th mat-header-cell *matHeaderCellDef> Id </th>
-                        <td mat-cell *matCellDef="let element"> {{element.id}} </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="content">
-                        <th mat-header-cell *matHeaderCellDef> Image </th>
-                        <td mat-cell *matCellDef="let element">
-                            <img [src]="element.content"
-                                [ngStyle]="{'height.vh': element == expandedImage ? '50' : '20'}"
-                                (click)="selectImageToExpand(element)">
-                        </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="deliveryDate">
-                        <th mat-header-cell *matHeaderCellDef> Delivery Date </th>
-                        <td mat-cell *matCellDef="let element"> {{element.deliveryDate}} </td>
-                    </ng-container>
-
-
-                    <ng-container matColumnDef="review">
-                        <th mat-header-cell *matHeaderCellDef> Review </th>
-                        <td mat-cell *matCellDef="let element;">
-                            <button *ngIf="element.position == 0" (click)="addReview(element)" mat-fab color="primary"
-                                aria-label="Example icon button with a add icon">
-                                <mat-icon>add</mat-icon>
-                            </button>
-                        </td>
-                    </ng-container>
-
-
-                    <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
-                    <ng-container matColumnDef="expandedDetail">
-                        <td mat-cell *matCellDef="let element" [attr.colspan]="historyHomeworkColumnsToDisplay.length">
-                            <div *ngIf="element.position == 0" class="example-element-detail"
-                                [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
-                                <div class="example-element-description">
-                                    <!-- //TODO permettere di caricare immagine -->
-                                    <div class="row">
-                                        <div>
-                                            <button mat-fab color="primary"
-                                                aria-label="Example icon button with a delete icon"
-                                                (click)="fileInput.click()">
-                                                <mat-icon>folder</mat-icon>
-                                                <input #fileInput type="file" (change)="onFileChanged($event)"
-                                                    style="display:none;" />
-                                            </button>
-                                            <mat-form-field>
-                                                <mat-label>Add review</mat-label>
-                                                <input matInput placeholder="No file selected" [(ngModel)]="fileName"
-                                                    readonly="true">
-                                            </mat-form-field>
-
-                                            <button id="uploadButton" [disabled]="isDisabled" mat-flat-button
-                                                color="primary" (click)="onUpload()">Upload</button>
-
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
-                                            {{ message }}
-                                        </ngb-alert>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </ng-container>
-
-                    <tr mat-header-row *matHeaderRowDef="historyHomeworkColumnsToDisplay"></tr>
-                    <tr mat-row *matRowDef="let element; columns: historyHomeworkColumnsToDisplay;"
-                        class="example-element-row" [class.example-expanded-row]="expandedElement === element">
-                    </tr>
-                    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
-                </table>
-                <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
-            </div>
-        </ng-template>
-
-    </ng-template>
-
-    <ng-template #professorBlock>
-
-
-        <div *ngIf="historyHomeworkDataSource.data.length == 0; then emptyProfessorBlock else withDataProfessorBlock">
-        </div>
-        <ng-template #emptyProfessorBlock>
-            <div>
-                <div class="centeredContent">
-                   <p>No homework version uploaded by this student yet.</p>
+                    </div>
+                    <div>
+                        <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
+                    </div>
 
                 </div>
-            </div>
-            <div>
-                <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
-            </div>
-        </ng-template>
-        <ng-template #withDataProfessorBlock>
-            <div class="entire-table">
-                <table mat-table [dataSource]="historyHomeworkDataSource" multiTemplateDataRows
-                    class="mat-elevation-z8">
+
+            </ng-template>
+            <ng-template #withDataStudentBlock>
+                <div class="entire-table">
+                    <table mat-table [dataSource]="historyHomeworkDataSource" multiTemplateDataRows
+                        class="mat-elevation-z8">
 
 
-                    <ng-container matColumnDef="id">
-                        <th mat-header-cell *matHeaderCellDef> Id </th>
-                        <td mat-cell *matCellDef="let element"> {{element.id}} </td>
-                    </ng-container>
+                        <ng-container matColumnDef="id">
+                            <th mat-header-cell *matHeaderCellDef> Id </th>
+                            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+                        </ng-container>
 
-                    <ng-container matColumnDef="content">
-                        <th mat-header-cell *matHeaderCellDef> Image </th>
-                        <td mat-cell *matCellDef="let element">
-                            <img [src]="element.content"
-                                [ngStyle]="{'height.vh': element == expandedImage ? '50' : '20'}"
-                                (click)="selectImageToExpand(element)">
-                        </td>
-                    </ng-container>
+                        <ng-container matColumnDef="content">
+                            <th mat-header-cell *matHeaderCellDef> Image </th>
+                            <td mat-cell *matCellDef="let element">
+                                <img [src]="element.content"
+                                    [ngStyle]="{'height.vh': element == expandedImage ? '50' : '20'}"
+                                    (click)="selectImageToExpand(element)">
+                            </td>
+                        </ng-container>
 
-                    <ng-container matColumnDef="deliveryDate">
-                        <th mat-header-cell *matHeaderCellDef> Delivery Date </th>
-                        <td mat-cell *matCellDef="let element"> {{element.deliveryDate}} </td>
-                    </ng-container>
-
-
-                    <ng-container matColumnDef="review">
-                        <th mat-header-cell *matHeaderCellDef> Review </th>
-                        <td mat-cell *matCellDef="let element;">
-                            <button *ngIf="element.position == 0" (click)="addReview(element)" mat-fab color="primary"
-                                aria-label="Example icon button with a add icon">
-                                <mat-icon>add</mat-icon>
-                            </button>
-                        </td>
-                    </ng-container>
+                        <ng-container matColumnDef="deliveryDate">
+                            <th mat-header-cell *matHeaderCellDef> Delivery Date </th>
+                            <td mat-cell *matCellDef="let element"> {{element.deliveryDate}} </td>
+                        </ng-container>
 
 
-                    <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
-                    <ng-container matColumnDef="expandedDetail">
-                        <td mat-cell *matCellDef="let element" [attr.colspan]="historyHomeworkColumnsToDisplay.length">
-                            <div *ngIf="element.position == 0" class="example-element-detail"
-                                [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
-                                <div class="example-element-description">
-                                    <!-- //TODO permettere di caricare immagine -->
-                                    <div class="row">
-                                        <div>
-                                            <button mat-fab color="primary"
-                                                aria-label="Example icon button with a delete icon"
-                                                (click)="fileInput.click()">
-                                                <mat-icon>folder</mat-icon>
-                                                <input #fileInput type="file" (change)="onFileChanged($event)"
-                                                    style="display:none;" />
-                                            </button>
-                                            <mat-form-field>
-                                                <mat-label>Add review</mat-label>
-                                                <input matInput placeholder="No file selected" [(ngModel)]="fileName"
-                                                    readonly="true">
-                                            </mat-form-field>
+                        <ng-container *ngIf=" !data.homework.isFinal &&  data.homework.state !== 'CONSEGNATO'"
+                            matColumnDef="action">
+                            <th mat-header-cell *matHeaderCellDef> Add new version </th>
+                            <td mat-cell *matCellDef="let element;">
+                                <button *ngIf="element.position == 0" (click)="expandPanel(element)" mat-fab
+                                    color="primary" aria-label="Example icon button with a add icon">
+                                    <mat-icon>add</mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
 
-                                            <button id="uploadButton" [disabled]="isDisabled" mat-flat-button
-                                                color="primary" (click)="onUpload()">Upload</button>
 
+                        <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+                        <ng-container matColumnDef="expandedDetail">
+                            <td mat-cell *matCellDef="let element"
+                                [attr.colspan]="historyHomeworkColumnsToDisplay.length">
+                                <div *ngIf="element.position == 0" class="example-element-detail"
+                                    [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
+                                    <div class="example-element-description">
+                                        <!-- //TODO permettere di caricare immagine -->
+                                        <div class="row">
+                                            <div>
+                                                <button mat-fab color="primary"
+                                                    aria-label="Example icon button with a delete icon"
+                                                    (click)="fileInput.click()">
+                                                    <mat-icon>folder</mat-icon>
+                                                    <input #fileInput type="file" (change)="onFileChanged($event)"
+                                                        style="display:none;" />
+                                                </button>
+                                                <mat-form-field>
+                                                    <mat-label>Add homework version</mat-label>
+                                                    <input matInput placeholder="No file selected"
+                                                        [(ngModel)]="fileName" readonly="true">
+                                                </mat-form-field>
+
+                                                <button id="uploadButton" [disabled]="isDisabled" mat-flat-button
+                                                    color="primary" (click)="onUpload()">Upload</button>
+
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
+                                                {{ message }}
+                                            </ngb-alert>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
-                                            {{ message }}
-                                        </ngb-alert>
-                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                    </ng-container>
+                            </td>
+                        </ng-container>
 
-                    <tr mat-header-row *matHeaderRowDef="historyHomeworkColumnsToDisplay"></tr>
-                    <tr mat-row *matRowDef="let element; columns: historyHomeworkColumnsToDisplay;"
-                        class="example-element-row" [class.example-expanded-row]="expandedElement === element">
-                    </tr>
-                    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
-                </table>
-                <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
-            </div>
+                        <tr mat-header-row *matHeaderRowDef="historyHomeworkColumnsToDisplay"></tr>
+                        <tr mat-row *matRowDef="let element; columns: historyHomeworkColumnsToDisplay;"
+                            class="example-element-row" [class.example-expanded-row]="expandedElement === element">
+                        </tr>
+                        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
+                    </table>
+                    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+                </div>
+            </ng-template>
+
         </ng-template>
 
+        <ng-template #professorBlock>
+
+
+            <div
+                *ngIf="historyHomeworkDataSource.data.length == 0; then emptyProfessorBlock else withDataProfessorBlock">
+            </div>
+            <ng-template #emptyProfessorBlock>
+                <div>
+                    <div class="centeredContent">
+                        <p>No homework version uploaded by this student yet.</p>
+
+                    </div>
+                </div>
+                <div>
+                    <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
+                </div>
+            </ng-template>
+            <ng-template #withDataProfessorBlock>
+                <div class="entire-table">
+                    <table mat-table [dataSource]="historyHomeworkDataSource" multiTemplateDataRows
+                        class="mat-elevation-z8">
+
+
+                        <ng-container matColumnDef="id">
+                            <th mat-header-cell *matHeaderCellDef> Id </th>
+                            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="content">
+                            <th mat-header-cell *matHeaderCellDef> Image </th>
+                            <td mat-cell *matCellDef="let element">
+                                <img [src]="element.content"
+                                    [ngStyle]="{'height.vh': element == expandedImage ? '50' : '20'}"
+                                    (click)="selectImageToExpand(element)">
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="deliveryDate">
+                            <th mat-header-cell *matHeaderCellDef> Delivery Date </th>
+                            <td mat-cell *matCellDef="let element"> {{element.deliveryDate}} </td>
+                        </ng-container>
+
+
+                        <ng-container matColumnDef="action">
+                            <th mat-header-cell *matHeaderCellDef> Add review </th>
+                            <td mat-cell *matCellDef="let element;">
+                                <button *ngIf="element.position == 0" (click)="expandPanel(element)" mat-fab
+                                    color="primary" aria-label="Example icon button with a add icon">
+                                    <mat-icon>add</mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+
+                        <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+                        <ng-container matColumnDef="expandedDetail">
+                            <td mat-cell *matCellDef="let element"
+                                [attr.colspan]="historyHomeworkColumnsToDisplay.length">
+                                <div *ngIf="element.position == 0" class="example-element-detail"
+                                    [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
+                                    <div class="example-element-description">
+                                        <!-- //TODO permettere di caricare immagine -->
+                                        <div class="row">
+                                            <div>
+                                                <button mat-fab color="primary"
+                                                    aria-label="Example icon button with a delete icon"
+                                                    (click)="fileInput.click()">
+                                                    <mat-icon>folder</mat-icon>
+                                                    <input #fileInput type="file" (change)="onFileChanged($event)"
+                                                        style="display:none;" />
+                                                </button>
+                                                <mat-form-field>
+                                                    <mat-label>Add review</mat-label>
+                                                    <input matInput placeholder="No file selected"
+                                                        [(ngModel)]="fileName" readonly="true">
+                                                </mat-form-field>
+
+                                                <button id="uploadButton" [disabled]="isDisabled" mat-flat-button
+                                                    color="primary" (click)="onUpload()">Upload</button>
+
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
+                                                {{ message }}
+                                            </ngb-alert>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="historyHomeworkColumnsToDisplay"></tr>
+                        <tr mat-row *matRowDef="let element; columns: historyHomeworkColumnsToDisplay;"
+                            class="example-element-row" [class.example-expanded-row]="expandedElement === element">
+                        </tr>
+                        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
+                    </table>
+                    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+                </div>
+            </ng-template>
+
+        </ng-template>
     </ng-template>
-
-
-
-
 </div>
