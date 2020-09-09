@@ -207,8 +207,10 @@ export class StudentsComponent implements OnInit {
 
 
 
-        this.message = `Tutti i ${this.selection.selected.length} studenti in questa pagina sono stati selezionati.`
-        this.alertType = "secondary"
+        if (this.isAllSelected() != this.isAllSelectedInPage()) {
+          this.message = `Tutti i ${this.selection.selected.length} studenti in questa pagina sono stati selezionati.`
+          this.alertType = "secondary"
+        }
 
       } else {
         this.enrolledStudentsDataSource.data.forEach(row => this.selection.select(row));
