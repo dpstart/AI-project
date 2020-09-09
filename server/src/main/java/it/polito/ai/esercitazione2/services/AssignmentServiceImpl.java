@@ -61,12 +61,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         // il docente è il docente del corso?
         if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(professor)))
             throw new CourseAuthorizationException("User " + professor + " has not the rights to modify this course: he's not the professor for this course");
-        if (assignmentRepository.existsById(a.getId())) {
-            if (getAssignment(a.getId()).equals(a))
-                return a;
-            else
-                throw new IncoherenceException("Assignment with id " + a.getId() + " already exist with different details");
-        }
+
         Image img = null;
         try {
             img = imageService.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
