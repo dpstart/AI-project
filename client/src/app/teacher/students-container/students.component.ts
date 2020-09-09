@@ -149,8 +149,8 @@ export class StudentsComponent implements OnInit {
       let indexStartingElement = this.paginator.pageIndex == 0 ? 0 : (this.paginator.pageIndex * this.paginator.pageSize)
       let indexEndElement = (indexStartingElement + this.paginator.pageSize)
 
-      indexEndElement > (this.enrolledStudentsDataSource.data.length - 1) ?
-        (this.enrolledStudentsDataSource.data.length - 1) : indexEndElement
+      indexEndElement = indexEndElement > (this.enrolledStudentsDataSource.data.length - 1) ?
+        (this.enrolledStudentsDataSource.data.length) : indexEndElement
 
       let allSelected = true
 
@@ -186,6 +186,8 @@ export class StudentsComponent implements OnInit {
   masterToggle() {
     if (this.isAllSelectedInPage()) {
       this.selection.clear()
+      this.message = ""
+      this.masterToggleInPageOption = true
     } else {
 
 
@@ -193,12 +195,16 @@ export class StudentsComponent implements OnInit {
         let indexStartingElement = this.paginator.pageIndex == 0 ? 0 : (this.paginator.pageIndex * this.paginator.pageSize)
         let indexEndElement = indexStartingElement + this.paginator.pageSize
 
-        indexEndElement > (this.enrolledStudentsDataSource.data.length - 1) ? (this.enrolledStudentsDataSource.data.length - 1) : indexEndElement
+        indexEndElement = indexEndElement > (this.enrolledStudentsDataSource.data.length - 1) ? (this.enrolledStudentsDataSource.data.length) : indexEndElement
 
 
         for (let i = indexStartingElement; i < indexEndElement; i++) {
           this.selection.select(this.enrolledStudentsDataSource.data[i])
         }
+
+
+        console.log(indexEndElement, indexStartingElement);
+
 
 
         this.message = `Tutti i ${this.selection.selected.length} studenti in questa pagina sono stati selezionati.`
