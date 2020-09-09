@@ -64,7 +64,7 @@ public class VMController {
             }
     }
 
-    @GetMapping("/{id}/update")
+    @PostMapping("/{id}/update")
     void updateVM(@PathVariable Long id,@RequestPart(value="image",required=false) MultipartFile file, @Valid @RequestPart("settings") SettingsDTO settings){
         try{
             if (file ==null || file.isEmpty())
