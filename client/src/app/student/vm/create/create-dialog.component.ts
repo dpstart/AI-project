@@ -53,6 +53,8 @@ export class CreateDialogComponent implements OnInit {
       ram: this.form.value.ram, n_cpu: this.form.value.n_cpu, disk_space: this.form.value.disk_space,
       max_active: this.form.value.max_active, max_available: this.form.value.max_available
     }
+
+    console.log("NAAAAME", this.selectedFile.name)
     formData.append('image', this.selectedFile, this.fileName);
     formData.append('settings', new Blob([JSON.stringify(settings)], {
       type: "application/json"
@@ -70,7 +72,6 @@ export class CreateDialogComponent implements OnInit {
   public onFileChanged(event) {
     //Select File
     this.selectedFile = event.target.files[0];
-    this.fileName = this.selectedFile.name
   }
 
 

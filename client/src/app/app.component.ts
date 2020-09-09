@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, OnDestroy, OnChanges, SimpleChanges, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy, OnChanges, SimpleChanges, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatDialog } from '@angular/material/dialog';
 import { LoginDialogComponent } from './auth/login-dialog.component';
@@ -21,6 +21,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   courses: Course[];
   selectedCourse: Observable<string>;
+
+  nameAndSurname$: Observable<string>;
 
 
   navTeacherLinks: NavTeacherLinks[];
@@ -62,16 +64,17 @@ export class AppComponent implements OnInit, AfterViewInit {
     });
   }
   ngAfterViewInit(): void {
+
     let session = localStorage.getItem('session')
     if (session) {
 
       let sess = JSON.parse(session)
 
       this.authService.subjectNameAndSurname.next(`${sess['firstName']} ${sess['name']}`)
+      this.nameAndSurname$ = this.authService.observableNameAndSurname;
 
     }
   }
-
 
 
   ngOnInit() {
@@ -156,10 +159,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   isLoggedIn() {
     return this.authService.isLoggedIn();
-  }
-
-  getUserNameAndSurname() {
-    return this.authService.observableNameAndSurname
   }
 
   logout() {

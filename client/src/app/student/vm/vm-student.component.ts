@@ -84,6 +84,9 @@ export class VmStudentComponent implements OnInit {
         this.studentService.getVmsForTeam(team.id).subscribe(vms => {
 
           this.dataSourceVm.data = [...vms]
+
+          console.log(vms);
+
           this.isAllLoaded = true
         })
 
@@ -128,8 +131,6 @@ export class VmStudentComponent implements OnInit {
   }
 
   openVmImage(vm: Vm) {
-
-
 
   }
 

@@ -15,7 +15,7 @@
     </ng-template>
 
     <ng-template #toolbarUnloggedBlock>
-      <p class="emailToolbar"> {{getUserNameAndSurname() |async}}</p>
+      <p class="emailToolbar"> {{nameAndSurname$ | async}}</p>
       <button mat-button (click)="logout()">Logout</button>
     </ng-template>
 
