@@ -54,7 +54,6 @@ export class CreateDialogComponent implements OnInit {
       max_active: this.form.value.max_active, max_available: this.form.value.max_available
     }
 
-    console.log("NAAAAME", this.selectedFile.name)
     formData.append('image', this.selectedFile, this.fileName);
     formData.append('settings', new Blob([JSON.stringify(settings)], {
       type: "application/json"

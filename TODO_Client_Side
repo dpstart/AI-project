@@ -1,5 +1,6 @@
 -VM 
 --vm details con popup dell'immagine
+-- creazione VM da 500 sul server in CourseController.java:676 "java.sql.SQLException: Field 'name' doesn't have a default value"
 
 -CONSEGNE ED ELABORATI:
  -- gestire aggiunta e modifica hw versione 

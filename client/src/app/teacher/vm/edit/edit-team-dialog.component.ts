@@ -42,5 +42,9 @@ export class EditTeamDialogComponent {
 
   close() { this.dialogRef.close(); }
   submit() {
+    this.teacherService.changeTeamSettings(this.course, this.team.id, this.form.value).subscribe((team) =>
+      this.close()
+    )
+
   }
 }

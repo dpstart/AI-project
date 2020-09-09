@@ -33,6 +33,7 @@ import { TeacherGuard } from './auth/teacher.guard';
 import { StudentGuard } from './auth/student.guard';
 import { VmStudentComponent } from './student/vm/vm-student.component';
 import { EditTeamDialogComponent } from './teacher/vm/edit/edit-team-dialog.component';
+import { EditVmDialogComponent } from './student/vm/edit/edit-vm-dialog.component';
 import { GroupsComponent } from './student/groups/groups.component';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -44,9 +45,9 @@ import { HomeworkContainerComponent } from './shared-components/homework-contain
 import { CreateDialogComponent } from 'src/app/student/vm/create/create-dialog.component';
 
 
-import {MatDatepickerModule} from '@angular/material/datepicker'; 
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
-import {MatNativeDateModule} from '@angular/material/core';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import {MatNativeDateModule} from '@angular/material/core';
     HomeworkComponent,
     VmStudentComponent,
     EditTeamDialogComponent,
+    EditVmDialogComponent,
     GroupsComponent,
     HomeworkDialogComponent,
     HomeworkContainerComponent,

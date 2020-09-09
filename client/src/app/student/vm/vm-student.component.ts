@@ -10,6 +10,7 @@ import { VMComponent } from 'src/app/teacher/vm/vm.component';
 import { MatDialog } from '@angular/material/dialog';
 import { EditTeamDialogComponent } from 'src/app/teacher/vm/edit/edit-team-dialog.component';
 import { CreateDialogComponent } from './create/create-dialog.component';
+import { EditVmDialogComponent } from './edit/edit-vm-dialog.component';
 
 @Component({
   selector: 'app-vm-student',
@@ -136,9 +137,11 @@ export class VmStudentComponent implements OnInit {
 
   openEditDialog(element, event) {
 
-    const dialogRef = this.dialog.open(EditTeamDialogComponent, {
+    console.log("element", element)
+
+    const dialogRef = this.dialog.open(EditVmDialogComponent, {
       width: '500px',
-      data: { team: element, course: this.selectedCourse }
+      data: { vm: element, course: this.selectedCourse }
     });
 
     dialogRef.afterClosed().subscribe(() => this.getData())

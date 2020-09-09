@@ -365,6 +365,19 @@ export class StudentService {
   }
 
 
+  editVM(vmId: number, formData: FormData) {
+
+    let headers = new HttpHeaders()
+    headers.set('Content-Type', 'multipart/form-data');
+
+    const url = `${this.URL}/vms/${vmId}/update `;
+    return this.http.get(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+
+  }
+
 
   changeVmStatus(vm: Vm) {
 
@@ -406,5 +419,6 @@ export class StudentService {
       catchError(this.handleError)
     );
   }
+
 
 }

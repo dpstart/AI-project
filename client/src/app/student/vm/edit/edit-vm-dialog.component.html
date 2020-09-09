@@ -1,11 +1,7 @@
 <mat-card>
-    <mat-card-title>Create new VM instance</mat-card-title>
+    <mat-card-title>Vm</mat-card-title>
     <mat-card-content>
         <form [formGroup]="form" (ngSubmit)="submit()">
-
-
-            <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
-
 
             <p>
                 <mat-form-field>
@@ -27,19 +23,19 @@
 
             <p>
                 <mat-form-field>
-                    <input required type="number" matInput placeholder=" Max active" formControlName="max_active">
+                    <input required type="number" matInput placeholder="Max active" formControlName="max_active">
                 </mat-form-field>
             </p>
 
             <p>
                 <mat-form-field>
-                    <input required type="number" matInput placeholder=" Max available" formControlName="max_available">
+                    <input required type="number" matInput placeholder="Max available" formControlName="max_available">
                 </mat-form-field>
             </p>
 
             <div>
                 <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
-                    (click)="fileInput.click();">
+                    (click)="fileInput.click()">
                     <mat-icon>folder</mat-icon>
                     <input formControlName="image" #fileInput type="file" (change)="onFileChanged($event)"
                         style="display:none;" />
@@ -51,13 +47,14 @@
                 </mat-form-field>
             </div>
 
-            <br>
+            <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
+
             <div>
                 <button mat-raised-button color="primary">Confirm</button>
-                <button (click)="close({})" class="cancel" mat-raised-button>Cancel</button>
+                <button (click)="close()" class="cancel" mat-raised-button>Cancel</button>
             </div>
 
-        </form>
 
+        </form>
     </mat-card-content>
 </mat-card>
