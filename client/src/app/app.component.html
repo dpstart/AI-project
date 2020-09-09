@@ -5,8 +5,11 @@
       <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
     </button>
     <span class="clickableElement" routerLink="/home">VirtualLabs</span>
+
     <!-- This fills the remaining space of the current row -->
     <span class="example-fill-remaining-space"></span>
+
+
 
     <div *ngIf="!isLoggedIn(); then toolbarLoggedBlock else toolbarUnloggedBlock"></div>
     <ng-template #toolbarLoggedBlock>

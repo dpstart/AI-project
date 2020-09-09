@@ -7,6 +7,8 @@
 
         <h2 class="mat-h2 tabtitle">Elenco team.</h2>
 
+        <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
+
         <table mat-table [dataSource]="dataSourceTeams" multiTemplateDataRows class="mat-elevation-z8">
 
             <div *ngFor="let column of columnsToDisplay">

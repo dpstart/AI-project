@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild, AfterViewInit, Input } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { TeacherService } from '../../services/teacher.service';
 import { Team } from '../../model/team.model';
@@ -29,6 +29,9 @@ import { MatSort } from '@angular/material/sort';
 export class VMComponent implements OnInit {
 
     selectedCourse: string
+
+    @Input() message: string | null;
+    alertType: string;
 
     columnsToDisplay: string[] = ['actions', 'name', 'id', 'disk_space', 'ram'];
     innerDisplayedColumns = ['id', 'n_cpu', 'disk_space', 'ram', 'status'];
@@ -104,7 +107,11 @@ export class VMComponent implements OnInit {
             data: { team: element, course: this.selectedCourse }
         });
 
-        dialogRef.afterClosed().subscribe(() => this.getData())
+        dialogRef.afterClosed().subscribe((result) => {
+            this.getData();
+            this.message = result.message;
+            this.alertType = result.type;
+        })
         event.stopPropagation();
     }
 

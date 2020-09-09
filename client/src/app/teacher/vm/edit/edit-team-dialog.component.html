@@ -1,5 +1,5 @@
 <mat-card>
-    <mat-card-title>Vm</mat-card-title>
+    <mat-card-title>Edit team settings</mat-card-title>
     <mat-card-content>
         <form [formGroup]="form" (ngSubmit)="submit()">
 
@@ -37,7 +37,7 @@
 
             <div>
                 <button mat-raised-button color="primary">Confirm</button>
-                <button (click)="close()" class="cancel" mat-raised-button>Cancel</button>
+                <button (click)="close(null,null)" class="cancel" mat-raised-button>Cancel</button>
             </div>
 
 

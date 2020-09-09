@@ -148,7 +148,6 @@ export class TeacherService {
     changeTeamSettings(courseName: string, teamId: number, settings: TeamSettings) {
         const url = `${this.URL}/courses/${courseName}/teams/${teamId}/settings`;
 
-        console.log(settings)
         return this.http.post(url, settings).pipe(
             retry(3),
             catchError(this.handleError)
@@ -161,7 +160,7 @@ export class TeacherService {
 
     addAssignment(courseName: string, formData: FormData): Observable<Assignment> {
         console.log(formData);
-        
+
         const url = `${this.URL}/courses/${courseName}/assignments/`
         return this.http.post<Assignment>(url, formData).pipe(
             retry(3),
@@ -191,8 +190,10 @@ export class TeacherService {
                 `body was: ${error.message}`);
         }
         // return an observable with a user-facing error message
+
+        console.log(error)
         return throwError(
-            { status: error.status, message: error.message });
+            { status: error.status, message: error.error.message });
     };
 
 

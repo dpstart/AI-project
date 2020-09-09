@@ -51,7 +51,9 @@ export class StudentService {
         `Backend returned code ${error.status}, ` +
         `body was: ${error.message}`);
     }
+
     // return an observable with a user-facing error message
+
     return throwError({ status: error.status, message: error.message });
   };
 

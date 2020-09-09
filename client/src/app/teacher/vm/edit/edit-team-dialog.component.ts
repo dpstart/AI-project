@@ -40,11 +40,11 @@ export class EditTeamDialogComponent {
     this.dialogRef.close();
   }
 
-  close() { this.dialogRef.close(); }
+  close(message: string, type: string) { this.dialogRef.close({ message: message, type: type }); }
   submit() {
-    this.teacherService.changeTeamSettings(this.course, this.team.id, this.form.value).subscribe((team) =>
-      this.close()
+    this.teacherService.changeTeamSettings(this.course, this.team.id, this.form.value).subscribe(
+      (team) => this.close("Change successful", "success"),
+      (error) => { this.error = error.message; this.alertType = "danger"; }
     )
-
   }
 }
