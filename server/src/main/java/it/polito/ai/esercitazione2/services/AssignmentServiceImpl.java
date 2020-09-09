@@ -72,7 +72,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             throw new ImageException("Assignment content didn't load on database correctly");
         Assignment assignment = modelMapper.map(a, Assignment.class);
         assignment.setCourse(c);
-        assignment.setContentId(img.getName());
+        assignment.setContentId(img.getId());
         assignment.setReleaseDate(new Timestamp(System.currentTimeMillis()));
         Professor p = professorRepository.getOne(professor);
         assignment.setProfessor(p);

@@ -10,15 +10,11 @@ import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.entities.*;
 import it.polito.ai.esercitazione2.exceptions.*;
 import it.polito.ai.esercitazione2.repositories.*;
-import lombok.Synchronized;
 import net.minidev.json.JSONObject;
 import org.apache.commons.text.RandomStringGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.security.access.AuthorizationServiceException;
-import org.springframework.security.access.method.P;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,16 +25,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import javax.persistence.LockModeType;
-import javax.swing.*;
 import javax.transaction.Transactional;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Reader;
 
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
@@ -354,7 +346,7 @@ public class TeamServiceImpl implements TeamService {
         }
         prof.setAlias(alias);
         if (img != null)
-            prof.setImage_id(img.getName());
+            prof.setImage_id(img.getId());
 
         professorRepository.save(prof);
 
@@ -428,7 +420,7 @@ public class TeamServiceImpl implements TeamService {
         }
         stud.setAlias(alias);
         if (img != null)
-            stud.setImage_id(img.getName());
+            stud.setImage_id(img.getId());
 
         studentRepository.save(stud);
 

@@ -1,42 +1,57 @@
 package it.polito.ai.esercitazione2.entities;
 
+import lombok.Data;
+
 import javax.persistence.*;
 
 
 @Entity
-@Table
+@Data
 public class Image {
     public Image() {
-        super();
     }
+
+    public Image(Image image) {
+        this.type = image.type;
+        this.picByte = image.picByte;
+    }
+
+
     public Image(String type, byte[] picByte) {
         this.type = type;
         this.picByte = picByte;
     }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long name;
+    private Long id;
 
     private String type;
     //image bytes can have large lengths so we specify a value
     //which is more than the default length for picByte column
-    @Column(length=500000)
+    @Column(length = 500000)
     private byte[] picByte;
-    public Long getName() {
-        return name;
+
+    public Long getId() {
+        return id;
     }
-    public void setName(Long name) {
-        this.name = name;
+
+    public void setId(Long name) {
+        this.id = name;
     }
+
     public String getType() {
         return type;
     }
+
     public void setType(String type) {
         this.type = type;
     }
+
     public byte[] getPicByte() {
         return picByte;
     }
+
     public void setPicByte(byte[] picByte) {
         System.out.println(picByte.length);
         this.picByte = picByte;

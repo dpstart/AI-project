@@ -83,7 +83,7 @@ public class  HomeworkServiceImpl implements HomeworkService {
         }
         if (img == null)
             throw new ImageException("Homework content didn't load on database correctly");
-        h.getVersionIds().add(img.getName());
+        h.getVersionIds().add(img.getId());
         h.getVersionDates().add(new Timestamp(System.currentTimeMillis()));
         h.setState(Homework.states.delivered);
         h = homeworkRepository.save(h);
