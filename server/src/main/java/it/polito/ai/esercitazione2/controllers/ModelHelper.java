@@ -271,9 +271,23 @@ public class ModelHelper {
         Link timestamp = linkTo(methodOn(CourseController.class)
                 .getHomeworkVersionDeliveryDate(courseName, assignmentId, homeworkId, index)).withRel("deliveryDate");
 
+        Link image =linkTo(methodOn(CourseController.class)
+                .getHomeworkVersionImage(courseName, assignmentId, homeworkId, index))
+                .withRel("image");
         hv.add(self);
         hv.add(timestamp);
+        hv.add(image);
+
         return hv;
     }
 
+    public static ImageDTO enrich(ImageDTO img, String name, Integer assignmentId, Long hwId, Integer versionId) {
+
+        Link self = linkTo(methodOn(CourseController.class)
+                .getHomeworkVersionImage(name, assignmentId, hwId, versionId))
+                .withSelfRel();
+        img.add(self);
+
+        return img;
+    }
 }

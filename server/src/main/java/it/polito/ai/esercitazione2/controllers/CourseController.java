@@ -5,11 +5,8 @@ import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.entities.Image;
 import it.polito.ai.esercitazione2.exceptions.*;
 
-import it.polito.ai.esercitazione2.services.AssignmentService;
-import it.polito.ai.esercitazione2.services.HomeworkService;
-import it.polito.ai.esercitazione2.services.TeamService;
+import it.polito.ai.esercitazione2.services.*;
 
-import it.polito.ai.esercitazione2.services.VMService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -61,12 +58,13 @@ public class CourseController {
 
     /**
      * Authentication required: professor
-     * @param dto:  {
-     *               "name":"Applicazioni Internet",
-     *               "acronime":"AI",
-     *                "max":10
-     *                "min": optional
-     *               }
+     *
+     * @param dto: {
+     *             "name":"Applicazioni Internet",
+     *             "acronime":"AI",
+     *             "max":10
+     *             "min": optional
+     *             }
      * @return the courseDTO created
      */
     @PostMapping({"", "/"})
@@ -84,6 +82,7 @@ public class CourseController {
 
     /**
      * Authentication required: professor owning the course
+     *
      * @param name name of the course (path variable)
      * @return void
      */
@@ -102,6 +101,7 @@ public class CourseController {
 
     /**
      * Authentication required: any user
+     *
      * @param
      * @return list of courseDTO
      */
@@ -113,6 +113,7 @@ public class CourseController {
 
     /**
      * Authentication required: any user
+     *
      * @param name: name of the course to return (path variable)
      * @return courseDTO
      */
@@ -124,9 +125,10 @@ public class CourseController {
 
     /**
      * Authentication required: professor owning the course
-     * @param name: name of the course to return (path variable);
+     *
+     * @param name:  name of the course to return (path variable);
      * @param input: {
-     *                 "id": {id of the professor}
+     *               "id": {id of the professor}
      *               }
      * @return courseDTO
      */
@@ -148,6 +150,7 @@ public class CourseController {
 
     /**
      * Authentication required: professor owning the course
+     *
      * @param name: name of the course to return (path variable);
      * @return void
      */
@@ -164,6 +167,7 @@ public class CourseController {
 
     /**
      * Authentication required: professor owning the course
+     *
      * @param name: name of the course to return (path variable);
      * @return void
      */
@@ -179,15 +183,15 @@ public class CourseController {
     }
 
 
-
     /**
      * Authentication required: professor owning the course
+     *
      * @param dto: {
-     *                "name":"Applicazioni Internet",
-     *                "acronime":"AI",
-     *                 "max":10
-     *                 "min": optional
-     *                }
+     *             "name":"Applicazioni Internet",
+     *             "acronime":"AI",
+     *             "max":10
+     *             "min": optional
+     *             }
      * @return updated Course
      */
     @PostMapping("/update")
@@ -206,14 +210,13 @@ public class CourseController {
     }
 
 
-
-
     /**
      * Authentication required: professor owning the course
-     * @param name: name of the course (path variable)
+     *
+     * @param name:  name of the course (path variable)
      * @param input: {
-     *                "id": {student id}
-     *                }
+     *               "id": {student id}
+     *               }
      * @return void
      */
 
@@ -239,10 +242,11 @@ public class CourseController {
 
     /**
      * Authentication required: professor owning the course
-     * @param name: name of the course (path variable)
+     *
+     * @param name:  name of the course (path variable)
      * @param input: {
-     *                "students": ["2000","2001"]  <--- array of student id
-     *                }
+     *               "students": ["2000","2001"]  <--- array of student id
+     *               }
      * @return void
      */
     @PostMapping("/{name}/enrollMany")
@@ -271,6 +275,7 @@ public class CourseController {
 
     /**
      * Authentication required: professor owning the course
+     *
      * @param name: name of the course (path variable)
      * @param file: file.csv containing 'id' column with one student id for each row
      * @return void
@@ -298,9 +303,10 @@ public class CourseController {
 
     /**
      * Authentication required: professor owning the course
-     * @param name: name of the course (path variable)
+     *
+     * @param name:  name of the course (path variable)
      * @param input: {
-     *                      "id":{student it}
+     *               "id":{student it}
      *               }
      * @return void
      */
@@ -325,9 +331,10 @@ public class CourseController {
 
     /**
      * Authentication required: professor owning the course
-     * @param name: name of the course (path variable)
+     *
+     * @param name:  name of the course (path variable)
      * @param input: {
-     *                      "students":["2000","2001",...] <-- array of student ids
+     *               "students":["2000","2001",...] <-- array of student ids
      *               }
      * @return void
      */
@@ -382,8 +389,8 @@ public class CourseController {
 
     /**
      * Authentication required: any user
-     * @param name: name of the course (path variable)
      *
+     * @param name: name of the course (path variable)
      * @return list of enrolled students
      */
     @GetMapping("/{name}/enrolled")
@@ -403,16 +410,15 @@ public class CourseController {
      ************************************************************************************************************************************************************************/
 
 
-
     /**
      * Authentication required: student enrolled in the course
-     * @param name: name of the course (path variable)
-     * @param input: {
-     *                 "team":"FirstTeam",
-     *                 "members":["2000","2001","2002","2003"],
-     *                 "timeout": 600000
-     *              }
      *
+     * @param name:  name of the course (path variable)
+     * @param input: {
+     *               "team":"FirstTeam",
+     *               "members":["2000","2001","2002","2003"],
+     *               "timeout": 600000
+     *               }
      * @return void
      */
     @PostMapping("/{name}/proposeTeam")
@@ -458,6 +464,7 @@ public class CourseController {
      * Authentication required: user enrolled in the course
      * @param name: name of the course (path variable)
      *
+     * @param name: name of the course (path variable)
      * @return list of TeamDTO
      */
     @GetMapping("/{name}/teams")
@@ -472,9 +479,11 @@ public class CourseController {
     }
 
     /**
+
      * Authentication required: user enrolled in the course
+
      * @param name: name of the course (path variable)
-     * @param id: team id
+     * @param id:   team id
      * @return TeamDTO
      */
     @GetMapping("/{name}/teams/{id}")
@@ -491,20 +500,19 @@ public class CourseController {
 
     /**
      * Authentication required: student in the team
-     * @param name: name of the course (path variable)
-     * @param id: team id (path varaible)
      *
+     * @param name: name of the course (path variable)
+     * @param id:   team id (path varaible)
      * @return {
-     *             "2000": true
-     *             "2001": false
-     *          }
+     * "2000": true
+     * "2001": false
+     * }
      */
     @GetMapping("/{name}/teams/{id}/adhesion")
     Map<String, String> getAdhesionInfo(@PathVariable String name, @PathVariable Long id) {
         try {
             return teamService.getAdhesionInfo(id);
-        }
-        catch(AuthorizationServiceException e) {
+        } catch (AuthorizationServiceException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
 
@@ -571,6 +579,7 @@ public class CourseController {
     }
 
 
+
     /************************************************************************************************************************************************************************
      ********************************************************************************GESTIONE VM MODEL & VM INSTANCES*************************************************************************
      ************************************************************************************************************************************************************************/
@@ -587,6 +596,8 @@ public class CourseController {
      * @return void
      */
     @PostMapping("/{name}/model")
+
+
     void defineVMmodelForACourse(@PathVariable String name, @RequestBody Map<String, String> input) {
         if (!input.containsKey("model") || input.keySet().size() > 1) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Expected one parameter: usage 'model':<modelName>");
@@ -646,8 +657,8 @@ public class CourseController {
     }
 
     /**
-     *   ASSIGNMENTS
-     * */
+     * ASSIGNMENTS
+     */
 
     @GetMapping("/{name}/assignments")
     List<AssignmentDTO> getAssignments(@PathVariable String name) {
@@ -707,8 +718,8 @@ public class CourseController {
     }
 
     /**
-     *   HOMEWORKS
-     * */
+     * HOMEWORKS
+     */
 
     @GetMapping("/{name}/homeworks")
     List<HomeworkDTO> getCourseHomeworks(@PathVariable String name) {
@@ -793,14 +804,12 @@ public class CourseController {
     @GetMapping("/{name}/assignments/{assignmentId}/homeworks/{hwId}/versions")
     List<HomeworkVersionDTO> getHomeworkVersions(@PathVariable String name, @PathVariable Integer assignmentId, @PathVariable Long hwId) {
         try {
-            List<Image> versions = homeworkService.getAllImages(hwId);
+            int versionsSize = homeworkService.getAllImages(hwId).size();
             List<HomeworkVersionDTO> enriched = new ArrayList<>();
-            for (int i = 0; i < versions.size(); i++) {
+            for (int i = 0; i < versionsSize; i++) {
                 HomeworkVersionDTO hv = new HomeworkVersionDTO();
                 hv.setId(i);
-                Image image = versions.get(i);
-                hv.setContent(image);
-                hv.setDeliveryDate(new Timestamp(System.currentTimeMillis()));
+                hv.setDeliveryDate(homeworkService.getDeliveryDate(hwId, i));
                 enriched.add(ModelHelper.enrich(hv, name, assignmentId, hwId, i));
             }
 
@@ -812,6 +821,24 @@ public class CourseController {
         }
     }
 
+
+
+    @GetMapping("/{name}/assignments/{assignmentId}/homeworks/{hwId}/versions/{versionId}/image")
+    ImageDTO getHomeworkVersionImage(@PathVariable String name,
+                                     @PathVariable Integer assignmentId,
+                                     @PathVariable Long hwId,
+                                     @PathVariable Integer versionId) {
+        try {
+            ImageDTO img = homeworkService.getImage(hwId, versionId);
+
+            return ModelHelper.enrich(img, name, assignmentId, hwId, versionId);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+
+
+    }
+
     @GetMapping("/{name}/assignments/{assignmentId}/homeworks/{hwId}/versions/{versionId}")
     HomeworkVersionDTO getHomeworkVersion(@PathVariable String name,
                                           @PathVariable Integer assignmentId,
@@ -820,9 +847,8 @@ public class CourseController {
         try {
             HomeworkVersionDTO hv = new HomeworkVersionDTO();
             hv.setId(versionId);
-            Image image = homeworkService.getImage(hwId, versionId);
-            hv.setContent(image);
-            hv.setDeliveryDate(new Timestamp(System.currentTimeMillis()));
+            hv.setDeliveryDate(homeworkService.getDeliveryDate(hwId, versionId));
+
             return ModelHelper.enrich(hv, name, assignmentId, hwId, versionId);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -846,11 +872,9 @@ public class CourseController {
                                                 @PathVariable Integer id1,
                                                 @PathVariable Long id2) {
         try {
-            Image image = homeworkService.getImage(id2);
             int version = homeworkService.getAllImages(id2).size() - 1;
             HomeworkVersionDTO hv = new HomeworkVersionDTO();
             hv.setId(version);
-            hv.setContent(image);
             hv.setDeliveryDate(new Timestamp(System.currentTimeMillis()));
             return ModelHelper.enrich(hv, name, id1, id2, version);
         } catch (Exception e) {
