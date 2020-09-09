@@ -149,7 +149,7 @@ export class AppComponent implements OnInit {
   }
 
   getUserNameAndSurname() {
-    return this.authService.getUserNameAndSurname()
+    return this.authService.observableNameAndSurname
   }
 
   logout() {

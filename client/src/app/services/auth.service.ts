@@ -5,7 +5,7 @@ import * as moment from 'moment';
 import { RouteStateService } from './route-state.service';
 import { throwError } from 'rxjs/internal/observable/throwError';
 import { catchError, retry } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 export enum ROLE {
   TEACHER,
@@ -24,6 +24,24 @@ export interface RegisteredUser {
   providedIn: 'root'
 })
 export class AuthService {
+
+
+  private _subjectNameAndSurname: Subject<string>;
+  
+  public get subjectNameAndSurname(): Subject<string> {
+    return this._subjectNameAndSurname;
+  }
+  public set subjectNameAndSurname(value: Subject<string>) {
+    this._subjectNameAndSurname = value;
+  }
+
+  private _observableNameAndSurname: Observable<string>;
+  public get observableNameAndSurname(): Observable<string> {
+    return this._observableNameAndSurname;
+  }
+  public set observableNameAndSurname(value: Observable<string>) {
+    this._observableNameAndSurname = value;
+  }
 
 
   private handleError(error: HttpErrorResponse) {
@@ -47,7 +65,12 @@ export class AuthService {
 
   URL = "http://localhost:4200/API"
 
-  constructor(private http: HttpClient, private routeStateService: RouteStateService) { }
+  constructor(private http: HttpClient, private routeStateService: RouteStateService) {
+
+    this.subjectNameAndSurname = new Subject<string>()
+    this.observableNameAndSurname = this.subjectNameAndSurname.asObservable()
+
+  }
 
   login(email: string, password: string) {
     const url = `${this.URL}/authenticate`;
@@ -151,10 +174,11 @@ export class AuthService {
 
   getUserNameAndSurname(): string {
     let session = JSON.parse(localStorage.getItem('session'));
-    return `${session['firstName']} ${session['name']}`
+    if (session['firstName'] && session['name'])
+      return `${session['firstName']} ${session['name']}`
   }
 
-  getId():string{
+  getId(): string {
     let session = JSON.parse(localStorage.getItem('session'));
     return session['id']
   }

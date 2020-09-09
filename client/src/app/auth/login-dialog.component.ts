@@ -50,9 +50,6 @@ export class LoginDialogComponent {
 
       this.authService.getSelf().subscribe((data) => {
 
-        console.log(data);
-
-
         if (data.email)
           sess["email"] = data.email;
         if (data.alias)
@@ -64,6 +61,7 @@ export class LoginDialogComponent {
         if (data.id)
           sess["id"] = data.id;
 
+        this.authService.subjectNameAndSurname.next(`${sess['firstName']} ${sess['name']}`)
 
         localStorage.setItem("session", JSON.stringify(sess));
 
