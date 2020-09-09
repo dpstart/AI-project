@@ -13,9 +13,11 @@ import java.util.List;
 public interface HomeworkService {
 
     @PreAuthorize("hasRole('STUDENT')")
-    HomeworkDTO uploadHomework(Integer assignmentId, MultipartFile file);
+    HomeworkDTO uploadHomeworkReview(Integer assignmentId, MultipartFile file);
     @PreAuthorize("hasRole('PROFESSOR')")
-    HomeworkDTO reviewHomework(HomeworkDTO dto);
+    HomeworkDTO markHomework(HomeworkDTO dto);
+    @PreAuthorize("hasRole('PROFESSOR')")
+    HomeworkDTO uploadHomeworkReview(Integer assignmentId, Long homeworkId, MultipartFile file);
     HomeworkDTO getHomework(Long id);
     Integer getAssignmentId(Long homeworkId);
     ImageDTO getImage(Long homeworkId);

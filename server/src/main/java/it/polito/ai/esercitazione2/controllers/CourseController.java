@@ -25,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.io.*;
 
 import java.sql.Timestamp;
@@ -809,17 +808,26 @@ public class CourseController {
      * @param name course name
      * @param id1  id assignment
      * @param id2  id homework
-     * @param dto  Homework added by the teacher as a review  or for assigning a final mark
+     * @param homework  Homework modified by the teacher for a review or for assigning a final mark
      * @return Added Homework
      */
     @PostMapping("/{name}/assignments/{id1}/homeworks/{id2}")
-    HomeworkDTO reviewHomework(@PathVariable String name, @PathVariable Integer id1, @PathVariable Integer id2,
-                               @Valid @RequestBody HomeworkDTO dto) {
+    HomeworkDTO reviewHomework(@PathVariable String name, @PathVariable Integer id1, @PathVariable Long id2,
+                               @Valid @RequestPart(required = false) HomeworkDTO homework,
+                               @Valid @RequestPart(required = false) MultipartFile homeworkVersion) {
         try {
-            Integer assignmentId = homeworkService.getAssignmentId(dto.getId());
-            String professorId = assignmentService.getAssignmentProfessor(assignmentId);
-            String studentId = homeworkService.getHomeworkStudentId(dto.getId());
-            return ModelHelper.enrich(homeworkService.reviewHomework(dto), name, id1, professorId, studentId);
+            if((homework == null) == (homeworkVersion==null)) //Fancy XNOR usage
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't use none/both homework version and homework DTO, upload correction XOR assign a mark");
+            HomeworkDTO h;
+            if(homeworkVersion != null) {
+                h = homeworkService.uploadHomeworkReview(id1, id2, homeworkVersion);
+            }
+            else{
+                h = homeworkService.markHomework(homework);
+            }
+            String professorId = assignmentService.getAssignmentProfessor(id1);
+            String studentId = homeworkService.getHomeworkStudentId(h.getId());
+            return ModelHelper.enrich(h, name, id1, professorId, studentId);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -829,7 +837,7 @@ public class CourseController {
     HomeworkVersionDTO uploadHomework(@PathVariable String name, @PathVariable Integer id,
                                       @RequestPart(value = "image", required = true) MultipartFile file) {
         try {
-            HomeworkDTO h = homeworkService.uploadHomework(id, file);
+            HomeworkDTO h = homeworkService.uploadHomeworkReview(id, file);
             return getHomeworkLatestVersion(name, id, h.getId());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());

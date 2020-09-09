@@ -55,7 +55,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     ModelMapper modelMapper;
 
     @Override
-    public HomeworkDTO uploadHomework(Integer assignmentId, MultipartFile file) {
+    public HomeworkDTO uploadHomeworkReview(Integer assignmentId, MultipartFile file) {
         if (!assignmentRepository.existsById(assignmentId))
             throw new AssignmentNotFoundException("Assignment " + assignmentId + " not found");
         Assignment a = assignmentRepository.getById(assignmentId);
@@ -70,6 +70,9 @@ public class HomeworkServiceImpl implements HomeworkService {
         }
 
         Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, assignmentId);
+        if (h == null)
+            throw new HomeworkNotFoundException("Homework not found for student " + principal + " and assignment "
+                    + a.getId() + " in course " + a.getCourse() + ", please contact system administrator");
         if (h.getIsFinal())
             throw new IllegalHomeworkStateChangeException("Homework is flagged as final, you can't upload a newer version");
         if (h.getState() == Homework.states.delivered)
@@ -89,7 +92,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     @Override
-    public HomeworkDTO reviewHomework(HomeworkDTO dto) {
+    public HomeworkDTO markHomework(HomeworkDTO dto) {
         if (!homeworkRepository.existsById(dto.getId()))
             throw new HomeworkNotFoundException("Homework " + dto.getId() + " not found");
         Homework h = homeworkRepository.getOne(dto.getId());
@@ -107,6 +110,43 @@ public class HomeworkServiceImpl implements HomeworkService {
         h.setIsFinal(dto.getIsFinal());
         if (dto.getMark() != 0f)
             h.setMark(dto.getMark());
+        return modelMapper.map(h, HomeworkDTO.class);
+    }
+
+    @Override
+    public HomeworkDTO uploadHomeworkReview(Integer assignmentId, Long homeworkId, MultipartFile file) {
+        if (!assignmentRepository.existsById(assignmentId))
+            throw new AssignmentNotFoundException("Assignment " + assignmentId + " not found");
+        Assignment a = assignmentRepository.getById(assignmentId);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+
+        if (!professorRepository.existsById(principal)) {
+            throw new ProfessorNotFoundException("Professor " + principal + " not found");
+        }
+        if (!professorRepository.getOne(principal).getCourses().contains(a.getCourse())) {
+            throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + a.getCourse().getName());
+        }
+
+        Homework h = homeworkRepository.getById(homeworkId);
+        if (h == null)
+            throw new HomeworkNotFoundException("Homework not found for id " + homeworkId);
+        if (h.getIsFinal())
+            throw new IllegalHomeworkStateChangeException("Homework is flagged as final, you can't upload a revision");
+        if (h.getState() != Homework.states.delivered)
+            throw new IllegalHomeworkStateChangeException("You can't review an homework that isn't delivered");
+
+        Image img = null;
+        try {
+            img = imageService.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
+        } catch (IOException e) {
+            throw new ImageException("Review content didn't load on database correctly");
+        }
+        if (img == null)
+            throw new ImageException("Review content didn't load on database correctly");
+        h.getVersionIds().add(img.getId());
+        h.getVersionDates().add(new Timestamp(System.currentTimeMillis()));
+        h.setState(Homework.states.reviewed);
         return modelMapper.map(h, HomeworkDTO.class);
     }
 
