@@ -36,6 +36,10 @@ docker run --name teams -p 3306:3306 -v <Dtabase volume on the local filesystem>
 | SecondTeam    | PDS    | 10 | 2000(C), 2001              | 10   |  256       | 8   |     5      |     10        | 
 
 
+| VM Id  |  #cpu | disk space | ram | team  |
+|-------:|------:|-----------:|----:|------:|
+| 28     |  2    |   20       |  2  | 9     |
+| 32     |  2    |   20       |  2  |  9    |
 
 ## Endpoints
 
@@ -264,6 +268,18 @@ A professor owning the course can define the VMM model for that course and the V
                                 }
                     
 
+### VM instances
 
+#### Creation
+
+A student can create a VM instances for a team for which it is a member, only if the requested resources are available among the reserved ones.
+
+     creation:                      API/courses/{course}/teams/{teamId}/createVM  (POST)
+                                    "settings"={
+                                         "n_cpu":"2",
+                                         "disk_space":"20",
+                                         "ram":"2",
+                                     }
+                                     "image" = .jpg
 
 

@@ -34,7 +34,7 @@ public interface VMService {
 
 
     @PreAuthorize("hasRole('STUDENT')")
-    VMDTO createVM(Long teamID, MultipartFile file, SettingsDTO settings);
+    VMDTO createVM(String courseName,Long teamID, MultipartFile file, SettingsDTO settings);
     @PreAuthorize("hasRole('STUDENT')")
     void runVM(Long VMID);
     @PreAuthorize("hasRole('STUDENT')")

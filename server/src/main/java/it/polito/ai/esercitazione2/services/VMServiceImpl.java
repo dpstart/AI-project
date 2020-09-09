@@ -102,7 +102,7 @@ public class VMServiceImpl implements VMService {
     }
 
     @Override
-    public VMDTO createVM(Long teamId, MultipartFile file, SettingsDTO settings){
+    public VMDTO createVM(String courseName, Long teamId, MultipartFile file, SettingsDTO settings){
         String creator = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (!teamRepository.existsById(teamId))
@@ -117,6 +117,9 @@ public class VMServiceImpl implements VMService {
 
         if (t.getCourse().getVm_model()==null)
             throw new VMModelNotDefinedException("Impossible to create an instance of VM without a defined model");
+
+        if (!t.getCourse().getName().equals(courseName) && !t.getCourse().getAcronime().equals(courseName) )
+            throw new CourseAuthorizationException("Not a VM of the course "+ courseName);
 
 
         if (t.getVMs().size()==t.getMax_available()||
@@ -146,7 +149,10 @@ public class VMServiceImpl implements VMService {
 
         vmRepository.save(vm);
 
-        return modelMapper.map(vm,VMDTO.class);
+
+        VMDTO dto = modelMapper.map(vm,VMDTO.class);
+
+        return dto;
     }
 
     @Override
