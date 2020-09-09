@@ -197,15 +197,26 @@ A student enrolled in a course can propose a team for that course. The proposed 
         
         reject:
         
-####Team info
+#### Team info
 
+A student enrolled in a course or the professor can see the information on team for that course. Only students in a team can see adhesion information of the other members.
 
-        adhesion info:  API/courses/{course}/teams/{id}/adhesion (GET)
+        adhesion info:  API/courses/{course}/teams/{id}/adhesion      (GET)
+             
+        one team:       API/courses/{name}/teams/{id}/                (GET)
+             
+        teams for      
+        a course:       API/courses/{name}/teams                      (GET)
+             
+        members:        API/courses/{name}/teams/{id}/members         (GET)
         
-        one team:       API/courses/{name}/teams/{id}/           (GET)
-        
-        teams for 
-        a course:       API/courses/{name}/teams                 (GET)
+      
+#### Student availability
+
+Through these methods it's possible to check which students are available or already busy in a team for a course
+
+        busy:           API/courses/{name}/inTeams                    (GET)
+        free:           API/courses/{name}/available                  (GET)
         
        
                     

@@ -725,6 +725,10 @@ public class TeamServiceImpl implements TeamService {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: " + courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        // il principal è un docente o studente del corso? o
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && c.getStudents().stream().noneMatch(x -> x.getId().equals(principal)))
+            throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
         Optional<Team> t = teamRepository.findById(teamID);
         if (t.isEmpty() || !t.get().getCourse().getName().equals(courseName)) {
             throw new TeamNotFoundException("Team " + teamID + " not found");
@@ -931,6 +935,12 @@ public class TeamServiceImpl implements TeamService {
     public List<StudentDTO> getStudentsInTeams(String courseName) {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: " + courseName + " not found!");
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Course c = courseRepository.getOne(courseName);
+
+        // il principal è un docente o studente del corso? o
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && c.getStudents().stream().noneMatch(x -> x.getId().equals(principal)))
+            throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
 
         return courseRepository.getStudentsInTeams(courseName)
                 .stream()
@@ -943,6 +953,12 @@ public class TeamServiceImpl implements TeamService {
     public List<StudentDTO> getAvailableStudents(String courseName) {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: " + courseName + " not found!");
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Course c = courseRepository.getOne(courseName);
+
+        // il principal è un docente o studente del corso? o
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && c.getStudents().stream().noneMatch(x -> x.getId().equals(principal)))
+            throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
 
         return courseRepository.getStudentsNotInTeams(courseName)
                 .stream()

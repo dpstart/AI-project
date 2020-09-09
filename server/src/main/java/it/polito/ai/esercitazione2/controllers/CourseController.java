@@ -455,7 +455,7 @@ public class CourseController {
     }
 
     /**
-     * Authentication required: any user
+     * Authentication required: user enrolled in the course
      * @param name: name of the course (path variable)
      *
      * @return list of TeamDTO
@@ -466,11 +466,13 @@ public class CourseController {
             return teamService.getTeamForCourse(name).stream().map(x -> ModelHelper.enrich(x, name)).collect(Collectors.toList());
         } catch (CourseNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }  catch (CourseAuthorizationException e){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
     }
 
     /**
-     * Authentication required: any user
+     * Authentication required: user enrolled in the course
      * @param name: name of the course (path variable)
      * @param id: team id
      * @return TeamDTO
@@ -479,7 +481,10 @@ public class CourseController {
     TeamDTO getTeam(@PathVariable String name, @PathVariable Long id) {
         try {
             return ModelHelper.enrich(teamService.getOneTeamForCourse(name, id), name);
-        } catch (TeamServiceException e) {
+
+        } catch (CourseAuthorizationException e){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        }catch (TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
@@ -506,15 +511,32 @@ public class CourseController {
 
     }
 
+
+    /**
+     * Authentication required: student in the course or professor of the course
+     * @param name: name of the course (path variable)
+     * @param id: team id (path varaible)
+     *
+     * @return  list of studentDTO enrolled in the team
+     *
+     */
     @GetMapping("/{name}/teams/{id}/members")
     List<StudentDTO> getTeamMembers(@PathVariable String name, @PathVariable Long id) {
         try {
             return teamService.getMembers(name, id).stream().map(ModelHelper::enrich).collect(Collectors.toList());
+        } catch (CourseAuthorizationException e){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         } catch (TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
+    /**
+     * Authentication required: student enrolled in the course or professor of the course
+     * @param name: name of the course (path variable)
+     *
+     * @return list of busy students
+     */
     @GetMapping("/{name}/inTeams")
     List<StudentDTO> getStudentsInTeams(@PathVariable String name) {
         try {
@@ -523,10 +545,18 @@ public class CourseController {
                     .collect(Collectors.toList());
         } catch (CourseNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (CourseAuthorizationException e){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
 
     }
 
+    /**
+     * Authentication required: student enrolled in the course or professor of the course
+     * @param name: name of the course (path variable)
+     *
+     * @return list of available students
+     */
     @GetMapping("/{name}/available")
     List<StudentDTO> getAvailableStudents(@PathVariable String name) {
         try {
@@ -535,18 +565,28 @@ public class CourseController {
                     .collect(Collectors.toList());
         } catch (CourseNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }  catch (AuthorizationServiceException e){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
     }
 
 
+    /************************************************************************************************************************************************************************
+     ********************************************************************************GESTIONE VM MODEL & VM INSTANCES*************************************************************************
+     ************************************************************************************************************************************************************************/
+
+
+
     /**
-     *   Gestione VM Model & VM instances
-     * */
-
-
-
+     * Authentication required: a professor of the course
+     * @param name: name of the course (path variable)
+     * @param input: {
+     *                  "model":"macOS High Sierra"
+     *               }
+     *
+     * @return void
+     */
     @PostMapping("/{name}/model")
-        // ragionare su se è più logico accedere direttamente a qualuenue team perdendo il riferimento al corso oppure /APU/courses/PDS/{teamID}
     void defineVMmodelForACourse(@PathVariable String name, @RequestBody Map<String, String> input) {
         if (!input.containsKey("model") || input.keySet().size() > 1) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Expected one parameter: usage 'model':<modelName>");
@@ -555,7 +595,7 @@ public class CourseController {
         try {
             vmService.defineVMModel(name, input.get("model"));
         } catch (AuthorizationServiceException e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());  //DA CAMBIARE!!!!
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         } catch (IncoherenceException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (TeamServiceException e) {
