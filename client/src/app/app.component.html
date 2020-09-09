@@ -18,7 +18,7 @@
     </ng-template>
 
     <ng-template #toolbarUnloggedBlock>
-      <p class="emailToolbar"> {{nameAndSurname$ | async}}</p>
+      <p class="emailToolbar"> {{nameAndSurname}}</p>
       <button mat-button (click)="logout()">Logout</button>
     </ng-template>
 
@@ -31,7 +31,7 @@
       <span class="example-spacer"></span>
     </ng-template>
     <ng-template #notLoggedBlock>
-      <span>{{selectedCourse | async}}</span>
+      <span>{{selectedCourse}}</span>
       <span class="example-spacer"></span>
     </ng-template>
   </mat-toolbar-row>

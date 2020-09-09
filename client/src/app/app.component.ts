@@ -17,12 +17,12 @@ import { RouteStateService } from './services/route-state.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, AfterViewInit {
+export class AppComponent implements OnInit {
 
   courses: Course[];
-  selectedCourse: Observable<string>;
+  selectedCourse: string;
 
-  nameAndSurname$: Observable<string>;
+  nameAndSurname: string;
 
 
   navTeacherLinks: NavTeacherLinks[];
@@ -63,7 +63,14 @@ export class AppComponent implements OnInit, AfterViewInit {
       }
     });
   }
-  ngAfterViewInit(): void {
+
+
+  ngOnInit() {
+
+    this.authService.observableNameAndSurname.subscribe(data => {
+      this.nameAndSurname = data
+    })
+
 
     let session = localStorage.getItem('session')
     if (session) {
@@ -71,14 +78,10 @@ export class AppComponent implements OnInit, AfterViewInit {
       let sess = JSON.parse(session)
 
       this.authService.subjectNameAndSurname.next(`${sess['firstName']} ${sess['name']}`)
-      this.nameAndSurname$ = this.authService.observableNameAndSurname;
 
     }
-  }
 
-
-  ngOnInit() {
-    this.selectedCourse = this.routeStateService.pathParam
+    this.routeStateService.pathParam.subscribe(data => this.selectedCourse = data)
     this.retrieveCourses()
   }
 
