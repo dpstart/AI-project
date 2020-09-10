@@ -20,15 +20,10 @@ docker run --name teams -p 3306:3306 -v <Dtabase volume on the local filesystem>
 | 2002 | w.forcignano | STUDENT | Walter | Forcignano | walter.forcignano@studenti.polito.it|
 | 2003 | d.paliotta | STUDENT | Daniele | Paliotta | daniele.paliotta@studenti.polito.it|
 
-| Course |     Acronime  | Min | Max | Professors (C = Creator)| Studenti|| VM Model          |                                                                                                                                                                                                      
+| Course |     Acronime  | Min | Max | Professors (C = Creator)| Studenti| VM Model          |                                                                                                                                                                                                      
 |--------|:-------------:|----:|----:|------------------------:|--------:| ------------------:|
 | Applicazioni Internet | AI | 1 | 10 | Servetti (C), Malnati | 2000,2001,2002,2003|macOS High Sierra |
 | Programmazione di Sistema | PDS | 1 | 10 | Servetti (C) | 2000,2001|  Windows 10  |
-
-| VM Model          |
-|------------------:|
-| macOS High Sierra |
-| Windows 10 |
 
 | Team          | Course | ID | Members                    | #cpu | disk space | ram | max active | max_available |
 |--------------:|-------:|---:|---------------------------:|-----:|-----------:|----:|-----------:|--------------:|
