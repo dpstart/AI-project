@@ -1,7 +1,7 @@
 <div>
     <h2>Homework versions</h2>
 
-    <div *ngIf="isAllLoaded == false; else loadedBlock">
+    <div *ngIf="isAllLoaded == false; else loadedBlock" class="flexCenter">
         <mat-spinner diameter="300" strokeWidth="5"></mat-spinner>
     </div>
     <ng-template #loadedBlock>
@@ -12,22 +12,24 @@
             <div *ngIf="historyHomeworkDataSource.data.length == 0; then emptyStudentBlock else withDataStudentBlock">
             </div>
             <ng-template #emptyStudentBlock>
-                <div>
-                    <div>
+                <div class="flexCenter">
+                    <form [formGroup]="addHwVersionForm">
                         <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
-                            (click)="fileInput.click()">
+                            (click)="hwVersionInputFile.click()">
                             <mat-icon>folder</mat-icon>
-                            <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;" />
+                            <input #hwVersionInputFile type="file" (change)="onFileChanged(addHwVersionForm,$event)"
+                                style="display:none;" formControlName="file" />
                         </button>
                         <mat-form-field>
                             <mat-label>Add homework version</mat-label>
-                            <input matInput placeholder="No file selected" formControlName="fileName" readonly="true">
+                            <input type="text" matInput placeholder="No file selected" formControlName="fileName"
+                                readonly="true">
                         </mat-form-field>
 
                         <button id="uploadButton" [disabled]="isDisabled" mat-flat-button color="primary"
                             (click)="onUpload()">Upload</button>
 
-                    </div>
+                    </form>
                     <div>
                         <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
                     </div>
@@ -82,22 +84,26 @@
                                     <div class="example-element-description">
                                         <!-- //TODO permettere di caricare immagine -->
                                         <div class="row">
-                                            <div>
-                                                <button mat-fab color="primary"
-                                                    aria-label="Example icon button with a delete icon"
-                                                    (click)="fileInput.click()">
-                                                    <mat-icon>folder</mat-icon>
-                                                    <input #fileInput type="file" (change)="onFileChanged($event)"
-                                                        style="display:none;" />
-                                                </button>
-                                                <mat-form-field>
-                                                    <mat-label>Add homework version</mat-label>
-                                                    <input matInput placeholder="No file selected"
-                                                        formControlName="fileName" readonly="true">
-                                                </mat-form-field>
+                                            <div class="flexCenter">
+                                                <form [formGroup]="addHwVersionForm">
+                                                    <button mat-fab color="primary"
+                                                        aria-label="Example icon button with a delete icon"
+                                                        (click)="hwVersionInputFile.click()">
+                                                        <mat-icon>folder</mat-icon>
+                                                        <input #hwVersionInputFile type="file"
+                                                            (change)="onFileChanged(addHwVersionForm,$event)"
+                                                            style="display:none;" formControlName="file" />
+                                                    </button>
+                                                    <mat-form-field>
+                                                        <mat-label>Add homework version</mat-label>
+                                                        <input type="text" matInput placeholder="No file selected"
+                                                            formControlName="fileName" readonly="true">
+                                                    </mat-form-field>
 
-                                                <button id="uploadButton" [disabled]="isDisabled" mat-flat-button
-                                                    color="primary" (click)="onUpload()">Upload</button>
+                                                    <button id="uploadButton" [disabled]="isDisabled" mat-flat-button
+                                                        color="primary" (click)="onUpload()">Upload</button>
+
+                                                </form>
 
                                             </div>
                                         </div>
@@ -131,9 +137,8 @@
             </div>
             <ng-template #emptyProfessorBlock>
                 <div>
-                    <div class="centeredContent">
+                    <div class="flexCenter">
                         <p>No homework version uploaded by this student yet.</p>
-
                     </div>
                 </div>
                 <div>
@@ -185,17 +190,17 @@
                                     [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
                                     <div class="example-element-description">
                                         <!-- //TODO permettere di caricare immagine -->
-                                        <div class="row">
-                                            <div>
-
+                                            <div class="flexCenter">
                                                 <form [formGroup]="addReviewForm" class="example-form">
                                                     <button mat-fab color="primary"
                                                         aria-label="Example icon button with a delete icon"
-                                                        (click)="fileInput.click()">
+                                                        (click)="reviewVersionInputFile.click()">
                                                         <mat-icon>folder</mat-icon>
-                                                        <input #fileInput type="file" (change)="onFileChanged($event)"
+                                                        <input #reviewVersionInputFile type="file"
+                                                            (change)="onFileChanged(addReviewForm,$event)"
                                                             style="display:none;" />
                                                     </button>
+
                                                     <mat-form-field>
                                                         <mat-label>Add review</mat-label>
                                                         <input type="text" matInput placeholder="No file selected"
@@ -205,16 +210,14 @@
                                                     <button id="uploadButton" [disabled]="isDisabled" mat-flat-button
                                                         color="primary" (click)="onUpload()">Upload</button>
 
-                                                    <mat-form-field class="example-full-width">
+                                                    <mat-form-field style="margin-left: 20px;">
                                                         <mat-label>Mark</mat-label>
                                                         <input type="number" matInput formControlName="markFormControl">
                                                     </mat-form-field>
+
                                                 </form>
                                             </div>
-
-
-                                        </div>
-                                        <div class="row">
+                                        <div class="flexCenter">
                                             <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
                                                 {{ message }}
                                             </ngb-alert>

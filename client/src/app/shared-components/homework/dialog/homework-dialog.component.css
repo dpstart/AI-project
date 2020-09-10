@@ -59,3 +59,16 @@ tr.example-element-row:not(.example-expanded-row):active {
       align-content: center;
   }
 
+
+h2 {
+    text-align: center;
+}
+
+.flexCenter {
+    display: flex;
+    justify-content: center;
+}
+
+form{
+    width: auto;
+}

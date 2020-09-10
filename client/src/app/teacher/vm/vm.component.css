@@ -45,3 +45,7 @@ tr.example-element-row:not(.example-expanded-row):active {
 mat-spinner{
     margin: 4%;
 }
+.flexCenter {
+    display: flex;
+    justify-content: center;
+}

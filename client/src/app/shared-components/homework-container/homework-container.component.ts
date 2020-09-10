@@ -74,20 +74,13 @@ export class HomeworkContainerComponent implements OnInit {
               //get homeworks that corresponds to assignment
               this.teacherService.getHomeworksByAssignment(this.selectedCourse, assignments[i].id).subscribe((homeworks: Homework[]) => {
 
-
-                console.log(homeworks);
-
                 let counterHw = 0
 
+                homeworks.forEach(homework => {
                 /*  unread,
                     read,
                     delivered,
                     reviewed */
-
-
-                homeworks.forEach(homework => {
-
-
                   let state = ""
                   switch (homework.state) {
                     case "read":
@@ -107,9 +100,6 @@ export class HomeworkContainerComponent implements OnInit {
                   }
 
                   //Retrieve info about the corresponding student
-
-
-
 
                   let href = homework.links.find(link => link.rel === "student").href
 
@@ -146,9 +136,6 @@ export class HomeworkContainerComponent implements OnInit {
                     })
                   }
                 })
-
-
-
               })
             }
           } else {

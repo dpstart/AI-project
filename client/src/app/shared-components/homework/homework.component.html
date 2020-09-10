@@ -12,7 +12,7 @@
             </ngb-alert>
 
             <div *ngIf="this.authService.isRoleTeacher()">
-                <form [formGroup]="addAssignmentForm" (ngSubmit)="submit()">
+                <form [formGroup]="addAssignmentForm">
 
                     <mat-form-field appearance="fill">
                         <mat-label>Enter expiration date</mat-label>
@@ -20,7 +20,6 @@
                         <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                         <mat-datepicker #picker></mat-datepicker>
                     </mat-form-field>
-
 
                     <div>
                         <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
@@ -35,8 +34,7 @@
                         </mat-form-field>
 
                         <button (click)="submit()" id="uploadButton" [disabled]="!addAssignmentForm.valid"
-                            mat-flat-button color="primary">Upload</button>
-
+                            mat-flat-button color="primary" style="margin-left: 20px;">Upload</button>
                     </div>
                 </form>
             </div>

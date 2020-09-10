@@ -55,3 +55,9 @@ table {
   mat-selection-list{
       width: 50%;
   }
+
+ 
+.flexCenter {
+  display: flex;
+  justify-content: center;
+}

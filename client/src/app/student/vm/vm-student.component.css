@@ -4,3 +4,8 @@ mat-spinner{
 #deleteIcon{
     cursor: pointer;
 }
+
+.flexCenter {
+    display: flex;
+    justify-content: center;
+}

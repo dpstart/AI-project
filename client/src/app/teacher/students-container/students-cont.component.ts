@@ -13,6 +13,9 @@ import { RouteStateService } from '../../services/route-state.service';
   styles: [
     `mat-spinner{
     margin: 4%;
+}`, `.flexCenter {
+    display: flex;
+    justify-content: center;
 }`]
 })
 export class StudentsContComponent implements OnInit {
@@ -36,7 +39,7 @@ export class StudentsContComponent implements OnInit {
     private studentService: StudentService,
     private activatedRoute: ActivatedRoute,
     private routeStateService: RouteStateService) {
-    
+
   }
 
 

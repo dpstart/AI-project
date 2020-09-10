@@ -47,19 +47,22 @@ export class HomeworkDialogComponent implements OnInit {
   idSelectedHomework: number
 
   addReviewForm: FormGroup = new FormGroup({
+    file: new FormControl('', Validators.required),
     fileName: new FormControl('', Validators.required),
-    markFormControl: new FormControl('', [Validators.pattern('\d{0,1}')])
+    markFormControl: new FormControl('', [Validators.pattern('\d{0,1}'), Validators.min(0), Validators.max(31)])
+  })
+
+  addHwVersionForm: FormGroup = new FormGroup({
+    file: new FormControl('', Validators.required),
+    fileName: new FormControl('', Validators.required),
   })
 
 
   //image to be expanded
   expandedImage: any
-
   expandedElement: HomeworkVersionDisplayed | null;
 
-
   selectedFile: File;
-
   isDisabled: boolean
   message: string;
 
@@ -187,13 +190,17 @@ export class HomeworkDialogComponent implements OnInit {
   }
 
   //Gets called when the user selects an image
-  public onFileChanged(event) {
+  public onFileChanged(form: FormGroup, event) {
     //Select File
     this.selectedFile = event.target.files[0];
-    this.addReviewForm.get("fileName").setValue(this.selectedFile.name)
+    form.get("fileName").setValue(this.selectedFile.name)
 
-    if (this.addReviewForm.get('fileName').value)
+    if (form.get('fileName').value)
       this.isDisabled = false
+
+
+
+
   }
   //Gets called when the user clicks on submit to upload the image
   onUpload() {
