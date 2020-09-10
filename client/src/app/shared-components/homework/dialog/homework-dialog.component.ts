@@ -229,7 +229,7 @@ export class HomeworkDialogComponent implements OnInit {
           this.loadVersions()
           this.data.homework.isFinal = homework.isFinal
           if (homework.isFinal)
-            this.data.homework.state = "CONSEGNATO"
+            this.data.homework.state = "REGISTRATO"
           else
             this.data.Homework.state = "RIVISTO"
             

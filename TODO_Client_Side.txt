@@ -6,13 +6,16 @@
  -- sistemare filtro chips 
  -- capire come dover settare timestamp per hw (quale API chiamare)
  -- loading non termina in caso di errore ????!!!
- -- aggiungere caricamento assignment lato teacher
  -- impedire caricamento assignment se non è presente almeno uno studente nel corso
 
 -GENERALE
 --Aggiungere timeout per loading e visualizzare errore (Vedere se ne vale la pena)
 --Aggiungere viste e routes per confirm reject token team e per activate account
+--Aggiungere tipo menu popup con dettagli utente loggato on hover 
 
 
 -REGISTER 
 aggiungere foto alla registrazione
+
+
+

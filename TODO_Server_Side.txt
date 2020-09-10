@@ -1,3 +1,6 @@
 TODO SERVER_SIDE:
 -Possibilità di riempimento automatico del db all'accensione del server
  -aggiungere immagine quando torna VM
+ 
+ 
+ - getHomeworksByAssignment va a filtrare gli homework consegnati, non credo vada bene

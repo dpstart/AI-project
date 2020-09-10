@@ -77,10 +77,10 @@ export class HomeworkContainerComponent implements OnInit {
                 let counterHw = 0
 
                 homeworks.forEach(homework => {
-                /*  unread,
-                    read,
-                    delivered,
-                    reviewed */
+                  /*  unread,
+                      read,
+                      delivered,
+                      reviewed */
                   let state = ""
                   switch (homework.state) {
                     case "read":
@@ -92,12 +92,14 @@ export class HomeworkContainerComponent implements OnInit {
                     case "reviewed":
                       state = "RIVISTO"
                       break;
-
                     default:
                       state = "NON LETTO"
                       break;
-
                   }
+
+
+                  if (homework.isFinal)
+                    state = "REGISTRATO"
 
                   //Retrieve info about the corresponding student
 
@@ -118,7 +120,7 @@ export class HomeworkContainerComponent implements OnInit {
                         studentId: student.id,
                         state: state,
                         isFinal: homework.isFinal,
-                        mark: homework.mark===0? "--": homework.mark.toString(),
+                        mark: homework.mark === 0 ? "--" : homework.mark.toString(),
                         timestamp: new Date().toLocaleDateString(undefined, options) // TODO: il formato è giusto la data no.
                       })
 
