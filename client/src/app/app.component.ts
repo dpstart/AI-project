@@ -90,6 +90,8 @@ export class AppComponent implements OnInit {
 
     if (this.authService.isLoggedIn()) {
 
+      this.sidenav.open()
+
       if (this.authService.isRoleTeacher())
         this.teacherService.getCourses().subscribe((data: Course[]) => {
           this.courses = data;
@@ -127,8 +129,9 @@ export class AppComponent implements OnInit {
     this.routeStateService.pathParam.subscribe(courseSelected => {
       if (courseSelected !== "Home")
         this.router.navigate(['student', 'course', courseSelected, link]);
-      else
+      else{
         this.sidenav.open()
+      }
     })
   }
 

@@ -1,19 +1,19 @@
 -VM 
---vm details con popup dell'immagine
--- creazione VM da 500 sul server in CourseController.java:676 "java.sql.SQLException: Field 'name' doesn't have a default value"
+--vm details con popup dell'immagine ---DANIELEEE
+-- creazione VM da 500 sul server in CourseController.java:676 "java.sql.SQLException: Field 'name' doesn't have a default value" --DANIELEEE
 
--CONSEGNE ED ELABORATI:
---Impedire caricamento assignment se non è presente almeno uno studente nel corso xxxx
- 
- 
--GENERALE
+GENERALE
+--Aggiungere viste e routes per confirm reject token team e per activate account ----------------DANIELEEE
 --Aggiungere timeout per loading e visualizzare errore (Vedere se ne vale la pena)
---Aggiungere viste e routes per confirm reject token team e per activate account
 --Aggiungere tipo menu popup con dettagli utente loggato on hover 
 
 
 -REGISTER 
 aggiungere foto alla registrazione
+
+
+
+-Student component ngModel del caricamento file, sostituire con formControl
 
 
 

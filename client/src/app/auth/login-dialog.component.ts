@@ -67,6 +67,13 @@ export class LoginDialogComponent {
 
       })
 
+
+      this.authService.getImage().subscribe(success => {
+        sess["picByte"] = success.picByte;
+        sess["type"] = success.type;
+        localStorage.setItem("session", JSON.stringify(sess));
+      })
+
       this.close()
 
     }, error => {

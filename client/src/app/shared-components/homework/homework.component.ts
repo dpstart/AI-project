@@ -338,7 +338,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
 
   //Gets called when the user selects an image
-  public onFileChanged(event) {
+   onFileChanged(event) {
     //Select File
 
     this.selectedFile = event.target.files[0]

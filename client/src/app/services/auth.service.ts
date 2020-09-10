@@ -6,6 +6,7 @@ import { RouteStateService } from './route-state.service';
 import { throwError } from 'rxjs/internal/observable/throwError';
 import { catchError, retry } from 'rxjs/operators';
 import { Observable, Subject } from 'rxjs';
+import { Image } from '../model/image.model';
 
 export enum ROLE {
   TEACHER,
@@ -79,7 +80,7 @@ export class AuthService {
     );
   }
 
-  register(user: RegisteredUser): Observable<RegisteredUser> {
+  register(user: RegisteredUser, file: File): Observable<RegisteredUser> {
 
     const formData = new FormData();
 
@@ -93,9 +94,14 @@ export class AuthService {
       console.log(user);
 
       let url = `${this.URL}/students`;
+
       formData.append('student', new Blob([JSON.stringify(user)], {
         type: "application/json"
       }))
+
+      formData.append('image', file, file.name);
+
+
       return this.http.post<RegisteredUser>(url, formData, { "headers": headers }).pipe(
         retry(3),
         catchError(this.handleError)
@@ -135,6 +141,26 @@ export class AuthService {
     }
 
     return this.http.get<any>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    )
+  }
+
+
+
+  getImage(): Observable<Image> {
+
+    let url = "";
+    //TODO admin??
+    if (this.isRoleTeacher()) {
+
+      url = `${this.URL}/professors/image`;
+
+    } else {
+      url = `${this.URL}/students/image`;
+    }
+
+    return this.http.get<Image>(url).pipe(
       retry(3),
       catchError(this.handleError)
     )

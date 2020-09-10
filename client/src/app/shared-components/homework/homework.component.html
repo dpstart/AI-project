@@ -31,18 +31,14 @@
                                 </ngx-material-timepicker-toggle>
                                 <ngx-material-timepicker #toggleTimepicker></ngx-material-timepicker>
                             </div>
-
                         </mat-form-field>
-
-
                     </div>
 
                     <div>
                         <button class="folderButton" mat-fab color="primary" aria-label="Example icon button with a delete icon"
                             (click)="fileInput.click()">
                             <mat-icon>folder</mat-icon>
-                            <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;"
-                                formControlName="file" />
+                            <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;"/>
                         </button>
                         <mat-form-field>
                             <mat-label>Add assignment</mat-label>

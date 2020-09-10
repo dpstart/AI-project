@@ -1,54 +1,55 @@
 <mat-card>
     <mat-card-title>Register</mat-card-title>
     <mat-card-content>
-        <form [formGroup]="form" (ngSubmit)="submit()">
-
-
+        <form [formGroup]="form">
             <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
-            
-            <p>
-                <mat-form-field>
-                    <mat-label>Enter your firstname</mat-label>
-                    <input type="text" matInput formControlName="firstName">
-                </mat-form-field>
-            </p>
 
-            <p>
-                <mat-form-field>
-                    <mat-label>Enter your last name</mat-label>
-                    <input type="text" matInput formControlName="name">
-                </mat-form-field>
-            </p>
+            <mat-form-field>
+                <mat-label>Enter your firstname</mat-label>
+                <input type="text" matInput formControlName="firstName">
+            </mat-form-field>
 
-            <p>
-                <mat-form-field>
-                    <mat-label>Enter your Id</mat-label>
-                    <input type="text" matInput formControlName="id">
-                </mat-form-field>
-            </p>
+            <mat-form-field>
+                <mat-label>Enter your last name</mat-label>
+                <input type="text" matInput formControlName="name">
+            </mat-form-field>
 
-            <p>
-                <mat-form-field>
-                    <mat-label>Enter your email</mat-label>
-                    <input type="text" matInput formControlName="email">
-                </mat-form-field>
-            </p>
+            <div class="flexCenter">
 
-            <p>
-                <mat-form-field appearance="fill">
-                    <mat-label>Enter your password</mat-label>
-                    <input matInput [type]="hide ? 'password' : 'text'" formControlName="password">
-                    <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+                <mat-form-field>
+                    <mat-label>Enter your profile picture</mat-label>
+                    <input matInput placeholder="No file selected" readonly="true" formControlName="fileName">
+                </mat-form-field>
+                <button type="button" class="folderButton" mat-mini-fab color="primary"
+                    aria-label="Example icon button with a delete icon" (click)="fileInput.click()">
+                    <mat-icon>folder</mat-icon>
+                    <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;" />
+                </button>
+
+            </div>
+            <mat-form-field>
+                <mat-label>Enter your Id</mat-label>
+                <input type="text" matInput formControlName="id">
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>Enter your email</mat-label>
+                <input type="text" matInput formControlName="email">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+                <mat-label>Enter your password</mat-label>
+                <input matInput [type]="hide ? 'password' : 'text'" formControlName="password">
+                <button type="button" mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+                    [attr.aria-pressed]="hide">
                     <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-                    </button>
-                  </mat-form-field>
-            </p>
+                </button>
+            </mat-form-field>
 
             <div>
-                <button mat-raised-button color="primary">Register</button>
+                <button (click)="submit()" mat-raised-button color="primary">Register</button>
                 <button (click)="close()" class="cancel" mat-raised-button>Cancel</button>
             </div>
-
 
         </form>
     </mat-card-content>

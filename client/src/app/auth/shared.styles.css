@@ -6,7 +6,6 @@
 
   .mat-form-field {
     width: 100%;
-    min-width: 300px;
   }
 
   mat-card-title,
@@ -24,4 +23,13 @@
 
   .cancel{
     margin-left:10px;
+  }
+
+  .flexCenter{
+    display: flex;
+    justify-content: center;
+  }
+
+  .folderButton {
+    margin-left: 10px;
   }
