@@ -55,7 +55,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     ModelMapper modelMapper;
 
     @Override
-    public HomeworkDTO uploadHomeworkReview(Integer assignmentId, MultipartFile file) {
+    public HomeworkDTO uploadHomework(Integer assignmentId, MultipartFile file) {
         if (!assignmentRepository.existsById(assignmentId))
             throw new AssignmentNotFoundException("Assignment " + assignmentId + " not found");
         Assignment a = assignmentRepository.getById(assignmentId);

@@ -13,7 +13,7 @@ import java.util.List;
 public interface HomeworkService {
 
     @PreAuthorize("hasRole('STUDENT')")
-    HomeworkDTO uploadHomeworkReview(Integer assignmentId, MultipartFile file);
+    HomeworkDTO uploadHomework(Integer assignmentId, MultipartFile file);
     @PreAuthorize("hasRole('PROFESSOR')")
     HomeworkDTO markHomework(HomeworkDTO dto);
     @PreAuthorize("hasRole('PROFESSOR')")
