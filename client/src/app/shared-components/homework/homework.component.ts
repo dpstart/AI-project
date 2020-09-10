@@ -198,8 +198,6 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
       this.allHomeworks.push([])
       let newSource = []
 
-      console.log(this.displayedHomeworks);
-
       this.displayedHomeworks.forEach(x => {
 
         if (x.assignmentId == this.displayedAssignments[i].id) {
@@ -209,7 +207,6 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
       this.homeworksDataSource[i].data = [...newSource]
       this.allHomeworks[i] = this.homeworksDataSource[i].data
       this.filterRowsAccordingToOptions(this.displayedAssignments[i].id)
-
     }
     this.consegneDataSource.data = this.displayedAssignments;
 

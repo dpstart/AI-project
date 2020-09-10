@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Student } from '../../model/student.model';
-import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 import { StudentService } from '../../services/student.service';
 import { ActivatedRoute } from '@angular/router';
 import { RouteStateService } from '../../services/route-state.service';
@@ -10,13 +8,7 @@ import { RouteStateService } from '../../services/route-state.service';
 @Component({
   selector: 'app-students-cont',
   templateUrl: './students-cont.component.html',
-  styles: [
-    `mat-spinner{
-    margin: 4%;
-}`, `.flexCenter {
-    display: flex;
-    justify-content: center;
-}`]
+  styleUrls: ['./students-cont.component.css']
 })
 export class StudentsContComponent implements OnInit {
 

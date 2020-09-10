@@ -47,6 +47,20 @@ tr.example-element-row:not(.example-expanded-row):active {
     flex-direction: row;
 }
 
-::ng-deep .mat-form-field-infix{
+::ng-deep .mat-form-field-infix {
     width: auto!important;
+}
+
+.flexCenter {
+    display: flex;
+}
+
+.timePicker {
+    display: flex;
+    flex-direction: row;
+    align-self: center;
+    height: 34px;
+}
+.folderButton {
+	margin: 10px;
 }

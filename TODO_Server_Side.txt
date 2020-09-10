@@ -3,4 +3,3 @@ TODO SERVER_SIDE:
  -aggiungere immagine quando torna VM
  
  
- - getHomeworksByAssignment va a filtrare gli homework consegnati, non credo vada bene

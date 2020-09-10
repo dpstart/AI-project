@@ -80,3 +80,7 @@ h2 {
 form {
     width: auto;
 }
+
+.folderButton {
+	margin: 10px;
+}

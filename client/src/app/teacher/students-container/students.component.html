@@ -18,18 +18,6 @@
 <div class="tabContainer">
 
     <h2 class="mat-h2 tabtitle">Elenco studenti iscritti al corso.</h2>
-    <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
-        {{ message }}
-        <div *ngIf="alertType=='secondary'">
-            <button *ngIf="masterToggleInPageOption else m" (click)="toggleSelectionOptionAndSelect()" mat-flat-button
-                color="primary">Seleziona tutti </button>
-            <ng-template #m>
-                <button (click)="toggleSelectionOptionAndSelect()" mat-flat-button color="primary">Annulla selezione
-                </button>
-            </ng-template>
-        </div>
-    </ngb-alert>
-
 
     <form class="addStudentForm">
         <mat-form-field class="inputStudentField">
@@ -43,12 +31,11 @@
             </mat-autocomplete>
         </mat-form-field>
         <button mat-button (click)="addStudentEvent()">Add</button>
-        <button mat-button color="warn" [disabled]="isDeleteButtonDisabled()"
-            (click)="_deleteStudents()">Delete</button>
     </form>
 
     <div class="fileUploadingArea">
-        <button mat-fab color="primary" aria-label="Example icon button with a delete icon" (click)="fileInput.click()">
+        <button class="folderButton" mat-fab color="primary" aria-label="Example icon button with a folder icon"
+            (click)="fileInput.click()">
             <mat-icon>folder</mat-icon>
             <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;" />
         </button>
@@ -63,6 +50,26 @@
     </div>
 
 
+<div class="flexCenter">
+    <div class="example-button-container">
+        <button class="folderButton" mat-fab color="warn" aria-label="Example icon button with a delete icon"
+            *ngIf="!isDeleteButtonDisabled()" (click)="_deleteStudents()">
+            <mat-icon>delete</mat-icon>
+        </button>
+    </div>
+
+    <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
+        {{ message }}
+        <div *ngIf="alertType=='secondary'">
+            <button *ngIf="masterToggleInPageOption else m" (click)="toggleSelectionOptionAndSelect()" mat-flat-button
+                color="primary">Seleziona tutti </button>
+            <ng-template #m>
+                <button (click)="toggleSelectionOptionAndSelect()" mat-flat-button color="primary">Annulla selezione
+                </button>
+            </ng-template>
+        </div>
+    </ngb-alert>
+</div>
 
 
     <table #table mat-table [dataSource]="enrolledStudentsDataSource" matSort class="mat-elevation-z8">
@@ -95,14 +102,14 @@
         <!-- Checkbox Column -->
         <ng-container matColumnDef="select">
             <th mat-header-cell *matHeaderCellDef>
-                <mat-checkbox (change)="$event ? masterToggle() : null"
+                <mat-checkbox (change)="$event ? masterToggle() : null" color="primary"
                     [checked]="selection.hasValue() && isAllSelectedInPage()"
                     [indeterminate]="selection.hasValue() && !isAllSelectedInPage()">
                 </mat-checkbox>
             </th>
             <td mat-cell *matCellDef="let row">
                 <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
-                    [checked]="selection.isSelected(row)">
+                    color="primary" [checked]="selection.isSelected(row)">
                 </mat-checkbox>
             </td>
         </ng-container>

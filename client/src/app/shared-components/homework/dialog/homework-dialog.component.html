@@ -14,7 +14,7 @@
             <ng-template #emptyStudentBlock>
                 <div class="flexCenter">
                     <form [formGroup]="addHwVersionForm">
-                        <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
+                        <button class="folderButton" mat-fab color="primary" aria-label="Example icon button with a delete icon"
                             (click)="hwVersionInputFile.click()">
                             <mat-icon>folder</mat-icon>
                             <input #hwVersionInputFile type="file" (change)="onFileChanged(addHwVersionForm,$event)"
@@ -83,7 +83,7 @@
                                         <!-- //TODO permettere di caricare immagine -->
                                         <div class="flexCenter">
                                             <form [formGroup]="addHwVersionForm">
-                                                <button mat-fab color="primary"
+                                                <button  class="folderButton" mat-fab color="primary"
                                                     aria-label="Example icon button with a delete icon"
                                                     (click)="hwVersionInputFile.click()">
                                                     <mat-icon>folder</mat-icon>
@@ -186,7 +186,7 @@
                                         <!-- //TODO permettere di caricare immagine -->
                                         <div class="flexCenter">
                                             <form [formGroup]="addReviewForm" class="example-form">
-                                                <button mat-fab color="primary"
+                                                <button class="folderButton" mat-fab color="primary"
                                                     aria-label="Example icon button with a delete icon"
                                                     (click)="reviewVersionInputFile.click()">
                                                     <mat-icon>folder</mat-icon>

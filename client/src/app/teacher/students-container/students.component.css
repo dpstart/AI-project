@@ -1,0 +1,13 @@
+.folderButton {
+    margin: 10px;
+}
+
+#uploadButton {
+    margin-left: 20px;
+}
+
+.flexCenter {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}

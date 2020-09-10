@@ -14,7 +14,7 @@ import { map, startWith } from 'rxjs/operators';
 @Component({
   selector: 'app-students',
   templateUrl: './students.component.html',
-  styles: [``]
+  styleUrls: ['./students.component.css']
 })
 export class StudentsComponent implements OnInit {
 

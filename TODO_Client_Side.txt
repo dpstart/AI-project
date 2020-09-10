@@ -3,8 +3,9 @@
 -- creazione VM da 500 sul server in CourseController.java:676 "java.sql.SQLException: Field 'name' doesn't have a default value"
 
 -CONSEGNE ED ELABORATI:
- -- capire come dover settare timestamp per hw (quale API chiamare)
- -- impedire caricamento assignment se non è presente almeno uno studente nel corso xxxx
+--Impedire caricamento assignment se non è presente almeno uno studente nel corso xxxx
+ 
+ 
 -GENERALE
 --Aggiungere timeout per loading e visualizzare errore (Vedere se ne vale la pena)
 --Aggiungere viste e routes per confirm reject token team e per activate account
