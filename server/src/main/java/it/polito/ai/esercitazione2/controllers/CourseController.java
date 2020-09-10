@@ -607,7 +607,7 @@ public class CourseController {
 
     /**
      * Add a new model of vm for a course
-     * Authentication required: a professor of the course
+     * Authentication required: professor of the course
      * @param name: name of the course (path variable)
      * @param input: {
      *                  "model":"macOS High Sierra"
@@ -635,7 +635,7 @@ public class CourseController {
 
     /**
      * Modify settings for a vm for a team in the course
-     * Authentication required: a professor of the course
+     * Authentication required: professor of the course
      * @param name: name of the course (path variable)
      * @param id: team id (path variable)
      * @param settings: {
@@ -718,7 +718,7 @@ public class CourseController {
 
     /**
      * Get all assignments of the course
-     * Authentication required: a professor of the course or a student enrolled in it
+     * Authentication required: professor of the course or a student enrolled in it
      * @param name: name of the course (path variable)
      *
      * @return list of AssignmentDTO for the course
@@ -738,7 +738,7 @@ public class CourseController {
 
     /**
      * Add a new assignment for the course
-     * Authentication required: a professor of the course
+     * Authentication required: professor of the course
      * @param name: name of the course (path variable)
      *
      * @return added AssignmentDTO
@@ -760,7 +760,7 @@ public class CourseController {
 
     /**
      * Get an assignment of the course
-     * Authentication required: a professor of the course or a student enrolled in it
+     * Authentication required: professor of the course or a student enrolled in it
      * @param name: name of the course (path variable)
      * @param id: assignment id (path variable)
      *
@@ -778,7 +778,7 @@ public class CourseController {
 
     /**
      * Delete an assignment of the course, allowed only if none of the students has read it
-     * Authentication required: a professor of the course
+     * Authentication required: professor of the course
      * @param name: name of the course (path variable)
      * @param id: assignment id (path variable)
      *
@@ -796,7 +796,7 @@ public class CourseController {
 
     /**
      * Get an assignment image
-     * Authentication required: a professor of the course or a student enrolled in it
+     * Authentication required: professor of the course or a student enrolled in it
      * @param name: name of the course (path variable)
      * @param id: assignment id (path variable)
      *
@@ -818,7 +818,7 @@ public class CourseController {
 
     /**
      * Get all homeworks of the course, student gets only his own
-     * Authentication required: a professor of the course or a student enrolled in it
+     * Authentication required: professor of the course or a student enrolled in it
      * @param name: name of the course (path variable)
      *
      * @return requested course's list of homeworkDTO
@@ -842,7 +842,7 @@ public class CourseController {
 
     /**
      * Get all homeworks for the given assignment, student gets only his own (equal to getHomework)
-     * Authentication required: a professor of the course or a student enrolled in it
+     * Authentication required: professor of the course or a student enrolled in it
      * @param name: name of the course (path variable)
      * @param id: assignment id (path variable)
      *
@@ -867,7 +867,7 @@ public class CourseController {
 
     /**
      * Get one homework
-     * Authentication required: a professor of the course or the student owner of the homework
+     * Authentication required: professor of the course or the student owner of the homework
      * @param name: name of the course (path variable)
      * @param id1: assignment id (path variable)
      * @param id2: homework id (path variable)
@@ -888,7 +888,7 @@ public class CourseController {
 
     /**
      * Review and/or assign the final mark, the usage depends on what object is passed, DTO or image
-     * Authentication required: a professor of the course
+     * Authentication required: professor of the course
      * @param name: course name (path variable)
      * @param id1: assignment id (path variable)
      * @param id2: homework id (path variable)
@@ -937,7 +937,7 @@ public class CourseController {
 
     /**
      * Get all versions of a given homework
-     * Authentication required: a professor of the course or student owner of the homework
+     * Authentication required: professor of the course or student owner of the homework
      * @param name: course name (path variable)
      * @param assignmentId: assignment id (path variable)
      * @param hwId: homework id (path variable)
@@ -963,7 +963,7 @@ public class CourseController {
 
     /**
      * Get image of an homework version
-     * Authentication required: a professor of the course or student owner of the homework
+     * Authentication required: professor of the course or student owner of the homework
      * @param name: course name (path variable)
      * @param assignmentId: assignment id (path variable)
      * @param hwId: homework id (path variable)
@@ -988,7 +988,7 @@ public class CourseController {
 
     /**
      * Get one version of a given homework
-     * Authentication required: a professor of the course or student owner of the homework
+     * Authentication required: professor of the course or student owner of the homework
      * @param name: course name (path variable)
      * @param assignmentId: assignment id (path variable)
      * @param hwId: homework id (path variable)
@@ -1013,7 +1013,7 @@ public class CourseController {
 
     /**
      * Get delivery date of an homework version
-     * Authentication required: a professor of the course or student owner of the homework
+     * Authentication required: professor of the course or student owner of the homework
      * @param name: course name (path variable)
      * @param assignmentId: assignment id (path variable)
      * @param hwId: homework id (path variable)
@@ -1034,7 +1034,7 @@ public class CourseController {
 
     /**
      * Get latest version of a given homework
-     * Authentication required: a professor of the course or student owner of the homework
+     * Authentication required: professor of the course or student owner of the homework
      * @param name: course name (path variable)
      * @param assignmentId: assignment id (path variable)
      * @param hwId: homework id (path variable)

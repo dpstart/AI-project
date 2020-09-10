@@ -125,7 +125,8 @@ public interface TeamService {
      *******************************IMAGES********************************
      *
      ***********************************************************************/
-    ImageDTO getProfileImage();
+    ImageDTO getProfessorImage();
+    ImageDTO getStudentImage();
     void activateAccount(String ID);
     void deleteAll(Set<String> students);
 

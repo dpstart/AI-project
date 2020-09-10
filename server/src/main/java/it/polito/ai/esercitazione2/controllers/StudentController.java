@@ -52,12 +52,24 @@ public class StudentController {
      * Gestione generale studenti
      */
 
+    /**
+     * Get list of all students
+     * Authentication required: none
+     *
+     * @return List of all StudentDTOs
+     */
     @GetMapping({"", "/"})
     public List<StudentDTO> all() {
         return teamservice.getAllStudents().stream()
                 .map(ModelHelper::enrich).collect(Collectors.toList());
     }
 
+    /**
+     * Get authenticated student
+     * Authentication required: student
+     *
+     * @return Requested StudentDTO
+     */
     @GetMapping("/self")
     public StudentDTO getSelf() {
         String id = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -65,6 +77,13 @@ public class StudentController {
         return ModelHelper.enrich(c);
     }
 
+    /**
+     * Get one student
+     * Authentication required: none
+     * @param id: student id (path variable)
+     *
+     * @return Requested StudentDTO
+     */
     @GetMapping("/{id}")
     public StudentDTO getOne(@PathVariable String id) {
         StudentDTO c = teamservice.getStudent(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, id));
@@ -72,6 +91,14 @@ public class StudentController {
         return ModelHelper.enrich(c);
     }
 
+    /**
+     * Register a new student
+     * Authentication required: none
+     * @param dto: student data
+     * @param file:  optional, student profile image
+     *
+     * @return registered StudentDTO
+     */
     @PostMapping({"", "/"})
     public StudentDTO addStudent(@Valid @RequestPart("student") StudentDTO dto,
                                  @RequestPart(value = "image", required = false) MultipartFile file) {
@@ -91,6 +118,13 @@ public class StudentController {
         return ModelHelper.enrich(dto);
     }
 
+    /**
+     * Register many students
+     * Authentication required: admin
+     * @param students: students data
+     *
+     * @return List of registered StudentDTOs
+     */
     @PostMapping({"/many"})
     public List<StudentDTO> addStudents(@RequestBody @Valid ValidStudentDTOList students) {
         List<Boolean> res;
@@ -110,9 +144,15 @@ public class StudentController {
         return finalRes;
     }
 
+    /**
+     * Get authenticated student's image
+     * Authentication required: student
+     *
+     * @return Requested ImageDTO
+     */
     @GetMapping("/image")
     public ImageDTO getProfileImage() {
-        return teamservice.getProfileImage();
+        return teamservice.getStudentImage();
     }
 
 
@@ -120,8 +160,11 @@ public class StudentController {
      * Corsi & teams
      */
 
-    /*
-    Ritorna i corsi di uno studente
+    /**
+     * Get authenticated student's courses
+     * Authentication required: student
+     *
+     * @return List of student's CourseDTOs
      */
     @GetMapping("/courses")
     public List<CourseDTO> getCourses() {
@@ -134,9 +177,10 @@ public class StudentController {
     }
 
     /**
-     * Metodo usato per ricercare i team di uno studente.
+     * Get authenticated student's teams for all courses
+     * Authentication required: student
      *
-     * @return i team del determinato studente che effettua la richiesta
+     * @return Requested List of TeamDTOs
      */
     @GetMapping("/teams")
     public List<TeamDTO> getTeams() {
@@ -152,8 +196,13 @@ public class StudentController {
         }
     }
 
-
-
+    /**
+     * Get authenticated student's team for specified course
+     * Authentication required: student
+     * @param name: course name (path variable)
+     *
+     * @return Requested TeamDTO
+     */
     @GetMapping("/courses/{name}/team")
     public TeamDTO getTeamForCourse(@PathVariable String name) {
         try {
@@ -173,6 +222,13 @@ public class StudentController {
         }
     }
 
+    /**
+     * Get authenticated student's team proposals for specified course
+     * Authentication required: student
+     * @param name: course name (path variable)
+     *
+     * @return Requested List of TeamDTOs
+     */
     @GetMapping("/courses/{name}/teamsProposals")
     public List<TeamDTO> getTeamsProposalsForCourse(@PathVariable String name) {
         try {
@@ -199,9 +255,10 @@ public class StudentController {
      */
 
     /**
-     * It provides the list of the assignments related to a student
+     * Get authenticated student's assignments for all of his courses
+     * Authentication required: student
      *
-     * @return list of assignments
+     * @return Requested List of AssignmentDTOs
      */
     @GetMapping("/assignments")
     public List<AssignmentDTO> getAssignments() {
@@ -220,6 +277,14 @@ public class StudentController {
         }
     }
 
+    /**
+     * Get one assignment, equal to courseController.getAssignment
+     * Authentication required: professor of the course or student enrolled in it
+     * @param id: student id (path variable) -- unused
+     * @param aId: assignment id (path variable)
+     *
+     * @return Requested AssignmentDTO
+     */
     @GetMapping("/{id}/assignments/{aId}/")
     public AssignmentDTO getAssignment(@PathVariable String id, @PathVariable Integer aId) {
         try {
@@ -230,15 +295,12 @@ public class StudentController {
         }
     }
 
-    @GetMapping("/{id}/assignments/{aId}/course")
-    public String getAssignmentCourse(@PathVariable("aId") Integer aId) {
-        try {
-            return assignmentService.getAssignmentCourse(aId);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
-    }
-
+    /**
+     * Get student's homeworks for all of his courses
+     * Authentication required: same student or admin
+     *
+     * @return Requested List of HomeworkDTOs
+     */
     @GetMapping("/{id}/homeworks")
     public List<HomeworkDTO> getHomeworks(@PathVariable String id) {
         try {
@@ -257,21 +319,20 @@ public class StudentController {
         }
     }
 
+    /**
+     * Get one homework, equal to courseController.getHomework
+     * Authentication required: professor of the course or student owner of the homework
+     * @param id: student id (path variable) -- unused
+     * @param hId: homework id (path variable)
+     *
+     * @return Requested HomeworkDTO
+     */
     @GetMapping("/{id}/homeworks/{hId}/")
     public HomeworkDTO getHomework(@PathVariable String id, @PathVariable Long hId) {
         try {
             String course = homeworkService.getHomeworkCourse(hId);
             Integer aId = homeworkService.getAssignmentId(hId);
             return courseController.getHomework(course, aId, hId);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
-    }
-
-    @GetMapping("/{id}/homeworks/{hId}/course")
-    public String getHomeworkCourse(@PathVariable("hId") Long hId) {
-        try {
-            return homeworkService.getHomeworkCourse(hId);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }

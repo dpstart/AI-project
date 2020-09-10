@@ -53,7 +53,14 @@ public class ProfessorController {
 
 
 
-
+    /**
+     * Register a new professor
+     * Authentication required: none
+     * @param p: professor data
+     * @param file:  optional, professor profile image
+     *
+     * @return registered ProfessorDTO
+     */
    @PostMapping({"","/"})
    ProfessorDTO addProfessor(@Valid @RequestPart("professor") ProfessorDTO p,  @RequestPart(value="image",required=false) MultipartFile file) {
 
@@ -72,12 +79,25 @@ public class ProfessorController {
         return ModelHelper.enrich(p);
     }
 
+    /**
+     * Get list of all professors
+     * Authentication required: none
+     *
+     * @return List of all ProfessorDTOs
+     */
     @GetMapping({"","/"})
     List<ProfessorDTO> all(){
         return teamservice.getAllProfessors().stream()
                 .map(ModelHelper::enrich).collect(Collectors.toList());
     }
 
+    /**
+     * Get one professor
+     * Authentication required: none
+     * @param professorId: professor id (path variable)
+     *
+     * @return Requested ProfessorDTO
+     */
     @GetMapping("/{professorId}")
     ProfessorDTO getOne(@PathVariable String professorId) {
         ProfessorDTO c = teamservice.getProfessor(professorId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, professorId));
@@ -85,6 +105,12 @@ public class ProfessorController {
     }
 
 
+    /**
+     * Get authenticated professor
+     * Authentication required: professor
+     *
+     * @return Requested ProfessorDTO
+     */
     @GetMapping("/self")
     ProfessorDTO getSelf() {
         String professorId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -92,7 +118,12 @@ public class ProfessorController {
         return ModelHelper.enrich(c);
     }
 
-
+    /**
+     * Get authenticated professor's courses
+     * Authentication required: professor
+     *
+     * @return List of professor's CourseDTOs
+     */
     @GetMapping("/allCourses")
     List<CourseDTO> getAllCourses(){
         try {
@@ -103,22 +134,36 @@ public class ProfessorController {
         }
     }
 
-    @GetMapping("/courses")
-    List<CourseDTO> getCourses(){
-        try {
-            return teamservice.getCoursesByProf(SecurityContextHolder.getContext().getAuthentication().getName()).stream()
-                    .map(ModelHelper::enrich).collect(Collectors.toList());
-        }catch (ProfessorNotFoundException e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
-    }
+//    Does the same thing as the one above
+//    @GetMapping("/courses")
+//    List<CourseDTO> getCourses(){
+//        try {
+//            return teamservice.getCoursesByProf(SecurityContextHolder.getContext().getAuthentication().getName()).stream()
+//                    .map(ModelHelper::enrich).collect(Collectors.toList());
+//        }catch (ProfessorNotFoundException e){
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+//        }
+//    }
 
+    /**
+     * Get authenticated professor's image
+     * Authentication required: professor
+     *
+     * @return Requested ImageDTO
+     */
     @GetMapping("/image")
     ImageDTO getProfileImage(){
 
-        return teamservice.getProfileImage();
+        return teamservice.getProfessorImage();
     }
 
+    /**
+     * Get professor's assignments
+     * Authentication required: professor with courses in common or student enrolled in professor's courses
+     * @param professorId: professor id (path variable)
+     *
+     * @return List of AssignmentDTOs
+     */
     @GetMapping("/{professorId}/assignments")
     List<AssignmentDTO> getAssignments(@PathVariable String professorId){
         try{
@@ -132,6 +177,14 @@ public class ProfessorController {
         }
     }
 
+    /**
+     * Get one assignment, equal to CourseController.getAssignment
+     * Authentication required: professor of the same course or student enrolled in it
+     * @param professorId: professor id (path variable)
+     * @param aId: assignment id (path variable)
+     *
+     * @return Requested AssignmentDTO
+     */
     @GetMapping("/{professorId}/assignments/{aId}/")
     public AssignmentDTO getAssignment(@PathVariable String professorId, @PathVariable Integer aId){
         try{
@@ -143,6 +196,13 @@ public class ProfessorController {
         }
     }
 
+    /**
+     * Get professor's homeworks, students gets only his own
+     * Authentication required: professor with courses in common or student enrolled in professor's courses
+     * @param professorId: professor id (path variable)
+     *
+     * @return List of HomeworkDTOs
+     */
     @GetMapping("/{professorId}/homeworks")
     List<HomeworkDTO> getHomeworks(@PathVariable String professorId){
         try{
@@ -162,6 +222,14 @@ public class ProfessorController {
         }
     }
 
+    /**
+     * Get one homework, equal to CourseController.getHomework
+     * Authentication required: professor of the same course or student owner of the homework
+     * @param professorId: professor id (path variable)
+     * @param hId: homework id (path variable)
+     *
+     * @return Requested HomeworkDTO
+     */
     @GetMapping("/{professorId}/homeworks/{hId}/")
     public HomeworkDTO getHomework(@PathVariable String professorId, @PathVariable Long hId){
         try{
