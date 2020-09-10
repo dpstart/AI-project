@@ -17,7 +17,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
 
-const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' };
 
 export interface HomeworkVersionDisplayed {
   position: number,
@@ -231,8 +231,8 @@ export class HomeworkDialogComponent implements OnInit {
           if (homework.isFinal)
             this.data.homework.state = "REGISTRATO"
           else
-            this.data.Homework.state = "RIVISTO"
-            
+            this.data.homework.state = "RIVISTO"
+
           this.data.homework.mark = homework.mark == 0 ? "--" : homework.mark
 
           this.historyHomeworkColumnsToDisplay.pop()

@@ -8,7 +8,7 @@ import { Homework } from 'src/app/model/homework.model';
 import { Student } from 'src/app/model/student.model';
 
 
-const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' };
 
 @Component({
   selector: 'app-homework-container',
@@ -76,6 +76,8 @@ export class HomeworkContainerComponent implements OnInit {
 
                 let counterHw = 0
 
+
+                
                 homeworks.forEach(homework => {
                   /*  unread,
                       read,
@@ -121,7 +123,7 @@ export class HomeworkContainerComponent implements OnInit {
                         state: state,
                         isFinal: homework.isFinal,
                         mark: homework.mark === 0 ? "--" : homework.mark.toString(),
-                        timestamp: new Date().toLocaleDateString(undefined, options) // TODO: il formato è giusto la data no.
+                        timestamp: new Date(homework.lastModified).toLocaleDateString(undefined, options)
                       })
 
                       if (homeworks.length == counterHw) {

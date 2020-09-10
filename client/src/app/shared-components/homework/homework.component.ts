@@ -52,16 +52,9 @@ export interface DisplayedAssignment {
 })
 export class HomeworkComponent implements OnInit, AfterViewInit {
 
-
   selectedFile: File;
-
-
-  public get authService(): AuthService {
-    return this._authService;
-  }
-
-
   isDisabled: boolean
+
 
   message: string;
   alertType: string
@@ -77,29 +70,44 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
 
   private _selectedCourse: string;
-  public get selectedCourse(): string {
-    return this._selectedCourse;
-  }
+
+  private _displayedAssignments: DisplayedAssignment[];
+
+  private _displayedHomeworks: DisplayedHomework[];
+
+
   @Input() public set selectedCourse(value: string) {
     this._selectedCourse = value;
   }
-  private _displayedAssignments: DisplayedAssignment[];
-  public get displayedAssignments(): DisplayedAssignment[] {
-    return this._displayedAssignments;
-  }
+
   @Input()
   public set displayedAssignments(value: DisplayedAssignment[]) {
     this._displayedAssignments = value;
     this.consegneDataSource.data = [...this.displayedAssignments]
 
   }
-  private _displayedHomeworks: DisplayedHomework[];
+
+  public get selectedCourse(): string {
+    return this._selectedCourse;
+  }
 
   public get displayedHomeworks(): DisplayedHomework[] {
     return this._displayedHomeworks;
   }
+
+  public get displayedAssignments(): DisplayedAssignment[] {
+    return this._displayedAssignments;
+  }
+
+  public get authService(): AuthService {
+    return this._authService;
+  }
+
+
+  //nel momento in cui arrivano gli hw allora bisogna assegnarli ai rispettivi assignment
   @Input()
   public set displayedHomeworks(value: DisplayedHomework[]) {
+
     this._displayedHomeworks = value;
     for (let i = 0; i < this.displayedAssignments.length; i++) {
       this.homeworksDataSource.push(new MatTableDataSource<DisplayedHomework>())
@@ -108,6 +116,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
       this.displayedHomeworks.forEach(x => {
 
+        // se l'assignment dell'hw e quello corrente coincidono aggiungi l'hw a questo assignment
         if (x.assignmentId == this.displayedAssignments[i].id) {
           newSource.push(x)
         }
@@ -150,38 +159,15 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
 
   addAssignmentForm: FormGroup = new FormGroup({
+    expirationTime: new FormControl('00:00', Validators.required),
     expirationDate: new FormControl(new Date(), Validators.required),
     file: new FormControl('', Validators.required),
     fileName: new FormControl('', Validators.required),
 
   });
 
-  submit() {
-    if (this.addAssignmentForm.valid) {
 
-      console.log("send information", this.addAssignmentForm.get('file').value);
-      //FormData API provides methods and properties to allow us easily prepare form data to be sent with POST HTTP requests.
-      const formData = new FormData();
-      formData.append('assignment', new Blob([JSON.stringify({ expirationDate: this.addAssignmentForm.get("expirationDate").value })], {
-        type: "application/json"
-      }))
-
-
-      formData.append('image', this.selectedFile, this.addAssignmentForm.get('fileName').value);
-
-
-      this.teacherService.addAssignment(this.selectedCourse, formData).subscribe(success => {
-        this.addedAssignment.emit(success)
-
-        this.message = "Assignment succefully added."
-        this.alertType = "success"
-
-
-      })
-
-
-    }
-  } constructor(
+  constructor(
     private dialog: MatDialog,
     private _authService: AuthService,
     private teacherService: TeacherService) {
@@ -197,7 +183,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   }
 
   private reinitFilters() {
-    this.options = ['LETTO', 'NON LETTO', 'RIVISTO', 'CONSEGNATO'];
+    this.options = ['LETTO', 'NON LETTO', 'RIVISTO', 'CONSEGNATO','REGISTRATO'];
     this.allOptions = [];
     //chips
     this.filteredOptions = this.optionCtrl.valueChanges.pipe(
@@ -211,6 +197,8 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
       this.homeworksDataSource.push(new MatTableDataSource<DisplayedHomework>())
       this.allHomeworks.push([])
       let newSource = []
+
+      console.log(this.displayedHomeworks);
 
       this.displayedHomeworks.forEach(x => {
 
@@ -230,6 +218,41 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     this.consegneDataSource.paginator = this.paginator;
     this.consegneDataSource.sort = this.sort;
+  }
+
+
+
+  submit() {
+    if (this.addAssignmentForm.valid) {
+
+      console.log("send information", this.addAssignmentForm.get('file').value);
+      //FormData API provides methods and properties to allow us easily prepare form data to be sent with POST HTTP requests.
+      const formData = new FormData();
+
+      let timestamp: Date = this.addAssignmentForm.get("expirationDate").value
+
+      let time: string = this.addAssignmentForm.get("expirationTime").value
+
+
+
+      timestamp.setHours(Number(time.split(":")[0]), Number(time.split(":")[1]), 0, 0)
+
+
+      formData.append('assignment', new Blob([JSON.stringify({ expirationDate: timestamp })], {
+        type: "application/json"
+      }))
+
+
+      formData.append('image', this.selectedFile, this.addAssignmentForm.get('fileName').value);
+
+
+      this.teacherService.addAssignment(this.selectedCourse, formData).subscribe(success => {
+        this.addedAssignment.emit(success)
+
+        this.message = "Assignment succefully added."
+        this.alertType = "success"
+      })
+    }
   }
 
 

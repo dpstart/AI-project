@@ -2,6 +2,12 @@ import { Link } from './link.model';
 
 
 export class Homework {
+    public get lastModified(): string {
+        return this._lastModified;
+    }
+    public set lastModified(value: string) {
+        this._lastModified = value;
+    }
     public get state(): string {
         return this._state;
     }
@@ -26,7 +32,7 @@ export class Homework {
     public set isFinal(value: boolean) {
         this._isFinal = value;
     }
- 
+
     public get id(): number {
         return this._id;
     }
@@ -42,10 +48,10 @@ export class Homework {
     // @NotBlank
     // Float mark;
 
-    constructor(private _id: number, private _state: string, private _isFinal: boolean, private _mark: number,private _links: Link[] = [],) { }
+    constructor(private _id: number, private _state: string, private _isFinal: boolean, private _lastModified: string, private _mark: number, private _links: Link[] = [],) { }
 
 
-    
+
 
 }
 

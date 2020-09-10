@@ -74,12 +74,13 @@ export class TeacherService {
     }
     getCourses<Course>(): Observable<Course[]> {
 
-        const url = `${this.URL}/professors/courses`;
+        const url = `${this.URL}/professors/allCourses`;
         return this.http.get<Course[]>(url).pipe(
             retry(3),
             catchError(this.handleError)
         );
     }
+    
 
     getCourse<Course>(name: string): Observable<Course> {
 

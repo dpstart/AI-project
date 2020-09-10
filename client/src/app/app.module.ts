@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -10,7 +11,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatListModule } from '@angular/material/list';
 import { MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatInputModule} from '@angular/material/input';
+import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -44,7 +45,7 @@ import { HomeworkContainerComponent } from './shared-components/homework-contain
 import { CreateDialogComponent } from 'src/app/student/vm/create/create-dialog.component';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
-
+import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 @NgModule({
   declarations: [
     AppComponent,
@@ -92,6 +93,7 @@ import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
     NgbModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    NgxMaterialTimepickerModule.setLocale("it"),
   ],
   entryComponents: [LoginDialogComponent],
   providers: [

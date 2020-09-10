@@ -12,32 +12,28 @@
             <div *ngIf="historyHomeworkDataSource.data.length == 0; then emptyStudentBlock else withDataStudentBlock">
             </div>
             <ng-template #emptyStudentBlock>
-                <div class="flexColumn">
-                    <div class="flexCenter">
-                        <form [formGroup]="addHwVersionForm">
-                            <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
-                                (click)="hwVersionInputFile.click()">
-                                <mat-icon>folder</mat-icon>
-                                <input #hwVersionInputFile type="file" (change)="onFileChanged(addHwVersionForm,$event)"
-                                    style="display:none;" />
-                            </button>
-                            <mat-form-field>
-                                <mat-label>Add homework version</mat-label>
-                                <input type="text" matInput placeholder="No file selected" formControlName="fileName"
-                                    readonly="true">
-                            </mat-form-field>
+                <div class="flexCenter">
+                    <form [formGroup]="addHwVersionForm">
+                        <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
+                            (click)="hwVersionInputFile.click()">
+                            <mat-icon>folder</mat-icon>
+                            <input #hwVersionInputFile type="file" (change)="onFileChanged(addHwVersionForm,$event)"
+                                style="display:none;" />
+                        </button>
+                        <mat-form-field>
+                            <mat-label>Add homework version</mat-label>
+                            <input type="text" matInput placeholder="No file selected" formControlName="fileName"
+                                readonly="true">
+                        </mat-form-field>
 
-                            <button id="uploadButton" [disabled]="addHwVersionForm.invalid" mat-flat-button
-                                color="primary" (click)="onUpload()">Upload</button>
+                        <button id="uploadButton" [disabled]="addHwVersionForm.invalid" mat-flat-button color="primary"
+                            (click)="onUpload()">Upload</button>
 
-                        </form>
-                        <div class="flexCenter">
-                            <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}
-                            </ngb-alert>
-                        </div>
-
-                    </div>
+                    </form>
                 </div>
+                <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}
+                </ngb-alert>
+
             </ng-template>
             <ng-template #withDataStudentBlock>
                 <div class="entire-table">
@@ -141,9 +137,6 @@
                     <div class="flexCenter">
                         <p>No homework version uploaded by this student yet.</p>
                     </div>
-                </div>
-                <div>
-                    <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
                 </div>
             </ng-template>
             <ng-template #withDataProfessorBlock>

@@ -5,8 +5,6 @@
 
     <div class="tabContainer">
         <div class="contentContainer">
-
-
             <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
                 {{ message }}
             </ngb-alert>
@@ -14,6 +12,11 @@
             <div *ngIf="this.authService.isRoleTeacher()">
                 <form [formGroup]="addAssignmentForm">
 
+                    <div class="24hr-example">
+                        <input placeholder="24hr format" aria-label="24hr format" [ngxTimepicker]="fullTime"
+                            [format]="24" readonly formControlName="expirationTime">
+                        <ngx-material-timepicker #fullTime></ngx-material-timepicker>
+                    </div>
                     <mat-form-field appearance="fill">
                         <mat-label>Enter expiration date</mat-label>
                         <input matInput [matDatepicker]="picker" formControlName="expirationDate">
