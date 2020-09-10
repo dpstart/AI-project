@@ -31,6 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Reader;
 
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
@@ -87,6 +88,9 @@ public class TeamServiceImpl implements TeamService {
 
     @Autowired
     HomeworkRepository homeworkRepository;
+
+    @Autowired
+    AssignmentService assignmentService;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -274,6 +278,19 @@ public class TeamServiceImpl implements TeamService {
 
 
         c.addStudent(s);
+        for (Assignment a : c.getAssignments().stream().filter(
+                a -> //Do la possiblità al nuovo studente di consegnare solo se mancano almeno 10 minuti alla scadenza
+                        a.getExpirationDate().after(new Timestamp(System.currentTimeMillis()+ 10 * 60 * 1000)))
+                        .collect(Collectors.toList())
+        )
+        {
+            Homework h = new Homework();
+            h.setAssignment(a);
+            h.setStudent(s);
+            h.setLastModified(new Timestamp(System.currentTimeMillis()));
+            homeworkRepository.saveAndFlush(h);
+            a.addHomework(h);
+        }
         return true;
     }
 
