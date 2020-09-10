@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -109,13 +110,16 @@ public class ProfessorController {
      * Get authenticated professor
      * Authentication required: professor
      *
-     * @return Requested ProfessorDTO
+     * @return Requested ProfessorDTO and ImageDTO
      */
     @GetMapping("/self")
-    ProfessorDTO getSelf() {
+    Map<String, RepresentationModel> getSelf() {
         String professorId = SecurityContextHolder.getContext().getAuthentication().getName();
         ProfessorDTO c = teamservice.getProfessor(professorId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, professorId));
-        return ModelHelper.enrich(c);
+        Map<String, RepresentationModel> retval = new HashMap<>();
+        retval.put("self", ModelHelper.enrich(c));
+        retval.put("image", teamservice.getProfessorImage());
+        return retval;
     }
 
     /**

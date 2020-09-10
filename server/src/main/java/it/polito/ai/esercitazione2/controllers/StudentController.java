@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -71,10 +72,13 @@ public class StudentController {
      * @return Requested StudentDTO
      */
     @GetMapping("/self")
-    public StudentDTO getSelf() {
+    public Map<String, RepresentationModel> getSelf() {
         String id = SecurityContextHolder.getContext().getAuthentication().getName();
         StudentDTO c = teamservice.getStudent(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, id));
-        return ModelHelper.enrich(c);
+        Map<String, RepresentationModel> retval = new HashMap<>();
+        retval.put("self", ModelHelper.enrich(c));
+        retval.put("image", teamservice.getStudentImage());
+        return retval;
     }
 
     /**
