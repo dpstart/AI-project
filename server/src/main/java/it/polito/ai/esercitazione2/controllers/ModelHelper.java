@@ -281,6 +281,16 @@ public class ModelHelper {
         return hv;
     }
 
+    public static ImageDTO enrich(ImageDTO img, String name, Integer assignmentId) {
+
+        Link self = linkTo(methodOn(CourseController.class)
+                .getAssignmentImage(name, assignmentId))
+                .withSelfRel();
+        img.add(self);
+
+        return img;
+    }
+
     public static ImageDTO enrich(ImageDTO img, String name, Integer assignmentId, Long hwId, Integer versionId) {
 
         Link self = linkTo(methodOn(CourseController.class)

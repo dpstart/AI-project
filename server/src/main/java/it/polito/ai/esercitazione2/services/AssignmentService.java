@@ -2,7 +2,7 @@ package it.polito.ai.esercitazione2.services;
 
 import it.polito.ai.esercitazione2.dtos.AssignmentDTO;
 import it.polito.ai.esercitazione2.dtos.HomeworkDTO;
-import it.polito.ai.esercitazione2.entities.Image;
+import it.polito.ai.esercitazione2.dtos.ImageDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,5 +25,5 @@ public interface AssignmentService {
     List<HomeworkDTO> getHomeworksByCourse(String courseId);
     List<AssignmentDTO> getByProfessor(String professorId);
     List<AssignmentDTO> getByStudent(String studentId);
-    Image getImage(Integer assignmentId);
+    ImageDTO getImage(Integer assignmentId);
 }

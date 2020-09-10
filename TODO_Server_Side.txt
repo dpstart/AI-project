@@ -1,6 +1,3 @@
 TODO SERVER_SIDE:
-
--l'aggiunta homework version ha successo ma nel db non salva i picByte, c'è qualcosa che non va
-
 -Possibilità di riempimento automatico del db all'accensione del server
  -aggiungere immagine quando torna VM

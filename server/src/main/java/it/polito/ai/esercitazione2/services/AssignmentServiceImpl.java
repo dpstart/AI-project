@@ -2,6 +2,7 @@ package it.polito.ai.esercitazione2.services;
 
 import it.polito.ai.esercitazione2.dtos.AssignmentDTO;
 import it.polito.ai.esercitazione2.dtos.HomeworkDTO;
+import it.polito.ai.esercitazione2.dtos.ImageDTO;
 import it.polito.ai.esercitazione2.entities.*;
 import it.polito.ai.esercitazione2.exceptions.*;
 import it.polito.ai.esercitazione2.repositories.*;
@@ -364,10 +365,10 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .collect(Collectors.toList());
     }
 
-    public Image getImage(Integer assignmentId) {
+    public ImageDTO getImage(Integer assignmentId) {
         if (!assignmentRepository.existsById(assignmentId))
             throw new AssignmentNotFoundException("Assignment " + assignmentId + " not found");
         Assignment a = assignmentRepository.getOne(assignmentId);
-        return imageService.getImage(a.getContentId());
+        return modelMapper.map(imageService.getImage(a.getContentId()), ImageDTO.class);
     }
 }

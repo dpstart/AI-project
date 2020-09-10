@@ -693,6 +693,13 @@ public class CourseController {
      ************************************************************************************************************************************************************************/
 
 
+    /**
+     * Authentication required: a professor of the course or a student enrolled in it
+     * @param name: name of the course (path variable)
+     *
+     *
+     * @return list of AssignmentDTO for the course
+     */
     @GetMapping("/{name}/assignments")
     List<AssignmentDTO> getAssignments(@PathVariable String name) {
         try {
@@ -706,6 +713,12 @@ public class CourseController {
         }
     }
 
+    /**
+     * Authentication required: a professor of the course
+     * @param name: name of the course (path variable)
+     *
+     * @return added AssignmentDTO
+     */
     @PostMapping("/{name}/assignments")
     public AssignmentDTO addAssignment(@PathVariable String name,
                                        @Valid @RequestPart("assignment") AssignmentDTO dto,
@@ -721,16 +734,30 @@ public class CourseController {
         }
     }
 
+    /**
+     * Authentication required: a professor of the course or a student enrolled in it
+     * @param name: name of the course (path variable)
+     * @param id: assignment id
+     *
+     * @return requested assignmentDTO
+     */
     @GetMapping("/{name}/assignments/{id}")
     AssignmentDTO getAssignment(@PathVariable String name, @PathVariable Integer id) {
         try {
             AssignmentDTO assignment = assignmentService.getAssignment(id);
-            return ModelHelper.enrich(assignment, name, assignmentService.getAssignmentProfessor(assignment.getId()));
+            return ModelHelper.enrich(assignment, name, assignmentService.getAssignmentProfessor(id));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
+    /**
+     * Authentication required: a professor of the course
+     * @param name: name of the course (path variable)
+     * @param id: assignment id
+     *
+     * @return void
+     */
     @DeleteMapping("/{name}/assignments/{id}")
     void removeAssignment(@PathVariable String name, @PathVariable Integer id) {
         try {
@@ -741,10 +768,17 @@ public class CourseController {
         }
     }
 
+    /**
+     * Authentication required: a professor of the course or a student enrolled in it
+     * @param name: name of the course (path variable)
+     * @param id: assignment id
+     *
+     * @return requested assignment's imageDTO
+     */
     @GetMapping("/{name}/assignments/{id}/image")
-    Image getAssignmentImage(@PathVariable String name, @PathVariable Integer id) {
+    ImageDTO getAssignmentImage(@PathVariable String name, @PathVariable Integer id) {
         try {
-            return assignmentService.getImage(id);
+            return ModelHelper.enrich(assignmentService.getImage(id), name, id);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -755,6 +789,13 @@ public class CourseController {
      ************************************************************************************************************************************************************************/
 
 
+    /**
+     * Authentication required: a professor of the course or a student enrolled in it
+     * @param name: name of the course (path variable)
+     * @param id: assignment id
+     *
+     * @return requested assignment's imageDTO
+     */
     @GetMapping("/{name}/homeworks")
     List<HomeworkDTO> getCourseHomeworks(@PathVariable String name) {
         try {
@@ -803,7 +844,7 @@ public class CourseController {
     }
 
     /**
-     * Used for both reviewing and assigning the final mark, the usage depends on the dto object
+     * Used for both reviewing and assigning the final mark, the usage depends on what object is passed, DTO or image
      *
      * @param name course name
      * @param id1  id assignment
@@ -816,13 +857,13 @@ public class CourseController {
                                @Valid @RequestPart(required = false) HomeworkDTO homework,
                                @Valid @RequestPart(required = false) MultipartFile homeworkVersion) {
         try {
-            if((homework == null) == (homeworkVersion==null)) //Fancy XNOR usage
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't use none/both homework version and homework DTO, upload correction XOR assign a mark");
-            HomeworkDTO h;
+            if((homework == null) && (homeworkVersion==null))
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing body parts");
+            HomeworkDTO h = null;
             if(homeworkVersion != null) {
                 h = homeworkService.uploadHomeworkReview(id1, id2, homeworkVersion);
             }
-            else{
+            if(homework != null){
                 h = homeworkService.markHomework(homework);
             }
             String professorId = assignmentService.getAssignmentProfessor(id1);
