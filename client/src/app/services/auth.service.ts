@@ -31,6 +31,7 @@ export class AuthService {
 
   private _subjectProfileImage: Subject<Image>;
 
+
   public get subjectNameAndSurname(): Subject<string> {
     return this._subjectNameAndSurname;
   }
@@ -46,7 +47,12 @@ export class AuthService {
   public set observableProfileImage(value: Observable<Image>) {
     this._observableProfileImage = value;
   }
+
+
+
   private _observableNameAndSurname: Observable<string>;
+
+
   public get observableNameAndSurname(): Observable<string> {
     return this._observableNameAndSurname;
   }

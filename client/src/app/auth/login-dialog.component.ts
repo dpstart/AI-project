@@ -72,6 +72,7 @@ export class LoginDialogComponent {
 
         sess["image"] = success
 
+
         this.authService.subjectProfileImage.next(sess['image'])
 
         localStorage.setItem("session", JSON.stringify(sess));
