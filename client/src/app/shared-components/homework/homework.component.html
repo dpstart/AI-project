@@ -125,7 +125,7 @@
                 <tr mat-header-row *matHeaderRowDef="consegneDisplayedColumns"></tr>
                 <tr mat-row *matRowDef="let assignment; columns: consegneDisplayedColumns;" class="example-element-row"
                     [class.example-expanded-row]="assignmentExpandedElement === assignment"
-                    (click)="assignmentExpandedElement = assignmentExpandedElement === assignment ? null : assignment">
+                    (click)="selectAssignment(assignment)">
                 </tr>
                 <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
             </table>

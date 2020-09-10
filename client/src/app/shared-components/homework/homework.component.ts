@@ -66,7 +66,6 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   message: string;
   alertType: string
 
-  selectedAssignment: Assignment
 
   // nome, cognome, matricola,  state,  timestamp  
   homeworksColumnsToDisplay: string[] = ['name', 'surname', 'studentId', 'state', 'timestamp', 'mark'];
@@ -133,8 +132,8 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   separatorKeysCodes: number[] = [ENTER, COMMA];
   optionCtrl = new FormControl();
   filteredOptions: Observable<string[]>;
-  options: string[] = ['LETTO', 'NON LETTO', 'RIVISTO', 'CONSEGNATO'];
-  allOptions: string[] = [];
+  options: string[];
+  allOptions: string[];
 
 
 
@@ -193,11 +192,17 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
     this.allHomeworks = []
 
 
+    this.reinitFilters();
+
+  }
+
+  private reinitFilters() {
+    this.options = ['LETTO', 'NON LETTO', 'RIVISTO', 'CONSEGNATO'];
+    this.allOptions = [];
     //chips
     this.filteredOptions = this.optionCtrl.valueChanges.pipe(
       startWith(null),
       map((option: string | null) => option ? this._filter(option) : this.allOptions.slice().sort()));
-
   }
 
   ngOnInit(): void {
@@ -292,7 +297,9 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
   selectAssignment(assignment: Assignment) {
     //assignmentExpandedElement === assignment ? null : assignment
-    this.selectedAssignment = assignment
+    this.assignmentExpandedElement = this.assignmentExpandedElement === assignment ? null : assignment
+
+    this.reinitFilters();
   }
   seeHomeworkVersions(homework: DisplayedHomework) {
 
