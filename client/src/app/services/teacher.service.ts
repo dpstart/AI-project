@@ -169,9 +169,9 @@ export class TeacherService {
 
     }
 
-    reviewHomework(courseName: string, assignmentId: number, homework: any): Observable<Homework> {
-        const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homework.id}`
-        return this.http.post<Homework>(url, homework).pipe(
+    reviewHomework(courseName: string, assignmentId: number, homeworkId:number, form: FormData): Observable<Homework> {
+        const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}`
+        return this.http.post<Homework>(url, form).pipe(
             retry(3),
             catchError(this.handleError)
         );

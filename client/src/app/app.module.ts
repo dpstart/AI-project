@@ -1,17 +1,16 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
-import { MatTabsModule, MatTab } from '@angular/material/tabs';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatListModule } from '@angular/material/list';
 import { MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatInputModule, MatInput } from '@angular/material/input';
+import { MatInputModule} from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -43,11 +42,8 @@ import { HomeworkDialogComponent } from './shared-components/homework/dialog/hom
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HomeworkContainerComponent } from './shared-components/homework-container/homework-container.component';
 import { CreateDialogComponent } from 'src/app/student/vm/create/create-dialog.component';
-
-
 import { MatDatepickerModule } from '@angular/material/datepicker';
-
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
 
 @NgModule({
   declarations: [
@@ -105,6 +101,9 @@ import { MatNativeDateModule } from '@angular/material/core';
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptor,
       multi: true
+    }, {
+      provide: MAT_DATE_LOCALE,
+      useValue: 'it'
     }],
   bootstrap: [AppComponent]
 })

@@ -12,30 +12,32 @@
             <div *ngIf="historyHomeworkDataSource.data.length == 0; then emptyStudentBlock else withDataStudentBlock">
             </div>
             <ng-template #emptyStudentBlock>
-                <div class="flexCenter">
-                    <form [formGroup]="addHwVersionForm">
-                        <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
-                            (click)="hwVersionInputFile.click()">
-                            <mat-icon>folder</mat-icon>
-                            <input #hwVersionInputFile type="file" (change)="onFileChanged(addHwVersionForm,$event)"
-                                style="display:none;" formControlName="file" />
-                        </button>
-                        <mat-form-field>
-                            <mat-label>Add homework version</mat-label>
-                            <input type="text" matInput placeholder="No file selected" formControlName="fileName"
-                                readonly="true">
-                        </mat-form-field>
+                <div class="flexColumn">
+                    <div class="flexCenter">
+                        <form [formGroup]="addHwVersionForm">
+                            <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
+                                (click)="hwVersionInputFile.click()">
+                                <mat-icon>folder</mat-icon>
+                                <input #hwVersionInputFile type="file" (change)="onFileChanged(addHwVersionForm,$event)"
+                                    style="display:none;" />
+                            </button>
+                            <mat-form-field>
+                                <mat-label>Add homework version</mat-label>
+                                <input type="text" matInput placeholder="No file selected" formControlName="fileName"
+                                    readonly="true">
+                            </mat-form-field>
 
-                        <button id="uploadButton" [disabled]="isDisabled" mat-flat-button color="primary"
-                            (click)="onUpload()">Upload</button>
+                            <button id="uploadButton" [disabled]="addHwVersionForm.invalid" mat-flat-button
+                                color="primary" (click)="onUpload()">Upload</button>
 
-                    </form>
-                    <div>
-                        <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
+                        </form>
+                        <div class="flexCenter">
+                            <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}
+                            </ngb-alert>
+                        </div>
+
                     </div>
-
                 </div>
-
             </ng-template>
             <ng-template #withDataStudentBlock>
                 <div class="entire-table">
@@ -83,31 +85,30 @@
                                     [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
                                     <div class="example-element-description">
                                         <!-- //TODO permettere di caricare immagine -->
-                                        <div class="row">
-                                            <div class="flexCenter">
-                                                <form [formGroup]="addHwVersionForm">
-                                                    <button mat-fab color="primary"
-                                                        aria-label="Example icon button with a delete icon"
-                                                        (click)="hwVersionInputFile.click()">
-                                                        <mat-icon>folder</mat-icon>
-                                                        <input #hwVersionInputFile type="file"
-                                                            (change)="onFileChanged(addHwVersionForm,$event)"
-                                                            style="display:none;" formControlName="file" />
-                                                    </button>
-                                                    <mat-form-field>
-                                                        <mat-label>Add homework version</mat-label>
-                                                        <input type="text" matInput placeholder="No file selected"
-                                                            formControlName="fileName" readonly="true">
-                                                    </mat-form-field>
+                                        <div class="flexCenter">
+                                            <form [formGroup]="addHwVersionForm">
+                                                <button mat-fab color="primary"
+                                                    aria-label="Example icon button with a delete icon"
+                                                    (click)="hwVersionInputFile.click()">
+                                                    <mat-icon>folder</mat-icon>
+                                                    <input #hwVersionInputFile type="file"
+                                                        (change)="onFileChanged(addHwVersionForm,$event)"
+                                                        style="display:none;" />
+                                                </button>
+                                                <mat-form-field>
+                                                    <mat-label>Add homework version</mat-label>
+                                                    <input type="text" matInput placeholder="No file selected"
+                                                        formControlName="fileName" readonly="true">
+                                                </mat-form-field>
 
-                                                    <button id="uploadButton" [disabled]="isDisabled" mat-flat-button
-                                                        color="primary" (click)="onUpload()">Upload</button>
+                                                <button id="uploadButton" [disabled]="addHwVersionForm.invalid"
+                                                    mat-flat-button color="primary" (click)="onUpload()">Upload</button>
 
-                                                </form>
+                                            </form>
 
-                                            </div>
                                         </div>
-                                        <div class="row">
+
+                                        <div class="flexCenter">
                                             <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
                                                 {{ message }}
                                             </ngb-alert>
@@ -123,7 +124,7 @@
                         </tr>
                         <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
                     </table>
-                    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+                    <mat-paginator #studentPaginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
                 </div>
             </ng-template>
 
@@ -190,33 +191,35 @@
                                     [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
                                     <div class="example-element-description">
                                         <!-- //TODO permettere di caricare immagine -->
-                                            <div class="flexCenter">
-                                                <form [formGroup]="addReviewForm" class="example-form">
-                                                    <button mat-fab color="primary"
-                                                        aria-label="Example icon button with a delete icon"
-                                                        (click)="reviewVersionInputFile.click()">
-                                                        <mat-icon>folder</mat-icon>
-                                                        <input #reviewVersionInputFile type="file"
-                                                            (change)="onFileChanged(addReviewForm,$event)"
-                                                            style="display:none;" />
-                                                    </button>
+                                        <div class="flexCenter">
+                                            <form [formGroup]="addReviewForm" class="example-form">
+                                                <button mat-fab color="primary"
+                                                    aria-label="Example icon button with a delete icon"
+                                                    (click)="reviewVersionInputFile.click()">
+                                                    <mat-icon>folder</mat-icon>
+                                                    <input #reviewVersionInputFile type="file"
+                                                        (change)="onFileChanged(addReviewForm,$event)"
+                                                        style="display:none;" />
+                                                </button>
 
-                                                    <mat-form-field>
-                                                        <mat-label>Add review</mat-label>
-                                                        <input type="text" matInput placeholder="No file selected"
-                                                            formControlName="fileName" readonly="true">
-                                                    </mat-form-field>
+                                                <mat-form-field>
+                                                    <mat-label>Add review</mat-label>
+                                                    <input type="text" matInput placeholder="No file selected"
+                                                        formControlName="fileName" readonly="true">
+                                                </mat-form-field>
 
-                                                    <button id="uploadButton" [disabled]="isDisabled" mat-flat-button
-                                                        color="primary" (click)="onUpload()">Upload</button>
+                                                <mat-form-field style="margin-left: 20px;">
+                                                    <mat-label>Mark</mat-label>
+                                                    <input type="number" matInput formControlName="markFormControl">
+                                                </mat-form-field>
 
-                                                    <mat-form-field style="margin-left: 20px;">
-                                                        <mat-label>Mark</mat-label>
-                                                        <input type="number" matInput formControlName="markFormControl">
-                                                    </mat-form-field>
 
-                                                </form>
-                                            </div>
+                                                <button id="uploadButton"
+                                                    [disabled]="!(addReviewForm.get('fileName').value !='' || addReviewForm.get('markFormControl').value != '')"
+                                                    mat-flat-button color="primary" (click)="onUpload()">Upload</button>
+
+                                            </form>
+                                        </div>
                                         <div class="flexCenter">
                                             <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
                                                 {{ message }}
@@ -233,7 +236,7 @@
                         </tr>
                         <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
                     </table>
-                    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+                    <mat-paginator #teacherPaginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
                 </div>
             </ng-template>
 

@@ -7,7 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { HomeworkDialogComponent } from './dialog/homework-dialog.component';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { ENTER, COMMA } from '@angular/cdk/keycodes';
+import { ENTER, COMMA, V } from '@angular/cdk/keycodes';
 import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { startWith, map } from 'rxjs/operators';
 import { MatChipInputEvent } from '@angular/material/chips';
@@ -142,8 +142,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   @ViewChild('auto') matAutocomplete: MatAutocomplete;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
-
+  @ViewChild(MatSort, { static: false }) sort: MatSort;
 
   @Output() addedAssignment: EventEmitter<Assignment> = new EventEmitter<Assignment>();
   //************ */
