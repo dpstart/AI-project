@@ -111,7 +111,7 @@ public class StudentController {
     }
 
     @GetMapping("/image")
-    public Image getProfileImage() {
+    public ImageDTO getProfileImage() {
         return teamservice.getProfileImage();
     }
 

@@ -1,5 +1,6 @@
 package it.polito.ai.esercitazione2.services;
 
+import it.polito.ai.esercitazione2.dtos.ImageDTO;
 import it.polito.ai.esercitazione2.dtos.SettingsDTO;
 import it.polito.ai.esercitazione2.dtos.VMDTO;
 import it.polito.ai.esercitazione2.dtos.VMModelDTO;
@@ -280,7 +281,7 @@ public class VMServiceImpl implements VMService {
     }
 
     @Override
-    public Image connectToVM(Long vmID){
+    public ImageDTO connectToVM(Long vmID){
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if(!vmRepository.existsById(vmID))
@@ -314,7 +315,7 @@ public class VMServiceImpl implements VMService {
             throw new OffMachineException("This instance is not running");
         }
 
-        return imageService.getImage(vm.getImageId());
+        return modelMapper.map(imageService.getImage(vm.getImageId()), ImageDTO.class);
 
     }
 

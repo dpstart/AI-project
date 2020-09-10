@@ -1,10 +1,7 @@
 package it.polito.ai.esercitazione2.controllers;
 
 
-import it.polito.ai.esercitazione2.dtos.AssignmentDTO;
-import it.polito.ai.esercitazione2.dtos.CourseDTO;
-import it.polito.ai.esercitazione2.dtos.HomeworkDTO;
-import it.polito.ai.esercitazione2.dtos.ProfessorDTO;
+import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.entities.Image;
 import it.polito.ai.esercitazione2.exceptions.AuthenticationServiceException;
 import it.polito.ai.esercitazione2.exceptions.IncoherenceException;
@@ -117,7 +114,7 @@ public class ProfessorController {
     }
 
     @GetMapping("/image")
-    Image getProfileImage(){
+    ImageDTO getProfileImage(){
 
         return teamservice.getProfileImage();
     }

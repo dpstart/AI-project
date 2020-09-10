@@ -1,5 +1,6 @@
 package it.polito.ai.esercitazione2.services;
 
+import it.polito.ai.esercitazione2.dtos.ImageDTO;
 import it.polito.ai.esercitazione2.dtos.SettingsDTO;
 import it.polito.ai.esercitazione2.dtos.VMDTO;
 import it.polito.ai.esercitazione2.dtos.VMModelDTO;
@@ -46,7 +47,7 @@ public interface VMService {
     @PreAuthorize("hasRole('STUDENT')")
     void removeVM(Long VMID);
     @PreAuthorize("hasRole('PROFESSOR') or hasRole('STUDENT')")
-    Image connectToVM(Long VMID);
+    ImageDTO connectToVM(Long VMID);
 
     @PreAuthorize("hasRole('STUDENT')")
     void shareOwnership(Long id, String studentId);

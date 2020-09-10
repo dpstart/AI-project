@@ -1043,13 +1043,16 @@ public class TeamServiceImpl implements TeamService {
     }
 
 
-    public Image getProfileImage() {
+    public ImageDTO getProfileImage() {
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Image img;
         if (studentRepository.existsById(principal))
-            return imageService.getImage(studentRepository.getOne(principal).getImage_id());
+            img = imageService.getImage(studentRepository.getOne(principal).getImage_id());
         else if (professorRepository.existsById(principal))
-            return imageService.getImage(professorRepository.getOne(principal).getImage_id());
-        throw new UsernameNotFoundException("Can't retrieve profile image for the specified user");
+            img = imageService.getImage(professorRepository.getOne(principal).getImage_id());
+        else
+            throw new UsernameNotFoundException("Can't retrieve profile image for the specified user");
+        return modelMapper.map(img, ImageDTO.class);
     }
 
     public void activateAccount(String id) {

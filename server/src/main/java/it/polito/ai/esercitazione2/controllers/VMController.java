@@ -1,9 +1,9 @@
 package it.polito.ai.esercitazione2.controllers;
 
+import it.polito.ai.esercitazione2.dtos.ImageDTO;
 import it.polito.ai.esercitazione2.dtos.SettingsDTO;
 import it.polito.ai.esercitazione2.dtos.VMDTO;
 import it.polito.ai.esercitazione2.dtos.VMModelDTO;
-import it.polito.ai.esercitazione2.entities.Image;
 import it.polito.ai.esercitazione2.exceptions.*;
 import it.polito.ai.esercitazione2.services.TeamService;
 import it.polito.ai.esercitazione2.services.VMService;
@@ -39,7 +39,7 @@ public class VMController {
     }
 
     @GetMapping("/{id}/connect")
-    Image connectToVM(@PathVariable Long id){
+    ImageDTO connectToVM(@PathVariable Long id){
         try{
             return vmservice.connectToVM(id);
         }catch (CourseNotEnabledException | OffMachineException e){
