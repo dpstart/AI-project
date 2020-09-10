@@ -84,7 +84,7 @@ public class CourseController {
      * Remove existing course
      * Authentication required: professor owning the course
      *
-     * @param name name of the course (path variable)
+     * @param name: name of the course (path variable)
      * @return void
      */
     @DeleteMapping("/{name}")
@@ -315,7 +315,7 @@ public class CourseController {
      * Remove one student from the course
      * Authentication required: professor owning the course
      *
-     * @param name:  name of the course (path variable)
+     * @param name: name of the course (path variable)
      * @param input: {
      *               "id":{student id}
      *               }
@@ -344,7 +344,7 @@ public class CourseController {
      * Remove many students from the course
      * Authentication required: professor owning the course
      *
-     * @param name:  name of the course (path variable)
+     * @param name: name of the course (path variable)
      * @param input: {
      *               "students":["2000","2001",...] <-- array of student ids
      *               }
@@ -479,7 +479,6 @@ public class CourseController {
      * Authentication required: user enrolled in the course
      * @param name: name of the course (path variable)
      *
-     * @param name: name of the course (path variable)
      * @return list of TeamDTO
      */
     @GetMapping("/{name}/teams")
@@ -498,7 +497,7 @@ public class CourseController {
      * Authentication required: user enrolled in the course
      *
      * @param name: name of the course (path variable)
-     * @param id:   team id
+     * @param id:   team id (path variable)
      * @return TeamDTO
      */
     @GetMapping("/{name}/teams/{id}")
@@ -518,7 +517,7 @@ public class CourseController {
      * Authentication required: student in the team
      *
      * @param name: name of the course (path variable)
-     * @param id:   team id (path varaible)
+     * @param id: team id (path varaible)
      * @return {
      * "2000": "true"
      * "2001": "false"
@@ -638,7 +637,7 @@ public class CourseController {
      * Modify settings for a vm for a team in the course
      * Authentication required: a professor of the course
      * @param name: name of the course (path variable)
-     * @param id: team id
+     * @param id: team id (path variable)
      * @param settings: {
      *                      "n_cpu":"10",
      *                      "disk_space":"256",
@@ -674,6 +673,7 @@ public class CourseController {
     /**
      * Create a vm for a team in the course
      * Authentication required: a student member of the team
+     * @param courseName: course name (path variable)
      * @param teamId: teamId (path variable)
      * @param file:  image of the VM (.jpg)
      * @param settings:    settings required for the VM
@@ -720,7 +720,6 @@ public class CourseController {
      * Get all assignments of the course
      * Authentication required: a professor of the course or a student enrolled in it
      * @param name: name of the course (path variable)
-     *
      *
      * @return list of AssignmentDTO for the course
      */
@@ -890,9 +889,9 @@ public class CourseController {
     /**
      * Review and/or assign the final mark, the usage depends on what object is passed, DTO or image
      * Authentication required: a professor of the course
-     * @param name: course name
-     * @param id1: assignment id
-     * @param id2: homework id
+     * @param name: course name (path variable)
+     * @param id1: assignment id (path variable)
+     * @param id2: homework id (path variable)
      * @param homework: Homework modified by the teacher for a review or for assigning a final mark
      * @return Added homeworkDTO
      */
@@ -921,8 +920,8 @@ public class CourseController {
     /**
      * Upload a new version of the given homework
      * Authentication required: student owner of the homework
-     * @param name: course name
-     * @param id: assignment id
+     * @param name: course name (path variable)
+     * @param id: assignment id (path variable)
      * @return Added HomeworkVersionDTO
      */
     @PostMapping("/{name}/assignments/{id}")
@@ -939,9 +938,9 @@ public class CourseController {
     /**
      * Get all versions of a given homework
      * Authentication required: a professor of the course or student owner of the homework
-     * @param name: course name
-     * @param assignmentId: assignment id
-     * @param hwId: homework id
+     * @param name: course name (path variable)
+     * @param assignmentId: assignment id (path variable)
+     * @param hwId: homework id (path variable)
      * @return List of HomeworkVersionDTOs
      */
     @GetMapping("/{name}/assignments/{assignmentId}/homeworks/{hwId}/versions")
@@ -965,10 +964,10 @@ public class CourseController {
     /**
      * Get image of an homework version
      * Authentication required: a professor of the course or student owner of the homework
-     * @param name: course name
-     * @param assignmentId: assignment id
-     * @param hwId: homework id
-     * @param versionId: homework version counter
+     * @param name: course name (path variable)
+     * @param assignmentId: assignment id (path variable)
+     * @param hwId: homework id (path variable)
+     * @param versionId: homework version counter (path variable)
      * @return request homework version ImageDTO
      */
     @GetMapping("/{name}/assignments/{assignmentId}/homeworks/{hwId}/versions/{versionId}/image")
@@ -990,10 +989,10 @@ public class CourseController {
     /**
      * Get one version of a given homework
      * Authentication required: a professor of the course or student owner of the homework
-     * @param name: course name
-     * @param assignmentId: assignment id
-     * @param hwId: homework id
-     * @param versionId: homework version counter
+     * @param name: course name (path variable)
+     * @param assignmentId: assignment id (path variable)
+     * @param hwId: homework id (path variable)
+     * @param versionId: homework version counter (path variable)
      * @return Requested HomeworkVersionDTO
      */
     @GetMapping("/{name}/assignments/{assignmentId}/homeworks/{hwId}/versions/{versionId}")
@@ -1015,10 +1014,10 @@ public class CourseController {
     /**
      * Get delivery date of an homework version
      * Authentication required: a professor of the course or student owner of the homework
-     * @param name: course name
-     * @param assignmentId: assignment id
-     * @param hwId: homework id
-     * @param versionId: homework version counter
+     * @param name: course name (path variable)
+     * @param assignmentId: assignment id (path variable)
+     * @param hwId: homework id (path variable)
+     * @param versionId: homework version counter (path variable)
      * @return request homework version ImageDTO
      */
     @GetMapping("/{name}/assignments/{assignmentId}/homeworks/{hwId}/versions/{versionId}/date")
@@ -1036,9 +1035,9 @@ public class CourseController {
     /**
      * Get latest version of a given homework
      * Authentication required: a professor of the course or student owner of the homework
-     * @param name: course name
-     * @param assignmentId: assignment id
-     * @param hwId: homework id
+     * @param name: course name (path variable)
+     * @param assignmentId: assignment id (path variable)
+     * @param hwId: homework id (path variable)
      * @return Requested HomeworkVersionDTO
      */
     @GetMapping("/{name}/assignments/{assignmentId}/homeworks/{hwId}/versions/latest")
