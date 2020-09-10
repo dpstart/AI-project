@@ -102,7 +102,7 @@ The removal of the course cause the removal of assignments, homeworks and teams 
                     "min": optional
                 }
                 
-    Removal: API/courses/{course}/remove (GET)
+    Removal: API/courses/{course} (DELETE)
 
 #### Update 
 
@@ -124,8 +124,8 @@ It is impossible to set minimum/maximum values such that to invalidate teams alr
 Only the professor having the ownership of a course, can enable/disable that course.
 Disabling a course means also disabling all the VM instances associated to it.
 
-    Enable: API/courses/{course}/enable (GET)
-    Disable: API/courses/{course}/disable (GET)
+    Enable: API/courses/{course}/enable (POST)
+    Disable: API/courses/{course}/disable (POST)
     
 #### Access to course
 
