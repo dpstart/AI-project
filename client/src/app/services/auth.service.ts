@@ -29,6 +29,8 @@ export class AuthService {
 
   private _subjectNameAndSurname: Subject<string>;
 
+  private _subjectProfileImage: Subject<Image>;
+
   public get subjectNameAndSurname(): Subject<string> {
     return this._subjectNameAndSurname;
   }
@@ -36,6 +38,14 @@ export class AuthService {
     this._subjectNameAndSurname = value;
   }
 
+  private _observableProfileImage: Observable<Image>;
+
+  public get observableProfileImage(): Observable<Image> {
+    return this._observableProfileImage;
+  }
+  public set observableProfileImage(value: Observable<Image>) {
+    this._observableProfileImage = value;
+  }
   private _observableNameAndSurname: Observable<string>;
   public get observableNameAndSurname(): Observable<string> {
     return this._observableNameAndSurname;
@@ -45,22 +55,12 @@ export class AuthService {
   }
 
 
-  private handleError(error: HttpErrorResponse) {
-    if (error.error instanceof ErrorEvent) {
-      // A client-side or network error occurred. Handle it accordingly.ù
-      console.log(error)
-      console.error('An error occurred:', error.message);
-    } else {
-      // The backend returned an unsuccessful response code.
-      // The response body may contain clues as to what went wrong,
-      console.error(
-        `Backend returned code ${error.status}, ` +
-        `body was: ${error.error.message}`);
-    }
-    // return an observable with a user-facing error message
-    return throwError({ status: error.status, message: error.error.message });
-  };
-
+  public get subjectProfileImage(): Subject<Image> {
+    return this._subjectProfileImage;
+  }
+  public set subjectProfileImage(value: Subject<Image>) {
+    this._subjectProfileImage = value;
+  }
 
   UrlLogin = "http://localhost:8080"
 
@@ -70,6 +70,8 @@ export class AuthService {
 
     this.subjectNameAndSurname = new Subject<string>()
     this.observableNameAndSurname = this.subjectNameAndSurname.asObservable()
+    this.subjectProfileImage = new Subject<Image>()
+    this.observableProfileImage = this.subjectProfileImage.asObservable()
   }
 
   login(email: string, password: string) {
@@ -231,4 +233,20 @@ export class AuthService {
     let isNotExpired = session["info"]["exp"] > moment().unix();
     return isNotExpired;
   }
+
+  private handleError(error: HttpErrorResponse) {
+    if (error.error instanceof ErrorEvent) {
+      // A client-side or network error occurred. Handle it accordingly.ù
+      console.log(error)
+      console.error('An error occurred:', error.message);
+    } else {
+      // The backend returned an unsuccessful response code.
+      // The response body may contain clues as to what went wrong,
+      console.error(
+        `Backend returned code ${error.status}, ` +
+        `body was: ${error.error.message}`);
+    }
+    // return an observable with a user-facing error message
+    return throwError({ status: error.status, message: error.error.message });
+  };
 }

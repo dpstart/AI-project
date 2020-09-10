@@ -10,6 +10,8 @@ import { Course } from './model/course.model';
 import { StudentService, NavStudentLinks } from './services/student.service';
 import { Observable } from 'rxjs';
 import { RouteStateService } from './services/route-state.service';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { take } from 'rxjs/operators';
 
 
 @Component({
@@ -24,6 +26,7 @@ export class AppComponent implements OnInit {
 
   nameAndSurname: string;
 
+  profilePicture: SafeResourceUrl
 
   navTeacherLinks: NavTeacherLinks[];
   navStudentLinks: NavStudentLinks[];
@@ -38,10 +41,8 @@ export class AppComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private teacherService: TeacherService,
     private studentService: StudentService,
-    private routeStateService: RouteStateService) {
-
-
-
+    private routeStateService: RouteStateService,
+    private sanitizer: DomSanitizer) {
 
     this.navTeacherLinks = teacherService.getNavTeacherLinks();
     this.navStudentLinks = studentService.getNavStudentLinks();
@@ -67,9 +68,14 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
 
-    this.authService.observableNameAndSurname.subscribe(data => {
-      this.nameAndSurname = data
+    this.authService.observableNameAndSurname.subscribe(value => this.nameAndSurname = value)
+
+    this.authService.observableProfileImage.pipe(take(1)).subscribe(image => {
+      let base64Data = image.picByte;
+      let formattedImage = `data:${image.type};base64,` + '\n' + base64Data;
+      this.profilePicture = this.sanitizer.bypassSecurityTrustResourceUrl(formattedImage);
     })
+
 
 
     let session = localStorage.getItem('session')
@@ -77,8 +83,12 @@ export class AppComponent implements OnInit {
 
       let sess = JSON.parse(session)
 
-      this.authService.subjectNameAndSurname.next(`${sess['firstName']} ${sess['name']}`)
 
+      if (this.authService.isLoggedIn()) {
+
+        this.authService.subjectNameAndSurname.next(`${sess['firstName']} ${sess['name']}`)
+        this.authService.subjectProfileImage.next(sess['image'])
+      }
     }
 
     this.routeStateService.pathParam.subscribe(data => this.selectedCourse = data)
@@ -129,7 +139,7 @@ export class AppComponent implements OnInit {
     this.routeStateService.pathParam.subscribe(courseSelected => {
       if (courseSelected !== "Home")
         this.router.navigate(['student', 'course', courseSelected, link]);
-      else{
+      else {
         this.sidenav.open()
       }
     })

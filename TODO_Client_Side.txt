@@ -1,19 +1,12 @@
 -VM 
---vm details con popup dell'immagine ---DANIELEEE
--- creazione VM da 500 sul server in CourseController.java:676 "java.sql.SQLException: Field 'name' doesn't have a default value" --DANIELEEE
+--vm details con popup dell'immagine --->Daniele
+-- creazione VM da 500 sul server in CourseController.java:676 
+"java.sql.SQLException: Field 'name' doesn't have a default value"----> Daniele secondo me questo basta che cancelli il db e va.
 
 GENERALE
---Aggiungere viste e routes per confirm reject token team e per activate account ----------------DANIELEEE
---Aggiungere timeout per loading e visualizzare errore (Vedere se ne vale la pena)
---Aggiungere tipo menu popup con dettagli utente loggato on hover 
-
-
--REGISTER 
-aggiungere foto alla registrazione
-
-
-
--Student component ngModel del caricamento file, sostituire con formControl
-
+--Aggiungere viste e routes per confirm reject token team e per activate account --------------->Daniele 
+--Aggiungere timeout per loading e visualizzare errore (Vedere se ne vale la pena) 
+--Student component ngModel del caricamento file, sostituire con formControl
+--Sistemare popOver
 
 
