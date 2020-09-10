@@ -41,6 +41,7 @@ public class Homework {
     Homework.states state = states.unread;
     Boolean isFinal = false;
     Float mark = 0f;
+    Timestamp lastModified;
 
     public void setStudent(@NonNull Student s) {
         this.student = s;

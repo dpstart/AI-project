@@ -88,6 +88,7 @@ public class HomeworkServiceImpl implements HomeworkService {
         h.getVersionIds().add(img.getId());
         h.getVersionDates().add(new Timestamp(System.currentTimeMillis()));
         h.setState(Homework.states.delivered);
+        h.setLastModified(new Timestamp(System.currentTimeMillis()));
         return modelMapper.map(h, HomeworkDTO.class);
     }
 
@@ -107,6 +108,7 @@ public class HomeworkServiceImpl implements HomeworkService {
             }
         }
         h.setState(Homework.states.reviewed);
+        h.setLastModified(new Timestamp(System.currentTimeMillis()));
         h.setIsFinal(dto.getIsFinal());
         if (dto.getMark() != 0f)
             h.setMark(dto.getMark());
@@ -147,6 +149,7 @@ public class HomeworkServiceImpl implements HomeworkService {
         h.getVersionIds().add(img.getId());
         h.getVersionDates().add(new Timestamp(System.currentTimeMillis()));
         h.setState(Homework.states.reviewed);
+        h.setLastModified(new Timestamp(System.currentTimeMillis()));
         return modelMapper.map(h, HomeworkDTO.class);
     }
 
@@ -166,6 +169,7 @@ public class HomeworkServiceImpl implements HomeworkService {
             }
             if (h.getState() == Homework.states.unread) {
                 h.setState(Homework.states.read);
+                h.setLastModified(new Timestamp(System.currentTimeMillis()));
             }
         } else if (roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))) {
             if (!professorRepository.existsById(principal)) {

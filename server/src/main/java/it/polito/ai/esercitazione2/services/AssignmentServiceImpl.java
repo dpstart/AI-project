@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
@@ -83,6 +84,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             Homework h = new Homework();
             h.setAssignment(as);
             h.setStudent(s);
+            h.setLastModified(new Timestamp(System.currentTimeMillis()));
             homeworkRepository.saveAndFlush(h);
         }
         return modelMapper.map(as, AssignmentDTO.class);
@@ -116,6 +118,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, a.getId());
             if (h.getState() == Homework.states.unread) {
                 h.setState(Homework.states.read);
+                h.setLastModified(new Timestamp(System.currentTimeMillis()));
             }
         } else if (roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))) {
             if (!professorRepository.existsById(principal)) {
@@ -198,6 +201,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                     .peek(h -> {
                         if (h.getState() == Homework.states.unread) {
                             h.setState(Homework.states.read);
+                            h.setLastModified(new Timestamp(System.currentTimeMillis()));
                         }
                     })
                     .map(h -> modelMapper.map(h, HomeworkDTO.class))
@@ -245,6 +249,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                         Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, a.getId());
                         if (h.getState() == Homework.states.unread) {
                             h.setState(Homework.states.read);
+                            h.setLastModified(new Timestamp(System.currentTimeMillis()));
                         }
                     })
                     .map(a -> modelMapper.map(a, AssignmentDTO.class))
@@ -285,6 +290,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                     .peek(h -> {
                         if (h.getState() == Homework.states.unread) {
                             h.setState(Homework.states.read);
+                            h.setLastModified(new Timestamp(System.currentTimeMillis()));
                         }
                     })
                     .map(h -> modelMapper.map(h, HomeworkDTO.class))
@@ -327,6 +333,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                         Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, a.getId());
                         if (h.getState() == Homework.states.unread) {
                             h.setState(Homework.states.read);
+                            h.setLastModified(new Timestamp(System.currentTimeMillis()));
                         }
                     } else if (roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))) {
                         if (!professorRepository.getOne(principal).getCourses().contains(a.getCourse())) {
@@ -356,6 +363,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                     Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, a.getId());
                     if (h.getState() == Homework.states.unread) {
                         h.setState(Homework.states.read);
+                        h.setLastModified(new Timestamp(System.currentTimeMillis()));
                     }
                 })
                 .map(a -> modelMapper.map(a, AssignmentDTO.class))

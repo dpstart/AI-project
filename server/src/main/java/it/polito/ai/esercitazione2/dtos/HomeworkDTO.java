@@ -7,6 +7,7 @@ import org.springframework.hateoas.RepresentationModel;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.sql.Timestamp;
 
 @Data
 public class HomeworkDTO extends RepresentationModel<HomeworkDTO> {
@@ -18,5 +19,6 @@ public class HomeworkDTO extends RepresentationModel<HomeworkDTO> {
     Boolean isFinal;
     @NotNull
     Float mark;
+    Timestamp lastModified;
 
 }
