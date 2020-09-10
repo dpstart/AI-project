@@ -18,7 +18,20 @@
     </ng-template>
 
     <ng-template #toolbarUnloggedBlock>
-      <p class="emailToolbar"> {{nameAndSurname}}</p>
+
+
+      <ng-template #popContent>
+        <div>
+
+          Hello, <b>WALTER</b>!
+
+        </div>
+      </ng-template>
+
+      <button type="button" mat-flat-button color="primary" placement="bottom" [ngbPopover]="popContent"
+        popoverClass="popOver">
+        {{nameAndSurname}}
+      </button>
       <button mat-button (click)="logout()">Logout</button>
     </ng-template>
 

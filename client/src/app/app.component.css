@@ -1,29 +1,36 @@
 mat-sidenav {
-    width: 25%;
+  width: 25%;
 }
+
 .mat-list-base {
-    padding-top: 0px;
+  padding-top: 0px;
 }
-.emailToolbar{
-    font-size: medium;
-    margin-top: auto;
+
+.emailToolbar {
+  font-size: medium;
+  margin-top: auto;
 }
 
 #secondrow {
-    background-color: #f5f5f5;
-    color: black;
-  }
+  background-color: #f5f5f5;
+  color: black;
+}
 
-  nav {
-    width: 100%;
-  }
+nav {
+  width: 100%;
+}
 
-  .example-fill-remaining-space {
-    /* This fills the remaining space, by using flexbox. 
+.example-fill-remaining-space {
+  /* This fills the remaining space, by using flexbox. 
      Every toolbar row uses a flexbox row layout. */
-    flex: 1 1 auto;
-  }
+  flex: 1 1 auto;
+}
 
-  .clickableElement{
-      cursor: pointer;
-  }
+.clickableElement {
+  cursor: pointer;
+}
+
+.popOver {
+
+  background-color: #f5f5f5;
+}
