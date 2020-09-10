@@ -39,8 +39,17 @@ public class JwtAuthenticationController {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-
-    @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
+    /**
+     * Login, username can be user id, alias, email, alias-email
+     * Authentication required: none
+     * @param authenticationRequest: {
+     *      "username": username,
+     *      "password": password
+     * }
+     *
+     * @return JWT Token
+     */
+    @PostMapping(value = "/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
         String username = authenticationRequest.getUsername();
 
@@ -65,7 +74,7 @@ public class JwtAuthenticationController {
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
+    @PostMapping(value = "/register")
     public ResponseEntity<?> registerUser(@RequestBody JwtResponse input) throws InterruptedException {
         String token = input.getToken();
         String username = null;
@@ -91,7 +100,7 @@ public class JwtAuthenticationController {
         return ResponseEntity.ok(true);
     }
 
-    @RequestMapping(value = "/registerMany", method = RequestMethod.POST)
+    @PostMapping(value = "/registerMany")
     public ResponseEntity<?> registerUsers(@RequestBody @Valid ValidUserList users) throws InterruptedException {
         String token = null;
         String username = null;
@@ -119,7 +128,7 @@ public class JwtAuthenticationController {
         return ResponseEntity.ok(true);
     }
 
-    @RequestMapping(value = "/activate", method = RequestMethod.POST)
+    @PostMapping(value = "/activate")
     public ResponseEntity<?> activateUser(@RequestBody JwtResponse input) throws InterruptedException {
         String token = input.getToken();
         String username = null;
@@ -141,7 +150,7 @@ public class JwtAuthenticationController {
         return ResponseEntity.ok(true);
     }
 
-    @RequestMapping(value = "/removeMany", method = RequestMethod.POST)
+    @PostMapping(value = "/removeMany")
     public ResponseEntity<?> deleteUsers(@RequestBody @Valid ValidUserList users) throws InterruptedException {
         String token = null;
         String id = null;
