@@ -166,7 +166,6 @@ public class HomeworkServiceImpl implements HomeworkService {
             }
             if (h.getState() == Homework.states.unread) {
                 h.setState(Homework.states.read);
-                homeworkRepository.save(h);
             }
         } else if (roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))) {
             if (!professorRepository.existsById(principal)) {
