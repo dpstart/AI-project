@@ -159,7 +159,7 @@ public class CourseController {
      * @param name: name of the course to enable (path variable);
      * @return void
      */
-    @GetMapping("/{name}/enable")
+    @PostMapping("/{name}/enable")
     public void enableCourse(@PathVariable String name) {
         try {
             teamService.enableCourse(name);
@@ -177,7 +177,7 @@ public class CourseController {
      * @param name: name of the course to disable (path variable);
      * @return void
      */
-    @GetMapping("/{name}/disable")
+    @PostMapping("/{name}/disable")
     public void disableCourse(@PathVariable String name) {
         try {
             teamService.disableCourse(name);
