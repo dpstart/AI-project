@@ -39,10 +39,10 @@
                 </form>
             </div>
 
-            <table mat-table [dataSource]="consegneDataSource" multiTemplateDataRows class="mat-elevation-z8">
+            <table mat-table [dataSource]="consegneDataSource" matSort multiTemplateDataRows class="mat-elevation-z8">
                 <div *ngFor="let column of consegneDisplayedColumns">
                     <ng-container *ngIf="column!='actions'" matColumnDef="{{column}}">
-                        <th mat-header-cell *matHeaderCellDef> {{column|uppercase}} </th>
+                        <th mat-header-cell mat-sort-header *matHeaderCellDef> {{column|uppercase}} </th>
                         <td mat-cell *matCellDef="let assignment"> {{assignment[column]}} </td>
                     </ng-container>
                 </div>
@@ -55,9 +55,6 @@
 
 
                                 <div *ngIf="this.authService.isRoleTeacher()">
-
-
-
                                     <h2 class="mat-h2 tabtitle">Elenco Elaborati</h2>
 
                                     <mat-form-field class="example-chip-list">
@@ -86,7 +83,8 @@
                                         multiTemplateDataRows class="mat-elevation-z8">
                                         <div *ngFor="let column of homeworksColumnsToDisplay">
                                             <ng-container matColumnDef="{{column}}">
-                                                <th mat-header-cell *matHeaderCellDef> {{column|uppercase}} </th>
+                                                <th mat-header-cell *matHeaderCellDef>
+                                                    {{column|uppercase}} </th>
                                                 <td mat-cell *matCellDef="let homework"> {{homework[column]}} </td>
                                             </ng-container>
 
@@ -98,12 +96,9 @@
 
                                 </div>
 
-
-
                                 <div *ngIf="this.authService.isRoleStudent()">
 
                                     <h2 class="mat-h2 tabtitle">Elaborato </h2>
-
                                     <table mat-table
                                         [dataSource]="homeworksDataSource[displayedAssignments.indexOf(assignment)]"
                                         multiTemplateDataRows class="mat-elevation-z8">

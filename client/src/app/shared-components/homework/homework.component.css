@@ -46,3 +46,7 @@ tr.example-element-row:not(.example-expanded-row):active {
     display: flex;
     flex-direction: row;
 }
+
+::ng-deep .mat-form-field-infix{
+    width: auto!important;
+}
