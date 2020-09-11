@@ -112,12 +112,17 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   public set displayedHomeworks(value: DisplayedHomework[]) {
 
     this._displayedHomeworks = value;
+
+
     for (let i = 0; i < this.displayedAssignments.length; i++) {
-      if (this.displayedAssignments[i].isDeletable){
+
+      // //hws assegnati ad un determinato assignment
+      if (this.displayedAssignments[i].isDeletable) {
         this.isThereAnAssignmentToBeDeleted = true
-        this.consegneDisplayedColumns.push('actions')
+        //E' possibile cancellare un assignment
+        if (!this.consegneDisplayedColumns.includes('actions'))
+          this.consegneDisplayedColumns.push('actions')
       }
-        
 
       this.homeworksDataSource.push(new MatTableDataSource<DisplayedHomework>())
       this.allHomeworks.push([])
@@ -167,8 +172,10 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
 
 
+
+
   addAssignmentForm: FormGroup = new FormGroup({
-    expirationTime: new FormControl('00:00', Validators.required),
+    expirationTime: new FormControl('23:59', Validators.required),
     expirationDate: new FormControl(new Date(), Validators.required),
     fileName: new FormControl('', Validators.required),
 
@@ -208,19 +215,20 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
       let newSource = []
 
 
+      // //hws assegnati ad un determinato assignment
+      if (this.displayedAssignments[i].isDeletable) {
+        this.isThereAnAssignmentToBeDeleted = true
+        //E' possibile cancellare un assignment
+        if (!this.consegneDisplayedColumns.includes('actions'))
+          this.consegneDisplayedColumns.push('actions')
+      }
+
       this.displayedHomeworks.forEach(x => {
 
         if (x.assignmentId == this.displayedAssignments[i].id) {
           newSource.push(x)
         }
       })
-
-      // //hws assegnati ad un determinato assignment
-      // if (newSource.length == 0) {
-      //   //E' possibile cancellare un assignment
-      //   this.isThereAnAssignmentToBeDeleted = true
-      // }
-
 
       this.homeworksDataSource[i].data = [...newSource]
       this.allHomeworks[i] = this.homeworksDataSource[i].data
@@ -375,12 +383,33 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
         this.displayedAssignments = this.displayedAssignments.filter(a => a.id != assignment.id)
         this.message = "The assignment was successfully deleted"
         this.alertType = "success"
+        this.checkIfAreThereAssignmentTobeDeleted()
       },
       error => {
         this.message = "Something went wrong try later..."
         this.alertType = "danger"
       })
 
+  }
+
+  private checkIfAreThereAssignmentTobeDeleted() {
+
+    let isThereAnAssignmentToBeDeleted = false
+
+    for (let i = 0; i < this.displayedAssignments.length; i++) {
+      // //hws assegnati ad un determinato assignment
+      if (this.displayedAssignments[i].isDeletable) {
+        isThereAnAssignmentToBeDeleted = true
+        //E' possibile cancellare un assignment
+        if (!this.consegneDisplayedColumns.includes('actions'))
+          this.consegneDisplayedColumns.push('actions')
+      }
+    }
+
+    if (!isThereAnAssignmentToBeDeleted)
+      this.consegneDisplayedColumns.pop()
+
+    return this.isThereAnAssignmentToBeDeleted = isThereAnAssignmentToBeDeleted
   }
 
 

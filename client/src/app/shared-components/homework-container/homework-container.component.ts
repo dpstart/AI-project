@@ -67,7 +67,7 @@ export class HomeworkContainerComponent implements OnInit {
                 id: assignments[i].id,
                 releaseDate: new Date(assignments[i].releaseDate).toLocaleDateString(undefined, options),
                 expirationDate: new Date(assignments[i].expirationDate).toLocaleDateString(undefined, options),
-                isDeletable: false
+                isDeletable: true // settato a true ma poi viene definito se può essere cancellato o meno
 
               }
               //add converted element to assignment source
@@ -82,7 +82,6 @@ export class HomeworkContainerComponent implements OnInit {
 
                 if (homeworks.length == 0) {
                   counter++
-                  displayedAssignment.isDeletable = true
                   if (counter == assignments.length) {
                     this.displayedAssignments = [...displayedAssignments]
                     this.displayedHomeworks = [...displayHomeworks]
@@ -93,20 +92,26 @@ export class HomeworkContainerComponent implements OnInit {
                 }
 
                 homeworks.forEach(homework => {
+
                   /*  unread,
                       read,
                       delivered,
                       reviewed */
+
                   let state = ""
                   switch (homework.state) {
+                    // se si trova anche solo un hw che risulta anche solo letto allora l'assignment non può essere più cancellato
                     case "read":
                       state = "LETTO"
+                      displayedAssignment.isDeletable = false
                       break;
                     case "delivered":
                       state = "CONSEGNATO"
+                      displayedAssignment.isDeletable = false
                       break;
                     case "reviewed":
                       state = "RIVISTO"
+                      displayedAssignment.isDeletable = false
                       break;
                     default:
                       state = "NON LETTO"
@@ -153,8 +158,6 @@ export class HomeworkContainerComponent implements OnInit {
                           this.displayedAssignments = [...displayedAssignments]
                           this.displayedHomeworks = [...displayHomeworks]
                           this.isAllLoaded = true
-                          console.log(this.displayedAssignments, this.displayedHomeworks);
-
                         }
                       }
                       // le chiamate vengono fatte sequenzialmente per ogni homework => solo quando sono caricati tutti vengono visualizzati
@@ -166,6 +169,8 @@ export class HomeworkContainerComponent implements OnInit {
           } else {
             this.isAllLoaded = true
           }
+        }, error => {
+          this.isAllLoaded = true
         });
       }
     })

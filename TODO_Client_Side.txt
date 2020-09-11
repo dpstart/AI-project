@@ -2,8 +2,9 @@
 --vm details con popup dell'immagine --->Daniele
 
 GENERALE
---Aggiungere viste e routes per confirm reject token team e per activate account ------>Daniele 
 --Aggiungere timeout per loading e visualizzare errore (Vedere se ne vale la pena) 
 
 
+-Parallelizzare quante più richieste possibile
+-Modificare gli header delle tabelle per renderle coerenti e comprensibili
 
