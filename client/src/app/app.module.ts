@@ -48,6 +48,7 @@ import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
 import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { RejectTokenComponent } from './shared-components/token/reject/reject-token.component';
 import { ConfirmTokenComponent } from './shared-components/token/confirm/confirm-token.component';
+import { ActivateAccountComponent } from './shared-components/account/activate-account.component';
 
 @NgModule({
   declarations: [
@@ -69,6 +70,7 @@ import { ConfirmTokenComponent } from './shared-components/token/confirm/confirm
     CreateDialogComponent,
     ConfirmTokenComponent,
     RejectTokenComponent,
+    ActivateAccountComponent,
   ],
   imports: [
     BrowserModule,
