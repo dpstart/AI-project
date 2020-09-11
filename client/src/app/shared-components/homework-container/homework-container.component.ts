@@ -77,7 +77,18 @@ export class HomeworkContainerComponent implements OnInit {
                 let counterHw = 0
 
 
-                
+
+                if (homeworks.length == 0) {
+                  counter++
+                  if (counter == assignments.length) {
+                    this.displayedAssignments = [...displayedAssignments]
+                    this.displayedHomeworks = [...displayHomeworks]
+                    this.isAllLoaded = true
+                    console.log(this.displayedAssignments, this.displayedHomeworks);
+
+                  }
+                }
+
                 homeworks.forEach(homework => {
                   /*  unread,
                       read,
@@ -140,7 +151,7 @@ export class HomeworkContainerComponent implements OnInit {
                     })
                   }
                 })
-              })
+              }, error => this.isAllLoaded = true)
             }
           } else {
             this.isAllLoaded = true
