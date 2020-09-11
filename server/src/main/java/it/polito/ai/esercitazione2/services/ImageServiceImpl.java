@@ -18,14 +18,14 @@ import static it.polito.ai.esercitazione2.services.TeamServiceImpl.decompressByt
 @Service
 @Transactional
 @Log(topic = "Image Service")
-public class ImageServiceImpl implements ImageService{
+public class ImageServiceImpl implements ImageService {
 
     @Autowired
     ImageRepository imageRepository;
 
     @Override
     public Image getImage(Long imageName) {
-        if (!imageRepository.existsById(imageName))
+        if (imageName == null || !imageRepository.existsById(imageName))
             return null;
         Image img = new Image(imageRepository.getById(imageName));
 
@@ -34,7 +34,7 @@ public class ImageServiceImpl implements ImageService{
     }
 
     @Override
-    public Image save(Image img) throws IOException{
+    public Image save(Image img) throws IOException {
         img = imageRepository.save(img);
 
         return img;

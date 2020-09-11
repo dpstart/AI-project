@@ -14,6 +14,7 @@ import net.minidev.json.JSONObject;
 import org.apache.commons.text.RandomStringGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -124,17 +125,14 @@ public class TeamServiceImpl implements TeamService {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: " + courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
-        if (!c.getProfessors().stream().anyMatch(x -> x.getId().equals(prof)))
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)))
             throw new CourseAuthorizationException("Professor " + prof + "has not the rights to modify this course");
 
         if (c.getEnabled())
             throw new CourseEnabledException("Impossible to remove an active course");
 
 
-        c.getAssignments().stream().map(x -> {
-            imageService.remove(x.getContentId());
-            return x;
-        }).flatMap(x -> x.getHomeworks().stream()).flatMap(x -> x.getVersionIds().stream()).forEach((Long x) -> imageService.remove(x));
+        c.getAssignments().stream().peek(x -> imageService.remove(x.getContentId())).flatMap(x -> x.getHomeworks().stream()).flatMap(x -> x.getVersionIds().stream()).forEach((Long x) -> imageService.remove(x));
 
 
         c.getTeams().stream().flatMap(x -> x.getVMs().stream()).forEach(x -> imageService.remove(x.getImageId()));
@@ -150,7 +148,7 @@ public class TeamServiceImpl implements TeamService {
         if (!courseRepository.existsById(c.getName()) && !courseRepository.existsByAcronime(c.getAcronime()))
             throw new CourseNotFoundException("Course: " + c.getName() + " not found!");
         Course co = courseRepository.getOne(c.getName());
-        if (!co.getProfessors().stream().anyMatch(x -> x.getId().equals(prof)))
+        if (co.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)))
             throw new CourseAuthorizationException("Professor " + prof + "has not the rights to modify this course");
 
         String acronime = c.getAcronime();
@@ -162,7 +160,7 @@ public class TeamServiceImpl implements TeamService {
 
         co.setAcronime(acronime);
 
-        if (co.getTeams().stream().map(x -> x.getMembers().size()).filter((Integer x) -> x < min || x > max).count() > 0)
+        if (co.getTeams().stream().map(x -> x.getMembers().size()).anyMatch((Integer x) -> x < min || x > max))
             throw new TeamSizeConstraintsException("Impossible to change members size constraints so that invalidate already existinf teams ");
         co.setMin(min);
         co.setMax(max);
@@ -235,7 +233,7 @@ public class TeamServiceImpl implements TeamService {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course " + courseName + " not found");
         Course c = courseRepository.getOne(courseName);
-        if (!c.getProfessors().stream().anyMatch(x -> x.getId().equals(prof))) {
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof))) {
             throw new AuthorizationServiceException("Autenticated user is not a professor for this course");
         }
         if (!professorRepository.existsById(profId))
@@ -258,7 +256,7 @@ public class TeamServiceImpl implements TeamService {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: " + courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
-        if (!c.getProfessors().stream().anyMatch(x -> x.getId().equals(prof)) && !SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)) && !SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
             throw new CourseAuthorizationException("User " + prof + " has not the rights to modify this course: he's not the admin or the professor for this course");
         if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
             throw new StudentNotFoundException("Student: " + studentId + " not found!");
@@ -280,10 +278,9 @@ public class TeamServiceImpl implements TeamService {
         c.addStudent(s);
         for (Assignment a : c.getAssignments().stream().filter(
                 a -> //Do la possiblità al nuovo studente di consegnare solo se mancano almeno 10 minuti alla scadenza
-                        a.getExpirationDate().after(new Timestamp(System.currentTimeMillis()+ 10 * 60 * 1000)))
-                        .collect(Collectors.toList())
-        )
-        {
+                        a.getExpirationDate().after(new Timestamp(System.currentTimeMillis() + 10 * 60 * 1000)))
+                .collect(Collectors.toList())
+        ) {
             Homework h = new Homework();
             h.setAssignment(a);
             h.setStudent(s);
@@ -315,11 +312,11 @@ public class TeamServiceImpl implements TeamService {
         Student s = studentRepository.getOne(studentId);
 
         // remove homerwork of the student
-        s.getHomeworks().stream().peek(x -> x.getVersionIds().forEach((Long y) -> imageService.remove(y))).forEach((Homework x) -> homeworkRepository.delete(x));
+         s.getHomeworks().stream().peek(x -> x.getVersionIds().forEach((Long y) -> imageService.remove(y))).forEach((Homework x) -> homeworkRepository.delete(x));
         // rimuovere relazione ownership con VM, se è l'unico rimuovere proprio la VM
         s.getVMs().stream().filter(x -> x.getOwners().size() == 1).peek(x -> imageService.remove(x.getImageId())).forEach((VM x) -> vmRepository.delete(x));
         // rimuovere dal team: se il team va sotto la soglia minima, rimuoverlo
-        Team t = s.getTeams().stream().filter(x -> (x.getCourse().getName().equals(courseName)||x.getCourse().getAcronime().equals(courseName))).findFirst().orElse(null);
+        Team t = s.getTeams().stream().filter(x -> (x.getCourse().getName().equals(courseName) || x.getCourse().getAcronime().equals(courseName))).findFirst().orElse(null);
 
         if (t != null) {
             t.removeStudent(s);
@@ -334,8 +331,6 @@ public class TeamServiceImpl implements TeamService {
     public List<Boolean> unsubscribeAll(List<String> studentIds, String courseName) {
         return studentIds.stream().map(x -> removeStudentFromCourse(x, courseName)).collect(Collectors.toList());
     }
-
-
 
 
     // Professors
@@ -355,10 +350,10 @@ public class TeamServiceImpl implements TeamService {
         Professor prof = modelMapper.map(p, Professor.class);
         String alias = prof.getFirstName().toLowerCase() + "." + prof.getName().toLowerCase();
         if (professorRepository.getByAlias(alias) != null) {
-            Integer i = 3;
+            int i = 3;
             for (alias += "2"; professorRepository.getByAlias(alias) != null; i++) {
                 alias = alias.substring(0, alias.length() - Integer.toString(i - 1).length());
-                alias += i.toString();
+                alias += Integer.toString(i);
             }
         }
         prof.setAlias(alias);
@@ -388,10 +383,10 @@ public class TeamServiceImpl implements TeamService {
         Professor prof = modelMapper.map(p, Professor.class);
         String alias = prof.getFirstName().toLowerCase() + "." + prof.getName().toLowerCase();
         if (professorRepository.getByAlias(alias) != null) {
-            Integer i = 3;
+            int i = 3;
             for (alias += "2"; professorRepository.getByAlias(alias) != null; i++) {
                 alias = alias.substring(0, alias.length() - Integer.toString(i - 1).length());
-                alias += i.toString();
+                alias += Integer.toString(i);
             }
         }
         prof.setAlias(alias);
@@ -429,10 +424,10 @@ public class TeamServiceImpl implements TeamService {
         Student stud = modelMapper.map(s, Student.class);
         String alias = stud.getFirstName().toLowerCase() + "." + stud.getName().toLowerCase();
         if (studentRepository.getByAlias(alias) != null) {
-            Integer i = 3;
+            int i = 3;
             for (alias += "2"; studentRepository.getByAlias(alias) != null; i++) {
                 alias = alias.substring(0, alias.length() - Integer.toString(i - 1).length());
-                alias += i.toString();
+                alias += Integer.toString(i);
             }
         }
         stud.setAlias(alias);
@@ -466,10 +461,10 @@ public class TeamServiceImpl implements TeamService {
 
         String alias = stud.getFirstName().toLowerCase() + "." + stud.getName().toLowerCase();
         if (studentRepository.getByAlias(alias) != null) {
-            Integer i = 3;
+            int i = 3;
             for (alias += "2"; studentRepository.getByAlias(alias) != null; i++) {
                 alias = alias.substring(0, alias.length() - Integer.toString(i - 1).length());
-                alias += i.toString();
+                alias += Integer.toString(i);
             }
         }
         stud.setAlias(alias);
@@ -1067,6 +1062,9 @@ public class TeamServiceImpl implements TeamService {
             img = imageService.getImage(professorRepository.getOne(principal).getImage_id());
         else
             throw new UsernameNotFoundException("Can't retrieve profile image for the specified professor");
+
+        if (img == null)
+            img = new Image();
         return modelMapper.map(img, ImageDTO.class);
     }
 
@@ -1077,6 +1075,9 @@ public class TeamServiceImpl implements TeamService {
             img = imageService.getImage(studentRepository.getOne(principal).getImage_id());
         else
             throw new UsernameNotFoundException("Can't retrieve profile image for the specified student");
+
+        if (img == null)
+            img = new Image();
         return modelMapper.map(img, ImageDTO.class);
     }
 
@@ -1181,7 +1182,7 @@ public class TeamServiceImpl implements TeamService {
         Team t = teamRepository.getOne(teamID);
         Map<String, String> m = new HashMap<>();
         List<Student> members = t.getMembers();
-        if (!members.stream().map(Student::getId).anyMatch(x->x.equals(SecurityContextHolder.getContext().getAuthentication().getName())))
+        if (!members.stream().map(Student::getId).anyMatch(x -> x.equals(SecurityContextHolder.getContext().getAuthentication().getName())))
             throw new AuthorizationServiceException("Student not belonging to this team");
 
 
@@ -1202,5 +1203,15 @@ public class TeamServiceImpl implements TeamService {
         return m;
     }
 
+
+    @Scheduled(initialDelay = 6 * 1000, fixedRate = 10 * 1000)
+    public void checkExpired() {
+        homeworkRepository.findAll().forEach(homework -> {
+            if (homework.getAssignment().getExpirationDate().before(new Timestamp(System.currentTimeMillis()))) {
+                homework.setExpired();
+                homeworkRepository.save(homework);
+            }
+        });
+    }
 
 }

@@ -71,4 +71,24 @@ public class Homework {
         this.state = state;
     }
 
+
+    public void setExpired() {
+
+        if (!this.isFinal) {
+            switch (state) {
+                case reviewed:
+                    this.state = states.delivered;
+                    this.lastModified = new Timestamp(System.currentTimeMillis());
+                    break;
+                case delivered:
+                    break;
+                default:
+                    this.state = states.reviewed;
+                    this.lastModified = new Timestamp(System.currentTimeMillis());
+                    this.isFinal = true;
+                    break;
+            }
+        }
+        return;
+    }
 }

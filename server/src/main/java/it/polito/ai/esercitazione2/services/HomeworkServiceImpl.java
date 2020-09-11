@@ -13,6 +13,7 @@ import lombok.extern.java.Log;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -59,6 +60,7 @@ public class HomeworkServiceImpl implements HomeworkService {
         if (!assignmentRepository.existsById(assignmentId))
             throw new AssignmentNotFoundException("Assignment " + assignmentId + " not found");
         Assignment a = assignmentRepository.getById(assignmentId);
+
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
         Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
 
@@ -68,6 +70,9 @@ public class HomeworkServiceImpl implements HomeworkService {
         if (!studentRepository.getOne(principal).getCourses().contains(a.getCourse())) {
             throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course " + a.getCourse().getName());
         }
+
+        if (a.getExpirationDate().before(new Timestamp(System.currentTimeMillis())))
+            throw new IllegalHomeworkStateChangeException("The expiration date of the assignment has passed");
 
         Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, assignmentId);
         if (h == null)
@@ -120,6 +125,8 @@ public class HomeworkServiceImpl implements HomeworkService {
         if (!assignmentRepository.existsById(assignmentId))
             throw new AssignmentNotFoundException("Assignment " + assignmentId + " not found");
         Assignment a = assignmentRepository.getById(assignmentId);
+
+
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
         Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
 
@@ -129,6 +136,9 @@ public class HomeworkServiceImpl implements HomeworkService {
         if (!professorRepository.getOne(principal).getCourses().contains(a.getCourse())) {
             throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + a.getCourse().getName());
         }
+
+        if (a.getExpirationDate().before(new Timestamp(System.currentTimeMillis())))
+            throw new IllegalHomeworkStateChangeException("The expiration date of the assignment has passed");
 
         Homework h = homeworkRepository.getById(homeworkId);
         if (h == null)

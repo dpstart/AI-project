@@ -161,7 +161,6 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   addAssignmentForm: FormGroup = new FormGroup({
     expirationTime: new FormControl('00:00', Validators.required),
     expirationDate: new FormControl(new Date(), Validators.required),
-    file: new FormControl('', Validators.required),
     fileName: new FormControl('', Validators.required),
 
   });
@@ -222,7 +221,6 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   submit() {
     if (this.addAssignmentForm.valid) {
 
-      console.log("send information", this.addAssignmentForm.get('file').value);
       //FormData API provides methods and properties to allow us easily prepare form data to be sent with POST HTTP requests.
       const formData = new FormData();
 
@@ -342,7 +340,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
     //Select File
 
     this.selectedFile = event.target.files[0]
-    this.addAssignmentForm.patchValue({ fileName: event.target.files[0].name });
+    this.addAssignmentForm.patchValue({ fileName: this.selectedFile.name });
 
 
     if (this.addAssignmentForm.get('fileName').value)
