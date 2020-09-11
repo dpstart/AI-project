@@ -21,16 +21,21 @@
 
 
       <ng-template #popContent>
-        <div>
+        <div class="popOverContentDiv">
 
-          <img [src]='profilePicture'>
+          <img id="profileImage" [src]='profilePicture'>
+          <p><span><b>Id:</b></span> {{profileCard.id}}</p>
+          <p><span><b>Name:</b></span> {{profileCard.firstName}}</p>
+          <p><span><b>Surname:</b></span>{{profileCard.name}}</p>
+          <p><span><b>Email:</b></span> {{profileCard.email}}</p>
+          <p><span><b>Alias:</b></span> {{profileCard.alias}}</p>
 
         </div>
       </ng-template>
 
-      <button type="button" mat-flat-button color="primary" placement="bottom" [ngbPopover]="popContent"
-        popoverClass="popOver">
-        {{nameAndSurname}}
+      <button type="button" mat-flat-button color="primary" placement="bottom" triggers="mouseenter:mouseleave"
+        [ngbPopover]="popContent">
+        {{profileCard.firstName}} {{profileCard.name}}
       </button>
       <button mat-button (click)="logout()">Logout</button>
     </ng-template>

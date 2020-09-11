@@ -2,16 +2,16 @@ import { Component, ViewChild, OnInit, OnDestroy, OnChanges, SimpleChanges, Afte
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatDialog } from '@angular/material/dialog';
 import { LoginDialogComponent } from './auth/login-dialog.component';
-import { AuthService } from './services/auth.service';
+import { AuthService, ProfileCard } from './services/auth.service';
 import { Router, Event, NavigationEnd, ActivatedRoute, ParamMap } from '@angular/router';
 import { TeacherService, NavTeacherLinks } from './services/teacher.service';
 import { RegisterDialogComponent } from './auth/register-dialog.component';
 import { Course } from './model/course.model';
 import { StudentService, NavStudentLinks } from './services/student.service';
-import { Observable } from 'rxjs';
 import { RouteStateService } from './services/route-state.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { take } from 'rxjs/operators';
+import { take, first } from 'rxjs/operators';
+
 
 
 @Component({
@@ -31,6 +31,14 @@ export class AppComponent implements OnInit {
   navTeacherLinks: NavTeacherLinks[];
   navStudentLinks: NavStudentLinks[];
 
+  profileCard: ProfileCard = {
+    id: "",
+    name: "",
+    firstName: "",
+    email: "",
+    alias: ""
+  }
+
   @ViewChild(MatSidenav) sidenav: MatSidenav;
 
 
@@ -43,6 +51,14 @@ export class AppComponent implements OnInit {
     private studentService: StudentService,
     private routeStateService: RouteStateService,
     private sanitizer: DomSanitizer) {
+
+
+    this.courses = []
+    this.selectedCourse = ""
+    this.nameAndSurname = ""
+    this.profilePicture = ""
+    this.navTeacherLinks = [];
+    this.navStudentLinks = [];
 
     this.navTeacherLinks = teacherService.getNavTeacherLinks();
     this.navStudentLinks = studentService.getNavStudentLinks();
@@ -67,32 +83,57 @@ export class AppComponent implements OnInit {
 
 
   ngOnInit() {
+    this.routeStateService.pathParam.subscribe(data => this.selectedCourse = data)
 
-    this.authService.observableNameAndSurname.subscribe(value => this.nameAndSurname = value)
+    this.authService.getProfileCard().subscribe(value => {
 
-    this.authService.observableProfileImage.pipe(take(1)).subscribe(image => {
+      this.profileCard = value
+    })
+
+
+    this.authService.getProfileImage().subscribe(image => {
+
       let base64Data = image.picByte;
       let formattedImage = `data:${image.type};base64,` + '\n' + base64Data;
       this.profilePicture = this.sanitizer.bypassSecurityTrustResourceUrl(formattedImage);
     })
 
+    this.authService.getSelf().subscribe((data) => {
+
+      let id = "";
+      let email = "";
+      let name = "";
+      let firstName = "";
+      let alias = "";
+
+      if (data.email)
+        email = data.email;
+      if (data.alias)
+        alias = data.alias;
+      if (data.firstName)
+        firstName = data.firstName;
+      if (data.name)
+        name = data.name;
+      if (data.id)
+        id = data.id;
+
+      this.authService.profileCard.next({
+        id: id,
+        name: name,
+        firstName: firstName,
+        email: email,
+        alias: alias,
+      })
+    })
 
 
-    let session = localStorage.getItem('session')
-    if (session) {
+    this.authService.getImage().subscribe(success => {
+      this.authService.profileImage.next(success)
+    })
 
-      let sess = JSON.parse(session)
-
-
-      if (this.authService.isLoggedIn()) {
-
-        this.authService.subjectNameAndSurname.next(`${sess['firstName']} ${sess['name']}`)
-        this.authService.subjectProfileImage.next(sess['image'])
-      }
-    }
-
-    this.routeStateService.pathParam.subscribe(data => this.selectedCourse = data)
     this.retrieveCourses()
+
+
   }
 
 
@@ -100,10 +141,12 @@ export class AppComponent implements OnInit {
 
     if (this.authService.isLoggedIn()) {
 
-      this.sidenav.open()
 
       if (this.authService.isRoleTeacher())
         this.teacherService.getCourses().subscribe((data: Course[]) => {
+          if (data.length != 0) {
+            this.sidenav.open()
+          }
           this.courses = data;
         })
       else

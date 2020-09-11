@@ -37,53 +37,60 @@ export class LoginDialogComponent {
   @Input() error: string | null;
 
   save() {
-    this.authService.login(this.form.value.email, this.form.value.password).subscribe(data => {
+    this.authService.login(this.form.value.email, this.form.value.password).subscribe(
+      data => {
 
-      var sess = {};
+        var sess = {};
 
-      sess["info"] = JSON.parse(atob(data["token"].split('.')[1]));
-      sess["token"] = data["token"]
-
-      localStorage.setItem("session", JSON.stringify(sess));
-
-
-
-      this.authService.getSelf().subscribe((data) => {
-
-        if (data.email)
-          sess["email"] = data.email;
-        if (data.alias)
-          sess["alias"] = data.alias;
-        if (data.firstName)
-          sess["firstName"] = data.firstName;
-        if (data.name)
-          sess["name"] = data.name;
-        if (data.id)
-          sess["id"] = data.id;
-
-        this.authService.subjectNameAndSurname.next(`${sess['firstName']} ${sess['name']}`)
+        sess["info"] = JSON.parse(atob(data["token"].split('.')[1]));
+        sess["token"] = data["token"]
 
         localStorage.setItem("session", JSON.stringify(sess));
 
+
+
+        this.authService.getSelf().subscribe((data) => {
+
+          if (data.email)
+            sess["email"] = data.email;
+          if (data.alias)
+            sess["alias"] = data.alias;
+          if (data.firstName)
+            sess["firstName"] = data.firstName;
+          if (data.name)
+            sess["name"] = data.name;
+          if (data.id)
+            sess["id"] = data.id;
+
+          this.authService.profileCard.next({
+            id: sess['id'],
+            firstName: sess['firstName'],
+            name: sess['name'],
+            email: sess['email'],
+            alias: sess['alias'],
+          })
+
+          localStorage.setItem("session", JSON.stringify(sess));
+        })
+
+
+        this.authService.getImage().subscribe(success => {
+
+          sess["image"] = success
+
+
+          this.authService.profileImage.next(sess['image'])
+
+          localStorage.setItem("session", JSON.stringify(sess));
+
+          
+        })
+
+        this.close()
+
+      }, error => {
+        this.error = error.message;
       })
-
-
-      this.authService.getImage().subscribe(success => {
-
-        sess["image"] = success
-
-
-        this.authService.subjectProfileImage.next(sess['image'])
-
-        localStorage.setItem("session", JSON.stringify(sess));
-
-      })
-
-      this.close()
-
-    }, error => {
-      this.error = error.message;
-    })
 
   }
 

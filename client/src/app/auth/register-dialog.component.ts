@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
-import { AuthService, RegisteredUser } from '../services/auth.service';
+import { AuthService, RegisteredUserForm } from '../services/auth.service';
 
 @Component({
   selector: 'app-register-dialog',
@@ -41,7 +41,7 @@ export class RegisterDialogComponent implements OnInit {
   submit() {
     if (this.form.valid) {
 
-      let user: RegisteredUser = this.form.value;
+      let user: RegisteredUserForm = this.form.value;
       this.auth.register(user, this.selectedFile)
         .subscribe(
           data => {
