@@ -7,4 +7,5 @@ GENERALE
 
 -Parallelizzare quante più richieste possibile
 -Modificare gli header delle tabelle per renderle coerenti e comprensibili
+-sistemare logica dei retry che ora prova le chiamate sempre tre volte.
 
