@@ -34,7 +34,7 @@ export class VMComponent implements OnInit {
     alertType: string;
 
     columnsToDisplay: string[] = ['actions', 'name', 'id', 'disk_space', 'ram'];
-    innerDisplayedColumns = ['id', 'n_cpu', 'disk_space', 'ram', 'status'];
+    innerDisplayedColumns = ['id', 'id_creator', 'n_cpu', 'disk_space', 'ram', 'status', 'actions'];
     dataSourceTeams: MatTableDataSource<any> = new MatTableDataSource<any>();
 
     private paginator: MatPaginator;
@@ -44,6 +44,7 @@ export class VMComponent implements OnInit {
     expandedElement: Team | null;
 
     isAllLoaded: boolean
+    image: string
 
     @ViewChild(MatSort) set matSort(ms: MatSort) {
         this.sort = ms;
@@ -60,7 +61,8 @@ export class VMComponent implements OnInit {
         private teacherService: TeacherService,
         private activatedRoute: ActivatedRoute,
         private dialog: MatDialog,
-        private routerStateService: RouteStateService) {
+        private routerStateService: RouteStateService,
+        private studentService: StudentService) {
         this.isAllLoaded = false
     }
 
@@ -89,6 +91,7 @@ export class VMComponent implements OnInit {
                         let team_id = element["id"];
 
                         this.teacherService.getVmsForTeam(team_id).subscribe(vms => {
+
                             data[i]["vms"] = vms;
                         })
                     });
@@ -109,13 +112,24 @@ export class VMComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe((result) => {
             this.getData();
-            this.message = result.message;
+            this.message = result.message || null;
             this.alertType = result.type;
         })
         event.stopPropagation();
     }
 
     openVmImage(element, event) {
+
+
+        this.studentService.connectToVm(element.id).subscribe(image => {
+
+
+            let objectURL = 'data:image/png;base64,' + image.picByte
+            this.image = objectURL;
+            let win = window.open()
+            win.document.write('<iframe src="' + this.image + '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
+        })
+
         event.stopPropagation();
     }
 

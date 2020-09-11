@@ -256,6 +256,8 @@ export class AuthService {
         `body was: ${error.error.message}`);
     }
     // return an observable with a user-facing error message
+
+    console.log(error)
     return throwError({ status: error.status, message: error.error.message });
   };
 }
