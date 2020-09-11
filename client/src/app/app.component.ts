@@ -144,14 +144,14 @@ export class AppComponent implements OnInit {
 
       if (this.authService.isRoleTeacher())
         this.teacherService.getCourses().subscribe((data: Course[]) => {
-          if (data.length != 0) {
+          if (data.length != 0 && this.selectedCourse == "Home") {
             this.sidenav.open()
           }
           this.courses = data;
         })
       else
         this.studentService.getCourses().subscribe((data: Course[]) => {
-          if (data.length != 0) {
+          if (data.length != 0 && this.selectedCourse == "Home") {
             this.sidenav.open()
           }
           this.courses = data;
