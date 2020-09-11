@@ -20,8 +20,6 @@ import { ActivateAccountComponent } from './shared-components/account/activate-a
 
 const routes: Routes = [
 
-    { path: '', redirectTo: '/home', pathMatch: 'full' },
-    { path: 'home', component: HomeComponent },
     {
         path: 'student',
         canActivate: [StudentGuard],
@@ -43,10 +41,12 @@ const routes: Routes = [
             { path: 'course/:course_name/homework', component: HomeworkContainerComponent },
         ]
     },
-
-    { path: '/activate/:token', component: ActivateAccountComponent },
-    { path: '/confirm/:token', component: ConfirmTokenComponent },
-    { path: '/reject/:token', component: RejectTokenComponent },
+    { path: 'home', component: HomeComponent },
+    { path: '', redirectTo: '/home', pathMatch: 'full' },
+    { path: 'activate/:token', component: ActivateAccountComponent },
+    { path: 'confirm/:token', component: ConfirmTokenComponent },
+    { path: 'reject/:token', component: RejectTokenComponent },
+    
     { path: '**', component: PageNotFoundComponent }
 ];
 
