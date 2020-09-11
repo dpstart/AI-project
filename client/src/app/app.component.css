@@ -30,7 +30,11 @@ nav {
   cursor: pointer;
 }
 
-.popOver {
-
-  background-color: #f5f5f5;
+.popOverContentDiv{
+height: auto;
+width: auto;
+}
+#profileImage{
+  height: 100px;
+  width: 100px;
 }

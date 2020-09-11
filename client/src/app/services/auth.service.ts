@@ -13,11 +13,20 @@ export enum ROLE {
   STUDENT
 }
 
-export interface RegisteredUser {
+export interface RegisteredUserForm {
   id: string
   name: string
   firstName: string
   password: string
+  email: string
+}
+
+
+export interface ProfileCard {
+  id: string,
+  name: string,
+  firstName: string,
+  alias: string,
   email: string
 }
 
@@ -27,45 +36,32 @@ export interface RegisteredUser {
 export class AuthService {
 
 
-  private _subjectNameAndSurname: Subject<string>;
+  private _profileCard: Subject<ProfileCard>;
 
-  private _subjectProfileImage: Subject<Image>;
-
-
-  public get subjectNameAndSurname(): Subject<string> {
-    return this._subjectNameAndSurname;
-  }
-  public set subjectNameAndSurname(value: Subject<string>) {
-    this._subjectNameAndSurname = value;
-  }
-
-  private _observableProfileImage: Observable<Image>;
-
-  public get observableProfileImage(): Observable<Image> {
-    return this._observableProfileImage;
-  }
-  public set observableProfileImage(value: Observable<Image>) {
-    this._observableProfileImage = value;
+  public get profileCard(): Subject<ProfileCard> {
+    return this._profileCard;
   }
 
 
 
-  private _observableNameAndSurname: Observable<string>;
-
-
-  public get observableNameAndSurname(): Observable<string> {
-    return this._observableNameAndSurname;
+  public getProfileCard(): Observable<ProfileCard> {
+    return this._profileCard.asObservable();
   }
-  public set observableNameAndSurname(value: Observable<string>) {
-    this._observableNameAndSurname = value;
+  public set profileCard(value: Subject<ProfileCard>) {
+    this._profileCard = value;
   }
 
+  private _profileImage: Subject<Image>;
 
-  public get subjectProfileImage(): Subject<Image> {
-    return this._subjectProfileImage;
+  public get profileImage(): Subject<Image> {
+    return this._profileImage;
   }
-  public set subjectProfileImage(value: Subject<Image>) {
-    this._subjectProfileImage = value;
+
+  public getProfileImage(): Observable<Image> {
+    return this._profileImage.asObservable();
+  }
+  public set profileImage(value: Subject<Image>) {
+    this._profileImage = value;
   }
 
   UrlLogin = "http://localhost:8080"
@@ -74,10 +70,9 @@ export class AuthService {
 
   constructor(private http: HttpClient, private routeStateService: RouteStateService) {
 
-    this.subjectNameAndSurname = new Subject<string>()
-    this.observableNameAndSurname = this.subjectNameAndSurname.asObservable()
-    this.subjectProfileImage = new Subject<Image>()
-    this.observableProfileImage = this.subjectProfileImage.asObservable()
+    this.profileCard = new Subject<ProfileCard>()
+    this.profileImage = new Subject<Image>()
+
   }
 
   login(email: string, password: string) {
@@ -88,7 +83,7 @@ export class AuthService {
     );
   }
 
-  register(user: RegisteredUser, file: File): Observable<RegisteredUser> {
+  register(user: RegisteredUserForm, file: File): Observable<RegisteredUserForm> {
 
     const formData = new FormData();
 
@@ -108,7 +103,7 @@ export class AuthService {
       formData.append('image', file, file.name);
 
 
-      return this.http.post<RegisteredUser>(url, formData, { "headers": headers }).pipe(
+      return this.http.post<RegisteredUserForm>(url, formData, { "headers": headers }).pipe(
         retry(3),
         catchError(this.handleError)
       );
@@ -121,7 +116,7 @@ export class AuthService {
       formData.append('professor', new Blob([JSON.stringify(user)], {
         type: "application/json"
       }))
-      return this.http.post<RegisteredUser>(url, formData, { "headers": headers }).pipe(
+      return this.http.post<RegisteredUserForm>(url, formData, { "headers": headers }).pipe(
         retry(3),
         catchError(this.handleError)
       );
@@ -143,8 +138,15 @@ export class AuthService {
       url = `${this.URL}/professors/self`;
 
     } else {
-      url = `${this.URL}/students/self`;
+
+      if (this.isRoleStudent()) {
+        url = `${this.URL}/students/self`;
+      } else
+        return new Observable()
     }
+
+
+
 
     return this.http.get<any>(url).pipe(
       retry(3),
@@ -163,7 +165,10 @@ export class AuthService {
       url = `${this.URL}/professors/image`;
 
     } else {
-      url = `${this.URL}/students/image`;
+      if (this.isRoleStudent())
+        url = `${this.URL}/students/image`;
+      else
+        return new Observable()
     }
 
     return this.http.get<Image>(url).pipe(
