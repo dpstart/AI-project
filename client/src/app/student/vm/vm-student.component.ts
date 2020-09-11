@@ -11,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { EditTeamDialogComponent } from 'src/app/teacher/vm/edit/edit-team-dialog.component';
 import { CreateDialogComponent } from './create/create-dialog.component';
 import { EditVmDialogComponent } from './edit/edit-vm-dialog.component';
+import { Image } from 'src/app/model/image.model';
 
 @Component({
   selector: 'app-vm-student',
@@ -48,6 +49,7 @@ export class VmStudentComponent implements OnInit {
 
 
   teamId: number;
+  image: string;
 
   constructor(
     private routeStateService: RouteStateService,
@@ -85,9 +87,6 @@ export class VmStudentComponent implements OnInit {
         this.studentService.getVmsForTeam(team.id).subscribe(vms => {
 
           this.dataSourceVm.data = [...vms]
-
-          console.log(vms);
-
           this.isAllLoaded = true
         })
 
@@ -128,16 +127,25 @@ export class VmStudentComponent implements OnInit {
     this.studentService.deleteVm(vm).subscribe((_) => {
       this.dataSourceVm.data.splice(this.dataSourceVm.data.indexOf(vm), 1)
       this.dataSourceVm._updateChangeSubscription()
-    })
+    },
+      (error) => { this.message = error.message; this.alertType = "danger"; })
   }
 
   openVmImage(vm: Vm) {
+
+    this.studentService.connectToVm(vm.id).subscribe(image => {
+
+
+      let objectURL = 'data:image/png;base64,' + image.picByte
+      this.image = objectURL;
+      let win = window.open()
+      win.document.write('<iframe src="' + this.image + '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
+    })
 
   }
 
   openEditDialog(element, event) {
 
-    console.log("element", element)
 
     const dialogRef = this.dialog.open(EditVmDialogComponent, {
       width: '500px',

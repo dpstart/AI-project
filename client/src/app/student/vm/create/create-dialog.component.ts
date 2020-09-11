@@ -62,7 +62,8 @@ export class CreateDialogComponent implements OnInit {
     if (this.selectedFile)
       this.studentService.createVM(this.data.course, this.data.teamId, formData).subscribe(res => {
         this.close({ message: "VM Successfully Created", type: "success" });
-      });
+      },
+        error => { this.message = error.message; this.alertType = "danger"; });
   }
 
 
@@ -71,6 +72,7 @@ export class CreateDialogComponent implements OnInit {
   public onFileChanged(event) {
     //Select File
     this.selectedFile = event.target.files[0];
+    this.fileName = this.selectedFile.name;
   }
 
 

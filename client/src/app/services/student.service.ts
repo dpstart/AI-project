@@ -10,6 +10,7 @@ import { HomeworkVersion } from '../model/homework-version';
 import { Assignment } from '../model/assignment.model';
 import { Homework } from '../model/homework.model';
 import { Form } from '@angular/forms';
+import { Image } from '../model/image.model';
 
 
 export interface NavStudentLinks {
@@ -54,7 +55,7 @@ export class StudentService {
 
     // return an observable with a user-facing error message
 
-    return throwError({ status: error.status, message: error.message });
+    return throwError({ status: error.status, message: error.error.message });
   };
 
 
@@ -226,7 +227,12 @@ export class StudentService {
 
   }
 
-  getImageFromId(id: number) {
+  connectToVm(vmId: number) {
+    const url = `${this.URL}/vms/${vmId}/connect`
+    return this.http.get<Image>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
 
   }
 

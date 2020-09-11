@@ -95,11 +95,9 @@ export class AuthService {
     let headers = new HttpHeaders()
     headers.set('Content-Type', 'multipart/form-data;');
 
-    console.log(headers)
 
     // Il tentativo di discernere la fine della mail non è un aggiunta di un livello di sicurezza ma serve solo a discernere quale API contattare
     if (user.email.includes("@studenti.polito.it")) {
-      console.log(user);
 
       let url = `${this.URL}/students`;
 
