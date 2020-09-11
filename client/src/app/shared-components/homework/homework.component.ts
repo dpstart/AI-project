@@ -34,6 +34,7 @@ export interface DisplayedAssignment {
   id: number,
   releaseDate: String,
   expirationDate: String
+  isDeletable: boolean
 }
 
 
@@ -60,7 +61,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   alertType: string
 
 
-  // isThereAnAssignmentToBeDeleted: boolean
+  isThereAnAssignmentToBeDeleted: boolean
 
   // nome, cognome, matricola,  state,  timestamp  
   homeworksColumnsToDisplay: string[] = ['name', 'surname', 'studentId', 'state', 'timestamp', 'mark'];
@@ -112,6 +113,12 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
     this._displayedHomeworks = value;
     for (let i = 0; i < this.displayedAssignments.length; i++) {
+      if (this.displayedAssignments[i].isDeletable){
+        this.isThereAnAssignmentToBeDeleted = true
+        this.consegneDisplayedColumns.push('actions')
+      }
+        
+
       this.homeworksDataSource.push(new MatTableDataSource<DisplayedHomework>())
       this.allHomeworks.push([])
       let newSource = []
@@ -178,7 +185,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
     this.consegneDataSource = new MatTableDataSource<DisplayedAssignment>();
     this.allHomeworks = []
 
-    // this.isThereAnAssignmentToBeDeleted = false
+    this.isThereAnAssignmentToBeDeleted = false
 
     this.reinitFilters();
 
@@ -357,6 +364,23 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
     if (this.addAssignmentForm.get('fileName').value)
       this.isDisabled = false
+  }
+
+
+
+  deleteAssignment(assignment: DisplayedAssignment) {
+
+    this.teacherService.removeAssignment(this.selectedCourse, assignment.id).subscribe(
+      success => {
+        this.displayedAssignments = this.displayedAssignments.filter(a => a.id != assignment.id)
+        this.message = "The assignment was successfully deleted"
+        this.alertType = "success"
+      },
+      error => {
+        this.message = "Something went wrong try later..."
+        this.alertType = "danger"
+      })
+
   }
 
 

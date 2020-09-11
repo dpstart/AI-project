@@ -66,7 +66,9 @@ export class HomeworkContainerComponent implements OnInit {
               let displayedAssignment: DisplayedAssignment = {
                 id: assignments[i].id,
                 releaseDate: new Date(assignments[i].releaseDate).toLocaleDateString(undefined, options),
-                expirationDate: new Date(assignments[i].expirationDate).toLocaleDateString(undefined, options)
+                expirationDate: new Date(assignments[i].expirationDate).toLocaleDateString(undefined, options),
+                isDeletable: false
+
               }
               //add converted element to assignment source
               displayedAssignments.push(displayedAssignment)
@@ -80,6 +82,7 @@ export class HomeworkContainerComponent implements OnInit {
 
                 if (homeworks.length == 0) {
                   counter++
+                  displayedAssignment.isDeletable = true
                   if (counter == assignments.length) {
                     this.displayedAssignments = [...displayedAssignments]
                     this.displayedHomeworks = [...displayHomeworks]

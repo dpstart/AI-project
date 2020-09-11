@@ -27,8 +27,6 @@ export interface TeamSettings {
 })
 export class TeacherService {
 
-
-
     //tabs of the teacher
     private navTeacherLinks: NavTeacherLinks[];
 
@@ -38,6 +36,9 @@ export class TeacherService {
 
         this.navTeacherLinks = [{ link: 'students', label: 'Students' }, { link: 'vms', label: 'VMs' }, { link: 'homework', label: 'Consegne ed Elaborati' }]
     }
+
+
+    //RESEARCH
 
     getNavTeacherLinks() {
         return this.navTeacherLinks
@@ -80,7 +81,7 @@ export class TeacherService {
             catchError(this.handleError)
         );
     }
-    
+
 
     getCourse<Course>(name: string): Observable<Course> {
 
@@ -170,13 +171,25 @@ export class TeacherService {
 
     }
 
-    reviewHomework(courseName: string, assignmentId: number, homeworkId:number, form: FormData): Observable<Homework> {
+    reviewHomework(courseName: string, assignmentId: number, homeworkId: number, form: FormData): Observable<Homework> {
         const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}`
         return this.http.post<Homework>(url, form).pipe(
             retry(3),
             catchError(this.handleError)
         );
 
+    }
+
+
+    //DELETE
+
+
+    removeAssignment(courseName: string, id: number): Observable<any> {
+        const url = `${this.URL}/courses/${courseName}/assignments/${id}`
+        return this.http.delete(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
     }
 
     private handleError(error: HttpErrorResponse) {
