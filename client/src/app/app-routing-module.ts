@@ -12,11 +12,15 @@ import { StudentGuard } from './auth/student.guard';
 import { VmStudentComponent } from './student/vm/vm-student.component';
 import { GroupsComponent } from './student/groups/groups.component';
 import { HomeworkContainerComponent } from './shared-components/homework-container/homework-container.component';
+import { ConfirmTokenComponent } from './shared-components/token/confirm/confirm-token.component';
+import { RejectTokenComponent } from './shared-components/token/reject/reject-token.component';
 
 
 
 const routes: Routes = [
 
+    { path: '', redirectTo: '/home', pathMatch: 'full' },
+    { path: 'home', component: HomeComponent },
     {
         path: 'student',
         canActivate: [StudentGuard],
@@ -38,8 +42,8 @@ const routes: Routes = [
             { path: 'course/:course_name/homework', component: HomeworkContainerComponent },
         ]
     },
-    { path: 'home', component: HomeComponent },
-    { path: '', redirectTo: '/home', pathMatch: 'full' },
+    { path: '/confirm/:token', component: ConfirmTokenComponent },
+    { path: '/reject/:token', component: RejectTokenComponent },
     { path: '**', component: PageNotFoundComponent }
 ];
 

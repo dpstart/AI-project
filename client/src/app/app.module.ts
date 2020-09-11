@@ -46,6 +46,9 @@ import { CreateDialogComponent } from 'src/app/student/vm/create/create-dialog.c
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
 import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
+import { RejectTokenComponent } from './shared-components/token/reject/reject-token.component';
+import { ConfirmTokenComponent } from './shared-components/token/confirm/confirm-token.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -64,6 +67,8 @@ import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
     HomeworkDialogComponent,
     HomeworkContainerComponent,
     CreateDialogComponent,
+    ConfirmTokenComponent,
+    RejectTokenComponent,
   ],
   imports: [
     BrowserModule,
