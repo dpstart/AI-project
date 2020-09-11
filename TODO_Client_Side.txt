@@ -4,7 +4,6 @@
 GENERALE
 --Aggiungere viste e routes per confirm reject token team e per activate account ------>Daniele 
 --Aggiungere timeout per loading e visualizzare errore (Vedere se ne vale la pena) 
---Student component ngModel del caricamento file, sostituire con formControl
 
 
 

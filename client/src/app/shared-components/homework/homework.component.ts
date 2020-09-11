@@ -60,6 +60,8 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   alertType: string
 
 
+  // isThereAnAssignmentToBeDeleted: boolean
+
   // nome, cognome, matricola,  state,  timestamp  
   homeworksColumnsToDisplay: string[] = ['name', 'surname', 'studentId', 'state', 'timestamp', 'mark'];
   homeworksDataSource: Array<MatTableDataSource<DisplayedHomework>>
@@ -176,13 +178,14 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
     this.consegneDataSource = new MatTableDataSource<DisplayedAssignment>();
     this.allHomeworks = []
 
+    // this.isThereAnAssignmentToBeDeleted = false
 
     this.reinitFilters();
 
   }
 
   private reinitFilters() {
-    this.options = ['LETTO', 'NON LETTO', 'RIVISTO', 'CONSEGNATO','REGISTRATO'];
+    this.options = ['LETTO', 'NON LETTO', 'RIVISTO', 'CONSEGNATO', 'REGISTRATO'];
     this.allOptions = [];
     //chips
     this.filteredOptions = this.optionCtrl.valueChanges.pipe(
@@ -197,12 +200,21 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
       this.allHomeworks.push([])
       let newSource = []
 
+
       this.displayedHomeworks.forEach(x => {
 
         if (x.assignmentId == this.displayedAssignments[i].id) {
           newSource.push(x)
         }
       })
+
+      // //hws assegnati ad un determinato assignment
+      // if (newSource.length == 0) {
+      //   //E' possibile cancellare un assignment
+      //   this.isThereAnAssignmentToBeDeleted = true
+      // }
+
+
       this.homeworksDataSource[i].data = [...newSource]
       this.allHomeworks[i] = this.homeworksDataSource[i].data
       this.filterRowsAccordingToOptions(this.displayedAssignments[i].id)
@@ -336,7 +348,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
 
   //Gets called when the user selects an image
-   onFileChanged(event) {
+  onFileChanged(event) {
     //Select File
 
     this.selectedFile = event.target.files[0]

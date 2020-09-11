@@ -2,4 +2,6 @@ TODO SERVER_SIDE:
 -Possibilità di riempimento automatico del db all'accensione del server
  -aggiungere immagine quando torna VM
  
- 
+ - nel rimuovere gli studenti dal corso bisogna controllare che se non ci sono più homeworks allora va eliminato anche il rispettivo assignment
+
+

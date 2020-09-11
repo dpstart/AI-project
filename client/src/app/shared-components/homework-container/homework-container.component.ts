@@ -111,8 +111,15 @@ export class HomeworkContainerComponent implements OnInit {
                   }
 
 
-                  if (homework.isFinal)
+                  // Definisci il voto
+                  let mark = homework.mark === 0 ? "--" : homework.mark.toString()
+
+                  //E' una valutazione finale?
+                  if (homework.isFinal) {
                     state = "REGISTRATO"
+                    mark = homework.mark < 18 ? "RESPINTO" : homework.mark.toString()
+                  }
+
 
                   //Retrieve info about the corresponding student
 
@@ -133,7 +140,7 @@ export class HomeworkContainerComponent implements OnInit {
                         studentId: student.id,
                         state: state,
                         isFinal: homework.isFinal,
-                        mark: homework.mark === 0 ? "--" : homework.mark.toString(),
+                        mark: mark,
                         timestamp: new Date(homework.lastModified).toLocaleDateString(undefined, options)
                       })
 
