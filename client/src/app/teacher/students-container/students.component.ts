@@ -7,7 +7,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
@@ -19,7 +19,7 @@ import { map, startWith } from 'rxjs/operators';
 export class StudentsComponent implements OnInit {
 
   selectedFile: File;
-  fileName: string
+
   isDisabled: boolean
 
 
@@ -35,12 +35,11 @@ export class StudentsComponent implements OnInit {
 
   // Autocompletion
   filteredOptions: Observable<Student[]>;
-  studentSelected: Student = null;
 
   displayedColumns: string[] = ['select', 'id', 'name', 'first name', 'group'];
 
+  addStudentForm: FormGroup
 
-  myControl = new FormControl();
 
   // Data sources
   private _enrolledStudents: Student[];
@@ -49,6 +48,12 @@ export class StudentsComponent implements OnInit {
   constructor() {
     this.enrolledStudentsDataSource = new MatTableDataSource();
     this.isDisabled = true
+
+
+    this.addStudentForm = new FormGroup({
+      studentControl: new FormControl(null),
+      fileNameControl: new FormControl('')
+    })
   }
 
   @ViewChild(MatSidenav) sidenav: MatSidenav;
@@ -58,14 +63,14 @@ export class StudentsComponent implements OnInit {
 
   @Input()
   public set enrolledStudents(value: Student[]) {
-    this._enrolledStudents = value;
+    this._enrolledStudents = [...value];
     this.enrolledStudentsDataSource.data = [...this.enrolledStudents]
   }
 
   @Input()
   public set studentsNotInCourse(value: Student[]) {
     this._studentsNotInCourse = value;
-    this.filteredOptions = this.myControl.valueChanges.pipe(
+    this.filteredOptions = this.addStudentForm.get("studentControl").valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))
     );
@@ -87,7 +92,7 @@ export class StudentsComponent implements OnInit {
   // Lifecycle hooks -------
 
   ngOnInit() {
-    this.filteredOptions = this.myControl.valueChanges.pipe(
+    this.filteredOptions = this.addStudentForm.get("studentControl").valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))
     );
@@ -118,7 +123,7 @@ export class StudentsComponent implements OnInit {
 
 
 
-  private _isMatchingStudent(value: string) {
+  private matchingStudents(value: string): Student[] {
 
     // Correct matches: 
     //  - Name
@@ -133,7 +138,7 @@ export class StudentsComponent implements OnInit {
 
   private _filter(value: string): Student[] {
     const filterValue = value.toString().toLowerCase();
-    return this._isMatchingStudent(filterValue);
+    return this.matchingStudents(filterValue);
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -197,13 +202,9 @@ export class StudentsComponent implements OnInit {
 
         indexEndElement = indexEndElement > (this.enrolledStudentsDataSource.data.length - 1) ? (this.enrolledStudentsDataSource.data.length) : indexEndElement
 
-
         for (let i = indexStartingElement; i < indexEndElement; i++) {
-          this.selection.select(this.enrolledStudentsDataSource.data[i])
+          this.selection.select(this.enrolledStudentsDataSource.sortData(this.enrolledStudentsDataSource.data, this.sort)[i])
         }
-
-
-        console.log(indexEndElement, indexStartingElement);
 
 
 
@@ -214,36 +215,25 @@ export class StudentsComponent implements OnInit {
 
       } else {
         this.enrolledStudentsDataSource.data.forEach(row => this.selection.select(row));
-
       }
-
-
-      // //TODO implementare selezione elementi su particolare pagina
-      // console.log(this.paginator.pageIndex);
-      // console.log("IN", indexStartingElement);
-      // console.log("END", indexEndElement)
-      // console.log(this.paginator.getNumberOfPages());
-      // console.log(this.paginator.pageSize);
     }
   }
 
   displayWith(student: Student): string {
-
     if (student == null)
       return;
     return student.firstName + " " + student.name + " (" + student.id + ")";
   }
 
   autocompleteSelected(student: Student) {
-    this.studentSelected = student;
+    this.addStudentForm.get('studentControl').setValue(student)
   }
 
   addStudentEvent() {
 
-    if (this.studentSelected != null) {
-      this.addStudent.emit(this.studentSelected);
-      this.studentSelected = null;
-      //this.enrolledStudentsDataSource.data = this._enrolledStudents;
+    if (this.addStudentForm.get("studentControl").value != null) {
+      this.addStudent.emit(this.addStudentForm.get("studentControl").value);
+      this.addStudentForm.get('studentControl').setValue(null)
     }
 
   }
@@ -253,19 +243,16 @@ export class StudentsComponent implements OnInit {
   }
 
   _deleteStudents() {
-
     this.deleteStudents.emit(this.selection.selected)
     this.selection.clear();
-
-    //this.enrolledStudents.data = this.enrolledStudents.data.filter(s => this.selection.selected.indexOf(s) == -1);
   }
 
   //Gets called when the user selects an image
   public onFileChanged(event) {
     //Select File
     this.selectedFile = event.target.files[0];
-    this.fileName = this.selectedFile.name
-    if (this.fileName)
+    this.addStudentForm.get('fileNameControl').setValue(this.selectedFile.name)
+    if (this.addStudentForm.get('fileNameControl'))
       this.isDisabled = false
   }
   //Gets called when the user clicks on submit to upload the image

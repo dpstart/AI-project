@@ -19,57 +19,63 @@
 
     <h2 class="mat-h2 tabtitle">Elenco studenti iscritti al corso.</h2>
 
-    <form class="addStudentForm">
-        <mat-form-field class="inputStudentField">
-            <input type="text" placeholder="Add Student" aria-label="Number" matInput [formControl]="myControl"
-                [matAutocomplete]="auto">
-            <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayWith"
-                (optionSelected)="autocompleteSelected($event.option.value)">
-                <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
-                    {{option.firstName}} {{option.name}} ({{option.id}})
-                </mat-option>
-            </mat-autocomplete>
-        </mat-form-field>
-        <button mat-button (click)="addStudentEvent()">Add</button>
+    <form [formGroup]="addStudentForm">
+        <div class="flexCenter">
+            <div>
+                <mat-form-field class="inputStudentField">
+                    <input type="text" placeholder="Add Student" aria-label="Number" matInput formControlName="studentControl"
+                        [matAutocomplete]="auto">
+                    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayWith"
+                        (optionSelected)="autocompleteSelected($event.option.value)">
+                        <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+                            {{option.firstName}} {{option.name}} ({{option.id}})
+                        </mat-option>
+                    </mat-autocomplete>
+                </mat-form-field>
+                <button type="button" mat-button (click)="addStudentEvent()">Add</button>
+
+            </div>
+            <div>
+                <button type="button" class="folderButton" mat-fab color="primary" aria-label="Example icon button with a folder icon"
+                    (click)="fileInput.click()">
+                    <mat-icon>folder</mat-icon>
+                    <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;" />
+                </button>
+                <mat-form-field>
+                    <mat-label>Add students</mat-label>
+                    <input matInput placeholder="No file selected" formControlName="fileNameControl" readonly="true">
+                </mat-form-field>
+
+                <button type="button" id="uploadButton" [disabled]="isDisabled" mat-button color="primary"
+                    (click)="onUpload()">Upload</button>
+
+            </div>
+        </div>
     </form>
 
-    <div class="fileUploadingArea">
-        <button class="folderButton" mat-fab color="primary" aria-label="Example icon button with a folder icon"
-            (click)="fileInput.click()">
-            <mat-icon>folder</mat-icon>
-            <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;" />
-        </button>
-        <mat-form-field>
-            <mat-label>Add students</mat-label>
-            <input matInput placeholder="No file selected" [(ngModel)]="fileName" readonly="true">
-        </mat-form-field>
-
-        <button id="uploadButton" [disabled]="isDisabled" mat-flat-button color="primary"
-            (click)="onUpload()">Upload</button>
-
-    </div>
 
 
-<div class="flexCenter">
-    <div class="example-button-container">
-        <button class="folderButton" mat-fab color="warn" aria-label="Example icon button with a delete icon"
-            *ngIf="!isDeleteButtonDisabled()" (click)="_deleteStudents()">
-            <mat-icon>delete</mat-icon>
-        </button>
-    </div>
 
-    <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
-        {{ message }}
-        <div *ngIf="alertType=='secondary'">
-            <button *ngIf="masterToggleInPageOption else m" (click)="toggleSelectionOptionAndSelect()" mat-flat-button
-                color="primary">Seleziona tutti </button>
-            <ng-template #m>
-                <button (click)="toggleSelectionOptionAndSelect()" mat-flat-button color="primary">Annulla selezione
-                </button>
-            </ng-template>
+    <div class="flexCenter">
+        <div class="example-button-container">
+            <button class="folderButton" mat-fab color="warn" aria-label="Example icon button with a delete icon"
+                *ngIf="!isDeleteButtonDisabled()" (click)="_deleteStudents()">
+                <mat-icon>delete</mat-icon>
+            </button>
         </div>
-    </ngb-alert>
-</div>
+
+        <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
+            {{ message }}
+            <div *ngIf="alertType=='secondary'">
+                <button *ngIf="masterToggleInPageOption else m" (click)="toggleSelectionOptionAndSelect()"
+                    mat-flat-button color="primary">Seleziona tutti </button>
+                <ng-template #m>
+                    <button (click)="toggleSelectionOptionAndSelect()" mat-flat-button color="primary">Annulla selezione
+                    </button>
+                </ng-template>
+            </div>
+        </ngb-alert>
+    </div>
 
 
     <table #table mat-table [dataSource]="enrolledStudentsDataSource" matSort class="mat-elevation-z8">

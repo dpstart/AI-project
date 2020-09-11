@@ -151,6 +151,9 @@ export class AppComponent implements OnInit {
         })
       else
         this.studentService.getCourses().subscribe((data: Course[]) => {
+          if (data.length != 0) {
+            this.sidenav.open()
+          }
           this.courses = data;
         })
     }
@@ -165,6 +168,9 @@ export class AppComponent implements OnInit {
       this.router.navigate(['teacher', 'course', course.name, 'students']);
     else
       this.router.navigate(['student', 'course', course.name, 'groups']);
+
+
+    this.sidenav.close()
 
   }
 

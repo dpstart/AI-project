@@ -1,4 +1,4 @@
-export class _Image {
+export class Image {
     public get picByte(): Uint8Array {
         return this._picByte;
     }
@@ -11,8 +11,5 @@ export class _Image {
     public set type(value: string) {
         this._type = value;
     }
-
-
-
     constructor(private _picByte: Uint8Array, private _type: string) { }
 }
