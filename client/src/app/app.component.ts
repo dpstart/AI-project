@@ -56,7 +56,6 @@ export class AppComponent implements OnInit {
     this.courses = []
     this.selectedCourse = ""
     this.nameAndSurname = ""
-    this.profilePicture = ""
     this.navTeacherLinks = [];
     this.navStudentLinks = [];
 
@@ -93,6 +92,12 @@ export class AppComponent implements OnInit {
 
     this.authService.getProfileImage().subscribe(image => {
 
+      // UTENTE non ha immagine di profilo
+      if (image.picByte == null && image.type == null) {
+        this.profilePicture = null
+        return;
+      }
+
       let base64Data = image.picByte;
       let formattedImage = `data:${image.type};base64,` + '\n' + base64Data;
       this.profilePicture = this.sanitizer.bypassSecurityTrustResourceUrl(formattedImage);
@@ -127,8 +132,8 @@ export class AppComponent implements OnInit {
     })
 
 
-    this.authService.getImage().subscribe(success => {
-      this.authService.profileImage.next(success)
+    this.authService.getImage().subscribe(image => {
+      this.authService.profileImage.next(image)
     })
 
     this.retrieveCourses()

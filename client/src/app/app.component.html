@@ -22,14 +22,12 @@
 
       <ng-template #popContent>
         <div class="popOverContentDiv">
-
-          <img id="profileImage" [src]='profilePicture'>
+          <img *ngIf="profilePicture" id="profileImage" [src]='profilePicture'>
           <p><span><b>Id:</b></span> {{profileCard.id}}</p>
           <p><span><b>Name:</b></span> {{profileCard.firstName}}</p>
           <p><span><b>Surname:</b></span>{{profileCard.name}}</p>
           <p><span><b>Email:</b></span> {{profileCard.email}}</p>
           <p><span><b>Alias:</b></span> {{profileCard.alias}}</p>
-
         </div>
       </ng-template>
 

@@ -74,16 +74,20 @@ export class LoginDialogComponent {
         })
 
 
-        this.authService.getImage().subscribe(success => {
+        this.authService.getImage().subscribe(image => {
 
-          sess["image"] = success
+          if (image.picByte == null && image.type == null)
+            return;
+
+
+          sess["image"] = image
 
 
           this.authService.profileImage.next(sess['image'])
 
           localStorage.setItem("session", JSON.stringify(sess));
 
-          
+
         })
 
         this.close()

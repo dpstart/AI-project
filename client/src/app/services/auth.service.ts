@@ -126,6 +126,7 @@ export class AuthService {
   logout() {
     localStorage.removeItem('session');
     this.routeStateService.updatePathParamState("Home")
+    this.profileImage.next(new Image(null,null))
   }
 
 
