@@ -12,10 +12,10 @@
             <div *ngIf="historyHomeworkDataSource.data.length == 0; then emptyStudentBlock else withDataStudentBlock">
             </div>
             <ng-template #emptyStudentBlock>
-                <div class="flexCenter">
+                <div *ngIf="!isAssignmentExpired() else assignmentAlreadyExpired" class="flexCenter">
                     <form [formGroup]="addHwVersionForm">
-                        <button class="folderButton" mat-fab color="primary" aria-label="Example icon button with a delete icon"
-                            (click)="hwVersionInputFile.click()">
+                        <button class="folderButton" mat-fab color="primary"
+                            aria-label="Example icon button with a delete icon" (click)="hwVersionInputFile.click()">
                             <mat-icon>folder</mat-icon>
                             <input #hwVersionInputFile type="file" (change)="onFileChanged(addHwVersionForm,$event)"
                                 style="display:none;" />
@@ -31,6 +31,14 @@
 
                     </form>
                 </div>
+                <ng-template #assignmentAlreadyExpired>
+                    <div class="flexColumn">
+
+                        <h4 class="flexCenter">Assignment expired</h4>
+                        <p class="flexCenter">You didn't deliver any homework for this assignment</p>
+                    </div>
+
+                </ng-template>
                 <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}
                 </ngb-alert>
 
@@ -61,7 +69,8 @@
                         </ng-container>
 
 
-                        <ng-container *ngIf=" !data.homework.isFinal &&  data.homework.state !== 'CONSEGNATO'"
+                        <ng-container
+                            *ngIf=" !data.homework.isFinal &&  data.homework.state !== 'CONSEGNATO' && !isAssignmentExpired()"
                             matColumnDef="action">
                             <th mat-header-cell *matHeaderCellDef> Add new version </th>
                             <td mat-cell *matCellDef="let element;">
@@ -83,7 +92,7 @@
                                         <!-- //TODO permettere di caricare immagine -->
                                         <div class="flexCenter">
                                             <form [formGroup]="addHwVersionForm">
-                                                <button  class="folderButton" mat-fab color="primary"
+                                                <button class="folderButton" mat-fab color="primary"
                                                     aria-label="Example icon button with a delete icon"
                                                     (click)="hwVersionInputFile.click()">
                                                     <mat-icon>folder</mat-icon>
@@ -188,14 +197,15 @@
                                             <form [formGroup]="addReviewForm" class="example-form">
                                                 <button class="folderButton" mat-fab color="primary"
                                                     aria-label="Example icon button with a delete icon"
-                                                    (click)="reviewVersionInputFile.click()">
+                                                    (click)="reviewVersionInputFile.click()"
+                                                    [hidden]="isAssignmentExpired()" [disabled]="isAssignmentExpired()">
                                                     <mat-icon>folder</mat-icon>
                                                     <input #reviewVersionInputFile type="file"
                                                         (change)="onFileChanged(addReviewForm,$event)"
                                                         style="display:none;" />
                                                 </button>
 
-                                                <mat-form-field>
+                                                <mat-form-field [hidden]="isAssignmentExpired()">
                                                     <mat-label>Add review</mat-label>
                                                     <input type="text" matInput placeholder="No file selected"
                                                         formControlName="fileName" readonly="true">
@@ -203,12 +213,13 @@
 
                                                 <mat-form-field style="margin-left: 20px;">
                                                     <mat-label>Mark</mat-label>
-                                                    <input type="number" matInput formControlName="markFormControl">
+                                                    <input type="number" matInput formControlName="markFormControl"
+                                                        min="0" max="31">
                                                 </mat-form-field>
 
 
                                                 <button id="uploadButton"
-                                                    [disabled]="!(addReviewForm.get('fileName').value !='' || addReviewForm.get('markFormControl').value != '')"
+                                                    [disabled]="!(addReviewForm.get('fileName').value !='' || (addReviewForm.get('markFormControl').value !== '' && addReviewForm.get('markFormControl').valid))"
                                                     mat-flat-button color="primary" (click)="onUpload()">Upload</button>
 
                                             </form>

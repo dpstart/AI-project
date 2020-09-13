@@ -14,6 +14,8 @@ public interface HomeworkRepository extends JpaRepository<Homework, Long> {
     List<Homework> getHomeworksByAssignment(Integer assignmentId);
     @Query("SELECT h FROM Homework h WHERE h.student.id=:studentId")
     List<Homework> getHomeworksByStudent(String studentId);
-    @Query("SELECT h FROM Homework h WHERE h.student.id=:studentId AND h.assignment.id=:assignmentId")
-    Homework getHomeworkByStudentAndAssignment(String studentId, Integer assignmentId);
+
+//    Homework getHomeworkByStudentIdAndAssignmentId(String studentId, Integer assignmentId);
+
+    Homework getHomeworkByStudentAndAssignment(Student student, Assignment assignment);
 }

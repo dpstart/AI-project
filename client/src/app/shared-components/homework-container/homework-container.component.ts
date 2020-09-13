@@ -6,6 +6,8 @@ import { TeacherService } from 'src/app/services/teacher.service';
 import { Assignment } from 'src/app/model/assignment.model';
 import { Homework } from 'src/app/model/homework.model';
 import { Student } from 'src/app/model/student.model';
+import { Image } from 'src/app/model/image.model';
+import { DomSanitizer } from '@angular/platform-browser';
 
 
 const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' };
@@ -31,7 +33,8 @@ export class HomeworkContainerComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private routeStateService: RouteStateService,
-    private teacherService: TeacherService
+    private teacherService: TeacherService,
+    private sanitizer: DomSanitizer,
   ) {
     this.displayedAssignments = []
     this.displayedHomeworks = []
@@ -60,109 +63,117 @@ export class HomeworkContainerComponent implements OnInit {
           if (assignments.length != 0) {
             for (let i = 0; i < assignments.length; i++) {
 
-              //convertion to displayed assignment
-              let displayedAssignment: DisplayedAssignment = {
-                id: assignments[i].id,
-                releaseDate: new Date(assignments[i].releaseDate).toLocaleDateString(undefined, options),
-                expirationDate: new Date(assignments[i].expirationDate).toLocaleDateString(undefined, options),
-                isDeletable: true // settato a true ma poi viene definito se può essere cancellato o meno
+              this.teacherService.getResourceByUrl(assignments[i].links.find(link => link.rel === "image").href).subscribe((success: Image) => {
 
-              }
-              //add converted element to assignment source
-              displayedAssignments.push(displayedAssignment)
+                let base64Data = success.picByte;
+                let formattedImage = `data:${success.type};base64,` + '\n' + base64Data;
+                let imagesrc = this.sanitizer.bypassSecurityTrustResourceUrl(formattedImage);
 
-              //get homeworks that corresponds to assignment
-              this.teacherService.getHomeworksByAssignment(this.selectedCourse, assignments[i].id).subscribe((homeworks: Homework[]) => {
-
-                let counterHw = 0
-
-
-
-                if (homeworks.length == 0) {
-                  counter++
-                  if (counter == assignments.length) {
-                    this.displayedAssignments = [...displayedAssignments]
-                    this.displayedHomeworks = [...displayHomeworks]
-                    this.isAllLoaded = true
-                    console.log(this.displayedAssignments, this.displayedHomeworks);
-
-                  }
+                //convertion to displayed assignment
+                let displayedAssignment: DisplayedAssignment = {
+                  id: assignments[i].id,
+                  releaseDate: new Date(assignments[i].releaseDate).toLocaleDateString(undefined, options),
+                  expirationDate: new Date(assignments[i].expirationDate).toLocaleDateString(undefined, options),
+                  srcImage: imagesrc,
+                  expirationDateObj: new Date(assignments[i].expirationDate),
+                  isDeletable: true // settato a true ma poi viene definito se può essere cancellato o meno
                 }
+                //add converted element to assignment source
+                displayedAssignments.push(displayedAssignment)
 
-                homeworks.forEach(homework => {
+                //get homeworks that corresponds to assignment
+                this.teacherService.getHomeworksByAssignment(this.selectedCourse, assignments[i].id).subscribe((homeworks: Homework[]) => {
 
-                  /*  unread,
-                      read,
-                      delivered,
-                      reviewed */
+                  let counterHw = 0
 
-                  let state = ""
-                  switch (homework.state) {
-                    // se si trova anche solo un hw che risulta anche solo letto allora l'assignment non può essere più cancellato
-                    case "read":
-                      state = "LETTO"
-                      displayedAssignment.isDeletable = false
-                      break;
-                    case "delivered":
-                      state = "CONSEGNATO"
-                      displayedAssignment.isDeletable = false
-                      break;
-                    case "reviewed":
-                      state = "RIVISTO"
-                      displayedAssignment.isDeletable = false
-                      break;
-                    default:
-                      state = "NON LETTO"
-                      break;
+
+
+                  if (homeworks.length == 0) {
+                    counter++
+                    if (counter == assignments.length) {
+                      this.displayedAssignments = [...displayedAssignments]
+                      this.displayedHomeworks = [...displayHomeworks]
+                      this.isAllLoaded = true
+                    }
                   }
 
+                  homeworks.forEach(homework => {
 
-                  // Definisci il voto
-                  let mark = homework.mark === 0 ? "--" : homework.mark.toString()
+                    /*  unread,
+                        read,
+                        delivered,
+                        reviewed */
 
-                  //E' una valutazione finale?
-                  if (homework.isFinal) {
-                    state = "REGISTRATO"
-                    mark = homework.mark < 18 ? "RESPINTO" : homework.mark.toString()
-                  }
+                    let state = ""
+                    switch (homework.state) {
+                      // se si trova anche solo un hw che risulta anche solo letto allora l'assignment non può essere più cancellato
+                      case "read":
+                        state = "LETTO"
+                        displayedAssignment.isDeletable = false
+                        break;
+                      case "delivered":
+                        state = "CONSEGNATO"
+                        displayedAssignment.isDeletable = false
+                        break;
+                      case "reviewed":
+                        state = "RIVISTO"
+                        displayedAssignment.isDeletable = false
+                        break;
+                      default:
+                        state = "NON LETTO"
+                        break;
+                    }
 
 
-                  //Retrieve info about the corresponding student
+                    // Definisci il voto
+                    let mark = homework.mark === 0 ? "--" : homework.mark.toString()
 
-                  let href = homework.links.find(link => link.rel === "student").href
+                    //E' una valutazione finale?
+                    if (homework.isFinal) {
+                      state = "REGISTRATO"
+                      mark = homework.mark < 18 ? "RESPINTO" : homework.mark.toString()
+                    }
 
 
-                  if (href != "") {
-                    this.teacherService.getResourceByUrl(href).subscribe(element => {
-                      counterHw++
+                    //Retrieve info about the corresponding student
 
-                      let student: Student = element
+                    let href = homework.links.find(link => link.rel === "student").href
 
-                      displayHomeworks.push({
-                        assignmentId: assignments[i].id,
-                        homeworkId: homework.id,
-                        name: student.name,
-                        surname: student.firstName,
-                        studentId: student.id,
-                        state: state,
-                        isFinal: homework.isFinal,
-                        mark: mark,
-                        timestamp: new Date(homework.lastModified).toLocaleDateString(undefined, options)
-                      })
 
-                      if (homeworks.length == counterHw) {
-                        counter++
-                        if (counter == assignments.length) {
-                          this.displayedAssignments = [...displayedAssignments]
-                          this.displayedHomeworks = [...displayHomeworks]
-                          this.isAllLoaded = true
+                    if (href != "") {
+                      this.teacherService.getResourceByUrl(href).subscribe(element => {
+                        counterHw++
+
+                        let student: Student = element
+
+                        displayHomeworks.push({
+                          assignmentId: assignments[i].id,
+                          homeworkId: homework.id,
+                          name: student.name,
+                          surname: student.firstName,
+                          studentId: student.id,
+                          state: state,
+                          isFinal: homework.isFinal,
+                          mark: mark,
+                          timestamp: new Date(homework.lastModified).toLocaleDateString(undefined, options)
+                        })
+
+                        if (homeworks.length == counterHw) {
+                          counter++
+                          if (counter == assignments.length) {
+                            this.displayedAssignments = [...displayedAssignments]
+                            this.displayedHomeworks = [...displayHomeworks]
+                            this.isAllLoaded = true
+                          }
                         }
-                      }
-                      // le chiamate vengono fatte sequenzialmente per ogni homework => solo quando sono caricati tutti vengono visualizzati
-                    })
-                  }
-                })
-              }, error => this.isAllLoaded = true)
+                        // le chiamate vengono fatte sequenzialmente per ogni homework => solo quando sono caricati tutti vengono visualizzati
+                      })
+                    }
+                  })
+                }, error => this.isAllLoaded = true)
+
+              })
+
             }
           } else {
             this.isAllLoaded = true

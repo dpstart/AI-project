@@ -2,14 +2,13 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Student } from '../model/student.model';
-import { catchError, retry, map } from 'rxjs/operators';
+import { catchError, retry} from 'rxjs/operators';
 import { Course } from '../model/course.model';
 import { Vm } from '../student/vm/vm-student.component';
 import { Team } from '../model/team.model';
 import { HomeworkVersion } from '../model/homework-version';
 import { Assignment } from '../model/assignment.model';
 import { Homework } from '../model/homework.model';
-import { Form } from '@angular/forms';
 import { Image } from '../model/image.model';
 
 

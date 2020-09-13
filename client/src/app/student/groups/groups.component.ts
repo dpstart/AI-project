@@ -167,23 +167,9 @@ export class GroupsComponent implements OnInit {
 
           this.studentService.getTeamForCourse(this.selectedCourse.name).subscribe(
             (teams) => {
-              this.isLoading = false
-              //Se la chiamata ha successo semplicemente ci dice che lo studente è in un team.
-              this.isInTeam = true
+              if (!teams) {
+                this.isInTeam = false
 
-              //Now we can see if the student is already in team or not by looking to the length of the studentsInTeam array:
-              this.studentService.getTeamMembers(this.selectedCourse.name, teams.id).subscribe((students) => {
-
-                students.forEach(element => {
-                  element["group"] = teams.name
-                });
-                this.dataSourceStudentInTeam.data = [...students]
-              })
-            },
-            // Se la chiamata da errore può essere per mille motivi ma se il codice è 417 Expecation Failed vuol dire che lo studente non è in un team
-            (error: ServerError) => {
-              this.isInTeam = false
-              if (error.status == 417) {
                 //students is not yet in team: we have to upload in the table only the students that are not in a team
                 this.studentService.getStudentsAvailableInCourse(this.selectedCourse.name).subscribe((studentsNotInTeam: Student[]) => {
 
@@ -252,8 +238,20 @@ export class GroupsComponent implements OnInit {
                   else
                     this.isLoading = false;
                 }, (_) => this.isLoading = false);
-              }
+              } else {
+                this.isLoading = false
+                //Se la chiamata ha successo semplicemente ci dice che lo studente è in un team.
+                this.isInTeam = true
 
+                //Now we can see if the student is already in team or not by looking to the length of the studentsInTeam array:
+                this.studentService.getTeamMembers(this.selectedCourse.name, teams.id).subscribe((students) => {
+
+                  students.forEach(element => {
+                    element["group"] = teams.name
+                  });
+                  this.dataSourceStudentInTeam.data = [...students]
+                })
+              }
             })
 
         }, (_) => this.isLoading = false

@@ -3,7 +3,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import { RouteStateService } from 'src/app/services/route-state.service';
 import { HomeworkVersion } from 'src/app/model/homework-version';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Homework } from 'src/app/model/homework.model';
 import { Assignment } from 'src/app/model/assignment.model';
 import { TeacherService } from 'src/app/services/teacher.service';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -11,10 +10,9 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 import { AuthService } from 'src/app/services/auth.service';
 import { StudentService } from 'src/app/services/student.service';
 import { Image } from 'src/app/model/image.model';
-import { take } from 'rxjs/operators';
-import { Form, FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { DisplayedAssignment } from '../homework.component';
 
 
 const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' };
@@ -46,7 +44,7 @@ export class HomeworkDialogComponent implements OnInit {
 
 
   courseName: string
-  selectedAssignment: Assignment
+  selectedAssignment: DisplayedAssignment
   idSelectedHomework: number
 
 
@@ -286,6 +284,16 @@ export class HomeworkDialogComponent implements OnInit {
         }
       );
     }
+  }
+
+
+  /**
+   * Metodo che controlla se l'assignment in questione è expired oppure no
+   */
+  isAssignmentExpired(){
+        
+    return this.selectedAssignment.expirationDateObj < new Date()
+
   }
 
 }

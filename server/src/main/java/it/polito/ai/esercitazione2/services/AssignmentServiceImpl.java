@@ -115,10 +115,11 @@ public class AssignmentServiceImpl implements AssignmentService {
             if (!studentRepository.existsById(principal)) {
                 throw new StudentNotFoundException("Student " + principal + " not found");
             }
-            if (!studentRepository.getOne(principal).getCourses().contains(a.getCourse())) {
+            Student student = studentRepository.getOne(principal);
+            if (!student.getCourses().contains(a.getCourse())) {
                 throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course with the requested assignment");
             }
-            Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, a.getId());
+            Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(student, a);
             if (h.getState() == Homework.states.unread) {
                 h.setState(Homework.states.read);
                 h.setLastModified(new Timestamp(System.currentTimeMillis()));
@@ -243,13 +244,14 @@ public class AssignmentServiceImpl implements AssignmentService {
             if (!studentRepository.existsById(principal)) {
                 throw new StudentNotFoundException("Student " + principal + " not found");
             }
-            if (!studentRepository.getOne(principal).getCourses().contains(course)) {
+            Student student = studentRepository.getOne(principal);
+            if (!student.getCourses().contains(course)) {
                 throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course " + course.getName());
             }
             return assignmentRepository.getAssignmentsForCourse(courseId)
                     .stream()
                     .peek(a -> {
-                        Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, a.getId());
+                        Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(student, a);
                         if (h.getState() == Homework.states.unread) {
                             h.setState(Homework.states.read);
                             h.setLastModified(new Timestamp(System.currentTimeMillis()));
@@ -330,10 +332,11 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .stream()
                 .filter(a -> {
                     if (roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))) {
-                        if (!studentRepository.getOne(principal).getCourses().contains(a.getCourse())) {
+                        Student student = studentRepository.getOne(principal);
+                        if (!student.getCourses().contains(a.getCourse())) {
                             return false;
                         }
-                        Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, a.getId());
+                        Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(student, a);
                         if (h.getState() == Homework.states.unread) {
                             h.setState(Homework.states.read);
                             h.setLastModified(new Timestamp(System.currentTimeMillis()));
@@ -363,7 +366,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .stream()
                 .flatMap(c -> c.getAssignments().stream())
                 .peek(a -> {
-                    Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, a.getId());
+                    Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(s, a);
                     if (h.getState() == Homework.states.unread) {
                         h.setState(Homework.states.read);
                         h.setLastModified(new Timestamp(System.currentTimeMillis()));

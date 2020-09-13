@@ -7,6 +7,7 @@ import it.polito.ai.esercitazione2.entities.Assignment;
 import it.polito.ai.esercitazione2.entities.Homework;
 import it.polito.ai.esercitazione2.entities.Image;
 
+import it.polito.ai.esercitazione2.entities.Student;
 import it.polito.ai.esercitazione2.exceptions.*;
 import it.polito.ai.esercitazione2.repositories.*;
 import lombok.extern.java.Log;
@@ -67,14 +68,15 @@ public class HomeworkServiceImpl implements HomeworkService {
         if (!studentRepository.existsById(principal))
             throw new StudentNotFoundException("Student " + principal + " not found");
 
-        if (!studentRepository.getOne(principal).getCourses().contains(a.getCourse())) {
+        Student student = studentRepository.getOne(principal);
+        if (!student.getCourses().contains(a.getCourse())) {
             throw new StudentNotFoundException("Student " + principal + " is not enrolled in the course " + a.getCourse().getName());
         }
 
         if (a.getExpirationDate().before(new Timestamp(System.currentTimeMillis())))
             throw new IllegalHomeworkStateChangeException("The expiration date of the assignment has passed");
 
-        Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(principal, assignmentId);
+        Homework h = homeworkRepository.getHomeworkByStudentAndAssignment(student, a);
         if (h == null)
             throw new HomeworkNotFoundException("Homework not found for student " + principal + " and assignment "
                     + a.getId() + " in course " + a.getCourse() + ", please contact system administrator");
@@ -112,9 +114,10 @@ public class HomeworkServiceImpl implements HomeworkService {
                 throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + h.getAssignment().getCourse().getName());
             }
         }
-        h.setState(Homework.states.reviewed);
+        if (h.getState() == Homework.states.delivered)
+            h.setState(Homework.states.reviewed);
         h.setLastModified(new Timestamp(System.currentTimeMillis()));
-        h.setIsFinal(dto.getIsFinal());
+        h.setIsFinal(true);
         if (dto.getMark() != 0f)
             h.setMark(dto.getMark());
         return modelMapper.map(h, HomeworkDTO.class);

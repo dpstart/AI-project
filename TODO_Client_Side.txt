@@ -15,8 +15,4 @@ GENERALE
 -CONSEGNE ED ELABORATI:
 --i respinti sono sempre visualizzati e non possono essere cancellati
 
---per quanto riguarda i compiti, nell'upload review dice che ritorna 400 ma in realtà carica la review nel momento in cui si carica sia versione che hw.
-
---lato server bisogna mettere un check per impedire che si possa caricare un assignment  con un timestamp già scaduto 
-
 

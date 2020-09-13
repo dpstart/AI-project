@@ -15,6 +15,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { AuthService } from 'src/app/services/auth.service';
 import { TeacherService } from 'src/app/services/teacher.service';
+import { SafeResourceUrl } from '@angular/platform-browser';
 
 export interface DisplayedHomework {
   assignmentId: number,
@@ -31,7 +32,9 @@ export interface DisplayedHomework {
 export interface DisplayedAssignment {
   id: number,
   releaseDate: String,
-  expirationDate: String
+  expirationDate: String,
+  expirationDateObj: Date,
+  srcImage : SafeResourceUrl,
   isDeletable: boolean
 }
 
@@ -48,6 +51,10 @@ export interface DisplayedAssignment {
   ]
 })
 export class HomeworkComponent implements OnInit, AfterViewInit {
+
+
+  //Immagine che viene espansa on click
+  expandedAssignment: any
 
   // FIle to be uploaded
   selectedFile: File;
@@ -67,7 +74,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   homeworksDataSource: Array<MatTableDataSource<DisplayedHomework>>
   allHomeworks: DisplayedHomework[][]
 
-  consegneDisplayedColumns: string[] = ['id', 'releaseDate', 'expirationDate']
+  consegneDisplayedColumns: string[] = ['image', 'releaseDate', 'expirationDate']
   consegneDataSource: MatTableDataSource<DisplayedAssignment>
 
   private _selectedCourse: string;
@@ -75,8 +82,8 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   private _displayedHomeworks: DisplayedHomework[];
 
   //Expanded element
-  assignmentExpandedElement: Assignment | null;
-  homeworkExpandedElement: Homework | null;
+  assignmentExpandedElement: DisplayedAssignment | null;
+  homeworkExpandedElement: DisplayedHomework | null;
 
   currentTime = new Date()
 
@@ -389,10 +396,22 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   }
 
 
+  /**
+   * Funzione usata per definire l'immagine che deve essere ingrandita
+   * @param element 
+   */
+  selectImageToExpand(element: DisplayedAssignment) {
+    if (element == this.expandedAssignment)
+      this.expandedAssignment = null
+    else
+      this.expandedAssignment = element
+  }
+
+
   /** 
    * Metodo usato per selezionare un assignemnt ---> riinizializzazione dei filtri
   */
-  selectAssignment(assignment: Assignment) {
+  selectAssignment(assignment: DisplayedAssignment) {
     //assignmentExpandedElement === assignment ? null : assignment
     this.assignmentExpandedElement = this.assignmentExpandedElement === assignment ? null : assignment
 
@@ -403,8 +422,6 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
    * Metodo chiamato on click di un determinato assignment per visualizzare un popup con i dettagli
   */
   seeHomeworkVersions(homework: DisplayedHomework) {
-
-
     const dialogRef = this.dialog.open(HomeworkDialogComponent, {
       height: '95%',
       width: '95%',

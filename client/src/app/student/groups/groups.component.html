@@ -157,7 +157,7 @@
                                         <mat-checkbox
                                             *ngIf=" element.statusToken=='true' || authService.getId()!=element.id else tokenBlock"
                                             [checked]="element.statusToken=='true'" [disableRipple]="true"
-                                            (click)="$event.preventDefault()"></mat-checkbox>
+                                            (click)="$event.preventDefault()" color="primary"></mat-checkbox>
                                         <ng-template #tokenBlock>
 
 
