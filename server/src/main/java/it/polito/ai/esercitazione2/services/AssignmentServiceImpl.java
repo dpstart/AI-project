@@ -64,6 +64,9 @@ public class AssignmentServiceImpl implements AssignmentService {
         if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(professor)))
             throw new CourseAuthorizationException("User " + professor + " has not the rights to modify this course: he's not the professor for this course");
 
+        if(a.getExpirationDate().before(new Timestamp(System.currentTimeMillis() + 24 * 60 * 60 * 1000)))
+            throw new TimeException("Assignments can't be created giving less than 24 hours to be delivered");
+
         Image img = null;
         try {
             img = imageService.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
