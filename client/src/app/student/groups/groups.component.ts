@@ -325,7 +325,7 @@ export class GroupsComponent implements OnInit {
   }
 
   /**
-   * DOCUMENTAZIONE
+   * Metodo utilizzato per accettare o rifiutare una proposta ricevuta
    * @param member 
    * @param isAccepted 
    */
@@ -352,7 +352,10 @@ export class GroupsComponent implements OnInit {
 
   }
 
-  //TODO: check if submission has gone well 
+
+  /**
+   * Metodo usato per fare una proposta per un determinato team 
+   * */
   onSubmit() {
 
     // Check if all fields are correctly setted.
@@ -368,7 +371,6 @@ export class GroupsComponent implements OnInit {
           studentsForProposal,
           this.form.get('timeoutControl').value).subscribe((resp) => {
             if (resp.status === 201) { // Ok created
-              // TODO: fill dataSourceProposals with the proposed members in the team
 
               this.dataSourceMembersProposal.push(new MatTableDataSource<MemberOfProposal>())
 
@@ -381,13 +383,11 @@ export class GroupsComponent implements OnInit {
                 let members: MemberOfProposal[] = []
 
                 selected.forEach((member) => {
-                  //TODO lo status per ora è false ma l'informazione va ritirata
                   let status = member.id == me.id ? "true" : "false"
                   members.push({ id: member.id, name: member.name, firstname: member.firstName, statusToken: status })
                 })
 
-                let proposal =
-                {
+                let proposal = {
                   row: this.dataSourceMembersProposal.length - 1,
                   idCreator: me.id,
                   groupName: this.form.get('groupNameControl').value,
@@ -397,12 +397,7 @@ export class GroupsComponent implements OnInit {
                 }
 
                 this.dataSourceProposals.data = [...this.dataSourceProposals.data, proposal]
-
-
                 this.dataSourceMembersProposal[this.dataSourceMembersProposal.length - 1].data = [...members]
-
-                console.log(this.dataSourceMembersProposal[this.dataSourceMembersProposal.length - 1].data);
-
                 this.selection.clear()
 
               })
@@ -423,15 +418,8 @@ export class GroupsComponent implements OnInit {
           })
 
       })
-
-
     }
-
   }
-
-
-
-
 }
 
 export interface Proposal {

@@ -80,12 +80,11 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
   currentTime = new Date()
 
-  addAssignmentForm: FormGroup = new FormGroup({
-    expirationTime: new FormControl('23:59', [Validators.required]),
-    expirationDate: new FormControl(new Date(), Validators.required),
-    fileName: new FormControl('', Validators.required),
 
-  });
+  selectedDate: Date
+  tomorrow: Date = new Date()
+
+  addAssignmentForm: FormGroup
 
 
   //********************************CHIPS**************************************/
@@ -104,7 +103,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort, { static: false }) sort: MatSort;
-  
+
   @Input() public set selectedCourse(value: string) {
     this._selectedCourse = value;
   }
@@ -156,6 +155,20 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
     private dialog: MatDialog,
     private _authService: AuthService,
     private teacherService: TeacherService) {
+
+    let tomorrowTime = new Date()
+    tomorrowTime.setDate(this.currentTime.getDate() + 1)
+
+    this.tomorrow = tomorrowTime
+
+    this.selectedDate = this.tomorrow
+
+    this.addAssignmentForm = new FormGroup({
+      expirationTime: new FormControl(this.getCurrentMinTime(), [Validators.required]),
+      expirationDate: new FormControl(this.tomorrow, Validators.required),
+      fileName: new FormControl('', Validators.required),
+
+    });
 
     //Inizialmente il pulsante di upload è disabilitato
     this.isDisabled = true
@@ -234,7 +247,31 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   }
 
   getCurrentMinTime(): string {
-    return `${this.currentTime.getHours()}:${this.currentTime.getMinutes()}`
+    if (this.selectedDate.getDate() === this.tomorrow.getDate())
+      return `${this.tomorrow.getHours()}:${this.tomorrow.getMinutes()}`
+    else
+      return "00:00"
+  }
+
+  changeSelectedDate(value: Date) {
+
+    let current = new Date()
+    value.setHours(current.getHours())
+    value.setMinutes(current.getMinutes())
+
+    this.selectedDate = value
+
+    if (this.selectedDate.getDate() === this.tomorrow.getDate()) {
+
+      let time = this.addAssignmentForm.get('expirationTime').value.split(":")
+      let selectedHour = Number(time[0])
+      let selectedMinutes = Number(time[1])
+
+
+      if (this.selectedDate.getHours() >= selectedHour && this.selectedDate.getMinutes() >= selectedMinutes)
+        this.addAssignmentForm.patchValue({ expirationTime: this.getCurrentMinTime() })
+
+    }
   }
 
 
