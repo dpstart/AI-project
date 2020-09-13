@@ -26,7 +26,7 @@
                             <mat-label>Enter expiration Time</mat-label>
                             <div class="timePicker">
                                 <input matInput placeholder="24hr format" [ngxTimepicker]="toggleTimepicker"
-                                    [format]="24" readonly formControlName="expirationTime">
+                                    [format]="24" readonly formControlName="expirationTime" [min]="getCurrentMinTime()">
                                 <ngx-material-timepicker-toggle [for]="toggleTimepicker">
                                 </ngx-material-timepicker-toggle>
                                 <ngx-material-timepicker #toggleTimepicker></ngx-material-timepicker>

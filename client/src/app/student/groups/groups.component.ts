@@ -47,7 +47,7 @@ export class GroupsComponent implements OnInit {
   isDisabled: boolean
 
 
-  //Table related properties
+  //Tables related properties
   dataSourceStudentInTeam: MatTableDataSource<Student>
   dataSourceStudentNotYetInTeam: MatTableDataSource<Student>
   displayedColumnsNotInTeam: string[]
@@ -64,6 +64,7 @@ export class GroupsComponent implements OnInit {
   displayedColumnsInTeam: string[]
 
 
+  // Form aggiunta gruppi
   form: FormGroup
 
   isLoading: boolean // loading
@@ -152,13 +153,11 @@ export class GroupsComponent implements OnInit {
         this.dataSourceMembersProposal = []
         this.displayedColumnsMembers = ['id', 'name', 'firstname', 'status']
 
+        // Inizializzazione form per i gruppi
         this.form = new FormGroup({
           groupNameControl: new FormControl('', [Validators.required]),
           timeoutControl: new FormControl(10, [Validators.required, Validators.min(10)]) //10 min
         })
-
-
-
 
         // Update the course into the service so that all the other components will know it
         this.routeStateService.updatePathParamState(params['course_name'])
@@ -169,6 +168,7 @@ export class GroupsComponent implements OnInit {
           this.studentService.getTeamForCourse(this.selectedCourse.name).subscribe(
             (teams) => {
               this.isLoading = false
+              //Se la chiamata ha successo semplicemente ci dice che lo studente è in un team.
               this.isInTeam = true
 
               //Now we can see if the student is already in team or not by looking to the length of the studentsInTeam array:
@@ -180,9 +180,8 @@ export class GroupsComponent implements OnInit {
                 this.dataSourceStudentInTeam.data = [...students]
               })
             },
-
+            // Se la chiamata da errore può essere per mille motivi ma se il codice è 417 Expecation Failed vuol dire che lo studente non è in un team
             (error: ServerError) => {
-              console.log("RAMO ERRORE MA E' OK");
               this.isInTeam = false
               if (error.status == 417) {
                 //students is not yet in team: we have to upload in the table only the students that are not in a team
@@ -198,10 +197,10 @@ export class GroupsComponent implements OnInit {
                 )
 
 
+                // Proposte ricevute dallo studente in questione
                 this.studentService.getProposalsToStudent(this.selectedCourse.name).subscribe(proposedTeams => {
 
-
-
+                  // Ha ricevuto richieste?
                   if (proposedTeams.length != 0) {
 
                     // Add the new proposals 
@@ -211,22 +210,20 @@ export class GroupsComponent implements OnInit {
 
                       this.dataSourceMembersProposal.push(new MatTableDataSource<MemberOfProposal>());
 
+                      // prendiamo i membri della proposta per un team
                       this.studentService.getTeamMembers(this.selectedCourse.name, proposedTeams[i].id).subscribe((studentsInTeamProposed) => {
 
 
                         let members: MemberOfProposal[] = [];
 
-
-                        // setTimeout((_) => {
+                        // ottenieamo info riguardo allo stato di adesione del team in questione
                         this.studentService.getAdhesionInfo(this.selectedCourse.name, proposedTeams[i].id).subscribe((data) => {
 
-                          console.log("MAP", data);
-
                           studentsInTeamProposed.forEach((member) => {
-                            //TODO lo status per ora è false ma l'informazione va ritirata
                             members.push({ id: member.id, name: member.name, firstname: member.firstName, statusToken: data[member.id] });
                           });
 
+                          //Prendi info riguardo allo studente in questione
                           this.studentService.getStudentById(proposedTeams[i].id_creator).subscribe(creator => {
                             proposals.push(
                               {
@@ -238,15 +235,15 @@ export class GroupsComponent implements OnInit {
                                 members: members
                               });
 
-                            this.dataSourceProposals.data = [...proposals];
 
+                            //Una volta ottenute tutte le informazioni aggiorna il data source
+                            this.dataSourceProposals.data = [...proposals];
                             this.dataSourceMembersProposal[i].data = [...members];
 
                             this.isLoading = false;
                           });
 
                         });
-                        // }, 3000)
                       }, (_) => {
                         this.isLoading = false;
                       });
@@ -267,10 +264,9 @@ export class GroupsComponent implements OnInit {
   }
 
 
-
-
-
-
+  /** 
+   * Metodo che setta i paginator e i sort coerentemente
+  */
   setDataSourceAttributes() {
     this.dataSourceStudentNotYetInTeam.paginator = this.paginatorNotInTeam;
     this.dataSourceStudentNotYetInTeam.sort = this.matSortNotInTeam;
@@ -306,10 +302,12 @@ export class GroupsComponent implements OnInit {
    */
   toggleRow(row) {
     this.selection.toggle(row)
-    this.checkValidity()
+    this.checkValidity() // l'aggiunta al gruppo è permessa se e solo se i vincoli sono rispettati
   }
 
-
+  /**
+   * Metodo che definisce se la proposta per un team risulta valida oppure no.
+   */
   checkValidity() {
     let numSelected = this.selection.selected.length
     switch (numSelected) {
@@ -324,10 +322,13 @@ export class GroupsComponent implements OnInit {
         }
         break;
     }
-
   }
 
-
+  /**
+   * DOCUMENTAZIONE
+   * @param member 
+   * @param isAccepted 
+   */
   actionToken(member: MemberOfProposal, isAccepted: boolean) {
 
     console.log(member, isAccepted);
@@ -336,7 +337,7 @@ export class GroupsComponent implements OnInit {
 
       if (result) {
         this.ngOnInit()
-        isAccepted ? this.message = "Proposal succesfully accepted" : this.message = "Proposal succesfully rejected"
+        this.message = isAccepted ? "The proposal was successfully accepted" : "The proposal was successfully rejected"
         this.alertType = 'success'
       }
 

@@ -40,36 +40,50 @@ export interface HomeworkVersionDisplayed {
 })
 export class HomeworkDialogComponent implements OnInit {
 
-
+  // Hws data source: mostra le versioni di un determinato studente per un determinato assignment
   historyHomeworkDataSource: MatTableDataSource<HomeworkVersionDisplayed>
   historyHomeworkColumnsToDisplay: string[]
+
 
   courseName: string
   selectedAssignment: Assignment
   idSelectedHomework: number
 
+
+
+  //*********************************FORMS**************************************** */
+  //Usato da un teacher per aggiungere una review
   addReviewForm: FormGroup = new FormGroup({
     fileName: new FormControl(''),
     markFormControl: new FormControl('', [Validators.min(0), Validators.max(31)])
   })
 
+  // Usato da uno student per aggiungere un hw version
   addHwVersionForm: FormGroup = new FormGroup({
     fileName: new FormControl('', Validators.required),
   })
 
+  /******************************************************************************* */
 
-  //image to be expanded
+  //Immagine che viene espansa on click
   expandedImage: any
+  //Riga della tabella che deve essere aperta se possibile
   expandedElement: HomeworkVersionDisplayed | null;
 
+  //Nome del file che deve essere caricato, questo può rappresentare una hw version o una review del professore a seconda di chi la usa
   selectedFile: File;
+  // Pulsante di upload che viene abilitato solo nel momento in cui viene caricato un file
   isDisabled: boolean
-  message: string;
 
+
+  //Messaggio e tipo di alert che viene printato allo user per migliorare la UX
+  message: string;
   alertType: string
 
+  //Booleano che viene settato a true nel momento in cui la chiamata dal backend termina
   isAllLoaded: boolean
 
+  //paginatore delle tabelle
   private _studentPaginator: MatPaginator;
   private _teacherPaginator: MatPaginator;
 
@@ -84,15 +98,6 @@ export class HomeworkDialogComponent implements OnInit {
     this.adjustPaginators()
   }
 
-  adjustPaginators() {
-
-    if (this.authService.isRoleTeacher())
-      this.historyHomeworkDataSource.paginator = this._teacherPaginator
-    else this.historyHomeworkDataSource.paginator = this._studentPaginator
-  }
-
-
-
   constructor(
     private _authService: AuthService,
     private teacherService: TeacherService,
@@ -101,9 +106,11 @@ export class HomeworkDialogComponent implements OnInit {
     private sanitizer: DomSanitizer,
     @Inject(MAT_DIALOG_DATA) public data) {
 
+    // Inizializzazione legata ai parametri passati nel dialog
     this.selectedAssignment = data.assignment
     this.idSelectedHomework = data.homework.homeworkId
 
+    // Colonne tabella a cui viene aggiunta successivamente la colonna action in base a condizione
     this.historyHomeworkColumnsToDisplay = ['id', 'content', 'deliveryDate']
 
     if (this.authService.isRoleStudent()) {
@@ -116,17 +123,45 @@ export class HomeworkDialogComponent implements OnInit {
       }
     }
 
+    // Inizializzazione data source 
     this.historyHomeworkDataSource = new MatTableDataSource<HomeworkVersionDisplayed>()
+
+    // Immagine selezionata all'inizio
     this.expandedImage = null
+
 
     this.isDisabled = true
     this.isAllLoaded = false
   }
 
+
+
+  ngOnInit(): void {
+    this.routeStateService.pathParam.subscribe(courseName => {
+      this.courseName = courseName
+    })
+    // Carica versioni di un determinato assigment
+    this.loadVersions();
+  }
+
+  // Getter usato nell vista per poter definire cosa deve essere visualizzato
   public get authService(): AuthService {
     return this._authService;
   }
 
+  /**
+   * Funzione usata per settare il paginatore giusto in base a chi è loggato
+   */
+  adjustPaginators() {
+    if (this.authService.isRoleTeacher())
+      this.historyHomeworkDataSource.paginator = this._teacherPaginator
+    else this.historyHomeworkDataSource.paginator = this._studentPaginator
+  }
+
+  /**
+   * Funzione usata per definire l'immagine che deve essere ingrandita
+   * @param element 
+   */
   selectImageToExpand(element: HomeworkVersion) {
     if (element == this.expandedImage)
       this.expandedImage = null
@@ -134,22 +169,11 @@ export class HomeworkDialogComponent implements OnInit {
       this.expandedImage = element
   }
 
-  ngOnInit(): void {
-    this.routeStateService.pathParam.subscribe(courseName => {
-      this.courseName = courseName
-    })
-
-
-    this.loadVersions();
-
-
-  }
-
+  /**
+   * Metodo usato per caricare le versioni di un determinato homework
+   */
   private loadVersions() {
     this.teacherService.getHomeworkVersions(this.courseName, this.selectedAssignment.id, this.idSelectedHomework).subscribe((data) => {
-      // this.httpClient.get('http://localhost:8080/image/get/' + this.imageName)
-      //   .subscribe(
-      //     res => {
 
       let versions = data;
 
@@ -158,7 +182,10 @@ export class HomeworkDialogComponent implements OnInit {
       let counter = 0;
 
       if (versions.length != 0) {
+
         versions.forEach(version => {
+
+          // per ogni versione si va carica l'immagine corrispondente
 
           this.teacherService.getResourceByUrl(version.links.find(link => link.rel === "image").href).subscribe((success: Image) => {
 
@@ -167,14 +194,15 @@ export class HomeworkDialogComponent implements OnInit {
             let content = this.sanitizer.bypassSecurityTrustResourceUrl(formattedImage);
 
             let id = version.id;
-            console.log(version.deliveryDate);
-
             let deliveryDate = new Date(version.deliveryDate).toLocaleDateString(undefined, options);
+
 
             source.push({ position: versions.length - id - 1, id, content, deliveryDate });
             counter++;
 
+            // Se ho caricato tutte le versioni
             if (counter == versions.length) {
+              // le ordino in base all'id
               source = source.sort((a, b) => b.id - a.id)
               this.historyHomeworkDataSource.data = [...source];
               this.isAllLoaded = true;
@@ -182,10 +210,11 @@ export class HomeworkDialogComponent implements OnInit {
           });
         });
       }
-      else
+      else // il numero di versioni da visualizzare è pari a 0
         this.isAllLoaded = true;
     });
   }
+
 
   expandPanel(version: HomeworkVersionDisplayed) {
     this.expandedElement = this.expandedElement === version ? null : version
@@ -195,26 +224,24 @@ export class HomeworkDialogComponent implements OnInit {
   public onFileChanged(form: FormGroup, event) {
     //Select File
     this.selectedFile = event.target.files[0];
+    //
     form.get("fileName").setValue(this.selectedFile.name)
 
     if (form.get('fileName').value)
       this.isDisabled = false
   }
+
   //Gets called when the user clicks on submit to upload the image
   onUpload() {
-
     //FormData API provides methods and properties to allow us easily prepare form data to be sent with POST HTTP requests.
     const form = new FormData();
 
+    //In base al ruolo, se studente o professore viene aggiunta una nuova versione o una review 
     if (this.authService.isRoleTeacher()) {
-
-
-
       //OPTIMISTIC UPDATE
       let homework = {
         id: this.data.homework.homeworkId, state: 2, isFinal: this.addReviewForm.get('markFormControl').value != "", mark: this.addReviewForm.get('markFormControl').value
       }
-
 
       if (this.selectedFile)
         form.append('homeworkVersion', this.selectedFile, this.selectedFile.name);

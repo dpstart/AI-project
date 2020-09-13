@@ -39,8 +39,6 @@ export class HomeworkContainerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
-
     this.activatedRoute.params.subscribe((params) => {
       if (params['course_name']) {
         this.routeStateService.updatePathParamState(params['course_name'])
