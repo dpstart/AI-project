@@ -11,3 +11,11 @@
     flex-direction: row;
     justify-content: flex-start;
 }
+
+::ng-deep th,td{
+    text-align:center!important;
+}
+
+::ng-deep .mat-sort-header-container{
+    justify-content: center!important;
+}

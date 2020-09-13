@@ -4,17 +4,3 @@ TODO SERVER_SIDE:
  
  - nel rimuovere gli studenti dal corso bisogna controllare che se non ci sono più homeworks allora va eliminato anche il rispettivo assignment
 
-
-
---------
- /**
-     * Get all assignments of the course
-     * Authentication required: professor of the course or a student enrolled in it
-     * @param name: name of the course (path variable)
-     *
-     * @return list of AssignmentDTO for the course
-     */
-    @GetMapping("/{name}/assignments")
-    List<AssignmentDTO> getAssignments(@PathVariable String name) {
--------
-Questo metodo per lo studente lancia una eccezione

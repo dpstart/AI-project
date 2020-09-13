@@ -132,7 +132,7 @@ public class TeamServiceImpl implements TeamService {
             throw new CourseEnabledException("Impossible to remove an active course");
 
 
-        c.getAssignments().stream().peek(x -> imageService.remove(x.getContentId())).flatMap(x -> x.getHomeworks().stream()).flatMap(x -> x.getVersionIds().stream()).forEach((Long x) -> imageService.remove(x));
+        // c.getAssignments().stream().peek(x -> imageService.remove(x.getContentId())).flatMap(x -> x.getHomeworks().stream()).flatMap(x -> x.getVersionIds().stream()).forEach((Long x) -> imageService.remove(x));
 
 
         c.getTeams().stream().flatMap(x -> x.getVMs().stream()).forEach(x -> imageService.remove(x.getImageId()));
@@ -312,7 +312,7 @@ public class TeamServiceImpl implements TeamService {
         Student s = studentRepository.getOne(studentId);
 
         // remove homerwork of the student
-         s.getHomeworks().stream().peek(x -> x.getVersionIds().forEach((Long y) -> imageService.remove(y))).forEach((Homework x) -> homeworkRepository.delete(x));
+        // s.getHomeworks().stream().peek(x -> x.getVersionIds().forEach((Long y) -> imageService.remove(y))).forEach((Homework x) -> homeworkRepository.delete(x));
         // rimuovere relazione ownership con VM, se è l'unico rimuovere proprio la VM
         s.getVMs().stream().filter(x -> x.getOwners().size() == 1).peek(x -> imageService.remove(x.getImageId())).forEach((VM x) -> vmRepository.delete(x));
         // rimuovere dal team: se il team va sotto la soglia minima, rimuoverlo

@@ -97,10 +97,15 @@ public class AssignmentServiceImpl implements AssignmentService {
     public boolean removeAssignment(Integer id) {
         if (!assignmentRepository.existsById(id))
             return true;
-        if (assignmentRepository.getOne(id).getHomeworks()
+        Assignment assignment = assignmentRepository.getOne(id);
+        if (assignment.getHomeworks()
                 .stream().anyMatch(h -> h.getState() != Homework.states.unread))
             return false;
-        assignmentRepository.delete(assignmentRepository.getOne(id));
+
+        assignment.getHomeworks().forEach(homeworkRepository::delete);
+
+
+        assignmentRepository.delete(assignment);
         return true;
     }
 
