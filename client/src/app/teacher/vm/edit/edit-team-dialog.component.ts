@@ -43,7 +43,7 @@ export class EditTeamDialogComponent {
   close(message: string, type: string) { this.dialogRef.close({ message: message, type: type }); }
   submit() {
     this.teacherService.changeTeamSettings(this.course, this.team.id, this.form.value).subscribe(
-      (team) => this.close("Vm updated successfully", "success"),
+      (team) => this.close("Team settings updated successfully.", "success"),
       (error) => { this.error = error.message; this.alertType = "danger"; }
     )
   }
