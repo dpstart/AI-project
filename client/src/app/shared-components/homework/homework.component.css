@@ -77,3 +77,6 @@ tr.example-element-row:not(.example-expanded-row):active {
 .expired-assignment {
     background-color: lightgrey;
 }
+mat-card{
+    text-align: center;
+}
