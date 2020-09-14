@@ -22,7 +22,7 @@ export class EditVmDialogComponent {
     ram: new FormControl(this.data.vm.ram, Validators.required),
     n_cpu: new FormControl(this.data.vm.n_cpu, Validators.required),
     disk_space: new FormControl(this.data.vm.disk_space, Validators.required),
-    imageName: new FormControl('', Validators.required),
+    imageName: new FormControl(''),
   });
 
   @Input() message: string | null;
@@ -56,7 +56,9 @@ export class EditVmDialogComponent {
         max_active: 0, max_available: 0
       }
 
-      formData.append('image', this.selectedFile, this.selectedFile.name);
+      if (this.selectedFile)
+        formData.append('image', this.selectedFile, this.selectedFile.name);
+        
       formData.append('settings', new Blob([JSON.stringify(settings)], {
         type: "application/json"
       }))

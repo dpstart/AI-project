@@ -132,6 +132,8 @@ export class VmStudentComponent implements OnInit {
     this.studentService.deleteVm(vm).subscribe((_) => {
       this.dataSourceVm.data.splice(this.dataSourceVm.data.indexOf(vm), 1)
       this.dataSourceVm._updateChangeSubscription()
+      this.message = "The vm was successfully deleted"
+      this.alertType = "success"
     },
       (error) => { this.message = error.message; this.alertType = "danger"; })
   }
@@ -170,11 +172,20 @@ export class VmStudentComponent implements OnInit {
 
       this.dataSourceVm.data.forEach((selected) => {
         if (selected.id === vm.id) {
-          selected.status === 1 ? selected.status = 0 : selected.status = 1;
+          if (selected.status === 1) {
+            this.message = "The Vm was successfully stopped"
+            selected.status = 0
+          }
+          else {
+            this.message = "The Vm was successfully started"
+            selected.status = 1
+          };
         }
       })
 
       this.dataSourceVm.data = [...this.dataSourceVm.data]
+
+      this.alertType = "success"
     }, error => {
       this.message = error.message
       this.alertType = "danger"

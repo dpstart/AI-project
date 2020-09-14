@@ -19,8 +19,6 @@ export class CreateDialogComponent implements OnInit {
     ram: new FormControl('', Validators.required),
     n_cpu: new FormControl('', Validators.required),
     disk_space: new FormControl('', Validators.required),
-    max_active: new FormControl('', Validators.required),
-    max_available: new FormControl('', Validators.required),
     imageName: new FormControl('', Validators.required),
   });
 
@@ -45,23 +43,25 @@ export class CreateDialogComponent implements OnInit {
 
   submit() {
 
-    const formData = new FormData();
+    if (this.form.valid) {
+      const formData = new FormData();
 
-    let settings: VmSettings = {
-      ram: this.form.value.ram, n_cpu: this.form.value.n_cpu, disk_space: this.form.value.disk_space,
-      max_active: this.form.value.max_active, max_available: this.form.value.max_available
+      let settings: VmSettings = {
+        ram: this.form.value.ram, n_cpu: this.form.value.n_cpu, disk_space: this.form.value.disk_space,
+        max_active: 0, max_available: 0
+      }
+
+      formData.append('image', this.selectedFile, this.fileName);
+      formData.append('settings', new Blob([JSON.stringify(settings)], {
+        type: "application/json"
+      }))
+
+      if (this.selectedFile)
+        this.studentService.createVM(this.data.course, this.data.teamId, formData).subscribe(res => {
+          this.close({ message: "VM Successfully Created", type: "success" });
+        },
+          error => { this.message = error.message; this.alertType = "danger"; });
     }
-
-    formData.append('image', this.selectedFile, this.fileName);
-    formData.append('settings', new Blob([JSON.stringify(settings)], {
-      type: "application/json"
-    }))
-
-    if (this.selectedFile)
-      this.studentService.createVM(this.data.course, this.data.teamId, formData).subscribe(res => {
-        this.close({ message: "VM Successfully Created", type: "success" });
-      },
-        error => { this.message = error.message; this.alertType = "danger"; });
   }
 
 
