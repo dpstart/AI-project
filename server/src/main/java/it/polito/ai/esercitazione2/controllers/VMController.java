@@ -66,6 +66,12 @@ public class VMController {
 
     @PostMapping("/{id}/update")
     void updateVM(@PathVariable Long id,@RequestPart(value="image",required=false) MultipartFile file, @Valid @RequestPart("settings") SettingsDTO settings){
+        if (settings.getMax_active() != null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max_active' field not allowed"); //da generalizzare
+        if (settings.getMax_available() != null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max_available' field not allowed"); //da generalizzare
+
+
         try{
             if (file ==null || file.isEmpty())
                 vmservice.updateVM(id,settings);
