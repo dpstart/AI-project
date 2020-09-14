@@ -5,7 +5,7 @@ import { Team } from '../../model/team.model';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatDialog } from '@angular/material/dialog';
 import { EditTeamDialogComponent } from './edit/edit-team-dialog.component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RouteStateService } from 'src/app/services/route-state.service';
 import { StudentService } from 'src/app/services/student.service';
 import { Student } from 'src/app/model/student.model';
@@ -62,7 +62,9 @@ export class VMComponent implements OnInit {
         private activatedRoute: ActivatedRoute,
         private dialog: MatDialog,
         private routerStateService: RouteStateService,
-        private studentService: StudentService) {
+        private studentService: StudentService,
+        private router: Router,
+    ) {
         this.isAllLoaded = false
     }
 
@@ -78,14 +80,14 @@ export class VMComponent implements OnInit {
 
         this.activatedRoute.params.subscribe((params) => {
 
-            let current_course = params['course_name']
-            if (current_course) {
+            if (params['course_name']) {
+
                 this.selectedCourse = params['course_name'];
 
-                this.routerStateService.updatePathParamState(current_course)
+                this.routerStateService.updatePathParamState(this.selectedCourse)
 
 
-                this.teacherService.getTeams(current_course).subscribe((data: Team[]) => {
+                this.teacherService.getTeams(this.selectedCourse).subscribe((data: Team[]) => {
 
                     data.forEach((element, i) => {
                         let team_id = element["id"];
@@ -98,7 +100,7 @@ export class VMComponent implements OnInit {
 
                     this.dataSourceTeams.data = data;
                     this.isAllLoaded = true
-                })
+                }, (_) => this.router.navigate(['PageNotFound']))
             }
         })
     }

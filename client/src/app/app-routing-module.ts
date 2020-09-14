@@ -19,7 +19,6 @@ import { ActivateAccountComponent } from './shared-components/account/activate-a
 
 
 const routes: Routes = [
-
     {
         path: 'student',
         canActivate: [StudentGuard],

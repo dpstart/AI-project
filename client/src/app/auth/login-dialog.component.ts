@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { MatDialogRef } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -14,7 +14,7 @@ export class LoginDialogComponent {
 
   hide = true;
 
-  constructor(private dialogRef: MatDialogRef<LoginDialogComponent>, private authService: AuthService, private router: Router) {
+  constructor(private dialogRef: MatDialogRef<LoginDialogComponent>, private authService: AuthService, private router: Router, private activatedRoute: ActivatedRoute) {
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['home'])
       this.close()
@@ -91,7 +91,6 @@ export class LoginDialogComponent {
         })
 
         this.close()
-
       }, error => {
         this.error = error.message;
       })
@@ -100,7 +99,11 @@ export class LoginDialogComponent {
 
   close() {
     this.dialogRef.close();
-    this.router.navigate(['home'])
+    let redirect = this.activatedRoute.snapshot.queryParams['redirect']
+    console.log(redirect);
+
+    if (!redirect) redirect = "home"
+    this.router.navigate([redirect])
   }
 
 }

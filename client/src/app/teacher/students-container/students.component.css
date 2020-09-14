@@ -1,3 +1,16 @@
+.addStudentForm, .tabtitle {
+    margin-left: 20px;
+}
+
+.inputStudentField {
+    width: 300px;
+}
+
+.fileUploadingArea {
+    display: inline;
+    justify-content: flex-end;
+}
+
 .folderButton {
     margin: 10px;
 }
@@ -12,10 +25,10 @@
     justify-content: flex-start;
 }
 
-::ng-deep th,td{
-    text-align:center!important;
+::ng-deep th, td {
+    text-align: center!important;
 }
 
-::ng-deep .mat-sort-header-container{
+::ng-deep .mat-sort-header-container {
     justify-content: center!important;
 }

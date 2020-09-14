@@ -1,30 +1,18 @@
-<style>
-    .addStudentForm,
-    .tabtitle {
-        margin-left: 20px;
-    }
-
-    .inputStudentField {
-        width: 300px;
-    }
-
-
-    .fileUploadingArea {
-        display: inline;
-        justify-content: flex-end;
-    }
-</style>
-
 <div class="tabContainer">
 
-    <h2 class="mat-h2 tabtitle">Elenco studenti iscritti al corso.</h2>
 
+    <mat-form-field class="example-full-width">
+        <mat-label>Current course</mat-label>
+        <input type="text" matInput [value]="selectedCourse">
+    </mat-form-field>
+
+    <h2 class="mat-h2 tabtitle">Elenco studenti iscritti al corso.</h2>
     <form [formGroup]="addStudentForm">
         <div class="flexCenter">
             <div>
                 <mat-form-field class="inputStudentField">
-                    <input type="text" placeholder="Add Student" aria-label="Number" matInput formControlName="studentControl"
-                        [matAutocomplete]="auto">
+                    <input type="text" placeholder="Add Student" aria-label="Number" matInput
+                        formControlName="studentControl" [matAutocomplete]="auto">
                     <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayWith"
                         (optionSelected)="autocompleteSelected($event.option.value)">
                         <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
@@ -36,8 +24,8 @@
 
             </div>
             <div>
-                <button type="button" class="folderButton" mat-fab color="primary" aria-label="Example icon button with a folder icon"
-                    (click)="fileInput.click()">
+                <button type="button" class="folderButton" mat-fab color="primary"
+                    aria-label="Example icon button with a folder icon" (click)="fileInput.click()">
                     <mat-icon>folder</mat-icon>
                     <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;" />
                 </button>

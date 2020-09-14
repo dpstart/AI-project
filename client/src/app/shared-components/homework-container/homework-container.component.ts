@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DisplayedHomework, DisplayedAssignment } from '../homework/homework.component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RouteStateService } from 'src/app/services/route-state.service';
 import { TeacherService } from 'src/app/services/teacher.service';
 import { Assignment } from 'src/app/model/assignment.model';
@@ -36,6 +36,7 @@ export class HomeworkContainerComponent implements OnInit {
     private routeStateService: RouteStateService,
     private teacherService: TeacherService,
     private sanitizer: DomSanitizer,
+    private router: Router
   ) {
     this.displayedAssignments = []
     this.displayedHomeworks = []
@@ -211,7 +212,7 @@ export class HomeworkContainerComponent implements OnInit {
             this.isAllLoaded = true
           }
         }, error => {
-          this.isAllLoaded = true
+          this.router.navigate(['PageNotFound'])
         });
       }
     })

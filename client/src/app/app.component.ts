@@ -10,7 +10,6 @@ import { Course } from './model/course.model';
 import { StudentService, NavStudentLinks } from './services/student.service';
 import { RouteStateService } from './services/route-state.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { take, first } from 'rxjs/operators';
 
 
 
@@ -232,9 +231,10 @@ export class AppComponent implements OnInit {
   }
 
   logout() {
-    this.authService.logout();
-    this.router.navigate(["home"])
+    this.authService.logout()
     this.sidenav.close()
+    this.router.navigate(["home"])
+
   }
 
   isRoleTeacher() {

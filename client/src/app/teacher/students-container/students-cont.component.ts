@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Student } from '../../model/student.model';
 import { StudentService } from '../../services/student.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RouteStateService } from '../../services/route-state.service';
 
 
@@ -30,14 +30,16 @@ export class StudentsContComponent implements OnInit {
   constructor(
     private studentService: StudentService,
     private activatedRoute: ActivatedRoute,
-    private routeStateService: RouteStateService) {
+    private routeStateService: RouteStateService,
+    private router: Router
+  ) {
 
   }
 
 
   ngOnInit() {
     this.activatedRoute.params.subscribe(params => {
-      if (params["course_name"]) {
+      if (params['course_name']) {
 
         this.routeStateService.updatePathParamState(params['course_name'])
 
@@ -63,7 +65,7 @@ export class StudentsContComponent implements OnInit {
             this.isEnrolledStudentsLoaded = true;
           })
 
-        });
+        }, (_) => this.router.navigate(['PageNotFound']));
       }
     })
 

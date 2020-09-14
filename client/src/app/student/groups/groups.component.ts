@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, AfterViewInit, OnChanges, SimpleChanges }
 import { StudentService, ServerError } from 'src/app/services/student.service';
 import { Student } from 'src/app/model/student.model';
 import { MatTableDataSource } from '@angular/material/table';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Course } from 'src/app/model/course.model';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -121,7 +121,8 @@ export class GroupsComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private _studentService: StudentService,
     private _authService: AuthService,
-    private routeStateService: RouteStateService) {
+    private routeStateService: RouteStateService,
+    private router: Router) {
     this.message = ""
     this.alertType = "danger"
   }
@@ -130,9 +131,7 @@ export class GroupsComponent implements OnInit {
 
   ngOnInit(): void {
     this.activatedRoute.params.subscribe(params => {
-      if (params["course_name"]) {
-
-
+      if (params['course_name']){
 
         this.isInTeam = false // inizializzato a false indica che lo studente non è in un team
         this.isLoading = true // caricamento 
@@ -254,9 +253,9 @@ export class GroupsComponent implements OnInit {
               }
             })
 
-        }, (_) => this.isLoading = false
+        }, (_) => this.router.navigate(['PageNotFound'])
         )
-      }
+      } 
     })
 
   }

@@ -68,6 +68,9 @@ export class StudentsComponent implements OnInit {
   }
 
   @Input()
+  selectedCourse: string
+
+  @Input()
   public set studentsNotInCourse(value: Student[]) {
     this._studentsNotInCourse = value;
     this.filteredOptions = this.addStudentForm.get("studentControl").valueChanges.pipe(

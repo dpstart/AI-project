@@ -38,3 +38,8 @@ width: auto;
   height: 100px;
   width: 100px;
 }
+
+mat-sidenav{
+  text-align: center;
+}
+

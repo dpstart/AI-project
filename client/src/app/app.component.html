@@ -63,6 +63,13 @@
       </mat-list-option>
     </mat-selection-list>
 
+    <div *ngIf="isRoleTeacher() && isLoggedIn();">
+      <button mat-mini-fab color="primary" aria-label="Example icon button with a add icon"
+        style="margin-right: 16px;">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+
   </mat-sidenav>
 
   <mat-sidenav-content>

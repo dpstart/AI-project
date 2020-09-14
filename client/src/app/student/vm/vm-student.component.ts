@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild, AfterViewInit } from '@angular/core';
 import { RouteStateService } from 'src/app/services/route-state.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { StudentService } from 'src/app/services/student.service';
 import { Team } from 'src/app/model/team.model';
@@ -56,7 +56,8 @@ export class VmStudentComponent implements OnInit {
     private dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
     private studentService: StudentService,
-    private change: ChangeDetectorRef) {
+    private change: ChangeDetectorRef,
+    private router: Router) {
 
     this.isAllLoaded = false
     this.dataSourceVm = new MatTableDataSource<Vm>();
@@ -75,10 +76,12 @@ export class VmStudentComponent implements OnInit {
     this.activatedRoute.params.subscribe(params => {
       if (params['course_name'])
         this.routeStateService.updatePathParamState(params['course_name'])
-
+     
       this.selectedCourse = params["course_name"]
 
-      this.studentService.getTeamForCourse(params['course_name']).subscribe((team: Team) => {
+
+
+      this.studentService.getTeamForCourse(this.selectedCourse).subscribe((team: Team) => {
 
 
         if (team) {
@@ -95,8 +98,8 @@ export class VmStudentComponent implements OnInit {
           this.alertType = "warning"
           this.isAllLoaded = true
         }
-      }, (error) => {
-        this.isAllLoaded = true
+      }, (_) => {
+        this.router.navigate(['PageNotFound'])
       });
 
     })
@@ -108,7 +111,7 @@ export class VmStudentComponent implements OnInit {
   }
 
   createVm() {
-    this.message=""
+    this.message = ""
     const dialogRef = this.dialog.open(CreateDialogComponent, {
       width: '500px',
       data: {
@@ -129,7 +132,7 @@ export class VmStudentComponent implements OnInit {
 
 
   deleteVm(vm: Vm) {
-    this.message=""
+    this.message = ""
     this.studentService.deleteVm(vm).subscribe((_) => {
       this.dataSourceVm.data.splice(this.dataSourceVm.data.indexOf(vm), 1)
       this.dataSourceVm._updateChangeSubscription()
@@ -140,7 +143,7 @@ export class VmStudentComponent implements OnInit {
   }
 
   openVmImage(vm: Vm) {
-    this.message=""
+    this.message = ""
     if (vm.status == 1) {
       this.studentService.connectToVm(vm.id).subscribe(image => {
         let objectURL = 'data:image/png;base64,' + image.picByte
@@ -156,7 +159,7 @@ export class VmStudentComponent implements OnInit {
   }
 
   openEditDialog(element, event) {
-    this.message=""
+    this.message = ""
 
     const dialogRef = this.dialog.open(EditVmDialogComponent, {
       width: '500px',
@@ -169,7 +172,7 @@ export class VmStudentComponent implements OnInit {
 
 
   changeVmStatus(vm: Vm) {
-    this.message=""
+    this.message = ""
     this.studentService.changeVmStatus(vm).subscribe((success) => {
 
       this.dataSourceVm.data.forEach((selected) => {
