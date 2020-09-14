@@ -44,7 +44,7 @@ export class EditTeamDialogComponent {
   submit() {
     this.teacherService.changeTeamSettings(this.course, this.team.id, this.form.value).subscribe(
       (team) => this.close("Vm updated successfully", "success"),
-      (error) => { this.error = "Sorry something went wrong, try later..."; this.alertType = "danger"; }
+      (error) => { this.error = error.message; this.alertType = "danger"; }
     )
   }
 }

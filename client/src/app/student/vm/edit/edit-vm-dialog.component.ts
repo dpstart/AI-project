@@ -1,9 +1,10 @@
 import { Inject, Component, Input } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormGroup, FormControl } from '@angular/forms';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { TeacherService } from 'src/app/services/teacher.service';
 import { Team } from 'src/app/model/team.model';
 import { VmSettings, StudentService } from 'src/app/services/student.service';
+
 
 @Component({
   selector: 'edit-vm-dialog',
@@ -18,13 +19,10 @@ export class EditVmDialogComponent {
   isDisabled = true
 
   form: FormGroup = new FormGroup({
-    ram: new FormControl(this.data.vm.ram),
-    n_cpu: new FormControl(this.data.vm.n_cpu),
-    disk_space: new FormControl(this.data.vm.disk_space),
-    max_active: new FormControl(this.data.vm.max_active || "--"),
-    max_available: new FormControl(this.data.vm.max_available || "--"),
-    image: new FormControl(''),
-    imageName: new FormControl(''),
+    ram: new FormControl(this.data.vm.ram, Validators.required),
+    n_cpu: new FormControl(this.data.vm.n_cpu, Validators.required),
+    disk_space: new FormControl(this.data.vm.disk_space, Validators.required),
+    imageName: new FormControl('', Validators.required),
   });
 
   @Input() message: string | null;
@@ -50,26 +48,34 @@ export class EditVmDialogComponent {
   close() { this.dialogRef.close(); }
   submit() {
 
-    const formData = new FormData();
+    if (this.form.valid) {
+      const formData = new FormData();
 
-    let settings: VmSettings = {
-      ram: this.form.value.ram, n_cpu: this.form.value.n_cpu, disk_space: this.form.value.disk_space,
-      max_active: this.form.value.max_active, max_available: this.form.value.max_available
+      let settings: VmSettings = {
+        ram: this.form.value.ram, n_cpu: this.form.value.n_cpu, disk_space: this.form.value.disk_space,
+        max_active: 0, max_available: 0
+      }
+
+      formData.append('image', this.selectedFile, this.selectedFile.name);
+      formData.append('settings', new Blob([JSON.stringify(settings)], {
+        type: "application/json"
+      }))
+
+      this.studentService.editVM(this.vmId, formData).subscribe(success => {
+
+        this.message = "The Vm was successfully updated."
+        this.alertType = "success"
+      }, error => {
+        this.message = error.message
+        this.alertType = "danger"
+      });
     }
-
-    console.log("settings", settings)
-
-    formData.append('image', this.selectedFile, this.selectedFile.name);
-    formData.append('settings', new Blob([JSON.stringify(settings)], {
-      type: "application/json"
-    }))
-
-    this.studentService.editVM(this.vmId, formData);
   }
 
   //Gets called when the user selects an image
   public onFileChanged(event) {
     //Select File
     this.selectedFile = event.target.files[0];
+    this.form.get("imageName").setValue(this.selectedFile.name)
   }
 }

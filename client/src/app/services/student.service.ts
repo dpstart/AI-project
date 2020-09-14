@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Student } from '../model/student.model';
-import { catchError, retry} from 'rxjs/operators';
+import { catchError, retry } from 'rxjs/operators';
 import { Course } from '../model/course.model';
 import { Vm } from '../student/vm/vm-student.component';
 import { Team } from '../model/team.model';
@@ -377,8 +377,8 @@ export class StudentService {
     let headers = new HttpHeaders()
     headers.set('Content-Type', 'multipart/form-data');
 
-    const url = `${this.URL}/vms/${vmId}/update `;
-    return this.http.get(url).pipe(
+    const url = `${this.URL}/vms/${vmId}/update`;
+    return this.http.post(url, formData).pipe(
       retry(3),
       catchError(this.handleError)
     );

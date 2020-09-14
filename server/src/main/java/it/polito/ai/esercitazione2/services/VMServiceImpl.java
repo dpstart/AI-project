@@ -229,7 +229,7 @@ public class VMServiceImpl implements VMService {
 
         Image img = null;
         try {
-            imageService.remove(img.getId());
+            imageService.remove(vm.getImageId());
             img = imageService.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
         }
         catch (IOException e) {
@@ -237,10 +237,8 @@ public class VMServiceImpl implements VMService {
         }
         if(img == null)
             throw new ImageException("VM image didn't load on database correctly");
+
         vm.setImageId(img.getId());
-
-
-
         vmRepository.save(vm);
     }
 

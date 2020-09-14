@@ -90,9 +90,9 @@ export class VmStudentComponent implements OnInit {
             this.dataSourceVm.data = [...vms]
             this.isAllLoaded = true
           })
-        } else{
-          this.message="In order to use a Vm you need to be part of a team"
-          this.alertType="warning"
+        } else {
+          this.message = "In order to use a Vm you need to be part of a team"
+          this.alertType = "warning"
           this.isAllLoaded = true
         }
       }, (error) => {
@@ -138,14 +138,17 @@ export class VmStudentComponent implements OnInit {
 
   openVmImage(vm: Vm) {
 
-    this.studentService.connectToVm(vm.id).subscribe(image => {
-
-
-      let objectURL = 'data:image/png;base64,' + image.picByte
-      this.image = objectURL;
-      let win = window.open()
-      win.document.write('<iframe src="' + this.image + '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
-    })
+    if (vm.status == 1) {
+      this.studentService.connectToVm(vm.id).subscribe(image => {
+        let objectURL = 'data:image/png;base64,' + image.picByte
+        this.image = objectURL;
+        let win = window.open()
+        win.document.write('<iframe src="' + this.image + '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
+      })
+    } else {
+      this.message = "In order to see your Vm you need to run it"
+      this.alertType = "warning"
+    }
 
   }
 
@@ -163,7 +166,7 @@ export class VmStudentComponent implements OnInit {
 
 
   changeVmStatus(vm: Vm) {
-    this.studentService.changeVmStatus(vm).subscribe((_) => {
+    this.studentService.changeVmStatus(vm).subscribe((success) => {
 
       this.dataSourceVm.data.forEach((selected) => {
         if (selected.id === vm.id) {
@@ -172,6 +175,9 @@ export class VmStudentComponent implements OnInit {
       })
 
       this.dataSourceVm.data = [...this.dataSourceVm.data]
+    }, error => {
+      this.message = error.message
+      this.alertType = "danger"
     })
   }
 

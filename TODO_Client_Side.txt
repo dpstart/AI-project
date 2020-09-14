@@ -8,6 +8,6 @@
 GENERALE
 -Parallelizzare quante più richieste possibile
 
--Modificare gli header delle tabelle per renderle coerenti e comprensibili
+
 
 
