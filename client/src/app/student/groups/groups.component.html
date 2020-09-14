@@ -29,9 +29,10 @@
 
             </form>
 
+            <mat-card *ngIf="dataSourceProposals.data.length==0">No Students available</mat-card>
 
-            <table #table mat-table [dataSource]="dataSourceStudentNotYetInTeam" matSort #matSortNotInTeam=matSort
-                class="mat-elevation-z8">
+            <table *ngIf="dataSourceProposals.data.length>0" #table mat-table
+                [dataSource]="dataSourceStudentNotYetInTeam" matSort #matSortNotInTeam=matSort class="mat-elevation-z8">
 
                 <!-- ID Column -->
                 <ng-container matColumnDef="id">
@@ -77,7 +78,8 @@
                 <tr mat-header-row *matHeaderRowDef="displayedColumnsNotInTeam"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumnsNotInTeam;"></tr>
             </table>
-            <mat-paginator #paginatorNotInTeam [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+            <mat-paginator *ngIf="dataSourceProposals.data.length>0" #paginatorNotInTeam
+                [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
 
         </div>
 
@@ -90,8 +92,10 @@
 
             <h2 class="mat-h2 tabtitle"> Elenco proposte ricevute</h2>
 
-            <table mat-table [dataSource]="dataSourceProposals" matSort #matSortProposal=matSort multiTemplateDataRows
-                class="mat-elevation-z8">
+            <mat-card *ngIf="dataSourceProposals.data.length==0">No Proposals to show.</mat-card>
+
+            <table *ngIf="dataSourceProposals.data.length>0" mat-table [dataSource]="dataSourceProposals" matSort
+                #matSortProposal=matSort multiTemplateDataRows class="mat-elevation-z8">
 
                 <!--- Note that these columns can be defined in any order.
                           The actual rendered columns are set as a property on the row definition" -->
@@ -189,7 +193,8 @@
                 </tr>
                 <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
             </table>
-            <mat-paginator #paginatorProposal [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+            <mat-paginator *ngIf="dataSourceProposals.data.length>0" #paginatorProposal
+                [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
         </div>
     </ng-template>
 

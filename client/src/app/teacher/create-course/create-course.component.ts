@@ -16,7 +16,7 @@ export class CreateCourseComponent implements OnInit {
     name: new FormControl('', Validators.required),
     acronime: new FormControl('', Validators.required),
     min: new FormControl('', Validators.required),
-    max: new FormControl(''),
+    max: new FormControl('', Validators.required),
   });
 
   @Input() message: string | null;

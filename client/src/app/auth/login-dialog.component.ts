@@ -92,7 +92,10 @@ export class LoginDialogComponent {
 
         this.close()
       }, error => {
-        this.error = error.message;
+
+        if (error.status === 401)
+          this.error = "Wrong credentials"
+        else this.error = error.message;
       })
 
   }
