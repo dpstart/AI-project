@@ -34,7 +34,7 @@ export interface DisplayedAssignment {
   releaseDate: String,
   expirationDate: String,
   expirationDateObj: Date,
-  srcImage : SafeResourceUrl,
+  srcImage: SafeResourceUrl,
   isDeletable: boolean
 }
 
@@ -70,7 +70,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
 
   //DATA SOURCES:
-  homeworksColumnsToDisplay: string[] = ['name', 'surname', 'studentId', 'state', 'timestamp', 'mark'];
+  homeworksColumnsToDisplay: string[] = ['studentId', 'name', 'surname', 'state', 'timestamp', 'mark'];
   homeworksDataSource: Array<MatTableDataSource<DisplayedHomework>>
   allHomeworks: DisplayedHomework[][]
 
@@ -395,25 +395,19 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
     this.homeworksDataSource[i].data = filteredDataSource
   }
 
-
-  /**
-   * Funzione usata per definire l'immagine che deve essere ingrandita
-   * @param element 
-   */
-  selectImageToExpand(element: DisplayedAssignment) {
-    if (element == this.expandedAssignment)
-      this.expandedAssignment = null
-    else
-      this.expandedAssignment = element
-  }
-
-
   /** 
    * Metodo usato per selezionare un assignemnt ---> riinizializzazione dei filtri
   */
   selectAssignment(assignment: DisplayedAssignment) {
     //assignmentExpandedElement === assignment ? null : assignment
     this.assignmentExpandedElement = this.assignmentExpandedElement === assignment ? null : assignment
+
+
+    //Definire l'immagine che deve essere ingrandita
+    if (assignment == this.expandedAssignment)
+      this.expandedAssignment = null
+    else
+      this.expandedAssignment = assignment
 
     this.reinitFilters();
   }

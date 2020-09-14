@@ -81,15 +81,20 @@ export class VmStudentComponent implements OnInit {
       this.studentService.getTeamForCourse(params['course_name']).subscribe((team: Team) => {
 
 
-        this.teamId = team.id
+        if (team) {
+          this.teamId = team.id
 
 
-        this.studentService.getVmsForTeam(team.id).subscribe(vms => {
+          this.studentService.getVmsForTeam(team.id).subscribe(vms => {
 
-          this.dataSourceVm.data = [...vms]
+            this.dataSourceVm.data = [...vms]
+            this.isAllLoaded = true
+          })
+        } else{
+          this.message="In order to use a Vm you need to be part of a team"
+          this.alertType="warning"
           this.isAllLoaded = true
-        })
-
+        }
       }, (error) => {
         this.isAllLoaded = true
       });

@@ -9,31 +9,31 @@
 
             <p>
                 <mat-form-field>
-                    <input required type="number" matInput placeholder="RAM" formControlName="ram">
+                    <input  type="number" matInput placeholder="RAM" formControlName="ram">
                 </mat-form-field>
             </p>
 
             <p>
                 <mat-form-field>
-                    <input required type="number" matInput placeholder="Disk space" formControlName="disk_space">
+                    <input  type="number" matInput placeholder="Disk space" formControlName="disk_space">
                 </mat-form-field>
             </p>
 
             <p>
                 <mat-form-field>
-                    <input required type="number" matInput placeholder=" N. CPU" formControlName="n_cpu">
+                    <input  type="number" matInput placeholder=" N. CPU" formControlName="n_cpu">
                 </mat-form-field>
             </p>
 
             <p>
                 <mat-form-field>
-                    <input required type="number" matInput placeholder=" Max active" formControlName="max_active">
+                    <input  type="number" matInput placeholder=" Max active" formControlName="max_active">
                 </mat-form-field>
             </p>
 
             <p>
                 <mat-form-field>
-                    <input required type="number" matInput placeholder=" Max available" formControlName="max_available">
+                    <input  type="number" matInput placeholder=" Max available" formControlName="max_available">
                 </mat-form-field>
             </p>
 
@@ -41,19 +41,17 @@
                 <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
                     (click)="fileInput.click();">
                     <mat-icon>folder</mat-icon>
-                    <input formControlName="image" #fileInput type="file" (change)="onFileChanged($event)"
-                        style="display:none;" />
+                    <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;" />
                 </button>
                 <mat-form-field>
                     <mat-label>Add VM image</mat-label>
-                    <input formControlName="imageName" matInput placeholder="No file selected" [(ngModel)]="fileName"
-                        readonly="true">
+                    <input formControlName="imageName" matInput placeholder="No file selected" readonly="true">
                 </mat-form-field>
             </div>
 
             <br>
             <div>
-                <button (click)="submit()" mat-raised-button color="primary">Confirm</button>
+                <button disabled="!form.valid" (click)="submit()" mat-raised-button color="primary">Confirm</button>
                 <button (click)="close({})" class="cancel" mat-raised-button>Cancel</button>
             </div>
 
