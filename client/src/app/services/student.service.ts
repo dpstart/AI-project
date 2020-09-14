@@ -26,8 +26,8 @@ export interface VmSettings {
   n_cpu: number,
   disk_space: number,
   ram: number,
-  max_active: number,
-  max_available: number
+  max_active?: number,
+  max_available?: number
 }
 
 

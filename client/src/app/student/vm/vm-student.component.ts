@@ -76,7 +76,7 @@ export class VmStudentComponent implements OnInit {
     this.activatedRoute.params.subscribe(params => {
       if (params['course_name'])
         this.routeStateService.updatePathParamState(params['course_name'])
-     
+
       this.selectedCourse = params["course_name"]
 
 
@@ -166,7 +166,11 @@ export class VmStudentComponent implements OnInit {
       data: { vm: element, course: this.selectedCourse }
     });
 
-    dialogRef.afterClosed().subscribe(() => this.getData())
+    dialogRef.afterClosed().subscribe((response) => {
+      this.message = response.message;
+      this.alertType = response.type;
+      this.getData();
+    })
     event.stopPropagation();
   }
 

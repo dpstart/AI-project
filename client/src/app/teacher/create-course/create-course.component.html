@@ -35,7 +35,7 @@
             <div>
                 <button type="button" [disabled]="!form.valid" (click)="submit()" mat-raised-button
                     color="primary">Confirm</button>
-                <button type="button" (click)="close()" class="cancel" mat-raised-button>Cancel</button>
+                <button type="button" (click)="close(null)" class="cancel" mat-raised-button>Cancel</button>
             </div>
         </form>
     </mat-card-content>

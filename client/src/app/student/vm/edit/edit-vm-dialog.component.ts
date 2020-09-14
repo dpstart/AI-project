@@ -42,31 +42,34 @@ export class EditVmDialogComponent {
   }
 
   onNoClick(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(null);
   }
 
-  close() { this.dialogRef.close(); }
+  close(data) { this.dialogRef.close(data); }
   submit() {
 
     if (this.form.valid) {
       const formData = new FormData();
 
       let settings: VmSettings = {
-        ram: this.form.value.ram, n_cpu: this.form.value.n_cpu, disk_space: this.form.value.disk_space,
-        max_active: 0, max_available: 0
+        ram: this.form.value.ram,
+        n_cpu: this.form.value.n_cpu,
+        disk_space: this.form.value.disk_space,
+        max_active: null,
+        max_available: null,
       }
 
       if (this.selectedFile)
         formData.append('image', this.selectedFile, this.selectedFile.name);
-        
+
       formData.append('settings', new Blob([JSON.stringify(settings)], {
         type: "application/json"
       }))
 
       this.studentService.editVM(this.vmId, formData).subscribe(success => {
 
-        this.message = "The Vm was successfully updated."
-        this.alertType = "success"
+
+        this.close({ message: "The Vm was successfully updated.", type: "success" });
       }, error => {
         this.message = error.message
         this.alertType = "danger"

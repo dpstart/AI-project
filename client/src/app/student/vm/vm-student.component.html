@@ -52,8 +52,9 @@
                             Stop
                         </ng-template>
                     </button>
-                    <button mat-raised-button (click)="openVmImage(vm)">Open</button>
-                    <button mat-raised-button (click)="openEditDialog(vm, $event)">Edit</button>
+                    <button [disabled]="vm.status==0" mat-raised-button (click)="openVmImage(vm)">Open</button>
+                    <button [disabled]="vm.status==1" mat-raised-button
+                        (click)="openEditDialog(vm, $event)">Edit</button>
                 </td>
             </ng-container>
 
