@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, OnDestroy, OnChanges, SimpleChanges, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy, OnChanges, SimpleChanges, AfterViewInit, ChangeDetectorRef, Input } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatDialog } from '@angular/material/dialog';
 import { LoginDialogComponent } from './auth/login-dialog.component';
@@ -10,6 +10,8 @@ import { Course } from './model/course.model';
 import { StudentService, NavStudentLinks } from './services/student.service';
 import { RouteStateService } from './services/route-state.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { CreateDialogComponent } from './student/vm/create/create-dialog.component';
+import { CreateCourseComponent } from './teacher/create-course/create-course.component';
 
 
 
@@ -19,6 +21,10 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+
+
+  @Input() message: string | null;
+  alertType: string;
 
   courses: Course[];
   selectedCourse: string;
@@ -244,8 +250,22 @@ export class AppComponent implements OnInit {
     return this.authService.isRoleStudent()
   }
 
-  openAddCourseDialog(){
-    
+  openAddCourseDialog() {
+
+    const dialogRef = this.dialog.open(CreateCourseComponent, {
+      width: '500px',
+    });
+
+    dialogRef.afterClosed().subscribe((data) => {
+
+      this.retrieveCourses()
+
+      if (data.message === undefined) return;
+      this.message = data.message;
+      this.alertType = data.type
+
+    })
+
   }
 
 }

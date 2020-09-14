@@ -7,6 +7,7 @@ import { Student } from '../model/student.model';
 import { Assignment } from '../model/assignment.model';
 import { Homework } from '../model/homework.model';
 import { DisplayedHomework } from '../shared-components/homework/homework.component';
+import { Course } from '../model/course.model';
 
 
 export interface NavTeacherLinks {
@@ -174,6 +175,16 @@ export class TeacherService {
     reviewHomework(courseName: string, assignmentId: number, homeworkId: number, form: FormData): Observable<Homework> {
         const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}`
         return this.http.post<Homework>(url, form).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+
+    }
+
+    createCourse(course: Course) {
+
+        const url = `${this.URL}/courses/`
+        return this.http.post<Course>(url, course).pipe(
             retry(3),
             catchError(this.handleError)
         );

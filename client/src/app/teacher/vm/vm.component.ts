@@ -33,7 +33,7 @@ export class VMComponent implements OnInit {
     @Input() message: string | null;
     alertType: string;
 
-    columnsToDisplay: string[] = ['actions', 'name', 'id', 'disk_space', 'ram'];
+    columnsToDisplay: string[] = ['actions', 'name', 'id', 'disk_space', 'ram', 'n_cpu'];
     innerDisplayedColumns = ['id', 'id_creator', 'n_cpu', 'disk_space', 'ram', 'status', 'actions'];
     dataSourceTeams: MatTableDataSource<any> = new MatTableDataSource<any>();
 
@@ -89,6 +89,7 @@ export class VMComponent implements OnInit {
 
                 this.teacherService.getTeams(this.selectedCourse).subscribe((data: Team[]) => {
 
+
                     data.forEach((element, i) => {
                         let team_id = element["id"];
 
@@ -114,6 +115,9 @@ export class VMComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe((result) => {
             this.getData();
+
+            if (result === undefined)
+                return
             this.message = result.message || null;
             this.alertType = result.type;
         })

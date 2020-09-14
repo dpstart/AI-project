@@ -49,6 +49,7 @@ import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { RejectTokenComponent } from './shared-components/token/reject/reject-token.component';
 import { ConfirmTokenComponent } from './shared-components/token/confirm/confirm-token.component';
 import { ActivateAccountComponent } from './shared-components/account/activate-account.component';
+import { CreateCourseComponent } from './teacher/create-course/create-course.component';
 
 @NgModule({
   declarations: [
@@ -71,6 +72,7 @@ import { ActivateAccountComponent } from './shared-components/account/activate-a
     ConfirmTokenComponent,
     RejectTokenComponent,
     ActivateAccountComponent,
+    CreateCourseComponent,
   ],
   imports: [
     BrowserModule,
