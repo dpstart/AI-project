@@ -8,10 +8,14 @@ import { RouteStateService } from './services/route-state.service';
 })
 export class PageNotFoundComponent implements OnInit {
 
-    constructor(private routeStateService :RouteStateService) { }
+    constructor(private routeStateService: RouteStateService) { }
 
     ngOnInit(): void {
-        this.routeStateService.updatePathParamState("404 - Page Not Found")
+        this.routeStateService.pathParam.subscribe(data => {
+            if (data != "PageNotFound") {
+                this.routeStateService.updatePathParamState("404 - Page Not Found")
+            }
+        })
     }
 
 }

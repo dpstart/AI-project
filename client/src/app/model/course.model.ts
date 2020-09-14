@@ -53,20 +53,6 @@ export class Course {
     // Float mark;
 
     constructor(private _name: string, private _acronime: string, private _min: Number,  private _links: Link[] = [],private _max: Number) { }
-
-
-
-    // getHrefByRel(rel: string): string {
-
-    //     let href = "";
-
-    //     if (this._links.some(link => {
-    //         if (link.rel == rel)
-    //             href = link.href
-    //     }))
-    //         return href;
-    // }
-
 }
 
 

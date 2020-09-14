@@ -6,7 +6,6 @@ import { MatTable } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -21,6 +20,8 @@ export class StudentsComponent implements OnInit {
   selectedFile: File;
 
   isDisabled: boolean
+
+  isReadOnly: Boolean
 
 
   masterToggleInPageOption = true
@@ -48,6 +49,7 @@ export class StudentsComponent implements OnInit {
   constructor() {
     this.enrolledStudentsDataSource = new MatTableDataSource();
     this.isDisabled = true
+    this.isReadOnly = true
 
 
     this.addStudentForm = new FormGroup({
@@ -261,5 +263,11 @@ export class StudentsComponent implements OnInit {
   //Gets called when the user clicks on submit to upload the image
   onUpload() {
     this.enrollManyCsvEvent.emit(this.selectedFile);
+  }
+
+
+
+  toggleEditName() {
+    this.isReadOnly = !this.isReadOnly
   }
 }

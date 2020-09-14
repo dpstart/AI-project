@@ -65,7 +65,8 @@
 
     <div *ngIf="isRoleTeacher() && isLoggedIn();">
       <button mat-mini-fab color="primary" aria-label="Example icon button with a add icon"
-        style="margin-right: 16px;">
+        style="margin-right: 16px;"
+        (click)="openAddCourseDialog()">
         <mat-icon>add</mat-icon>
       </button>
     </div>

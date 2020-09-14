@@ -3,8 +3,15 @@
 
     <mat-form-field class="example-full-width">
         <mat-label>Current course</mat-label>
-        <input type="text" matInput [value]="selectedCourse">
+        <input type="text" matInput [value]="selectedCourse" [readOnly]="isReadOnly">
     </mat-form-field>
+
+
+    <button mat-mini-fab aria-label="Example icon button with a edit icon" (click)="toggleEditName()"
+        [ngStyle]="{'background-color':isReadOnly? '#3f51b5': 'green' }">
+        <mat-icon *ngIf="isReadOnly">edit</mat-icon>
+        <mat-icon *ngIf="!isReadOnly">check</mat-icon>
+    </button>
 
     <h2 class="mat-h2 tabtitle">Elenco studenti iscritti al corso.</h2>
     <form [formGroup]="addStudentForm">

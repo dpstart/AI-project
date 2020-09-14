@@ -244,4 +244,8 @@ export class AppComponent implements OnInit {
     return this.authService.isRoleStudent()
   }
 
+  openAddCourseDialog(){
+    
+  }
+
 }
