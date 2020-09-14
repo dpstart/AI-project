@@ -8,6 +8,7 @@ import { Homework } from 'src/app/model/homework.model';
 import { Student } from 'src/app/model/student.model';
 import { Image } from 'src/app/model/image.model';
 import { DomSanitizer } from '@angular/platform-browser';
+import { timestamp } from 'rxjs/operators';
 
 
 const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' };
@@ -104,23 +105,28 @@ export class HomeworkContainerComponent implements OnInit {
                         delivered,
                         reviewed */
 
+                    let rawState: number
                     let state = ""
                     switch (homework.state) {
                       // se si trova anche solo un hw che risulta anche solo letto allora l'assignment non può essere più cancellato
                       case "read":
                         state = "LETTO"
+                        rawState = 1
                         displayedAssignment.isDeletable = false
                         break;
                       case "delivered":
                         state = "CONSEGNATO"
+                        rawState = 4
                         displayedAssignment.isDeletable = false
                         break;
                       case "reviewed":
                         state = "RIVISTO"
+                        rawState = 3
                         displayedAssignment.isDeletable = false
                         break;
                       default:
                         state = "NON LETTO"
+                        rawState = 0
                         break;
                     }
 
@@ -128,9 +134,12 @@ export class HomeworkContainerComponent implements OnInit {
                     // Definisci il voto
                     let mark = homework.mark === 0 ? "--" : homework.mark.toString()
 
+
+
                     //E' una valutazione finale?
                     if (homework.isFinal) {
                       state = "REGISTRATO"
+                      rawState = 2
                       mark = homework.mark < 18 ? "RESPINTO" : homework.mark.toString()
                     }
 
@@ -153,14 +162,37 @@ export class HomeworkContainerComponent implements OnInit {
                           surname: student.firstName,
                           studentId: student.id,
                           state: state,
+                          rawState: rawState,
                           isFinal: homework.isFinal,
                           mark: mark,
-                          timestamp: new Date(homework.lastModified).toLocaleDateString(undefined, options)
+                          timestamp: new Date(homework.lastModified).toLocaleDateString(undefined, options),
+                          timestampObj: new Date(homework.lastModified)
                         })
 
                         if (homeworks.length == counterHw) {
                           counter++
                           if (counter == assignments.length) {
+
+                            let currentDate = new Date()
+                            displayedAssignments = displayedAssignments.sort((a, b) => {
+
+                              if (a.expirationDateObj.getTime() < currentDate.getTime() && b.expirationDateObj.getTime() < currentDate.getTime()) {
+                                // a e b scaduti ordine inverso dal più recente al più vecchio
+                                return b.expirationDateObj.getTime() - a.expirationDateObj.getTime()
+                              } else
+                                if (a.expirationDateObj.getTime() >= currentDate.getTime() && b.expirationDateObj.getTime() >= currentDate.getTime()) {
+                                  //nessuno dei due è scaduto //ordine temporale ascendente 
+                                  return a.expirationDateObj.getTime() - b.expirationDateObj.getTime()
+                                }
+                                else {
+                                  //uno dei due è scaduto, ritorno prima quello non scaduto
+                                  if (a.expirationDateObj.getTime() < currentDate.getTime())
+                                    return 1
+                                  else return -1
+                                }
+
+
+                            })
                             this.displayedAssignments = [...displayedAssignments]
                             this.displayedHomeworks = [...displayHomeworks]
                             this.isAllLoaded = true

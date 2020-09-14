@@ -23,8 +23,10 @@ export interface DisplayedHomework {
   studentId: string,
   name: string,
   surname: string,
+  rawState: number,
   state: string,
-  timestamp: string
+  timestamp: string,
+  timestampObj: Date,
   isFinal: boolean,
   mark: string
 }
@@ -198,7 +200,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
       //per ogni assignment ho una tabella di hws quindi un datasource di hws
       this.homeworksDataSource.push(new MatTableDataSource<DisplayedHomework>())
       this.allHomeworks.push([])
-      let newHwsSource = []
+      let newHwsSource: DisplayedHomework[] = []
 
 
       // dati gli hws assegnati ad un determinato assignment, il container setta anche se l'assignment risulta cancellabile o meno
@@ -218,6 +220,13 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
         }
       })
 
+      newHwsSource = newHwsSource.sort((a, b) => {
+        if (a.rawState === b.rawState) {
+          return a.timestampObj.getTime() - b.timestampObj.getTime()
+        } else {
+          return b.rawState - a.rawState
+        }
+      })
       // Aggiornamento data source hws 
       this.homeworksDataSource[i].data = [...newHwsSource]
       //variabile usata poi coi filtri
