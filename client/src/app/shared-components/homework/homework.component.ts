@@ -324,9 +324,11 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
       this.teacherService.addAssignment(this.selectedCourse, formData).subscribe(success => {
         this.addedAssignment.emit(success)
-
         this.message = "The assignment was successfully added."
         this.alertType = "success"
+      }, error => {
+        this.message = error.message
+        this.alertType = "danger"
       })
     }
   }

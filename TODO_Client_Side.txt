@@ -1,12 +1,3 @@
--VM 
---vm details con popup dell'immagine
---creazione vm non funziona se non c'è immagine e non si dice nulla o si fa nulla per comunicarlo allo user, nemmeno un required.
-
--- la vm non può essere aperta se non è nello stato open, ma anche qui non si fa nulla per comunicarlo allo user. Sembra semplicemente che non funzioni.
-
-
-GENERALE
--Parallelizzare quante più richieste possibile
 
 
 

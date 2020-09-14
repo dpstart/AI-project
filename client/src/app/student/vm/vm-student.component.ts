@@ -108,7 +108,7 @@ export class VmStudentComponent implements OnInit {
   }
 
   createVm() {
-
+    this.message=""
     const dialogRef = this.dialog.open(CreateDialogComponent, {
       width: '500px',
       data: {
@@ -129,6 +129,7 @@ export class VmStudentComponent implements OnInit {
 
 
   deleteVm(vm: Vm) {
+    this.message=""
     this.studentService.deleteVm(vm).subscribe((_) => {
       this.dataSourceVm.data.splice(this.dataSourceVm.data.indexOf(vm), 1)
       this.dataSourceVm._updateChangeSubscription()
@@ -139,7 +140,7 @@ export class VmStudentComponent implements OnInit {
   }
 
   openVmImage(vm: Vm) {
-
+    this.message=""
     if (vm.status == 1) {
       this.studentService.connectToVm(vm.id).subscribe(image => {
         let objectURL = 'data:image/png;base64,' + image.picByte
@@ -155,7 +156,7 @@ export class VmStudentComponent implements OnInit {
   }
 
   openEditDialog(element, event) {
-
+    this.message=""
 
     const dialogRef = this.dialog.open(EditVmDialogComponent, {
       width: '500px',
@@ -168,6 +169,7 @@ export class VmStudentComponent implements OnInit {
 
 
   changeVmStatus(vm: Vm) {
+    this.message=""
     this.studentService.changeVmStatus(vm).subscribe((success) => {
 
       this.dataSourceVm.data.forEach((selected) => {

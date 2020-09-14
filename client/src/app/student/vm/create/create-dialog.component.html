@@ -27,7 +27,7 @@
 
 
             <div>
-                <button mat-fab color="primary" aria-label="Example icon button with a delete icon"
+                <button type="button" mat-fab color="primary" aria-label="Example icon button with a delete icon"
                     (click)="fileInput.click();">
                     <mat-icon>folder</mat-icon>
                     <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;" />
