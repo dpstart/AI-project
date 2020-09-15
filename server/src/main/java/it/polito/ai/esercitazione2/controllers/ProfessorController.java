@@ -63,6 +63,9 @@ public class ProfessorController {
    @PostMapping({"","/"})
    ProfessorDTO addProfessor(@Valid @RequestPart("professor") ProfessorDTO p,  @RequestPart(value="image",required=false) MultipartFile file) {
 
+       if (p.getEmail()!=null || p.getAlias()!=null)
+           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can't set email and alias");
+
         try {
             if (file==null || file.isEmpty()) {
                 if (!teamservice.addProfessor(p))

@@ -104,6 +104,8 @@ public class StudentController {
     public StudentDTO addStudent(@Valid @RequestPart("student") StudentDTO dto,
                                  @RequestPart(value = "image", required = false) MultipartFile file) {
 
+        if (dto.getEmail()!=null || dto.getAlias()!=null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can't set email and alias");
         try {
             if (file == null || file.isEmpty()) {
                 if (!teamservice.addStudent(dto, true))

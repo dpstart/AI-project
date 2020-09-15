@@ -35,14 +35,12 @@ public class StudentDTO extends RepresentationModel<StudentDTO> {
     @JsonProperty("password")
     String password;
 
-    /*@JsonProperty("alias")
 
-    String alias;
-    @CsvBindByName
-    @JsonProperty("email")
-    @Email(regexp="^(((s[0-9]{6})|([a-z]+\\.[a-z]+))@studenti\\.polito\\.it)$")
-    String email;
-*/
+
+    String alias=null;
+
+    String email=null;
+
     Boolean enabled=false;
 
 

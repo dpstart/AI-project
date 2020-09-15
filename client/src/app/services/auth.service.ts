@@ -95,6 +95,7 @@ export class AuthService {
     if (user.email.includes("@studenti.polito.it")) {
 
       let url = `${this.URL}/students`;
+      user.email=null;
 
       formData.append('student', new Blob([JSON.stringify(user)], {
         type: "application/json"
@@ -115,7 +116,7 @@ export class AuthService {
       let url = `${this.URL}/professors`;
       if (file.name!==undefined)
           formData.append('image', file, file.name);
-
+      user.email=null;
       formData.append('professor', new Blob([JSON.stringify(user)], {
         type: "application/json"
       }))
