@@ -435,7 +435,7 @@ public class TeamServiceImpl implements TeamService {
                 alias += Integer.toString(i);
             }
         }
-        stud.setEmail(s.getId()+"@studenti.polito.it");
+        stud.setEmail("s"+s.getId()+"@studenti.polito.it");
         stud.setAlias(alias);
         if (img != null)
             stud.setImage_id(img.getId());
@@ -629,20 +629,30 @@ public class TeamServiceImpl implements TeamService {
                 .body(Mono.just(authenticationRequest), JwtRequest.class)
                 .exchange().flatMap(x->{
                     if (x.statusCode().is4xxClientError()||x.statusCode().is5xxServerError()) {
-                        Mono<String> msg=x.bodyToMono(String.class);
-                        System.out.println("here");
-                        return msg.flatMap(y->{
+                        Mono<String> msg = x.bodyToMono(String.class);
+
+                        return msg.flatMap(y -> {
                             throw new AuthenticationServiceException(y);
                         });
 
                     }
-                    return  x.bodyToMono(JwtResponse.class);
-                })
-                .block();
+                    else if(x.statusCode().isError()){
 
-        System.out.println("Token: "+a.getToken());
+                        Mono<String> msg = x.bodyToMono(String.class);
+
+                        return msg.flatMap(y -> {
+                            throw new AuthenticationServiceException(y);
+                        });
+                    }
+                    else {
+                        System.out.println("qui");
+                        return x.bodyToMono(JwtResponse.class);
+                    }
+
+                }).block();
+
+        System.out.println("qui2");
         return a;
-
 
     }
 

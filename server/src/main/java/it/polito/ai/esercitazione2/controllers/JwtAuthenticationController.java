@@ -52,13 +52,9 @@ public class JwtAuthenticationController {
     public JwtResponse createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
 
         jwtservice.authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        System.out.println("Here: 1");
         final UserDetails userDetails = jwtservice.getUser(authenticationRequest.getUsername());
-        System.out.println("Here: 2");
         final String token = jwtservice.generateToken(userDetails);
-        System.out.println("Here: "+token);
         JwtResponse r = new JwtResponse(token);
-        System.out.println("Here: "+token);
         return  r;
     }
 
