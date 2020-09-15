@@ -12,16 +12,25 @@ import { Homework } from '../model/homework.model';
 import { Image } from '../model/image.model';
 
 
+/**
+ * Interfaccia link per gli studenti usato nelle tab 
+ */
 export interface NavStudentLinks {
   link: String;
   label: String;
 }
 
+/**
+ * Interfaccia per mappare errori
+ */
 export interface ServerError {
   status: number
   message: string
 }
 
+/**
+ * Interfaccia per settare i settings di una Vm
+ */
 export interface VmSettings {
   n_cpu: number,
   disk_space: number,
@@ -30,45 +39,44 @@ export interface VmSettings {
   max_available?: number
 }
 
-
-
 @Injectable({
   providedIn: 'root'
 })
 export class StudentService {
 
-
-
-  private handleError(error: HttpErrorResponse) {
-    if (error.error instanceof ErrorEvent) {
-      // A client-side or network error occurred. Handle it accordingly.ù
-      console.log(error)
-      console.error('An error occurred:', error.message);
-    } else {
-      // The backend returned an unsuccessful response code.
-      // The response body may contain clues as to what went wrong,
-      console.error(
-        `Backend returned code ${error.status}, ` +
-        `body was: ${error.message}`);
-    }
-
-    // return an observable with a user-facing error message
-
-    return throwError({ status: error.status, message: error.error.message });
-  };
-
-
-
+  // Link studenti nelle tab
   private navStudentLinks: NavStudentLinks[];
 
   constructor(private http: HttpClient) {
-    this.navStudentLinks = [{ link: 'groups', label: 'Groups' }, { link: 'vms', label: 'VMs' }, { link: 'homework', label: 'Elaborati' }]
+    this.navStudentLinks = [
+      { link: 'groups', label: 'Groups' },
+      { link: 'vms', label: 'VMs' },
+      { link: 'homework', label: 'Elaborati' }
+    ]
   }
 
   URL = "http://localhost:4200/API"
 
-  // CREATE
+  //*********************************************** CREATE ****************************************************//
 
+  /**
+   * Metodo che permette di aggiungere una Vm
+   * @param course_name 
+   * @param teamId 
+   * @param formData 
+   * 
+   * Il formData richiede due campi una immagine della vm e i corrispettivi settings
+   * 
+      let settings: VmSettings = {
+        ram: this.form.value.ram, n_cpu: this.form.value.n_cpu, disk_space: this.form.value.disk_space,
+        max_active: 0, max_available: 0
+      }
+
+      formData.append('image', this.selectedFile, this.fileName);
+      formData.append('settings', new Blob([JSON.stringify(settings)], {
+        type: "application/json"
+      }))
+   */
   createVM(course_name: string, teamId: number, formData: FormData) {
 
     let headers = new HttpHeaders()
@@ -82,17 +90,25 @@ export class StudentService {
 
   }
 
-  addStudent(s: Student) {
+  /**
+   * Metodo che permette l'aggiunta di uno studente
+   * @param student 
+   */
+  addStudent(student: Student) {
 
     const url = `${this.URL}/students`;
-    return this.http.post<Student>(url, s)
+    return this.http.post<Student>(url, student)
       .pipe(
         retry(3),
         catchError(this.handleError)
       );
-
   }
 
+  /**
+   * Metodo che permette di iscrivere uno studente ad un corso corso
+   * @param courseName: nome del corso a cui deve essere iscritto
+   * @param studentId: id studente da iscrivere
+   */
   enrollOne(courseName: string, studentId: string) {
     const url = `${this.URL}/courses/${courseName}/enrollOne`;
     return this.http.post<Student>(url, { id: studentId })
@@ -101,51 +117,62 @@ export class StudentService {
         catchError(this.handleError)
       );
   }
-  /* @PostMapping("/{name}/enrollManyCSV")
-      @ResponseStatus(HttpStatus.CREATED)
-      void enrollStudentsCSV(@PathVariable String name, @RequestParam("file") MultipartFile file) { */
+
+  /**
+   * Metodo che permette di iscrivere diversi studenti presenti in un file di formato csv ad un derminato corso 
+   * @param courseName: nome del corso a cui gli studenti devono essere iscritti
+   * @param file: file contente gli id degli studenti da iscrivere
+   */
   enrollManyCSV(courseName: string, file: File) {
 
-    //FormData API provides methods and properties to allow us easily prepare form data to be sent with POST HTTP requests.
+    const url = `${this.URL}/courses/${courseName}/enrollManyCSV`
+
     const uploadData = new FormData();
     uploadData.append('file', file, file.name);
-
-    const url = `${this.URL}/courses/${courseName}/enrollManyCSV`
 
     return this.http.post(url, uploadData).pipe(
       retry(3),
       catchError(this.handleError)
     );
-
-
   }
 
+  /**
+   * Metodo che permette di disiscrivere diversi studenti presenti in un file di formato csv ad un derminato corso 
+   * @param courseName 
+   * @param students 
+   */
   unsubscribeMany(courseName: string, students: Student[]) {
 
-    let studentIds = []
+    const url = `${this.URL}/courses/${courseName}/unsubscribeMany`;
 
+    let studentIds = []
     students.forEach(student => studentIds.push(student.id))
 
-    const url = `${this.URL}/courses/${courseName}/unsubscribeMany`;
     return this.http.post<Student>(url, { students: studentIds })
       .pipe(
         retry(3),
         catchError(this.handleError)
       );
-
-
-
-
   }
 
-  proposeTeam(courseName: string, team: string, members: Student[], timeout: number) {
+  /**
+   * Metodo che permette di mandare una proposta per un team
+   * @param courseName: nome del corso 
+   * @param teamName: nome del team che si propone
+   * @param members: membri del team
+   * @param timeout: scadenza proposta
+   */
+  proposeTeam(courseName: string, teamName: string, members: Student[], timeout: number) {
     const url = `${this.URL}/courses/${courseName}/proposeTeam`
+
     let membersIds: string[] = []
+
+    //Ciò che viene inviato sono gli id degli studenti
     members.forEach((student) => {
       membersIds.push(student.id)
     })
 
-    return this.http.post(url, { "team": team, "members": membersIds, "timeout": timeout }, {
+    return this.http.post(url, { "team": teamName, "members": membersIds, "timeout": timeout }, {
       observe: 'response'
     }).pipe(
       retry(3),
@@ -153,8 +180,14 @@ export class StudentService {
     );
   }
 
-
-
+  /**
+   * Metodo che permette di creare una nuova versione dell'homework per un determinato assignment e corso.
+   * @param courseName: nome del corso
+   * @param assignmentId: assignemnt id
+   * @param uploadImageData: il form contiene la seguente:
+   * Immagine relativa a homework in questione
+   * form.append('image', this.selectedFile, this.selectedFile.name);
+   */
   uploadHomework(courseName: string, assignmentId: number, uploadImageData: FormData) {
 
     const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}`
@@ -167,21 +200,46 @@ export class StudentService {
 
 
 
-  //RESEARCH
+  //********************************************* RESEARCH ******************************************************//
 
-  /*
-   @GetMapping("/{name}/teams/{id}/adhesion")
-   Map<String, Boolean> getAdhesionInfo(@PathVariable String name, @PathVariable Long id) */
+  /**
+   * Metodo generico che permette di ritirare qualsiasi risorsa contattando la url specificata come parametro
+   * @param href: endpoint da contattare === url
+   */
+  getResourceByUrl(href: string): Observable<any> {
+    return this.http.get<any>(href).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Metodo che permette di ottenere i link della tab degli studenti
+   */
+  getNavStudentLinks(): NavStudentLinks[] {
+    return this.navStudentLinks;
+  }
+
+  /**
+   * Metodo che permette di ricavare informazioni relative allo stato di adesione dei membri per una determinata proposta ad un team
+   * @param courseName: nome del corso 
+   * @param teamId: id team proposto
+   */
   getAdhesionInfo(courseName: string, teamId: number): Observable<Map<string, string>> {
+
     const url = `${this.URL}/courses/${courseName}/teams/${teamId}/adhesion`
+
     return this.http.get<Map<string, string>>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
   }
 
-
-
+  /**
+   * Metodo che permette di accettare o rifiutare la proposta per un determinato team contattando semplicemente la url corrispondente 
+   * @param token 
+   * @param isAccepted 
+   */
   actionToken(token: string, isAccepted: boolean): Observable<boolean> {
 
     let url = isAccepted ? `http://localhost:4200/notification/confirm/${token}` : `http://localhost:4200/notification/reject/${token}`
@@ -190,70 +248,85 @@ export class StudentService {
       retry(3),
       catchError(this.handleError)
     );
-
   }
 
-
-
+  /**
+   * Metodo che permette di ottenere le proposte ricevute dallo studente che effettua la chiamata
+   * @param courseName: nome del corso
+   */
   getProposalsToStudent(courseName): Observable<Team[]> {
-    ///courses/{name}/teamsProposals
+
     const url = `${this.URL}/students/courses/${courseName}/teamsProposals/`
+
     return this.http.get<Team[]>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
   }
 
-  getResourceByUrl(href: string): Observable<any> {
-    return this.http.get<any>(href).pipe(
-      retry(3),
-      catchError(this.handleError)
-    );
-  }
-
-
-  getNavStudentLinks(): NavStudentLinks[] {
-    return this.navStudentLinks;
-  }
-
-
+  /**
+   * Metodo che permette di ricavare i corsi di un determinato studente
+   */
   getCourses(): Observable<Course[]> {
+
     const url = `${this.URL}/students/courses/`
+
     return this.http.get<Course[]>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
-
   }
 
+  /**
+   * Metodo che permette di creare una connessione verso una vm
+   * @param vmId: id vm
+   */
   connectToVm(vmId: number) {
+
     const url = `${this.URL}/vms/${vmId}/connect`
+
     return this.http.get<Image>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
-
   }
 
 
+  /**
+   * Metodo che permette di ricavare un corso dato il suo nome
+   * @param course_name 
+   */
   getCourse(course_name: string): Observable<Course> {
+
     const url = `${this.URL}/courses/${course_name}`
+
     return this.http.get<Course>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
   }
 
+  /**
+   * Metodo che permette di ricavare uno studente dato il suo id
+   * @param id 
+   */
   getStudentById(id: string): Observable<Student> {
+
     const url = `${this.URL}/students/${id}`;
+
     return this.http.get<Student>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
   }
 
+  /**
+   * Metodo che permette di ricavare la lista di tutti gli studenti
+   */
   getStudents(): Observable<Array<Student>> {
+
     const url = `${this.URL}/students`;
+
     return this.http.get<Array<Student>>(url).pipe(
       retry(3),
       catchError(this.handleError)
@@ -269,123 +342,159 @@ export class StudentService {
   //   );
   // }
 
-
+  /**
+   * Metodo che permette di ricavare gli studenti di un determinato corso
+   * @param course_name 
+   */
   getStudentsInCourse(course_name: string): Observable<Student[]> {
+
     const url = `${this.URL}/courses/${course_name}/enrolled`;
+
     return this.http.get<Student[]>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
   }
 
-
+  /**
+   * Metodo che permette di ricavare i team dello studente che effettua la chiamata
+   */
   getTeamsOfStudent(): Observable<Team[]> {
+
     const url = `${this.URL}/students/teams`;
+
     return this.http.get<Team[]>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
   }
 
+  /**
+   * Metodo che permette di ricavare gli studenti che non sono ancora in un team dato il nome del corso
+   * @param courseName 
+   */
   getStudentsAvailableInCourse(courseName: string): Observable<Student[]> {
+
     const url = `${this.URL}/courses/${courseName}/available`;
+
     return this.http.get<Student[]>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
   }
+
   /**
    * Ritorna il team dello specifico studente che fa la richiesta dato il corso.
    * @param courseName  nome del corso
    */
   getTeamForCourse(courseName: string): Observable<Team> {
+
     const url = `${this.URL}/students/courses/${courseName}/team`;
+
     return this.http.get<Team>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
   }
 
+  /**
+   * Metodo che permette di ricavare i membri di un determinato team 
+   * @param courseName: nome del corso in cui è presente il team
+   * @param teamId: team id
+   */
   getTeamMembers(courseName: string, teamId: number): Observable<Student[]> {
+
     const url = `${this.URL}/courses/${courseName}/teams/${teamId}/members`;
+
     return this.http.get<Student[]>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
-
   }
 
 
+  /**
+   * Metodo che permette di ricavare le Vm per un determinato team
+   * @param teamId: id team
+   */
   getVmsForTeam(teamId: number): Observable<Vm[]> {
+
     const url = `${this.URL}/vms/teams/${teamId}`;
+
     return this.http.get<Vm[]>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
   }
 
-
+  /**
+   * Metodo che permette di ricavare le versioni di un determinato homework
+   * @param course_name: nome del corso in cui l'assignment è stato assegnato
+   * @param assignment_id: id assignment
+   * @param homework_id: id homework
+   */
   getHomeworkVersions(course_name: string, assignment_id: number, homework_id: number): Observable<HomeworkVersion[]> {
+
     const url = `${this.URL}/courses/${course_name}/assignments/${assignment_id}/homeworks/${homework_id}/versions`
+
     return this.http.get<HomeworkVersion[]>(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
   }
 
-  getAssignmentsByCourse(courseName: string): Observable<Assignment[]> {
-    const url = `${this.URL}/courses/${courseName}/assignments`
-    return this.http.get<Assignment[]>(url).pipe(
-      retry(3),
-      catchError(this.handleError)
-    );
-  }
+  //********************************************** UPDATE **************************************************************//
 
-  getHomeworksByAssignment(courseName: string, assignmentId: number): Observable<Homework[]> {
-    const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks`
-    return this.http.get<Homework[]>(url).pipe(
-      retry(3),
-      catchError(this.handleError)
-    );
-  }
-
-
-  //UPDATE
-
+  /**
+   * Metodo che permette di effettuare l'update per un determinato studente
+   */
   updateStudent(s: Student) {
 
     const url = `${this.URL}/students/${s.id}`;
+
     return this.http.put<Student>(url, s).pipe(
       retry(3),
       catchError(this.handleError)
     );
-
   }
 
-  enrollStudents(students: Student[], courseId: number) {
+  /**
+   * Metodo che permette di effettuare una modifica ad una determinata Vm identificata dal suo id
+   * @param vmId 
+   * @param formData il form contiene la segiente:
+   *  Immagine Vm se presente
+      formData.append('image', this.selectedFile, this.selectedFile.name);
 
-    students.forEach(element => {
-      element.courseId = courseId;
-      this.updateStudent(element);
-    });
+      export interface VmSettings {
+        n_cpu: number,
+        disk_space: number,
+        ram: number,
+        max_active?: number,
+        max_available?: number
+      }
 
-  }
-
-
+      Impostazioni Vm
+      formData.append('settings', new Blob([JSON.stringify(settings)], {
+        type: "application/json"
+      }))
+   */
   editVM(vmId: number, formData: FormData) {
+
+    const url = `${this.URL}/vms/${vmId}/update`;
 
     let headers = new HttpHeaders()
     headers.set('Content-Type', 'multipart/form-data');
 
-    const url = `${this.URL}/vms/${vmId}/update`;
     return this.http.post(url, formData).pipe(
       retry(3),
       catchError(this.handleError)
     );
-
   }
 
-
+  /**
+   * Metodo che permette di cambiare lo stato di una determinata vm
+   * @param vm 
+   */
   changeVmStatus(vm: Vm) {
 
     let url = `${this.URL}/vms/${vm.id}`;
@@ -407,10 +516,16 @@ export class StudentService {
   }
 
 
-  //DELETE
+  //******************************************** DELETE *****************************************************//
 
+  /**
+   * Metodo che permette di eleminare uno studente dato il suo id
+   * @param id 
+   */
   deleteStudent(id: string): Observable<{}> {
+
     const url = `${this.URL}/students/${id} `; // DELETE api/heroes/42
+
     return this.http.delete(url)
       .pipe(
         retry(3),
@@ -418,14 +533,37 @@ export class StudentService {
       );
   }
 
-
+  /**
+   * Metodo che permette di eliminare una determinata Vm
+   * @param vm 
+   */
   deleteVm(vm: Vm) {
-    const url = `${this.URL}/vms/${vm.id} `; // DELETE api/heroes/42
+
+    const url = `${this.URL}/vms/${vm.id}`;
+
     return this.http.delete(url).pipe(
       retry(3),
       catchError(this.handleError)
     );
   }
+
+  private handleError(error: HttpErrorResponse) {
+    if (error.error instanceof ErrorEvent) {
+      // A client-side or network error occurred. Handle it accordingly.ù
+      console.log(error)
+      console.error('An error occurred:', error.message);
+    } else {
+      // The backend returned an unsuccessful response code.
+      // The response body may contain clues as to what went wrong,
+      console.error(
+        `Backend returned code ${error.status}, ` +
+        `body was: ${error.message}`);
+    }
+
+    // return an observable with a user-facing error message
+
+    return throwError({ status: error.status, message: error.error.message });
+  };
 
 
 }

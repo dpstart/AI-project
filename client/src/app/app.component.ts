@@ -151,9 +151,10 @@ export class AppComponent implements OnInit {
 
     if (this.authService.isLoggedIn()) {
 
-
       if (this.authService.isRoleTeacher())
+
         this.teacherService.getCourses().subscribe((data: Course[]) => {
+
           if (data.length != 0 && this.selectedCourse == "Home") {
             this.sidenav.open()
           }
@@ -161,6 +162,7 @@ export class AppComponent implements OnInit {
         })
       else
         this.studentService.getCourses().subscribe((data: Course[]) => {
+
           if (data.length != 0 && this.selectedCourse == "Home") {
             this.sidenav.open()
           }
@@ -172,6 +174,7 @@ export class AppComponent implements OnInit {
 
 
   selectCourse(course: Course) {
+
     this.routeStateService.updatePathParamState(course.name)
 
     if (this.authService.isRoleTeacher())
@@ -179,21 +182,20 @@ export class AppComponent implements OnInit {
     else
       this.router.navigate(['student', 'course', course.name, 'groups']);
 
-
     this.sidenav.close()
-
   }
 
   onClickTeacherTab(link: string) {
+
     this.routeStateService.pathParam.subscribe(courseSelected => {
+
       if (courseSelected !== "Home")
         this.router.navigate(['teacher', 'course', courseSelected, link]);
       else
         this.sidenav.open()
-
-
     })
   }
+  
   onClickStudentTab(link: string) {
     this.routeStateService.pathParam.subscribe(courseSelected => {
       if (courseSelected !== "Home")

@@ -272,7 +272,11 @@ export class TeacherService {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //****************************************** DELETE *********************************************************//
 
-
+    /**
+     * Metodo che rimuove se possibile un assignment corrispondente all'id
+     * @param courseName 
+     * @param id 
+     */
     removeAssignment(courseName: string, id: number): Observable<any> {
         const url = `${this.URL}/courses/${courseName}/assignments/${id}`
         return this.http.delete(url).pipe(
@@ -298,7 +302,4 @@ export class TeacherService {
         return throwError(
             { status: error.status, message: error.error.message });
     };
-
-
-
 }

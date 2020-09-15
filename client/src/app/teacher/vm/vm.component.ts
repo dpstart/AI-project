@@ -128,8 +128,7 @@ export class VMComponent implements OnInit {
 
 
         this.studentService.connectToVm(element.id).subscribe(image => {
-
-
+            
             let objectURL = 'data:image/png;base64,' + image.picByte
             this.image = objectURL;
             let win = window.open()
