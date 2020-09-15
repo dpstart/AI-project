@@ -100,7 +100,8 @@ export class AuthService {
         type: "application/json"
       }))
 
-      formData.append('image', file, file.name);
+      if (file.name!==undefined)
+          formData.append('image', file, file.name);
 
 
       return this.http.post<RegisteredUserForm>(url, formData, { "headers": headers }).pipe(
@@ -112,6 +113,8 @@ export class AuthService {
         throwError("Wrong Format")
       }
       let url = `${this.URL}/professors`;
+      if (file.name!==undefined)
+          formData.append('image', file, file.name);
 
       formData.append('professor', new Blob([JSON.stringify(user)], {
         type: "application/json"

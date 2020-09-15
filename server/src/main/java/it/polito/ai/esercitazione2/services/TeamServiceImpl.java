@@ -16,6 +16,7 @@ import org.apache.commons.text.RandomStringGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -624,7 +625,7 @@ public class TeamServiceImpl implements TeamService {
 
 
         // richiesta POST verso /authenticate
-        JwtResponse a = w.post()
+        String a = w.post()
                 .uri("/authenticate")
                 .body(Mono.just(authenticationRequest), JwtRequest.class)
                 .exchange().flatMap(x->{
@@ -645,14 +646,17 @@ public class TeamServiceImpl implements TeamService {
                         });
                     }
                     else {
-                        System.out.println("qui");
-                        return x.bodyToMono(JwtResponse.class);
+
+                        return x.bodyToMono(String.class);
+
                     }
 
                 }).block();
 
-        System.out.println("qui2");
-        return a;
+
+
+
+        return new JwtResponse(a);
 
     }
 

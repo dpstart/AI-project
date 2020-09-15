@@ -5,6 +5,7 @@ import it.polito.ai.esercitazione2.config.JwtRequest;
 import it.polito.ai.esercitazione2.config.JwtResponse;
 import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.entities.Image;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,7 +25,7 @@ public interface TeamService {
      *
      ***********************************************************************/
 
-    JwtResponse loginUser(JwtRequest authenticationRequest);
+     JwtResponse loginUser(JwtRequest authenticationRequest);
 
     /**********************************************************************
      *

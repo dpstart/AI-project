@@ -49,17 +49,19 @@ public class JwtAuthenticationController {
      * @return JWT Token
      */
     @PostMapping(value = "/authenticate")
-    public JwtResponse createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
-
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
         jwtservice.authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+
         final UserDetails userDetails = jwtservice.getUser(authenticationRequest.getUsername());
+
         final String token = jwtservice.generateToken(userDetails);
-        JwtResponse r = new JwtResponse(token);
-        return  r;
+
+        return  ResponseEntity.ok(token);
     }
 
     @PostMapping(value = "/register")
     public ResponseEntity<?> registerUser(@RequestBody JwtResponse input) throws InterruptedException {
+
         String token = input.getToken();
         String username = null;
         String pwd = null;

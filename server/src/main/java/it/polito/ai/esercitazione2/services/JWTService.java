@@ -24,7 +24,4 @@ public interface JWTService {
 
     void deleteUser(String id) throws Exception;
 
-    String getUsernameFromAlias(String alias);
-    String getStudentUsernameByAlias(String alias);
-    String getProfUsernameByAlias(String alias);
 }

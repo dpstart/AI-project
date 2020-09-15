@@ -41,8 +41,9 @@ public class JWTServiceImpl implements JWTService {
 
     @Override
     public void authenticate(String username, String password) throws Exception {
+        System.out.println(username);
+        System.out.println(password);
         try {
-
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         } catch (DisabledException e) {
 
@@ -85,28 +86,5 @@ public class JWTServiceImpl implements JWTService {
         jdbcUserDetailsManager.deleteUser(id);
     }
 
-    @Override
-    public String getUsernameFromAlias(String alias) {
-        String username = getProfUsernameByAlias(alias);
-        if (!alias.equals(username))
-            return username;
-        return getStudentUsernameByAlias(alias);
-    }
-
-    @Override
-    public String getStudentUsernameByAlias(String alias) {
-        Student stud = studentRepository.getByAlias(alias);
-        if(stud != null)
-            return stud.getId();
-        return alias;
-    }
-
-    @Override
-    public String getProfUsernameByAlias(String alias) {
-        Professor prof = professorRepository.getByAlias(alias);
-        if(prof != null)
-            return prof.getId();
-        return alias;
-    }
 
 }
