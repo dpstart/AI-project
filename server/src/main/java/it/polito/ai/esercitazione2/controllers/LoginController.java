@@ -17,13 +17,13 @@ import javax.naming.AuthenticationException;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/API/")
+@RequestMapping("/API/login")
 public class LoginController {
 
     @Autowired
     TeamService teamService;
 
-    @PostMapping("/login")
+    @PostMapping("/")
     public ResponseEntity<?> login(@RequestBody JwtRequest authenticationRequest) {
 
         try{
