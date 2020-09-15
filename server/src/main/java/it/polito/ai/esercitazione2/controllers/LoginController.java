@@ -13,8 +13,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.naming.AuthenticationException;
-import javax.validation.Valid;
+
 
 @RestController
 @RequestMapping("/API/login")
@@ -23,14 +22,13 @@ public class LoginController {
     @Autowired
     TeamService teamService;
 
-    @PostMapping("/")
+    @PostMapping({"", "/"})
     public ResponseEntity<?> login(@RequestBody JwtRequest authenticationRequest) {
-
         try{
             JwtResponse r = teamService.loginUser(authenticationRequest);
             return ResponseEntity.ok(r);
         } catch(AuthenticationServiceException e){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         } catch (Exception e){
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }

@@ -32,7 +32,7 @@ export class RegisterDialogComponent implements OnInit {
   form: FormGroup = new FormGroup({
     firstName: new FormControl('', Validators.required),
     name: new FormControl('', Validators.required),
-    fileName: new FormControl('', Validators.required),
+    fileName: new FormControl(''),
     id: new FormControl('', Validators.required),
     //email: new FormControl('', [Validators.required, Validators.pattern('^(s|d){0,1}[0-9]{6}((@studenti.polito.it)|(@polito.it))$')]),
     password: new FormControl('', Validators.required),
@@ -46,6 +46,7 @@ export class RegisterDialogComponent implements OnInit {
     if (this.form.valid) {
 
       let user: RegisteredUserForm = this.form.value;
+      user.email=this.mail
       this.auth.register(user, this.selectedFile)
         .subscribe(
           data => {
