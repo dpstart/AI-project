@@ -20,21 +20,24 @@ import { Image } from 'src/app/model/image.model';
 })
 export class VmStudentComponent implements OnInit {
 
+  // Error handling
   message: string | null;
   alertType: string;
+
+  isAllLoaded: boolean
 
   innerDisplayedColumns: string[]
   displayedColumns: string[]
 
   selectedCourse: string
+  teamId: number;
+  image: string;
 
   dataSourceVm: MatTableDataSource<Vm>
 
+  // Components
   private paginator: MatPaginator;
   private sort: MatSort;
-
-  isAllLoaded: boolean
-
   @ViewChild("innerTables") innerTables: MatTable<Vm>;
 
   @ViewChild(MatSort) set matSort(ms: MatSort) {
@@ -47,9 +50,6 @@ export class VmStudentComponent implements OnInit {
     this.setDataSourceAttributes();
   }
 
-
-  teamId: number;
-  image: string;
 
   constructor(
     private routeStateService: RouteStateService,
@@ -67,18 +67,16 @@ export class VmStudentComponent implements OnInit {
 
   }
 
-
   ngOnInit(): void {
     this.getData()
   }
 
   getData() {
     this.activatedRoute.params.subscribe(params => {
-      if (params['course_name'])
-        this.routeStateService.updatePathParamState(params['course_name'])
 
       this.selectedCourse = params["course_name"]
-
+      if (this.selectedCourse)
+        this.routeStateService.updatePathParamState(this.selectedCourse)
 
 
       this.studentService.getTeamForCourse(this.selectedCourse).subscribe((team: Team) => {
@@ -86,7 +84,6 @@ export class VmStudentComponent implements OnInit {
 
         if (team) {
           this.teamId = team.id
-
 
           this.studentService.getVmsForTeam(team.id).subscribe(vms => {
 
@@ -101,7 +98,6 @@ export class VmStudentComponent implements OnInit {
       }, (_) => {
         this.router.navigate(['PageNotFound'])
       });
-
     })
   }
 
@@ -110,7 +106,7 @@ export class VmStudentComponent implements OnInit {
     this.dataSourceVm.sort = this.sort;
   }
 
-  createVm() {
+  createVm(event) {
     this.message = ""
     const dialogRef = this.dialog.open(CreateDialogComponent, {
       width: '500px',
@@ -155,7 +151,6 @@ export class VmStudentComponent implements OnInit {
       this.message = "In order to see your Vm you need to run it"
       this.alertType = "warning"
     }
-
   }
 
   openEditDialog(element, event) {
@@ -208,7 +203,7 @@ export interface Vm {
   n_cpu: number,
   disk_space: number,
   ram: number,
-  status: number // TODO ricordare gli stati
+  status: number
 }
 
 

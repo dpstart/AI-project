@@ -8,7 +8,7 @@
 
         <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
 
-        <button mat-flat-button color="primary" [disabled]="!teamId" (click)="createVm()">Create new VM</button>
+        <button mat-flat-button color="primary" [disabled]="!teamId" (click)="createVm($event)">Create new VM</button>
 
         <mat-card *ngIf="dataSourceVm.data.length==0">No VMs currently available.</mat-card>
 

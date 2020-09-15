@@ -68,12 +68,14 @@ export class VMComponent implements OnInit {
         this.isAllLoaded = false
     }
 
+    ngOnInit() {
+        this.getData()
+    }
 
     setDataSourceAttributes() {
         this.dataSourceTeams.paginator = this.paginator;
         this.dataSourceTeams.sort = this.sort;
     }
-
 
 
     getData() {
@@ -126,9 +128,8 @@ export class VMComponent implements OnInit {
 
     openVmImage(element, event) {
 
-
         this.studentService.connectToVm(element.id).subscribe(image => {
-            
+
             let objectURL = 'data:image/png;base64,' + image.picByte
             this.image = objectURL;
             let win = window.open()
@@ -137,13 +138,4 @@ export class VMComponent implements OnInit {
 
         event.stopPropagation();
     }
-
-    ngOnInit() {
-
-        this.getData()
-    }
-
-
-
-
 }
