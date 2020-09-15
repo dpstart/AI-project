@@ -268,6 +268,11 @@ export class StudentsComponent implements OnInit {
 
 
   toggleEditName() {
+
+    //Corso viene settato allora devi confermarlo
+    if(!this.isReadOnly){
+    }
+
     this.isReadOnly = !this.isReadOnly
   }
 }

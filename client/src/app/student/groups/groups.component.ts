@@ -25,27 +25,16 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
   ]
 })
 export class GroupsComponent implements OnInit {
-  public get authService(): AuthService {
-    return this._authService;
-  }
-
-
-  public get studentService(): StudentService {
-    return this._studentService;
-  }
 
   studentsInTeam: Student[];
+
   selectedCourse: Course;
-
-
 
   // Table selection
   selection = new SelectionModel<Student>(true, []);
 
-
   // button is enabled 
   isDisabled: boolean
-
 
   //Tables related properties
   dataSourceStudentInTeam: MatTableDataSource<Student>
@@ -74,8 +63,11 @@ export class GroupsComponent implements OnInit {
   message: string
   alertType: string
 
+  // flag used to upload different pages
   isInTeam: boolean
 
+
+  //paginators of tables
   private paginatorNotInTeam: MatPaginator;
   private matSortNotInTeam: MatSort;
 
@@ -84,38 +76,7 @@ export class GroupsComponent implements OnInit {
 
   private _paginatorProposal: MatPaginator;
   private _matSortProposal: MatSort;
-
-
-
-  @ViewChild('matSortNotInTeam') set matSort(ms: MatSort) {
-    this.matSortNotInTeam = ms;
-    this.setDataSourceAttributes();
-  }
-
-  @ViewChild('paginatorNotInTeam') set matPaginator(mp: MatPaginator) {
-    this.paginatorNotInTeam = mp;
-    this.setDataSourceAttributes();
-  }
-
-  @ViewChild('matSortInTeam') set matSortInTeam(ms: MatSort) {
-    this._matSortInTeam = ms;
-    this.setDataSourceAttributes();
-  }
-
-  @ViewChild('paginatorInTeam') set matPaginatorInTeam(mp: MatPaginator) {
-    this._paginatorInTeam = mp;
-    this.setDataSourceAttributes();
-  }
-
-  @ViewChild('matSortProposal') set matSortProposal(ms: MatSort) {
-    this._matSortProposal = ms;
-    this.setDataSourceAttributes();
-  }
-
-  @ViewChild('paginatorProposal') set matPaginatorProposal(mp: MatPaginator) {
-    this._paginatorProposal = mp;
-    this.setDataSourceAttributes();
-  }
+  //////////////////////
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -131,7 +92,7 @@ export class GroupsComponent implements OnInit {
 
   ngOnInit(): void {
     this.activatedRoute.params.subscribe(params => {
-      if (params['course_name']){
+      if (params['course_name']) {
 
         this.isInTeam = false // inizializzato a false indica che lo studente non è in un team
         this.isLoading = true // caricamento 
@@ -161,11 +122,14 @@ export class GroupsComponent implements OnInit {
         // Update the course into the service so that all the other components will know it
         this.routeStateService.updatePathParamState(params['course_name'])
 
+        //ritira info corso
         this.studentService.getCourse(params["course_name"]).subscribe((selectedCourse: Course) => {
           this.selectedCourse = selectedCourse;
 
+          //ritira team del corso
           this.studentService.getTeamForCourse(this.selectedCourse.name).subscribe(
             (teams) => {
+              //se i team non sono settati (null) === lo studente non è in un team 
               if (!teams) {
                 this.isInTeam = false
 
@@ -191,6 +155,8 @@ export class GroupsComponent implements OnInit {
                     // Add the new proposals 
                     let proposals: Proposal[] = [];
 
+
+                    //per ogni team proposto
                     for (let i = 0; i < proposedTeams.length; i++) {
 
                       this.dataSourceMembersProposal.push(new MatTableDataSource<MemberOfProposal>());
@@ -238,11 +204,11 @@ export class GroupsComponent implements OnInit {
                     this.isLoading = false;
                 }, (_) => this.isLoading = false);
               } else {
-                this.isLoading = false
-                //Se la chiamata ha successo semplicemente ci dice che lo studente è in un team.
+                //Se teams è settato semplicemente ci dice che lo studente è in un team.
                 this.isInTeam = true
+                this.isLoading = false
 
-                //Now we can see if the student is already in team or not by looking to the length of the studentsInTeam array:
+                // Ritiriamo informazioni riguardo ai membri:
                 this.studentService.getTeamMembers(this.selectedCourse.name, teams.id).subscribe((students) => {
 
                   students.forEach(element => {
@@ -255,10 +221,52 @@ export class GroupsComponent implements OnInit {
 
         }, (_) => this.router.navigate(['PageNotFound'])
         )
-      } 
+      }
     })
 
   }
+
+  public get authService(): AuthService {
+    return this._authService;
+  }
+
+
+  public get studentService(): StudentService {
+    return this._studentService;
+  }
+
+
+
+  @ViewChild('matSortNotInTeam') set matSort(ms: MatSort) {
+    this.matSortNotInTeam = ms;
+    this.setDataSourceAttributes();
+  }
+
+  @ViewChild('paginatorNotInTeam') set matPaginator(mp: MatPaginator) {
+    this.paginatorNotInTeam = mp;
+    this.setDataSourceAttributes();
+  }
+
+  @ViewChild('matSortInTeam') set matSortInTeam(ms: MatSort) {
+    this._matSortInTeam = ms;
+    this.setDataSourceAttributes();
+  }
+
+  @ViewChild('paginatorInTeam') set matPaginatorInTeam(mp: MatPaginator) {
+    this._paginatorInTeam = mp;
+    this.setDataSourceAttributes();
+  }
+
+  @ViewChild('matSortProposal') set matSortProposal(ms: MatSort) {
+    this._matSortProposal = ms;
+    this.setDataSourceAttributes();
+  }
+
+  @ViewChild('paginatorProposal') set matPaginatorProposal(mp: MatPaginator) {
+    this._paginatorProposal = mp;
+    this.setDataSourceAttributes();
+  }
+
 
 
   /** 

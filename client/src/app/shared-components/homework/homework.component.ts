@@ -17,6 +17,8 @@ import { AuthService } from 'src/app/services/auth.service';
 import { TeacherService } from 'src/app/services/teacher.service';
 import { SafeResourceUrl } from '@angular/platform-browser';
 
+
+// Interfaccia usata per visualizzazione oggetti hw
 export interface DisplayedHomework {
   assignmentId: number,
   homeworkId: number,
@@ -31,6 +33,8 @@ export interface DisplayedHomework {
   mark: string
 }
 
+
+// Interfaccia usata per visualizzazione oggetti Assignment
 export interface DisplayedAssignment {
   id: number,
   releaseDate: String,
@@ -71,28 +75,32 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   isThereAnAssignmentToBeDeleted: boolean
 
 
-  //DATA SOURCES:
+  //HW DATA SOURCE:
   homeworksColumnsToDisplay: string[] = ['studentId', 'name', 'surname', 'state', 'timestamp', 'mark'];
   homeworksDataSource: Array<MatTableDataSource<DisplayedHomework>>
+  // Per ogni assignemnt vengono salvati tutti gli hws per poterli filtrare in base alle chips
   allHomeworks: DisplayedHomework[][]
 
+  // Assignment data source:
   consegneDisplayedColumns: string[] = ['image', 'releaseDate', 'expirationDate']
   consegneDataSource: MatTableDataSource<DisplayedAssignment>
 
+  // Parametri passati dal componente padre
   private _selectedCourse: string;
   private _displayedAssignments: DisplayedAssignment[];
   private _displayedHomeworks: DisplayedHomework[];
+  /////////////////////
 
   //Expanded element
   assignmentExpandedElement: DisplayedAssignment | null;
   homeworkExpandedElement: DisplayedHomework | null;
 
+  // Date usate per definire poi data assignemnt 
   currentTime = new Date()
-
-
   selectedDate: Date
   tomorrow: Date = new Date()
 
+  // Form relativo all'assignment
   addAssignmentForm: FormGroup
 
 
@@ -113,6 +121,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort, { static: false }) sort: MatSort;
 
+
   @Input() public set selectedCourse(value: string) {
     this._selectedCourse = value;
   }
@@ -120,6 +129,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   @Input()
   public set displayedAssignments(value: DisplayedAssignment[]) {
     this._displayedAssignments = value;
+    //Aggiorno assignment dataSource
     this.consegneDataSource.data = [...this.displayedAssignments]
   }
 
@@ -129,35 +139,39 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
     this._displayedHomeworks = value;
 
-
+    //Per ogni assignment
     for (let i = 0; i < this.displayedAssignments.length; i++) {
 
-      // //hws assegnati ad un determinato assignment
+      // Controllo se l'assignemnt può essere cancellato
       if (this.displayedAssignments[i].isDeletable) {
-        this.isThereAnAssignmentToBeDeleted = true
-        //E' possibile cancellare un assignment
+        this.isThereAnAssignmentToBeDeleted = true //flag
+        //E' possibile cancellare un assignment, allora devo aggiungere la colonna del bottone
         if (!this.consegneDisplayedColumns.includes('actions'))
           this.consegneDisplayedColumns.push('actions')
       }
 
+      //Inizializzo corrispondente riga
       this.homeworksDataSource.push(new MatTableDataSource<DisplayedHomework>())
       this.allHomeworks.push([])
       let newSource = []
 
-      this.displayedHomeworks.forEach(x => {
 
+      this.displayedHomeworks.forEach(x => {
+        //hws assegnati ad un determinato assignment
         // se l'assignment dell'hw e quello corrente coincidono aggiungi l'hw a questo assignment
         if (x.assignmentId == this.displayedAssignments[i].id) {
           newSource.push(x)
         }
       })
+
+      // Aggiorno il source di quella riga
       this.homeworksDataSource[i].data = [...newSource]
       this.allHomeworks[i] = this.homeworksDataSource[i].data
       this.filterRowsAccordingToOptions(this.displayedAssignments[i].id)
-
     }
   }
 
+  //Evento emesso verso il componente padre mappato su onInit
   @Output() addedAssignment: EventEmitter<Assignment> = new EventEmitter<Assignment>();
 
   constructor(
@@ -168,8 +182,10 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
     let tomorrowTime = new Date()
     tomorrowTime.setDate(this.currentTime.getDate() + 1)
 
+    // Tomorrow
     this.tomorrow = tomorrowTime
 
+    //Data da visualizzare ora è tomorrow
     this.selectedDate = this.tomorrow
 
     this.addAssignmentForm = new FormGroup({
@@ -182,6 +198,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
     //Inizialmente il pulsante di upload è disabilitato
     this.isDisabled = true
 
+    // Inizializzo data sources
     this.homeworksDataSource = new Array<MatTableDataSource<DisplayedHomework>>();
     this.consegneDataSource = new MatTableDataSource<DisplayedAssignment>();
     this.allHomeworks = []
@@ -213,17 +230,21 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
       }
 
 
-      // gli hws vengono ricevuti tutti insieme, ma ripartiti in base all'assignment
+      // gli hws vengono ricevuti tutti insieme, ma vengono ripartiti qui in base all'assignment
       this.displayedHomeworks.forEach(x => {
         if (x.assignmentId == this.displayedAssignments[i].id) {
           newHwsSource.push(x)
         }
       })
 
+      // Ordino gli hws in base al loro stato, policy definita qui in base ai valori settati nel componente padre
+
       newHwsSource = newHwsSource.sort((a, b) => {
+        // Se il loro stato è lo stesso allora ordino in base al tempo
         if (a.rawState === b.rawState) {
           return a.timestampObj.getTime() - b.timestampObj.getTime()
         } else {
+          //altrimenti
           return b.rawState - a.rawState
         }
       })
@@ -246,6 +267,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   }
 
 
+  // GETTERS
   public get selectedCourse(): string {
     return this._selectedCourse;
   }
@@ -261,7 +283,12 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   public get authService(): AuthService {
     return this._authService;
   }
+  //////////////////////////////////
 
+
+
+  //** Metodo utilizzato per definire qual è l'ora minima da dover usare nel caricamento di un assignment,
+  // In pratica si facilita lo user non permettenedogli di usare date che non sono ammissibili */ 
   getCurrentMinTime(): string {
     if (this.selectedDate.getDate() === this.tomorrow.getDate())
       return `${this.tomorrow.getHours()}:${this.tomorrow.getMinutes()}`
@@ -269,28 +296,29 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
       return "00:00"
   }
 
+  //Data è stata modificata per il caricamento di un assignment
   changeSelectedDate(value: Date) {
 
     let current = new Date()
+    //setto data e ora al momento corrente
     value.setHours(current.getHours())
     value.setMinutes(current.getMinutes())
 
     this.selectedDate = value
 
+    //Se risetto la data al valore minimo ammissibile (si danno 24 ore minimo agli studenti per svolgere un assignment)
     if (this.selectedDate.getDate() === this.tomorrow.getDate()) {
 
       let time = this.addAssignmentForm.get('expirationTime').value.split(":")
       let selectedHour = Number(time[0])
       let selectedMinutes = Number(time[1])
 
-
+      // Se le ore che erano state precedentemente settate non sono valide, setta quelle che sono invece valide
       if (this.selectedDate.getHours() >= selectedHour && this.selectedDate.getMinutes() >= selectedMinutes)
         this.addAssignmentForm.patchValue({ expirationTime: this.getCurrentMinTime() })
 
     }
   }
-
-
 
   /**
    * Funzione usata per rinizializzare i filtri delle chips, è chiamata on init, e ogni volta che viene selezionato un nuovo assignment
@@ -320,22 +348,29 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
 
       let time: string = this.addAssignmentForm.get("expirationTime").value
 
+      // Setto ore e minuti in base ai valori settati nel campo expiration time
       timestamp.setHours(Number(time.split(":")[0]), Number(time.split(":")[1]), 0, 0)
 
 
+      // Aggiungo dati assignment al form 
       formData.append('assignment', new Blob([JSON.stringify({ expirationDate: timestamp })], {
         type: "application/json"
       }))
 
 
+      // aggiungo immagine relativa ad assignment
       formData.append('image', this.selectedFile, this.addAssignmentForm.get('fileName').value);
 
 
+      // Aggiungo assignment
       this.teacherService.addAssignment(this.selectedCourse, formData).subscribe(success => {
+        //Serve per riaggiornare il data source
         this.addedAssignment.emit(success)
+        //Avviso utente
         this.message = "The assignment was successfully added."
         this.alertType = "success"
       }, error => {
+        //Avviso utente
         this.message = error.message
         this.alertType = "danger"
       })
