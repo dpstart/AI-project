@@ -76,7 +76,7 @@ export class AuthService {
   }
 
   login(email: string, password: string) {
-    const url = `${this.URL}/authenticate`;
+    const url = `${this.URL}/login`;
     return this.http.post<string>(url, { username: email, password: password }).pipe(
       retry(3),
       catchError(this.handleError)
@@ -108,7 +108,7 @@ export class AuthService {
         catchError(this.handleError)
       );
     } else {
-      if (!user.email.includes("@docenti.polito.it")) {
+      if (!user.email.includes("@polito.it")) {
         throwError("Wrong Format")
       }
       let url = `${this.URL}/professors`;
