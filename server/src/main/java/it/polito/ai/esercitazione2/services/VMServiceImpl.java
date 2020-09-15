@@ -225,7 +225,7 @@ public class VMServiceImpl implements VMService {
 
         vm.setN_cpu(settings.getN_cpu());
         vm.setDisk_space(settings.getDisk_space());
-        vm.setRam(settings.getN_cpu());
+        vm.setRam(settings.getRam() );
 
         Image img = null;
         try {
@@ -244,6 +244,7 @@ public class VMServiceImpl implements VMService {
 
     @Override
     public void updateVM(Long vmID, SettingsDTO settings){
+        
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if(!vmRepository.existsById(vmID))
@@ -273,7 +274,7 @@ public class VMServiceImpl implements VMService {
 
         vm.setN_cpu(settings.getN_cpu());
         vm.setDisk_space(settings.getDisk_space());
-        vm.setRam(settings.getN_cpu());
+        vm.setRam(settings.getRam());
 
         vmRepository.save(vm);
     }

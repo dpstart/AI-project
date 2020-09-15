@@ -67,9 +67,10 @@ export class EditVmDialogComponent {
       }))
 
       this.studentService.editVM(this.vmId, formData).subscribe(success => {
-
-
-        this.close({ message: "The Vm was successfully updated.", type: "success" });
+        this.close({
+          message: "The Vm was successfully updated.",
+          type: "success"
+        });
       }, error => {
         this.message = error.message
         this.alertType = "danger"
