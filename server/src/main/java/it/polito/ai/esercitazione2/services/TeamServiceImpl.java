@@ -577,6 +577,8 @@ public class TeamServiceImpl implements TeamService {
         username = username.toLowerCase();
 
 
+
+
         //standard mail
         if (username.matches("^(s[0-9]{6}@studenti\\.polito\\.it)$")
                 || username.matches("^(d[0-9]{6}@polito\\.it)$")) {
@@ -619,6 +621,8 @@ public class TeamServiceImpl implements TeamService {
             authenticationRequest.setUsername(username);
         }
 
+
+
         // richiesta POST verso /authenticate
         JwtResponse a = w.post()
                 .uri("/authenticate")
@@ -626,6 +630,7 @@ public class TeamServiceImpl implements TeamService {
                 .exchange().flatMap(x->{
                     if (x.statusCode().is4xxClientError()||x.statusCode().is5xxServerError()) {
                         Mono<String> msg=x.bodyToMono(String.class);
+                        System.out.println("here");
                         return msg.flatMap(y->{
                             throw new AuthenticationServiceException(y);
                         });
@@ -635,6 +640,7 @@ public class TeamServiceImpl implements TeamService {
                 })
                 .block();
 
+        System.out.println("Token: "+a.getToken());
         return a;
 
 
