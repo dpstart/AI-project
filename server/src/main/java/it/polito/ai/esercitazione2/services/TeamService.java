@@ -1,6 +1,8 @@
 package it.polito.ai.esercitazione2.services;
 
 import com.opencsv.exceptions.CsvValidationException;
+import it.polito.ai.esercitazione2.config.JwtRequest;
+import it.polito.ai.esercitazione2.config.JwtResponse;
 import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.entities.Image;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,6 +16,15 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface TeamService {
+
+
+    /**********************************************************************
+     *
+     *******************************LOGIN***********************************
+     *
+     ***********************************************************************/
+
+    JwtResponse loginUser(JwtRequest authenticationRequest);
 
     /**********************************************************************
      *

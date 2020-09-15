@@ -11,6 +11,8 @@ public interface JWTService {
 
     void authenticate(String username, String password) throws Exception;
 
+
+
     UserDetails getUser(String username);
     String generateToken(UserDetails u);
     String generateRegisterRequest(String id, String password, Collection<String> roles);

@@ -23,11 +23,13 @@ public class ProfessorDTO extends RepresentationModel<ProfessorDTO> {
     @Pattern(regexp = "^[a-zA-Z]+$")
     @NotBlank
     String firstName;
-
+    /*
     String alias;
     @Email(regexp="^((d[0-9]{6})|([a-z]+\\.[a-z]+))(@polito\\.it)$")
     @NotBlank
     String email;
+
+     */
     @Size(min=8, max = 12)
     @CsvBindByName
     @NotBlank

@@ -40,7 +40,6 @@ public class JwtAuthenticationController {
     private JwtTokenUtil jwtTokenUtil;
 
     /**
-     * Login, username can be user id, alias, email, alias-email
      * Authentication required: none
      * @param authenticationRequest: {
      *      "username": username,
@@ -50,28 +49,11 @@ public class JwtAuthenticationController {
      * @return JWT Token
      */
     @PostMapping(value = "/authenticate")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
-        String username = authenticationRequest.getUsername();
-
-        username = username.toLowerCase();
-
-        if (username.matches("^(s[0-9]{6}@studenti\\.polito\\.it)$")
-                || username.matches("^(d[0-9]{6}@polito\\.it)$")) {
-            authenticationRequest.setUsername(username.substring(1, 7));
-        }
-        if (username.matches("^([a-z]+\\.[a-z]+)$")) {
-            authenticationRequest.setUsername(jwtservice.getUsernameFromAlias(username));
-        }
-        if (username.matches("^([a-z]+\\.[a-z]+@polito\\.it)$")) {
-            authenticationRequest.setUsername(jwtservice.getProfUsernameByAlias(username.substring(0, username.indexOf("@"))));
-        }
-        if (username.matches("^([a-z]+\\.[a-z]+@studenti\\.polito\\.it)$")) {
-            authenticationRequest.setUsername(jwtservice.getStudentUsernameByAlias(username.substring(0, username.indexOf("@"))));
-        }
+    public JwtResponse createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
         jwtservice.authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
         final UserDetails userDetails = jwtservice.getUser(authenticationRequest.getUsername());
         final String token = jwtservice.generateToken(userDetails);
-        return ResponseEntity.ok(new JwtResponse(token));
+        return new JwtResponse(token);
     }
 
     @PostMapping(value = "/register")
@@ -85,7 +67,6 @@ public class JwtAuthenticationController {
             username = jwtTokenUtil.getUsernameFromToken(token);
             roles = jwtTokenUtil.getAuthorities(token);
             pwd = jwtTokenUtil.getPassword(token);
-            System.out.println(username + "..." + roles + "..." + pwd);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.ok(false);
         }

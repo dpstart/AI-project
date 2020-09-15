@@ -2,8 +2,6 @@ package it.polito.ai.esercitazione2.controllers;
 
 
 import it.polito.ai.esercitazione2.dtos.*;
-import it.polito.ai.esercitazione2.entities.Image;
-import it.polito.ai.esercitazione2.exceptions.AuthenticationServiceException;
 import it.polito.ai.esercitazione2.exceptions.IncoherenceException;
 
 import it.polito.ai.esercitazione2.exceptions.ProfessorNotFoundException;
@@ -19,6 +17,7 @@ import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;

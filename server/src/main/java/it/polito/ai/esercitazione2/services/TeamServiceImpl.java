@@ -4,6 +4,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvValidationException;
+import it.polito.ai.esercitazione2.config.JwtRequest;
 import it.polito.ai.esercitazione2.config.JwtResponse;
 import it.polito.ai.esercitazione2.config.JwtTokenUtil;
 import it.polito.ai.esercitazione2.dtos.*;
@@ -14,8 +15,10 @@ import net.minidev.json.JSONObject;
 import org.apache.commons.text.RandomStringGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -357,6 +360,7 @@ public class TeamServiceImpl implements TeamService {
             }
         }
         prof.setAlias(alias);
+        prof.setEmail("d"+p.getId()+"@polito.it");
         if (img != null)
             prof.setImage_id(img.getId());
 
@@ -409,6 +413,7 @@ public class TeamServiceImpl implements TeamService {
     //Students
     @Override
     public boolean addStudent(StudentDTO s, boolean notify, MultipartFile file) {
+
         if (studentRepository.existsById(s.getId())) {
             if (getStudent(s.getId()).get().equals(s))
                 return false;
@@ -430,6 +435,7 @@ public class TeamServiceImpl implements TeamService {
                 alias += Integer.toString(i);
             }
         }
+        stud.setEmail(s.getId()+"@studenti.polito.it");
         stud.setAlias(alias);
         if (img != null)
             stud.setImage_id(img.getId());
@@ -561,6 +567,80 @@ public class TeamServiceImpl implements TeamService {
 
 
     }
+
+
+    @Override
+    public JwtResponse loginUser(JwtRequest authenticationRequest) {
+
+        String username = authenticationRequest.getUsername();
+
+        username = username.toLowerCase();
+
+
+        //standard mail
+        if (username.matches("^(s[0-9]{6}@studenti\\.polito\\.it)$")
+                || username.matches("^(d[0-9]{6}@polito\\.it)$")) {
+            authenticationRequest.setUsername(username.substring(1, 7));
+        }
+
+        //alias
+        if (username.matches("^([a-z]+\\.[a-z]+)$")) {
+            Student stud = studentRepository.getByAlias(username);
+            if(stud != null)
+                username=stud.getId();
+            else {
+                Professor prof = professorRepository.getByAlias(username);
+                if (prof!=null)
+                    username=prof.getId();
+                else
+                    throw new AuthenticationServiceException("");
+            }
+            authenticationRequest.setUsername(username);
+        }
+
+        //alias+mail professor
+        if (username.matches("^([a-z]+\\.[a-z]+@polito\\.it)$")) {
+            username = username.substring(0, username.indexOf("@"));
+            Professor prof = professorRepository.getByAlias(username);
+            if (prof!=null)
+                username=prof.getId();
+            else
+                throw new AuthenticationServiceException("");
+            authenticationRequest.setUsername(username);
+        }
+        //alias+mail student
+        if (username.matches("^([a-z]+\\.[a-z]+@studenti\\.polito\\.it)$")) {
+            username = username.substring(0, username.indexOf("@"));
+            Student stud = studentRepository.getByAlias(username);
+            if (stud!=null)
+                username=stud.getId();
+            else
+                throw new AuthenticationServiceException("");
+            authenticationRequest.setUsername(username);
+        }
+
+        // richiesta POST verso /authenticate
+        JwtResponse a = w.post()
+                .uri("/authenticate")
+                .body(Mono.just(authenticationRequest), JwtRequest.class)
+                .exchange().flatMap(x->{
+                    if (x.statusCode().is4xxClientError()||x.statusCode().is5xxServerError()) {
+                        Mono<String> msg=x.bodyToMono(String.class);
+                        return msg.flatMap(y->{
+                            throw new AuthenticationServiceException(y);
+                        });
+
+                    }
+                    return  x.bodyToMono(JwtResponse.class);
+                })
+                .block();
+
+        return a;
+
+
+    }
+
+
 
     @Override
     public Optional<StudentDTO> getStudent(String studentId) {

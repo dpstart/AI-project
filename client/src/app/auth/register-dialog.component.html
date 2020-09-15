@@ -1,6 +1,14 @@
 <mat-card>
     <mat-card-title>Register</mat-card-title>
+    <mat-radio-group
+            aria-labelledby="example-radio-group-label"
+            class="example-radio-group"
+            [ngModel]="pattern" (ngModelChange)="onPatternChanged($event)">
+            <mat-radio-button value="s******@studenti.polito.it">Student</mat-radio-button>
+            <mat-radio-button value="d******@polito.it">Professor</mat-radio-button>
+        </mat-radio-group>
     <mat-card-content>
+
         <form [formGroup]="form">
             <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
 
@@ -29,12 +37,12 @@
             </div>
             <mat-form-field>
                 <mat-label>Enter your Id</mat-label>
-                <input type="text" matInput formControlName="id">
+                <input type="text" [ngModel]="id" (ngModelChange)="onIdChanged($event)" matInput formControlName="id">
             </mat-form-field>
 
             <mat-form-field>
-                <mat-label>Enter your email</mat-label>
-                <input type="text" matInput formControlName="email">
+                <mat-label>Your email</mat-label>
+                <input #email [disabled]="true" type="text" matInput value={{mail}}>
             </mat-form-field>
 
             <mat-form-field appearance="fill">
