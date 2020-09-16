@@ -315,12 +315,13 @@ export class GroupsComponent implements OnInit {
    */
   checkValidity() {
     let numSelected = this.selection.selected.length
+
     switch (numSelected) {
       case 0:
         this.isDisabled = true
         break;
       default:
-        if (this.selectedCourse.min < numSelected && numSelected < this.selectedCourse.max && this.form.valid) {
+        if (this.selectedCourse.min <= (numSelected + 1) && (numSelected + 1) <= this.selectedCourse.max && this.form.valid) {
           this.isDisabled = false
         } else {
           this.isDisabled = true
@@ -336,7 +337,6 @@ export class GroupsComponent implements OnInit {
    */
   actionToken(member: MemberOfProposal, isAccepted: boolean) {
 
-    console.log(member, isAccepted);
 
     this.studentService.actionToken(member.statusToken, isAccepted).subscribe(result => {
 

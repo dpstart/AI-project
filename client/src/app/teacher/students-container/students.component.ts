@@ -10,6 +10,8 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { Course } from 'src/app/model/course.model';
+import { Message } from 'src/app/teacher/students-container/students-cont.component';
+
 
 @Component({
   selector: 'app-students',
@@ -27,8 +29,7 @@ export class StudentsComponent implements OnInit {
 
   masterToggleInPageOption = true
 
-  private _message: string;
-  private _alertType: string;
+  private _message: Message;
 
   enrolledStudentsDataSource: MatTableDataSource<Student>;
 
@@ -48,10 +49,7 @@ export class StudentsComponent implements OnInit {
   private _enrolledStudents: Student[];
   private _studentsNotInCourse: Student[];
 
-
   private _courseObj: Course;
-
-
 
   @ViewChild(MatSidenav) sidenav: MatSidenav;
   @ViewChild(MatTable) table: MatTable<any>;
@@ -67,10 +65,14 @@ export class StudentsComponent implements OnInit {
   @Input()
   selectedCourse: string
 
+  @Input() public set message(value: Message) {
+    this._message = value;
+  }
 
   @Input() public set courseObj(value: Course) {
     this.isEditing = false
     this._courseObj = value;
+
     this.courseSettingForm.setValue({
       min: this.courseObj.min,
       max: this.courseObj.max,
@@ -87,19 +89,14 @@ export class StudentsComponent implements OnInit {
     );
   }
 
-  @Input() public set message(value: string) {
-    this._message = value;
-  }
 
-  @Input() public set alertType(value: string) {
-    this._alertType = value;
-  }
+
 
   // Communicate with container
   @Output() addStudent: EventEmitter<Student> = new EventEmitter<Student>();
   @Output() deleteStudents: EventEmitter<Student[]> = new EventEmitter<Student[]>();
   @Output() enrollManyCsvEvent: EventEmitter<File> = new EventEmitter<File>()
-  @Output() updateCourse: EventEmitter<Course> = new EventEmitter<Course>()
+  @Output() updateCourse: EventEmitter<Course[]> = new EventEmitter<Course[]>()
 
 
   constructor() {
@@ -141,11 +138,8 @@ export class StudentsComponent implements OnInit {
 
   //getters
 
-  public get message(): string {
+  public get message(): Message {
     return this._message;
-  }
-  public get alertType(): string {
-    return this._alertType;
   }
   public get enrolledStudents(): Student[] {
     return this._enrolledStudents;
@@ -212,11 +206,11 @@ export class StudentsComponent implements OnInit {
     if (this.masterToggleInPageOption) {
       this.masterToggleInPageOption = false
       this.masterToggle()
-      this.message = `Tutti i ${this.selection.selected.length} studenti sono stati selezionati.`
+      this.message.message = `Tutti i ${this.selection.selected.length} studenti sono stati selezionati.`
 
     } else {
       //seconda volta che clicco => annulla
-      this.message = ""
+      this.message.message = ""
       this.masterToggle()
       this.masterToggleInPageOption = true
     }
@@ -227,7 +221,7 @@ export class StudentsComponent implements OnInit {
   masterToggle() {
     if (this.isAllSelectedInPage()) {
       this.selection.clear()
-      this.message = ""
+      this.message = { message: "", alertType: "" } as Message
       this.masterToggleInPageOption = true
     } else {
 
@@ -245,8 +239,8 @@ export class StudentsComponent implements OnInit {
 
 
         if (this.isAllSelected() != this.isAllSelectedInPage()) {
-          this.message = `Tutti i ${this.selection.selected.length} studenti in questa pagina sono stati selezionati.`
-          this.alertType = "secondary"
+          this.message.message = `Tutti i ${this.selection.selected.length} studenti in questa pagina sono stati selezionati.`
+          this.message.alertType = "secondary"
         }
 
       } else {
@@ -300,14 +294,18 @@ export class StudentsComponent implements OnInit {
 
   toggleEditSettings() {
 
+    let course = { ...this.courseObj } as Course
+
     //Corso viene settato allora devi confermarlo
     if (this.isEditing) {
-      this.courseObj.min = this.courseSettingForm.get('min').value
 
-      this.courseObj.max = this.courseSettingForm.get('max').value
+      course.min = this.courseSettingForm.get('min').value
 
-      this.courseObj.enabled = this.courseSettingForm.get('enabled').value
-      this.updateCourse.emit(this.courseObj)
+      course.max = this.courseSettingForm.get('max').value
+
+      course.enabled = this.courseSettingForm.get('enabled').value
+
+      this.updateCourse.emit([course, this.courseObj])
     }
 
     this.isEditing = !this.isEditing

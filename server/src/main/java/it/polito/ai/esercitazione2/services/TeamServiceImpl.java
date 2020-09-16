@@ -155,20 +155,18 @@ public class TeamServiceImpl implements TeamService {
         if (co.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)))
             throw new CourseAuthorizationException("Professor " + prof + "has not the rights to modify this course");
 
-        String acronime = c.getAcronime();
         int min = c.getMin();
         int max = c.getMax();
 
         if (min > max)
             throw new IncoherenceException("Impossible to set a minimum number of members greater than the maximum one");
 
-        co.setAcronime(acronime);
-
         if (co.getTeams().stream().map(x -> x.getMembers().size()).anyMatch((Integer x) -> x < min || x > max))
-            throw new TeamSizeConstraintsException("Impossible to change members size constraints so that invalidate already existinf teams ");
+            throw new TeamSizeConstraintsException("Impossible to change group size constraints because it would invalidate already existing teams");
+
         co.setMin(min);
         co.setMax(max);
-        courseRepository.save(co);
+        co.setEnabled(c.getEnabled());
 
         return modelMapper.map(co, CourseDTO.class);
 
@@ -361,7 +359,7 @@ public class TeamServiceImpl implements TeamService {
             }
         }
         prof.setAlias(alias);
-        prof.setEmail("d"+p.getId()+"@polito.it");
+        prof.setEmail("d" + p.getId() + "@polito.it");
         if (img != null)
             prof.setImage_id(img.getId());
 
@@ -436,7 +434,7 @@ public class TeamServiceImpl implements TeamService {
                 alias += Integer.toString(i);
             }
         }
-        stud.setEmail("s"+s.getId()+"@studenti.polito.it");
+        stud.setEmail("s" + s.getId() + "@studenti.polito.it");
         stud.setAlias(alias);
         if (img != null)
             stud.setImage_id(img.getId());
@@ -578,8 +576,6 @@ public class TeamServiceImpl implements TeamService {
         username = username.toLowerCase();
 
 
-
-
         //standard mail
         if (username.matches("^(s[0-9]{6}@studenti\\.polito\\.it)$")
                 || username.matches("^(d[0-9]{6}@polito\\.it)$")) {
@@ -589,12 +585,12 @@ public class TeamServiceImpl implements TeamService {
         //alias
         if (username.matches("^([a-z]+\\.[a-z]+)$")) {
             Student stud = studentRepository.getByAlias(username);
-            if(stud != null)
-                username=stud.getId();
+            if (stud != null)
+                username = stud.getId();
             else {
                 Professor prof = professorRepository.getByAlias(username);
-                if (prof!=null)
-                    username=prof.getId();
+                if (prof != null)
+                    username = prof.getId();
                 else
                     throw new AuthenticationServiceException("");
             }
@@ -605,8 +601,8 @@ public class TeamServiceImpl implements TeamService {
         if (username.matches("^([a-z]+\\.[a-z]+@polito\\.it)$")) {
             username = username.substring(0, username.indexOf("@"));
             Professor prof = professorRepository.getByAlias(username);
-            if (prof!=null)
-                username=prof.getId();
+            if (prof != null)
+                username = prof.getId();
             else
                 throw new AuthenticationServiceException("");
             authenticationRequest.setUsername(username);
@@ -615,37 +611,34 @@ public class TeamServiceImpl implements TeamService {
         if (username.matches("^([a-z]+\\.[a-z]+@studenti\\.polito\\.it)$")) {
             username = username.substring(0, username.indexOf("@"));
             Student stud = studentRepository.getByAlias(username);
-            if (stud!=null)
-                username=stud.getId();
+            if (stud != null)
+                username = stud.getId();
             else
                 throw new AuthenticationServiceException("");
             authenticationRequest.setUsername(username);
         }
 
 
-
         // richiesta POST verso /authenticate
         String a = w.post()
                 .uri("/authenticate")
                 .body(Mono.just(authenticationRequest), JwtRequest.class)
-                .exchange().flatMap(x->{
-                    if (x.statusCode().is4xxClientError()||x.statusCode().is5xxServerError()) {
+                .exchange().flatMap(x -> {
+                    if (x.statusCode().is4xxClientError() || x.statusCode().is5xxServerError()) {
                         Mono<String> msg = x.bodyToMono(String.class);
 
                         return msg.flatMap(y -> {
                             throw new AuthenticationServiceException(y);
                         });
 
-                    }
-                    else if(x.statusCode().isError()){
+                    } else if (x.statusCode().isError()) {
 
                         Mono<String> msg = x.bodyToMono(String.class);
 
                         return msg.flatMap(y -> {
                             throw new AuthenticationServiceException(y);
                         });
-                    }
-                    else {
+                    } else {
 
                         return x.bodyToMono(String.class);
 
@@ -654,12 +647,9 @@ public class TeamServiceImpl implements TeamService {
                 }).block();
 
 
-
-
         return new JwtResponse(a);
 
     }
-
 
 
     @Override

@@ -43,6 +43,131 @@ export class TeacherService {
         ]
     }
 
+    //***********************************************CREATE******************************************************//
+
+
+    /**
+     * Metodo che effettua una post per poter aggiungere un assignment e ritorna l'assignment corrispondente
+     * @param courseName 
+     * @param formData 
+     */
+    addAssignment(courseName: string, formData: FormData): Observable<Assignment> {
+        const url = `${this.URL}/courses/${courseName}/assignments/`
+        return this.http.post<Assignment>(url, formData).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+
+    }
+
+
+    /**
+     * Metodo che effettua una post per dare la possibilità al professore di aggiungere una review ad un hw
+     * Nel form data è possibile inserire un campo immagine e/o un campo voto
+     * 
+     * L'immagine corrispondente a homeworVersion
+     * e un homework nel caso in cui il voto sia definitivo
+     * form.append('homeworkVersion', this.selectedFile, this.selectedFile.name);
+     * form.append('homework', new Blob([JSON.stringify(homework)], { type: "application/json" }));
+     * 
+     * @param courseName 
+     * @param assignmentId 
+     * @param homeworkId 
+     * @param form 
+     */
+    reviewHomework(courseName: string, assignmentId: number, homeworkId: number, form: FormData): Observable<Homework> {
+        const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}`
+        return this.http.post<Homework>(url, form).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+    }
+
+    /**
+     * Metodo che crea un corso passato come parametro tramite una post
+     * @param course 
+     */
+    createCourse(course: Course) {
+        const url = `${this.URL}/courses/`
+        return this.http.post<Course>(url, course).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+    }
+
+    /**
+     * Metodo che permette di iscrivere uno studente ad un corso corso
+     * @param courseName: nome del corso a cui deve essere iscritto
+     * @param studentId: id studente da iscrivere
+     */
+    enrollOne(courseName: string, studentId: string) {
+        const url = `${this.URL}/courses/${courseName}/enrollOne`;
+        return this.http.post<Student>(url, { id: studentId })
+            .pipe(
+                retry(3),
+                catchError(this.handleError)
+            );
+    }
+
+    /**
+   * Metodo che permette di iscrivere diversi studenti presenti in un file di formato csv ad un derminato corso 
+   * @param courseName: nome del corso a cui gli studenti devono essere iscritti
+   * @param file: file contente gli id degli studenti da iscrivere
+   */
+    enrollManyCSV(courseName: string, file: File) {
+
+        const url = `${this.URL}/courses/${courseName}/enrollManyCSV`
+
+        const uploadData = new FormData();
+        uploadData.append('file', file, file.name);
+
+        return this.http.post(url, uploadData).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+    }
+
+    /**
+     * Metodo che permette di disiscrivere diversi studenti presenti in un file di formato csv ad un derminato corso 
+     * @param courseName 
+     * @param students 
+     */
+    unsubscribeMany(courseName: string, students: Student[]) {
+
+        const url = `${this.URL}/courses/${courseName}/unsubscribeMany`;
+
+        let studentIds = []
+        students.forEach(student => studentIds.push(student.id))
+
+        return this.http.post<Student>(url, { students: studentIds })
+            .pipe(
+                retry(3),
+                catchError(this.handleError)
+            );
+    }
+
+    /**
+     * Metodo che cambia i settings per un detrerminato team. 
+     * @param courseName 
+     * @param teamId 
+     * @param settings 
+     * 
+      interface TeamSettings {
+            nCpu: number
+            diskSpace: number
+            ram: number
+            max_active: number
+            max_available: number
+        }
+     */
+    changeTeamSettings(courseName: string, teamId: number, settings: TeamSettings) {
+        const url = `${this.URL}/courses/${courseName}/teams/${teamId}/settings`;
+        return this.http.post(url, settings).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+    }
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //************************************ RESEARCH *****************************************//
 
@@ -110,6 +235,33 @@ export class TeacherService {
 
         const url = `${this.URL}/courses/${name}`;
         return this.http.get<Course>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+    }
+
+    /**
+     * Metodo che permette di ricavare la lista di tutti gli studenti
+     */
+    getStudents(): Observable<Array<Student>> {
+
+        const url = `${this.URL}/students`;
+
+        return this.http.get<Array<Student>>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+    }
+
+    /**
+     * Metodo che permette di ricavare gli studenti di un determinato corso
+     * @param course_name 
+     */
+    getStudentsInCourse(course_name: string): Observable<Student[]> {
+
+        const url = `${this.URL}/courses/${course_name}/enrolled`;
+
+        return this.http.get<Student[]>(url).pipe(
             retry(3),
             catchError(this.handleError)
         );
@@ -194,82 +346,24 @@ export class TeacherService {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //***********************************************CREATE******************************************************//
+
+    //****************************************** UPDATE *********************************************************//
 
 
     /**
-     * Metodo che effettua una post per poter aggiungere un assignment e ritorna l'assignment corrispondente
-     * @param courseName 
-     * @param formData 
+     * Metodo che permette la modifica di un corso 
+     * @param course: oggetto corso per come dovrebbe essere
      */
-    addAssignment(courseName: string, formData: FormData): Observable<Assignment> {
-        const url = `${this.URL}/courses/${courseName}/assignments/`
-        return this.http.post<Assignment>(url, formData).pipe(
-            retry(3),
-            catchError(this.handleError)
-        );
-
-    }
-
-
-    /**
-     * Metodo che effettua una post per dare la possibilità al professore di aggiungere una review ad un hw
-     * Nel form data è possibile inserire un campo immagine e/o un campo voto
-     * 
-     * L'immagine corrispondente a homeworVersion
-     * e un homework nel caso in cui il voto sia definitivo
-     * form.append('homeworkVersion', this.selectedFile, this.selectedFile.name);
-     * form.append('homework', new Blob([JSON.stringify(homework)], { type: "application/json" }));
-     * 
-     * @param courseName 
-     * @param assignmentId 
-     * @param homeworkId 
-     * @param form 
-     */
-    reviewHomework(courseName: string, assignmentId: number, homeworkId: number, form: FormData): Observable<Homework> {
-        const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}`
-        return this.http.post<Homework>(url, form).pipe(
+    updateCourse(course: Course): Observable<Course> {
+        const url = `${this.URL}/courses/update`
+        return this.http.put<Course>(url, course).pipe(
             retry(3),
             catchError(this.handleError)
         );
     }
 
-    /**
-     * Metodo che crea un corso passato come parametro tramite una post
-     * @param course 
-     */
-    createCourse(course: Course) {
-        const url = `${this.URL}/courses/`
-        return this.http.post<Course>(url, course).pipe(
-            retry(3),
-            catchError(this.handleError)
-        );
-
-    }
-
-
-    /**
-     * Metodo che cambia i settings per un detrerminato team. 
-     * @param courseName 
-     * @param teamId 
-     * @param settings 
-     * 
-      interface TeamSettings {
-            nCpu: number
-            diskSpace: number
-            ram: number
-            max_active: number
-            max_available: number
-        }
-     */
-    changeTeamSettings(courseName: string, teamId: number, settings: TeamSettings) {
-        const url = `${this.URL}/courses/${courseName}/teams/${teamId}/settings`;
-        return this.http.post(url, settings).pipe(
-            retry(3),
-            catchError(this.handleError)
-        );
-    }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     //****************************************** DELETE *********************************************************//
 
     /**

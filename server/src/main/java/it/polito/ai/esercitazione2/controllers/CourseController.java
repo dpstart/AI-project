@@ -201,7 +201,7 @@ public class CourseController {
      *             }
      * @return updated Course
      */
-    @PostMapping("/update")
+    @PutMapping("/update")
     CourseDTO updateCourse(@Valid @RequestBody CourseDTO dto) {
         try {
             return teamService.updateCourse(dto);

@@ -74,9 +74,9 @@
             <mat-icon>delete</mat-icon>
         </button>
 
-        <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
-            {{ message }}
-            <div *ngIf="alertType=='secondary'">
+        <ngb-alert *ngIf="message.message" [type]='message.alertType' (close)="message.message=null">
+            {{ message.message }}
+            <div *ngIf="message.alertType=='secondary'">
                 <button *ngIf="masterToggleInPageOption else m" (click)="toggleSelectionOptionAndSelect()"
                     mat-flat-button color="primary">Seleziona tutti </button>
                 <ng-template #m>

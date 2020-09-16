@@ -1,4 +1,7 @@
-
-
-
+--Vm può essere connessa dal prof se è spenta
+--course enabled non impedisce nulla se non accensione delle vm
+--opzionale gestion gruppi
+--aggiungere timeout a alert per chiudersi dopo tre secondi
+-- password di conferma
+--cancellare corsi
 
