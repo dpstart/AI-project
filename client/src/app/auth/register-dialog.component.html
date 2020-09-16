@@ -1,12 +1,10 @@
 <mat-card>
     <mat-card-title>Register</mat-card-title>
-    <mat-radio-group
-            aria-labelledby="example-radio-group-label"
-            class="example-radio-group"
-            [ngModel]="pattern" (ngModelChange)="onPatternChanged($event)">
-            <mat-radio-button value="s******@studenti.polito.it">Student</mat-radio-button>
-            <mat-radio-button value="d******@polito.it">Professor</mat-radio-button>
-        </mat-radio-group>
+    <mat-radio-group aria-labelledby="example-radio-group-label" class="example-radio-group" [value]="pattern"
+        (change)="onPatternChanged($event.value)" color="primary">
+        <mat-radio-button value="s******@studenti.polito.it">Student</mat-radio-button>
+        <mat-radio-button value="d******@polito.it">Professor</mat-radio-button>
+    </mat-radio-group>
     <mat-card-content>
 
         <form [formGroup]="form">
@@ -37,19 +35,19 @@
             </div>
             <mat-form-field>
                 <mat-label>Enter your Id</mat-label>
-                <input type="text" [ngModel]="id" (ngModelChange)="onIdChanged($event)" matInput formControlName="id">
+                <input type="text" matInput formControlName="id">
             </mat-form-field>
 
             <mat-form-field>
                 <mat-label>Your email</mat-label>
-                <input #email [disabled]="true" type="text" matInput value={{mail}}>
+                <input #email type="text" matInput formControlName="email" readonly>
             </mat-form-field>
 
             <mat-form-field appearance="fill">
                 <mat-label>Enter your password</mat-label>
                 <input matInput [type]="hide ? 'password' : 'text'" formControlName="password">
-                <button type="button" mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
-                    [attr.aria-pressed]="hide">
+                <button type="button" mat-icon-button matSuffix (click)="hide = !hide"
+                    [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
                     <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
                 </button>
             </mat-form-field>

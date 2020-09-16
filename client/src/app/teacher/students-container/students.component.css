@@ -36,3 +36,10 @@
 mat-card{
     text-align: center;
 }
+
+.example-button-container{
+    display: flex;
+    justify-content: flex-end;
+    width: 10%;
+    
+}

@@ -29,9 +29,9 @@
 
             </form>
 
-            <mat-card *ngIf="dataSourceProposals.data.length==0">No Students available</mat-card>
+            <mat-card *ngIf="dataSourceStudentNotYetInTeam.data.length==0">No Students available</mat-card>
 
-            <table *ngIf="dataSourceProposals.data.length>0" #table mat-table
+            <table *ngIf="dataSourceStudentNotYetInTeam.data.length>0" #table mat-table
                 [dataSource]="dataSourceStudentNotYetInTeam" matSort #matSortNotInTeam=matSort class="mat-elevation-z8">
 
                 <!-- ID Column -->
@@ -78,7 +78,7 @@
                 <tr mat-header-row *matHeaderRowDef="displayedColumnsNotInTeam"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumnsNotInTeam;"></tr>
             </table>
-            <mat-paginator *ngIf="dataSourceProposals.data.length>0" #paginatorNotInTeam
+            <mat-paginator *ngIf="dataSourceStudentNotYetInTeam.data.length>0" #paginatorNotInTeam
                 [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
 
         </div>
