@@ -33,13 +33,24 @@
     justify-content: center!important;
 }
 
-mat-card{
+mat-card {
     text-align: center;
 }
 
-.example-button-container{
+.inlineDiv {
     display: flex;
-    justify-content: flex-end;
-    width: 10%;
-    
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    vertical-align: middle;
+}
+
+.editSettingButton {
+    height: min-content;
+    align-self: center;
+    margin: 20px;
+}
+.settingField{
+    margin: 0 20px;
+    vertical-align: middle;
 }

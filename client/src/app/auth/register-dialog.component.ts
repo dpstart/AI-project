@@ -31,7 +31,7 @@ export class RegisterDialogComponent implements OnInit {
     firstName: new FormControl('', Validators.required),
     name: new FormControl('', Validators.required),
     fileName: new FormControl(''),
-    id: new FormControl('', Validators.required),
+    id: new FormControl('', [Validators.required, Validators.pattern('^[0-9]{6}$')]),
     email: new FormControl(this.pattern, [Validators.required, Validators.pattern('^(s|d){0,1}[0-9]{6}((@studenti.polito.it)|(@polito.it))$')]),
     password: new FormControl('', Validators.required),
   });
@@ -40,7 +40,7 @@ export class RegisterDialogComponent implements OnInit {
   ngOnInit(): void {
     this.form.get('id').valueChanges.subscribe(data => {
       console.log(data);
-      
+
       this.combinePatternId()
     })
   }
@@ -79,7 +79,7 @@ export class RegisterDialogComponent implements OnInit {
     this.form.get('fileName').setValue(this.selectedFile.name)
   }
 
-  
+
 
   combinePatternId() {
     let id = this.form.get("id").value

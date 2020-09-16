@@ -2,7 +2,7 @@
     <mat-card-title>Register</mat-card-title>
     <mat-radio-group aria-labelledby="example-radio-group-label" class="example-radio-group" [value]="pattern"
         (change)="onPatternChanged($event.value)" color="primary">
-        <mat-radio-button value="s******@studenti.polito.it">Student</mat-radio-button>
+        <mat-radio-button value="s******@studenti.polito.it" style="margin-right:20px">Student</mat-radio-button>
         <mat-radio-button value="d******@polito.it">Professor</mat-radio-button>
     </mat-radio-group>
     <mat-card-content>
@@ -35,7 +35,8 @@
             </div>
             <mat-form-field>
                 <mat-label>Enter your Id</mat-label>
-                <input type="text" matInput formControlName="id">
+                <input type="text" matInput formControlName="id" maxlength="6">
+                <mat-error> &lt;id&gt; should be composed by 6 digits </mat-error>
             </mat-form-field>
 
             <mat-form-field>
@@ -53,7 +54,7 @@
             </mat-form-field>
 
             <div>
-                <button (click)="submit()" mat-raised-button color="primary">Register</button>
+                <button [disabled]="form.invalid" (click)="submit()" mat-raised-button color="primary">Register</button>
                 <button (click)="close()" class="cancel" mat-raised-button>Cancel</button>
             </div>
 

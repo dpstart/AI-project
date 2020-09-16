@@ -33,3 +33,7 @@
   .folderButton {
     margin-left: 10px;
   }
+
+  mat-radio-group{
+    text-align: center;
+  }

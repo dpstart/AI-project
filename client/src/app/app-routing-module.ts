@@ -16,8 +16,6 @@ import { ConfirmTokenComponent } from './shared-components/token/confirm/confirm
 import { RejectTokenComponent } from './shared-components/token/reject/reject-token.component';
 import { ActivateAccountComponent } from './shared-components/account/activate-account.component';
 
-
-
 const routes: Routes = [
     {
         path: 'student',

@@ -9,6 +9,7 @@ import { MatSort } from '@angular/material/sort';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
+import { Course } from 'src/app/model/course.model';
 
 @Component({
   selector: 'app-students',
@@ -21,7 +22,7 @@ export class StudentsComponent implements OnInit {
 
   isDisabled: boolean
 
-  isReadOnly: Boolean
+  isEditing: Boolean
 
 
   masterToggleInPageOption = true
@@ -41,22 +42,16 @@ export class StudentsComponent implements OnInit {
 
   addStudentForm: FormGroup
 
+  courseSettingForm: FormGroup
 
   // Data sources
   private _enrolledStudents: Student[];
   private _studentsNotInCourse: Student[];
 
-  constructor() {
-    this.enrolledStudentsDataSource = new MatTableDataSource();
-    this.isDisabled = true
-    this.isReadOnly = true
+
+  private _courseObj: Course;
 
 
-    this.addStudentForm = new FormGroup({
-      studentControl: new FormControl(null),
-      fileNameControl: new FormControl('')
-    })
-  }
 
   @ViewChild(MatSidenav) sidenav: MatSidenav;
   @ViewChild(MatTable) table: MatTable<any>;
@@ -71,6 +66,17 @@ export class StudentsComponent implements OnInit {
 
   @Input()
   selectedCourse: string
+
+
+  @Input() public set courseObj(value: Course) {
+    this.isEditing = false
+    this._courseObj = value;
+    this.courseSettingForm.setValue({
+      min: this.courseObj.min,
+      max: this.courseObj.max,
+      enabled: this.courseObj.enabled
+    })
+  }
 
   @Input()
   public set studentsNotInCourse(value: Student[]) {
@@ -93,10 +99,32 @@ export class StudentsComponent implements OnInit {
   @Output() addStudent: EventEmitter<Student> = new EventEmitter<Student>();
   @Output() deleteStudents: EventEmitter<Student[]> = new EventEmitter<Student[]>();
   @Output() enrollManyCsvEvent: EventEmitter<File> = new EventEmitter<File>()
+  @Output() updateCourse: EventEmitter<Course> = new EventEmitter<Course>()
+
+
+  constructor() {
+    this.enrolledStudentsDataSource = new MatTableDataSource();
+    this.isDisabled = true
+    this.isEditing = false
+
+    this.addStudentForm = new FormGroup({
+      studentControl: new FormControl(null),
+      fileNameControl: new FormControl('')
+    })
+
+
+    this.courseSettingForm = new FormGroup({
+      min: new FormControl('', Validators.required),
+      max: new FormControl('', Validators.required),
+      enabled: new FormControl(false, Validators.required)
+    })
+
+  }
 
   // Lifecycle hooks -------
 
   ngOnInit() {
+
     this.filteredOptions = this.addStudentForm.get("studentControl").valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))
@@ -124,6 +152,9 @@ export class StudentsComponent implements OnInit {
   }
   public get studentsNotInCourse(): Student[] {
     return this._studentsNotInCourse;
+  }
+  public get courseObj(): Course {
+    return this._courseObj;
   }
 
 
@@ -267,12 +298,18 @@ export class StudentsComponent implements OnInit {
 
 
 
-  toggleEditName() {
+  toggleEditSettings() {
 
     //Corso viene settato allora devi confermarlo
-    if(!this.isReadOnly){
+    if (this.isEditing) {
+      this.courseObj.min = this.courseSettingForm.get('min').value
+
+      this.courseObj.max = this.courseSettingForm.get('max').value
+
+      this.courseObj.enabled = this.courseSettingForm.get('enabled').value
+      this.updateCourse.emit(this.courseObj)
     }
 
-    this.isReadOnly = !this.isReadOnly
+    this.isEditing = !this.isEditing
   }
 }

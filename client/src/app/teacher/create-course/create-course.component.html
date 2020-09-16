@@ -5,32 +5,21 @@
 
             <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
 
-            <p>
-                <mat-form-field>
-                    <input type="text" matInput placeholder="Name" formControlName="name">
-                </mat-form-field>
-            </p>
+            <mat-form-field>
+                <input type="text" matInput placeholder="Name" formControlName="name">
+            </mat-form-field>
 
-            <p>
-                <mat-form-field>
-                    <input type="text" matInput placeholder="Acronime" formControlName="acronime">
-                </mat-form-field>
-            </p>
+            <mat-form-field>
+                <input type="text" matInput placeholder="Acronime" formControlName="acronime">
+            </mat-form-field>
 
+            <mat-form-field>
+                <input type="number" matInput placeholder="Min. group size" formControlName="min">
+            </mat-form-field>
 
-            <p>
-                <mat-form-field>
-                    <input type="number" matInput placeholder="Min. students" formControlName="min">
-                </mat-form-field>
-            </p>
-
-            <p>
-                <mat-form-field>
-                    <input type="number" matInput placeholder="Max. students" formControlName="max">
-                </mat-form-field>
-            </p>
-
-
+            <mat-form-field>
+                <input type="number" matInput placeholder="Max. group size" formControlName="max">
+            </mat-form-field>
 
             <div>
                 <button type="button" [disabled]="!form.valid" (click)="submit()" mat-raised-button

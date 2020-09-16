@@ -9,10 +9,6 @@
     <!-- This fills the remaining space of the current row -->
     <span class="example-fill-remaining-space"></span>
 
-    <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
-
-
-
     <div *ngIf="!isLoggedIn(); then toolbarLoggedBlock else toolbarUnloggedBlock"></div>
     <ng-template #toolbarLoggedBlock>
       <button mat-button [routerLink]="['home']" [queryParams]="{doLogin: true}">Login</button>
@@ -64,6 +60,8 @@
         {{course.name}}
       </mat-list-option>
     </mat-selection-list>
+
+    <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
 
     <div *ngIf="isRoleTeacher() && isLoggedIn();">
       <button mat-mini-fab color="primary" aria-label="Add course" style="margin-right: 16px;"

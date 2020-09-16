@@ -1,17 +1,34 @@
 <div class="tabContainer">
 
+    <div class="inlineDiv">
 
-    <mat-form-field class="example-full-width">
-        <mat-label>Current course</mat-label>
-        <input type="text" matInput [value]="selectedCourse" [readOnly]="isReadOnly">
-    </mat-form-field>
+        <div [hidden]="!isEditing">
+
+            <form [formGroup]="courseSettingForm">
+                <mat-form-field class="settingField">
+                    <input type="number" matInput placeholder="Min. group size" formControlName="min">
+                </mat-form-field>
+
+                <mat-form-field class="settingField">
+                    <input type="number" matInput placeholder="Max. group size" formControlName="max">
+                </mat-form-field>
+
+                <mat-checkbox id="enabled" class="settingField" color="primary" formControlName="enabled">
+                    Enable Course
+                </mat-checkbox>
+
+            </form>
+
+        </div>
 
 
-    <button mat-mini-fab aria-label="Example icon button with a edit icon" (click)="toggleEditName()"
-        [ngStyle]="{'background-color':isReadOnly? '#3f51b5': 'green' }">
-        <mat-icon *ngIf="isReadOnly">edit</mat-icon>
-        <mat-icon *ngIf="!isReadOnly">check</mat-icon>
-    </button>
+        <button mat-raised-button (click)="toggleEditSettings()" class="editSettingButton" color="primary"
+            [ngStyle]="{'background-color':!isEditing? '#3f51b5': 'green' }">
+            {{ !isEditing ? 'Edit course settings':'Confirm'}}
+        </button>
+
+    </div>
+
 
     <h2 class="mat-h2 tabtitle">Elenco studenti iscritti al corso.</h2>
     <form [formGroup]="addStudentForm">
@@ -52,12 +69,10 @@
 
 
     <div class="flexCenter">
-        <div class="example-button-container">
-            <button class="folderButton" mat-fab color="warn" aria-label="Example icon button with a delete icon"
-                *ngIf="!isDeleteButtonDisabled()" (click)="_deleteStudents()">
-                <mat-icon>delete</mat-icon>
-            </button>
-        </div>
+        <button class="folderButton" mat-fab color="warn" aria-label="Example icon button with a delete icon"
+            *ngIf="!isDeleteButtonDisabled()" (click)="_deleteStudents()">
+            <mat-icon>delete</mat-icon>
+        </button>
 
         <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">
             {{ message }}
@@ -104,7 +119,7 @@
 
         <!-- Checkbox Column -->
         <ng-container matColumnDef="select">
-            <th mat-header-cell *matHeaderCellDef>
+            <th mat-header-cell *matHeaderCellDef style="width: 3%;">
                 <mat-checkbox (change)="$event ? masterToggle() : null" color="primary"
                     [checked]="selection.hasValue() && isAllSelectedInPage()"
                     [indeterminate]="selection.hasValue() && !isAllSelectedInPage()">

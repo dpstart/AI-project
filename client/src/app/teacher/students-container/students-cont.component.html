@@ -5,12 +5,15 @@
 <app-students 
 [message]="message"
 [alertType]="alertType"
+[courseObj]="courseObj"
 [selectedCourse]="selectedCourse"
 [studentsNotInCourse]="studentsNotInCourse"
 [enrolledStudents]="enrolledStudents" 
 (addStudent)="addStudent($event)" 
 (deleteStudents)="deleteStudents($event)"
-(enrollManyCsvEvent)="enrollManyCSV($event)">
+(enrollManyCsvEvent)="enrollManyCSV($event)"
+(updateCourse)="updateCourse($event)"
+>
 
 </app-students>
 </ng-template>

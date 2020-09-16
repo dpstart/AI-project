@@ -1,3 +1,10 @@
 mat-card {
     text-align:center ;
   }
+  form{
+    display: flex;
+    flex-direction: column;
+  }
+  mat-form-field{
+    margin: auto;
+  }

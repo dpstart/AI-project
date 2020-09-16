@@ -266,6 +266,9 @@ export class AppComponent implements OnInit {
       this.message = data.message;
       this.alertType = data.type
 
+      setTimeout(()=>{
+        this.message=""
+      },3000)
     })
 
   }

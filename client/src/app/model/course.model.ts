@@ -13,6 +13,12 @@ import { Link } from './link.model';
 
 
 export class Course {
+    public get enabled(): boolean {
+        return this._enabled;
+    }
+    public set enabled(value: boolean) {
+        this._enabled = value;
+    }
     public get links(): Link[] {
         return this._links;
     }
@@ -52,7 +58,7 @@ export class Course {
     // @NotBlank
     // Float mark;
 
-    constructor(private _name: string, private _acronime: string, private _min: Number,  private _links: Link[] = [],private _max: Number) { }
+    constructor(private _name: string, private _acronime: string, private _min: Number, private _links: Link[] = [], private _max: Number, private _enabled: boolean) { }
 }
 
 

@@ -3,6 +3,7 @@ import { Student } from '../../model/student.model';
 import { StudentService } from '../../services/student.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouteStateService } from '../../services/route-state.service';
+import { Course } from 'src/app/model/course.model';
 
 
 @Component({
@@ -22,6 +23,7 @@ export class StudentsContComponent implements OnInit {
   studentsToDelete: Student[];
 
   selectedCourse: string
+  courseObj: Course
 
   message: string
   alertType: string
@@ -47,25 +49,29 @@ export class StudentsContComponent implements OnInit {
         this.selectedCourse = params["course_name"];
 
 
+        this.studentService.getCourse(this.selectedCourse).subscribe((course) => {
+          this.courseObj = course
+          this.studentService.getStudentsInCourse(this.selectedCourse).subscribe(enrolledStudents => {
+            this.enrolledStudents = enrolledStudents;
 
-        this.studentService.getStudentsInCourse(this.selectedCourse).subscribe(enrolledStudents => {
-          this.enrolledStudents = enrolledStudents;
+            this.studentService.getStudents().subscribe(allStudents => {
 
-          this.studentService.getStudents().subscribe(allStudents => {
+              let allStudentsNotInCourse = []
 
-            let allStudentsNotInCourse = []
+              for (let student of allStudents) {
+                if (this.enrolledStudents.findIndex(x => student.id === x.id) == -1)
+                  allStudentsNotInCourse.push(student)
+              }
 
-            for (let student of allStudents) {
-              if (this.enrolledStudents.findIndex(x => student.id === x.id) == -1)
-                allStudentsNotInCourse.push(student)
-            }
+              this.studentsNotInCourse = allStudentsNotInCourse
+              this.isAllStudentsLoaded = true;
+              this.isEnrolledStudentsLoaded = true;
+            })
 
-            this.studentsNotInCourse = allStudentsNotInCourse
-            this.isAllStudentsLoaded = true;
-            this.isEnrolledStudentsLoaded = true;
-          })
+          });
+        }, (_) => this.router.navigate(['PageNotFound']))
 
-        }, (_) => this.router.navigate(['PageNotFound']));
+
       }
     })
 
@@ -149,6 +155,13 @@ export class StudentsContComponent implements OnInit {
       this.alertType = "danger"
       this.message = "Sorry something went wrong try later..."
     })
+  }
+
+
+  updateCourse(course:Course){
+    //TODO: this.studentService
+
+
   }
 
 
