@@ -4,7 +4,4 @@
 
 --aggiungere timeout a alert per chiudersi dopo tre secondi
 
--- password di conferma
-
---cancellare corsi
 

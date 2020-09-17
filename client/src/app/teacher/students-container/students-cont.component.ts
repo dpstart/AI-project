@@ -196,4 +196,27 @@ export class StudentsContComponent implements OnInit {
 
     })
   }
+
+  removeCourse(courseName: string) {
+    this.teacherService.removeCourse(courseName).subscribe( _ => {
+      let message = {} as Message
+      message.alertType = "success"
+      message.message = "Course removed successfully."
+      setTimeout(_=>{
+        this.router.navigate(['home'])
+        this.routeStateService.updatePathParamState("Home")
+
+      },3000)
+      this.message = { ...message }
+    }, error => {
+      let message = {} as Message
+      message.alertType = "danger"
+      message = error.message
+      this.message = { ...message }
+
+    })
+      
+      
+     
+  }
 }

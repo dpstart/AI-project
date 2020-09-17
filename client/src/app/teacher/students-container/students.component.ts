@@ -97,6 +97,7 @@ export class StudentsComponent implements OnInit {
   @Output() deleteStudents: EventEmitter<Student[]> = new EventEmitter<Student[]>();
   @Output() enrollManyCsvEvent: EventEmitter<File> = new EventEmitter<File>()
   @Output() updateCourse: EventEmitter<Course[]> = new EventEmitter<Course[]>()
+  @Output() removeCourse: EventEmitter<string> = new EventEmitter<string>()
 
 
   constructor() {
@@ -309,5 +310,9 @@ export class StudentsComponent implements OnInit {
     }
 
     this.isEditing = !this.isEditing
+  }
+
+  onRemoveCourse(){
+    this.removeCourse.emit(this.courseObj.name)
   }
 }

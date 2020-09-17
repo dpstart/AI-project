@@ -11,7 +11,7 @@
     justify-content: flex-end;
 }
 
-.folderButton {
+.fabButton {
     margin: 10px;
 }
 
@@ -45,7 +45,7 @@ mat-card {
     vertical-align: middle;
 }
 
-.editSettingButton {
+.formInlineButton {
     height: min-content;
     align-self: center;
     margin: 20px;
