@@ -265,10 +265,6 @@ public class TeamServiceImpl implements TeamService {
         if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
             throw new StudentNotFoundException("Student: " + studentId + " not found!");
 
-        if (!c.getEnabled())
-            throw new CourseNotEnabledException("Course " + courseName + " is not enabled");
-
-
         Student s = studentRepository.getOne(studentId);
         // TO DO: anyMatch(), equals() o compareTo
         if (c.getStudents().contains(s))
@@ -305,9 +301,6 @@ public class TeamServiceImpl implements TeamService {
             throw new CourseAuthorizationException("User " + prof + " has not the rights to modify this course: he's not the admin or the professor for this course");
         if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
             throw new StudentNotFoundException("Student: " + studentId + " not found!");
-
-        if (!c.getEnabled())
-            throw new CourseNotEnabledException("Course " + courseName + " is not enabled");
 
         if (c.getStudents().stream().noneMatch(x -> x.getId().equals(studentId)))
             throw new StudentNotFoundException("Student: " + studentId + " not enrolled in this course!");
@@ -878,9 +871,6 @@ public class TeamServiceImpl implements TeamService {
         if (!courseRepository.existsById(courseId) && !courseRepository.existsByAcronime(courseId))
             throw new CourseNotFoundException("Course: " + courseId + " not found!");
         Course c = courseRepository.getOne(courseId);
-        // il corso è abilitato?
-        if (!c.getEnabled())
-            throw new CourseNotEnabledException("Course: " + courseId + " is not enabled!");
 
         if (memberIds.size() == 0)
             throw new TeamSizeConstraintsException("It need to specify at least one student for  a team");
