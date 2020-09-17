@@ -11,6 +11,8 @@ import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { Course } from 'src/app/model/course.model';
 import { Message } from 'src/app/teacher/students-container/students-cont.component';
+import { MatDialog } from '@angular/material/dialog';
+import { RemoveCourseDialogComponent } from './dialog/remove-course-dialog.component';
 
 
 @Component({
@@ -120,7 +122,7 @@ export class StudentsComponent implements OnInit {
   @Output() removeCourse: EventEmitter<string> = new EventEmitter<string>()
 
 
-  constructor() {
+  constructor(public dialog: MatDialog) {
     this.enrolledStudentsDataSource = new MatTableDataSource();
     this.isDisabled = true
     this.isEditing = false
@@ -344,8 +346,24 @@ export class StudentsComponent implements OnInit {
   }
 
   onRemoveCourse() {
-    this.removeCourse.emit(this.courseObj.name)
+
+    this.openDialog()
+
   }
+
+  openDialog(): void {
+    const dialogRef = this.dialog.open(RemoveCourseDialogComponent, {
+      width: 'auto',
+      data: this.selectedCourse
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result)
+        this.removeCourse.emit(this.courseObj.name)
+    });
+  }
+
+
 
   resetCourseSettings() {
     this.courseSettingForm.get('min').setValue(this.courseObj.min)

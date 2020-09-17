@@ -51,6 +51,7 @@ import { ConfirmTokenComponent } from './shared-components/token/confirm/confirm
 import { ActivateAccountComponent } from './shared-components/account/activate-account.component';
 import { CreateCourseComponent } from './teacher/create-course/create-course.component';
 import {MatRadioModule} from "@angular/material/radio";
+import { RemoveCourseDialogComponent } from './teacher/students-container/dialog/remove-course-dialog.component';
 
 @NgModule({
   declarations: [
@@ -74,6 +75,7 @@ import {MatRadioModule} from "@angular/material/radio";
     RejectTokenComponent,
     ActivateAccountComponent,
     CreateCourseComponent,
+    RemoveCourseDialogComponent,
   ],
     imports: [
         BrowserModule,

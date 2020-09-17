@@ -1,75 +1,97 @@
-mat-form-field{
-    margin-right: 20px;
+mat-form-field {
+  margin-right: 20px;
 }
 
-mat-spinner{
-    margin: 4%;
+mat-spinner {
+  margin: 4%;
 }
+
 table {
-    width: 100%;
-  }
-  
-  tr.example-detail-row {
-    height: 0;
-  }
-  
-  tr.example-element-row:not(.example-expanded-row):hover {
-    background: whitesmoke;
-  }
-  
-  tr.example-element-row:not(.example-expanded-row):active {
-    background: #efefef;
-  }
-  
-  .example-element-row td {
-    border-bottom-width: 0;
-  }
-  
-  .example-element-detail {
-    overflow: hidden;
-    display: flex;
-  }
-  
-  .example-element-diagram {
-    min-width: 80px;
-    border: 2px solid black;
-    padding: 8px;
-    font-weight: lighter;
-    margin: 8px 0;
-    height: 104px;
-  }
-  
-  .example-element-symbol {
-    font-weight: bold;
-    font-size: 40px;
-    line-height: normal;
-  }
-  
-  .example-element-description {
-    padding: 16px;
-  }
-  
-  .example-element-description-attribution {
-    opacity: 0.5;
-  }
-  mat-selection-list{
-      width: 50%;
-  }
+  width: 100%;
+}
 
- 
+tr.example-detail-row {
+  height: 0;
+}
+
+tr.example-element-row:not(.example-expanded-row):hover {
+  background: whitesmoke;
+}
+
+tr.example-element-row:not(.example-expanded-row):active {
+  background: #efefef;
+}
+
+.example-element-row td {
+  border-bottom-width: 0;
+}
+
+.example-element-detail {
+  overflow: hidden;
+  display: flex;
+}
+
+.example-element-diagram {
+  min-width: 80px;
+  border: 2px solid black;
+  padding: 8px;
+  font-weight: lighter;
+  margin: 8px 0;
+  height: 104px;
+}
+
+.example-element-symbol {
+  font-weight: bold;
+  font-size: 40px;
+  line-height: normal;
+}
+
+.example-element-description {
+  padding: 16px;
+}
+
+.example-element-description-attribution {
+  opacity: 0.5;
+}
+
+mat-selection-list {
+  width: 50%;
+}
+
 .flexCenter {
   display: flex;
   justify-content: center;
 }
 
-::ng-deep th,td{
-  text-align:center!important;
+::ng-deep th, td {
+  text-align: center!important;
 }
 
-::ng-deep .mat-sort-header-container{
+::ng-deep .mat-sort-header-container {
   justify-content: center!important;
 }
 
-mat-card{
+mat-card {
   text-align: center;
+  margin: 20px;
+}
+
+.inlineDiv {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.halfWidthCard {
+  width: 30%;
+}
+
+.fullWidth {
+  margin: 10px;
+  width: 100%;
+  background-color: #f7f7f7;
+}
+
+.greyBkg {
+  background-color: #f7f7f7;
 }

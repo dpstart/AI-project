@@ -3,8 +3,8 @@ import { RouteStateService } from './services/route-state.service';
 
 @Component({
     selector: 'app-page-not-found',
-    template: '<p>Page not found!</p>',
-    styles: []
+    template: ' <mat-card><h1>Page not found!</h1></mat-card>',
+    styles: ['mat-card{text-align:center; margin:20px}']
 })
 export class PageNotFoundComponent implements OnInit {
 

@@ -7,7 +7,7 @@ import { AuthService } from './services/auth.service';
   <mat-card *ngIf="isLoggedIn()"><h1>Select a course to continue</h1></mat-card>
   <mat-card *ngIf="!isLoggedIn()"><h1>Log in or Register to Continue</h1></mat-card>
   `,
-  styles: ['mat-card{text-align:center}']
+  styles: ['mat-card{text-align:center; margin:20px}']
 })
 export class HomeComponent implements OnInit {
 

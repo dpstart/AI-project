@@ -1,0 +1,5 @@
+<h6 mat-dialog-title style="text-align: center;">Are you sure you want to delete the <i>"{{data}}"</i> course?</h6>
+<div mat-dialog-actions style="display:flex; justify-content: center;">
+    <button mat-raised-button color="warn" [mat-dialog-close]="true" cdkFocusInitial>Delete</button>
+    <button mat-raised-button color="white" (click)="onCancel()">Cancel</button>
+</div>
