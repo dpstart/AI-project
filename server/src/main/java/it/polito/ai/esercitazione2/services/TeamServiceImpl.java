@@ -473,6 +473,7 @@ public class TeamServiceImpl implements TeamService {
             }
         }
         stud.setAlias(alias);
+        stud.setEmail("s" + s.getId() + "@studenti.polito.it");
 
         studentRepository.save(stud);
 
