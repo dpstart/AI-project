@@ -33,7 +33,7 @@
                 </mat-form-field>
             </p>
 
-            <ngb-alert *ngIf="error" [type]='alertType' (close)="error=null">{{ error }}</ngb-alert>
+            <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
 
             <div>
                 <button type="button" mat-raised-button (click)="submit()" color="primary">Confirm</button>

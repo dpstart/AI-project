@@ -22,7 +22,7 @@ export class EditTeamDialogComponent {
     max_available: new FormControl(this.data.team.max_available || "--")
   });
 
-  @Input() error: string | null;
+  message: string | null;
   alertType: string;
 
 
@@ -44,7 +44,23 @@ export class EditTeamDialogComponent {
   submit() {
     this.teacherService.changeTeamSettings(this.course, this.team.id, this.form.value).subscribe(
       (team) => this.close("Team settings updated successfully.", "success"),
-      (error) => { this.error = error.message; this.alertType = "danger"; }
+      (error) => {
+        this.message = error.message
+        this.alertType = "danger"
+        this.closeAlertAfterTime(3000)
+      }
     )
   }
+
+  /**
+ * Utility function used to close alert after tot milliseconds 
+ * @param milliseconds 
+ */
+  closeAlertAfterTime(milliseconds: number) {
+    setTimeout(_ => {
+      this.message = ""
+      this.alertType = ""
+    }, milliseconds)
+  }
+
 }

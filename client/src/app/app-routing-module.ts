@@ -40,10 +40,10 @@ const routes: Routes = [
     },
     { path: 'home', component: HomeComponent },
     { path: '', redirectTo: '/home', pathMatch: 'full' },
-    { path: 'activate/:token', component: ActivateAccountComponent },
-    { path: 'confirm/:token', component: ConfirmTokenComponent },
-    { path: 'reject/:token', component: RejectTokenComponent },
-    
+    { path: 'notification/activate/:token', component: ActivateAccountComponent },
+    { path: 'notification/confirm/:token', component: ConfirmTokenComponent },
+    { path: 'notification/reject/:token', component: RejectTokenComponent },
+
     { path: '**', component: PageNotFoundComponent }
 ];
 

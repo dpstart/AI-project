@@ -230,7 +230,7 @@ export class StudentService {
    * Metodo che permette di creare una connessione verso una vm
    * @param vmId: id vm
    */
-  connectToVm(vmId: number) {
+  connectToVm(vmId: number): Observable<Image> {
 
     const url = `${this.URL}/vms/${vmId}/connect`
 

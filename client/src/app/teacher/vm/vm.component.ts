@@ -30,7 +30,7 @@ export class VMComponent implements OnInit {
 
     selectedCourse: string
 
-    @Input() message: string | null;
+    message: string | null;
     alertType: string;
 
     columnsToDisplay: string[] = ['actions', 'name', 'id', 'disk_space', 'ram', 'n_cpu'];
@@ -122,6 +122,7 @@ export class VMComponent implements OnInit {
                 return
             this.message = result.message || null;
             this.alertType = result.type;
+            this.closeAlertAfterTime(3000)
         })
         event.stopPropagation();
     }
@@ -134,8 +135,23 @@ export class VMComponent implements OnInit {
             this.image = objectURL;
             let win = window.open()
             win.document.write('<iframe src="' + this.image + '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
+        }, error => {
+            this.alertType = "danger"
+            this.message = error.message
+            this.closeAlertAfterTime(3000)
         })
-
         event.stopPropagation();
     }
+
+    /**
+     * Utility function used to close alert after tot milliseconds 
+     * @param milliseconds 
+     */
+    closeAlertAfterTime(milliseconds: number) {
+        setTimeout(_ => {
+            this.message = ""
+            this.alertType = ""
+        }, milliseconds)
+    }
+
 }

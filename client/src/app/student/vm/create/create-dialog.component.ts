@@ -22,7 +22,7 @@ export class CreateDialogComponent implements OnInit {
     imageName: new FormControl('', Validators.required),
   });
 
-  @Input() message: string | null;
+  message: string | null;
   alertType: string;
 
   selectedFile: File;
@@ -60,12 +60,14 @@ export class CreateDialogComponent implements OnInit {
         this.studentService.createVM(this.data.course, this.data.teamId, formData).subscribe(res => {
           this.close({ message: "VM Successfully Created", type: "success" });
         },
-          error => { this.message = error.message; this.alertType = "danger"; });
+          error => {
+            this.message = error.message
+            this.alertType = "danger"
+            this.closeAlertAfterTime(3000)
+          });
     }
   }
-
-
-
+  
   //Gets called when the user selects an image
   public onFileChanged(event) {
     //Select File
@@ -73,5 +75,14 @@ export class CreateDialogComponent implements OnInit {
     this.form.get("imageName").setValue(this.selectedFile.name)
   }
 
-
+  /**
+       * Utility function used to close alert after tot milliseconds 
+       * @param milliseconds 
+       */
+  closeAlertAfterTime(milliseconds: number) {
+    setTimeout(_ => {
+      this.message = ""
+      this.alertType = ""
+    }, milliseconds)
+  }
 }

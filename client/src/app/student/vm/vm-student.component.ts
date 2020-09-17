@@ -93,6 +93,7 @@ export class VmStudentComponent implements OnInit {
         } else {
           this.message = "In order to use a Vm you need to be part of a team"
           this.alertType = "warning"
+          this.closeAlertAfterTime(3000)
           this.isAllLoaded = true
         }
       }, (_) => {
@@ -108,6 +109,7 @@ export class VmStudentComponent implements OnInit {
 
   createVm(event) {
     this.message = ""
+    this.alertType = ""
     const dialogRef = this.dialog.open(CreateDialogComponent, {
       width: '500px',
       data: {
@@ -118,9 +120,9 @@ export class VmStudentComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((response) => {
       this.getData();
-      this.message = response.message;
-      this.alertType = response.type;
-
+      this.message = response.message
+      this.alertType = response.type
+      this.closeAlertAfterTime(3000)
     })
     event.stopPropagation();
 
@@ -129,17 +131,25 @@ export class VmStudentComponent implements OnInit {
 
   deleteVm(vm: Vm) {
     this.message = ""
+    this.alertType = ""
     this.studentService.deleteVm(vm).subscribe((_) => {
       this.dataSourceVm.data.splice(this.dataSourceVm.data.indexOf(vm), 1)
       this.dataSourceVm._updateChangeSubscription()
       this.message = "The vm was successfully deleted"
       this.alertType = "success"
+      this.closeAlertAfterTime(3000)
     },
-      (error) => { this.message = error.message; this.alertType = "danger"; })
+      (error) => {
+        this.message = error.message
+        this.alertType = "danger"
+        this.closeAlertAfterTime(3000)
+      })
   }
 
   openVmImage(vm: Vm) {
     this.message = ""
+    this.alertType = ""
+
     if (vm.status == 1) {
       this.studentService.connectToVm(vm.id).subscribe(image => {
         let objectURL = 'data:image/png;base64,' + image.picByte
@@ -150,21 +160,23 @@ export class VmStudentComponent implements OnInit {
     } else {
       this.message = "In order to see your Vm you need to run it"
       this.alertType = "warning"
+      this.closeAlertAfterTime(3000)
     }
   }
 
   openEditDialog(element, event) {
     this.message = ""
-
+    this.alertType = ""
     const dialogRef = this.dialog.open(EditVmDialogComponent, {
       width: '500px',
       data: { vm: element, course: this.selectedCourse }
     });
 
     dialogRef.afterClosed().subscribe((response) => {
+      this.getData();
       this.message = response.message;
       this.alertType = response.type;
-      this.getData();
+      this.closeAlertAfterTime(3000)
     })
     event.stopPropagation();
   }
@@ -172,31 +184,47 @@ export class VmStudentComponent implements OnInit {
 
   changeVmStatus(vm: Vm) {
     this.message = ""
+    this.alertType = ""
     this.studentService.changeVmStatus(vm).subscribe((success) => {
 
-      this.dataSourceVm.data.forEach((selected) => {
-        if (selected.id === vm.id) {
-          if (selected.status === 1) {
-            this.message = "The Vm was successfully stopped"
-            selected.status = 0
-          }
-          else {
-            this.message = "The Vm was successfully started"
-            selected.status = 1
-          };
-        }
-      })
+      let selected = this.dataSourceVm.data.find((element) => element.id === vm.id)
+
+      if (selected.status === 1) {
+        this.message = "The Vm was successfully stopped"
+        selected.status = 0
+      }
+      else {
+        this.message = "The Vm was successfully started"
+        selected.status = 1
+      }
 
       this.dataSourceVm.data = [...this.dataSourceVm.data]
 
       this.alertType = "success"
+      this.closeAlertAfterTime(3000)
+
     }, error => {
       this.message = error.message
       this.alertType = "danger"
+      this.closeAlertAfterTime(3000)
+
     })
   }
 
+
+
+  /**
+   * Utility function used to close alert after tot milliseconds 
+   * @param milliseconds 
+   */
+  closeAlertAfterTime(milliseconds: number) {
+    setTimeout(_ => {
+      this.message = ""
+      this.alertType = ""
+    }, milliseconds)
+  }
 }
+
 
 export interface Vm {
   id: number,

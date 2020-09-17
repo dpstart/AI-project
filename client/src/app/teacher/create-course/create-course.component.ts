@@ -19,7 +19,7 @@ export class CreateCourseComponent implements OnInit {
     max: new FormControl('', Validators.required),
   });
 
-  @Input() message: string | null;
+  message: string | null;
   alertType: string;
 
 
@@ -39,8 +39,23 @@ export class CreateCourseComponent implements OnInit {
       this.teacherService.createCourse(this.form.value).subscribe(res => {
         this.close({ message: "Course Successfully Created", type: "success" });
       },
-        error => { console.log("here", error); this.message = error.message; this.alertType = "danger"; });
+        error => {
+          this.message = error.message
+          this.alertType = "danger"
+          this.closeAlertAfterTime(3000)
+        });
     }
+  }
+
+  /**
+     * Utility function used to close alert after tot milliseconds 
+     * @param milliseconds 
+     */
+  closeAlertAfterTime(milliseconds: number) {
+    setTimeout(_ => {
+      this.message = ""
+      this.alertType = ""
+    }, milliseconds)
   }
 
 

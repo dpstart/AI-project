@@ -25,7 +25,7 @@ export class EditVmDialogComponent {
     imageName: new FormControl(''),
   });
 
-  @Input() message: string | null;
+  message: string | null;
   alertType: string;
 
   selectedFile: File;
@@ -74,6 +74,7 @@ export class EditVmDialogComponent {
       }, error => {
         this.message = error.message
         this.alertType = "danger"
+        this.closeAlertAfterTime(3000)
       });
     }
   }
@@ -83,5 +84,15 @@ export class EditVmDialogComponent {
     //Select File
     this.selectedFile = event.target.files[0];
     this.form.get("imageName").setValue(this.selectedFile.name)
+  }
+  /**
+     * Utility function used to close alert after tot milliseconds 
+     * @param milliseconds 
+     */
+  closeAlertAfterTime(milliseconds: number) {
+    setTimeout(_ => {
+      this.message = ""
+      this.alertType = ""
+    }, milliseconds)
   }
 }
