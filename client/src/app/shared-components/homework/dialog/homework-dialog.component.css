@@ -92,3 +92,7 @@ form {
 ::ng-deep .mat-sort-header-container{
     justify-content: center!important;
 }
+
+mat-card{
+    margin: 20px;
+}

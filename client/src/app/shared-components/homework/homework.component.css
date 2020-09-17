@@ -38,8 +38,11 @@ tr.example-element-row:not(.example-expanded-row):active {
 }
 
 .contentContainer {
-    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     height: 100%;
+    width: 100%;
 }
 
 .tabContainer {
@@ -53,6 +56,7 @@ tr.example-element-row:not(.example-expanded-row):active {
 
 .flexCenter {
     display: flex;
+    justify-content: center;
 }
 
 .timePicker {
@@ -77,9 +81,12 @@ tr.example-element-row:not(.example-expanded-row):active {
 .expired-assignment {
     background-color: #dadada;
 }
-::ng-deep .expired-assignment:hover{
+
+::ng-deep .expired-assignment:hover {
     background-color: lightgray!important;
 }
-mat-card{
+
+mat-card {
     text-align: center;
+    margin: 20px;
 }

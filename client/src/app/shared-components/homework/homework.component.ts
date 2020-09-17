@@ -458,6 +458,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
       this.expandedAssignment = assignment
 
     this.reinitFilters();
+    this.filterRowsAccordingToOptions(assignment.id)
   }
 
   /** 
@@ -465,7 +466,7 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   */
   seeHomeworkVersions(homework: DisplayedHomework) {
     const dialogRef = this.dialog.open(HomeworkDialogComponent, {
-      height: '95%',
+      height: 'auto',
       width: '95%',
       data: {
         assignment: this.assignmentExpandedElement,

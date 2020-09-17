@@ -1,5 +1,6 @@
-<div>
-    <h2>Homework versions</h2>
+<mat-card>
+
+    <h2 style="margin-bottom: 20px;">Homework versions</h2>
 
     <div *ngIf="isAllLoaded == false; else loadedBlock" class="flexCenter">
         <mat-spinner diameter="300" strokeWidth="5"></mat-spinner>
@@ -45,8 +46,7 @@
             </ng-template>
             <ng-template #withDataStudentBlock>
                 <div class="entire-table">
-                    <table mat-table [dataSource]="historyHomeworkDataSource" multiTemplateDataRows
-                        class="mat-elevation-z8">
+                    <table mat-table [dataSource]="historyHomeworkDataSource" multiTemplateDataRows>
 
 
                         <ng-container matColumnDef="id">
@@ -150,8 +150,7 @@
             </ng-template>
             <ng-template #withDataProfessorBlock>
                 <div class="entire-table">
-                    <table mat-table [dataSource]="historyHomeworkDataSource" multiTemplateDataRows
-                        class="mat-elevation-z8">
+                    <table mat-table [dataSource]="historyHomeworkDataSource" multiTemplateDataRows>
 
 
                         <ng-container matColumnDef="id">
@@ -246,4 +245,4 @@
 
         </ng-template>
     </ng-template>
-</div>
+</mat-card>
