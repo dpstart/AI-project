@@ -90,6 +90,7 @@ export class StudentsContComponent implements OnInit {
       message.alertType = "danger"
       message.message = "Sorry something went wrong try later..."
       this.message = { ...message }
+      this.closeAlertAfterTime(3000)
       return;
     }
 
@@ -107,7 +108,7 @@ export class StudentsContComponent implements OnInit {
         message.alertType = "success"
         message.message = "Student successfully added."
         this.message = { ...message }
-
+        this.closeAlertAfterTime(3000)
 
       }, error => {
         let message = {} as Message
@@ -115,6 +116,8 @@ export class StudentsContComponent implements OnInit {
         message.alertType = "danger"
         message.message = "Sorry something went wrong try later..."
         this.message = { ...message }
+
+        this.closeAlertAfterTime(3000)
       })
 
   }
@@ -145,11 +148,14 @@ export class StudentsContComponent implements OnInit {
 
 
       this.message = { ...message }
+      this.closeAlertAfterTime(3000)
+
     }, error => {
       let message = {} as Message
       message.alertType = "danger"
       message.message = "Sorry something went wrong try later..."
       this.message = { ...message }
+      this.closeAlertAfterTime(3000)
     })
 
 
@@ -169,11 +175,13 @@ export class StudentsContComponent implements OnInit {
       message.alertType = "success"
       message.message = "Student successfully added."
       this.message = { ...message }
+      this.closeAlertAfterTime(3000)
     }, _ => {
       let message = {} as Message
       message.alertType = "danger"
       message.message = "Sorry something went wrong try later..."
       this.message = { ...message }
+      this.closeAlertAfterTime(3000)
     })
   }
 
@@ -186,37 +194,46 @@ export class StudentsContComponent implements OnInit {
       message.alertType = "success"
       message.message = "Course modified successfully."
       this.message = { ...message }
+      this.closeAlertAfterTime(3000)
+
     }, error => {
       this.courseObj = { ...courses[1] } as Course
-
       let message = {} as Message
       message.alertType = "danger"
       message = error.message
       this.message = { ...message }
-
+      this.closeAlertAfterTime(3000)
     })
   }
 
   removeCourse(courseName: string) {
-    this.teacherService.removeCourse(courseName).subscribe( _ => {
+    this.teacherService.removeCourse(courseName).subscribe(_ => {
       let message = {} as Message
       message.alertType = "success"
       message.message = "Course removed successfully."
-      setTimeout(_=>{
+      setTimeout(_ => {
         this.router.navigate(['home'])
         this.routeStateService.updatePathParamState("Home")
 
-      },3000)
+      }, 3000)
       this.message = { ...message }
     }, error => {
       let message = {} as Message
       message.alertType = "danger"
       message = error.message
       this.message = { ...message }
-
+      this.closeAlertAfterTime(3000)
     })
-      
-      
-     
+  }
+
+  /**
+ * Utility function used to close alert after tot milliseconds 
+ * @param milliseconds 
+ */
+  closeAlertAfterTime(milliseconds: number) {
+    setTimeout(_ => {
+      this.message.message = ""
+      this.message.alertType = ""
+    }, milliseconds)
   }
 }

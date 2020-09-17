@@ -31,6 +31,9 @@ export class StudentsComponent implements OnInit {
 
   private _message: Message;
 
+  msg: string
+  alertType: string
+
   enrolledStudentsDataSource: MatTableDataSource<Student>;
 
   // Table selection
@@ -51,15 +54,32 @@ export class StudentsComponent implements OnInit {
 
   private _courseObj: Course;
 
+  private _paginator: MatPaginator;
+  private _sort: MatSort;
+
+
   @ViewChild(MatSidenav) sidenav: MatSidenav;
   @ViewChild(MatTable) table: MatTable<any>;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: false }) sort: MatSort;
+
+  @ViewChild(MatSort, { static: false })
+  public set sort(value: MatSort) {
+    this._sort = value;
+    this.enrolledStudentsDataSource.sort = this.sort
+  }
+
+  @ViewChild(MatPaginator)
+  public set paginator(value: MatPaginator) {
+    this._paginator = value;
+    this.enrolledStudentsDataSource.paginator = this.paginator
+  }
 
   @Input()
   public set enrolledStudents(value: Student[]) {
     this._enrolledStudents = [...value];
     this.enrolledStudentsDataSource.data = [...this.enrolledStudents]
+    this.selection.clear()
+    this.msg = ""
+    this.alertType = ""
   }
 
   @Input()
@@ -104,6 +124,9 @@ export class StudentsComponent implements OnInit {
     this.enrolledStudentsDataSource = new MatTableDataSource();
     this.isDisabled = true
     this.isEditing = false
+
+    this.msg = ""
+    this.alertType = ""
 
     this.addStudentForm = new FormGroup({
       studentControl: new FormControl(null),
@@ -151,6 +174,12 @@ export class StudentsComponent implements OnInit {
   public get courseObj(): Course {
     return this._courseObj;
   }
+  public get paginator(): MatPaginator {
+    return this._paginator;
+  }
+  public get sort(): MatSort {
+    return this._sort;
+  }
 
 
 
@@ -181,6 +210,9 @@ export class StudentsComponent implements OnInit {
 
   isAllSelectedInPage(): boolean {
 
+    if (!this.paginator) {
+      return false
+    }
     if (this.masterToggleInPageOption) {
       let indexStartingElement = this.paginator.pageIndex == 0 ? 0 : (this.paginator.pageIndex * this.paginator.pageSize)
       let indexEndElement = (indexStartingElement + this.paginator.pageSize)
@@ -203,15 +235,15 @@ export class StudentsComponent implements OnInit {
   }
 
   toggleSelectionOptionAndSelect() {
-    //prima volta che clicco su bottone
+    //prima volta che clicco su bottone => Seleziono tutti gli studenti
     if (this.masterToggleInPageOption) {
       this.masterToggleInPageOption = false
       this.masterToggle()
-      this.message.message = `Tutti i ${this.selection.selected.length} studenti sono stati selezionati.`
+      this.msg = `Tutti i ${this.selection.selected.length} studenti sono stati selezionati.`
 
     } else {
-      //seconda volta che clicco => annulla
-      this.message.message = ""
+      //seconda volta che clicco => Annulla
+      this.msg = ""
       this.masterToggle()
       this.masterToggleInPageOption = true
     }
@@ -222,7 +254,8 @@ export class StudentsComponent implements OnInit {
   masterToggle() {
     if (this.isAllSelectedInPage()) {
       this.selection.clear()
-      this.message = { message: "", alertType: "" } as Message
+      this.msg = ""
+      this.alertType = ""
       this.masterToggleInPageOption = true
     } else {
 
@@ -240,8 +273,8 @@ export class StudentsComponent implements OnInit {
 
 
         if (this.isAllSelected() != this.isAllSelectedInPage()) {
-          this.message.message = `Tutti i ${this.selection.selected.length} studenti in questa pagina sono stati selezionati.`
-          this.message.alertType = "secondary"
+          this.msg = `Tutti i ${this.selection.selected.length} studenti in questa pagina sono stati selezionati.`
+          this.alertType = "secondary"
         }
 
       } else {
@@ -291,28 +324,34 @@ export class StudentsComponent implements OnInit {
     this.enrollManyCsvEvent.emit(this.selectedFile);
   }
 
-
-
   toggleEditSettings() {
-
-    let course = { ...this.courseObj } as Course
-
-    //Corso viene settato allora devi confermarlo
-    if (this.isEditing) {
-
-      course.min = this.courseSettingForm.get('min').value
-
-      course.max = this.courseSettingForm.get('max').value
-
-      course.enabled = this.courseSettingForm.get('enabled').value
-
-      this.updateCourse.emit([course, this.courseObj])
-    }
-
     this.isEditing = !this.isEditing
   }
 
-  onRemoveCourse(){
+  confirmSettings() {
+    let course = { ...this.courseObj } as Course
+
+    //Corso viene settato allora devi confermarlo
+
+    course.min = this.courseSettingForm.get('min').value
+
+    course.max = this.courseSettingForm.get('max').value
+
+    course.enabled = this.courseSettingForm.get('enabled').value
+
+    this.updateCourse.emit([course, this.courseObj])
+
+  }
+
+  onRemoveCourse() {
     this.removeCourse.emit(this.courseObj.name)
+  }
+
+  resetCourseSettings() {
+    this.courseSettingForm.get('min').setValue(this.courseObj.min)
+    this.courseSettingForm.get('max').setValue(this.courseObj.max)
+    this.courseSettingForm.get('enabled').setValue(this.courseObj.enabled)
+
+    this.isEditing = false
   }
 }

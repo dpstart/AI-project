@@ -1,7 +1,10 @@
 --Vm può essere connessa dal prof se è spenta
 --course enabled non impedisce nulla se non accensione delle vm
--- Opzionale: fornire anche una indicazione in tempo reale delle risorse utilizzate dal gruppo.
+--Opzionale: fornire anche una indicazione in tempo reale delle risorse utilizzate dal gruppo.
 
 --aggiungere timeout a alert per chiudersi dopo tre secondi
 
+--agiungere dialog conferma cancellazione
 
+--specchietto in groups che dica il numero min e max del gruppo
+-- cards in ogni componente

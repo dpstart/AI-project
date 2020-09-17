@@ -35,6 +35,7 @@
 
 mat-card {
     text-align: center;
+    margin: 20px;
 }
 
 .inlineDiv {
@@ -50,7 +51,31 @@ mat-card {
     align-self: center;
     margin: 20px;
 }
-.settingField{
+
+.settingField {
     margin: 0 20px;
     vertical-align: middle;
+}
+
+.mat-form-field {
+    margin-left: 20px;
+}
+
+h2, h4 {
+    text-align: left;
+}
+
+.message {
+    align-self: center;
+    margin-right: 20px;
+}
+
+.h4InLineDiv {
+    vertical-align: middle;
+    margin-top: 0.5rem;
+    margin-right: 20px;
+}
+
+.messageParent {
+    margin: 20px;
 }

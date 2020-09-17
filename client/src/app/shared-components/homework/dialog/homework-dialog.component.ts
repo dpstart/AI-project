@@ -263,9 +263,11 @@ export class HomeworkDialogComponent implements OnInit {
           this.historyHomeworkColumnsToDisplay.pop()
           this.alertType = "success"
           this.message = 'Image uploaded successfully';
+          this.closeAlertAfterTime(3000)
         }, error => {
           this.alertType = "danger"
           this.message = 'Sorry something went wrong, try later...';
+          this.closeAlertAfterTime(3000)
         }
       );
     } else if (this.authService.isRoleStudent()) {
@@ -278,9 +280,11 @@ export class HomeworkDialogComponent implements OnInit {
           this.historyHomeworkColumnsToDisplay.pop()
           this.alertType = "success"
           this.message = 'Image uploaded successfully';
+          this.closeAlertAfterTime(3000)
         }, error => {
           this.alertType = "danger"
           this.message = 'Sorry something went wrong, try later...';
+          this.closeAlertAfterTime(3000)
         }
       );
     }
@@ -291,9 +295,18 @@ export class HomeworkDialogComponent implements OnInit {
    * Metodo che controlla se l'assignment in questione è expired oppure no
    */
   isAssignmentExpired(){
-        
     return this.selectedAssignment.expirationDateObj < new Date()
+  }
 
+  /**
+   * Utility function used to close alert after tot milliseconds 
+   * @param milliseconds 
+   */
+  closeAlertAfterTime(milliseconds: number) {
+    setTimeout(_ => {
+      this.message = ""
+      this.alertType = ""
+    }, milliseconds)
   }
 
 }

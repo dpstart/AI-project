@@ -369,10 +369,12 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
         //Avviso utente
         this.message = "The assignment was successfully added."
         this.alertType = "success"
+        this.closeAlertAfterTime(3000)
       }, error => {
         //Avviso utente
         this.message = error.message
         this.alertType = "danger"
+        this.closeAlertAfterTime(3000)
       })
     }
   }
@@ -495,12 +497,14 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
         this.displayedAssignments = this.displayedAssignments.filter(a => a.id != assignment.id)
         this.message = "The assignment was successfully deleted"
         this.alertType = "success"
+        this.closeAlertAfterTime(3000)
         // Viene controllato e nel caso aggiornata la tabella per poter rimuovere la colonna actions
         this.checkIfAreThereAssignmentTobeDeleted()
       },
       error => {
         this.message = "Something went wrong try later..."
         this.alertType = "danger"
+        this.closeAlertAfterTime(3000)
       })
 
   }
@@ -532,6 +536,16 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
     return this.isThereAnAssignmentToBeDeleted = isThereAnAssignmentToBeDeleted
   }
 
+  /**
+   * Utility function used to close alert after tot milliseconds 
+   * @param milliseconds 
+   */
+  closeAlertAfterTime(milliseconds: number) {
+    setTimeout(_ => {
+      this.message = ""
+      this.alertType = ""
+    }, milliseconds)
+  }
 
 }
 
