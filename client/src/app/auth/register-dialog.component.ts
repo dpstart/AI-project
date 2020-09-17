@@ -1,7 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { AuthService, RegisteredUserForm } from '../services/auth.service';
+
+
+export const passwordValidator: ValidatorFn = (
+  control: FormGroup
+): ValidationErrors | null => {
+  const password = control.get("password").value;
+  const confirmPassword = control.get("confirmPassword").value;
+  return password && confirmPassword && password === confirmPassword
+    ? null
+    : { passwordsNotEqual: true };
+};
+
 
 @Component({
   selector: 'app-register-dialog',
@@ -11,36 +23,41 @@ import { AuthService, RegisteredUserForm } from '../services/auth.service';
 export class RegisterDialogComponent implements OnInit {
 
   message: string | null;
-
   alertType: string
 
-  //hide password
+  //hide password flag
   hide = true
 
   selectedFile: File;
   pattern: string = "s******@studenti.polito.it"
-  // mail: string= this.pattern;
+
+  form: FormGroup;
 
 
   constructor(private dialogRef: MatDialogRef<RegisterDialogComponent>, private auth: AuthService) {
     this.message = ""
     this.alertType = ""
+
+    this.form = new FormGroup({
+      firstName: new FormControl('', Validators.required),
+      name: new FormControl('', Validators.required),
+      fileName: new FormControl(''),
+      id: new FormControl('', [Validators.required, Validators.pattern('^[0-9]{6}$')]),
+      email: new FormControl(
+        this.pattern,
+        [
+          Validators.required,
+          Validators.pattern('^(s|d){0,1}[0-9]{6}((@studenti.polito.it)|(@polito.it))$')
+        ]),
+      password: new FormControl('', [Validators.required,Validators.minLength(8),Validators.maxLength(12)]),
+      confirmPassword: new FormControl('')
+    }, { validators: passwordValidator }
+    );
   }
 
-  form: FormGroup = new FormGroup({
-    firstName: new FormControl('', Validators.required),
-    name: new FormControl('', Validators.required),
-    fileName: new FormControl(''),
-    id: new FormControl('', [Validators.required, Validators.pattern('^[0-9]{6}$')]),
-    email: new FormControl(this.pattern, [Validators.required, Validators.pattern('^(s|d){0,1}[0-9]{6}((@studenti.polito.it)|(@polito.it))$')]),
-    password: new FormControl('', Validators.required),
-  });
-
-
   ngOnInit(): void {
-    this.form.get('id').valueChanges.subscribe(data => {
-      console.log(data);
 
+    this.form.get('id').valueChanges.subscribe(data => {
       this.combinePatternId()
     })
   }
@@ -52,7 +69,6 @@ export class RegisterDialogComponent implements OnInit {
       this.auth.register(user, this.selectedFile)
         .subscribe(
           data => {
-            console.log(data)
             this.alertType = "success"
             this.message = "An email was sent to your account, please click on the link to confirm."
           },
@@ -66,7 +82,6 @@ export class RegisterDialogComponent implements OnInit {
 
   close() {
     this.dialogRef.close();
-
   }
 
 

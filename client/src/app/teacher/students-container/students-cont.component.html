@@ -4,7 +4,6 @@
 <ng-template #loadedBlock>
 <app-students 
 [message]="message"
-[alertType]="alertType"
 [courseObj]="courseObj"
 [selectedCourse]="selectedCourse"
 [studentsNotInCourse]="studentsNotInCourse"
@@ -13,7 +12,7 @@
 (deleteStudents)="deleteStudents($event)"
 (enrollManyCsvEvent)="enrollManyCSV($event)"
 (updateCourse)="updateCourse($event)"
->
+(removeCourse)="removeCourse($event)">
 
 </app-students>
 </ng-template>

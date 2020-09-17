@@ -84,7 +84,7 @@ export class AuthService {
   }
 
   register(user: RegisteredUserForm, file: File): Observable<RegisteredUserForm> {
-
+    
     const formData = new FormData();
 
     let headers = new HttpHeaders()
@@ -95,14 +95,14 @@ export class AuthService {
     if (user.email.includes("@studenti.polito.it")) {
 
       let url = `${this.URL}/students`;
-      user.email=null;
+      user.email = null;
 
       formData.append('student', new Blob([JSON.stringify(user)], {
         type: "application/json"
       }))
 
-      if (file.name!==undefined)
-          formData.append('image', file, file.name);
+      if (file)
+        formData.append('image', file, file.name);
 
 
       return this.http.post<RegisteredUserForm>(url, formData, { "headers": headers }).pipe(
@@ -114,9 +114,11 @@ export class AuthService {
         throwError("Wrong Format")
       }
       let url = `${this.URL}/professors`;
-      if (file.name!==undefined)
-          formData.append('image', file, file.name);
-      user.email=null;
+      if (file)
+        formData.append('image', file, file.name);
+
+      user.email = null;
+
       formData.append('professor', new Blob([JSON.stringify(user)], {
         type: "application/json"
       }))
@@ -130,7 +132,7 @@ export class AuthService {
   logout() {
     localStorage.removeItem('session');
     this.routeStateService.updatePathParamState("Home")
-    this.profileImage.next(new Image(null,null))
+    this.profileImage.next(new Image(null, null))
   }
 
 

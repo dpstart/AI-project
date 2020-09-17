@@ -1,4 +1,7 @@
+--Vm può essere connessa dal prof se è spenta
+--course enabled non impedisce nulla se non accensione delle vm
+-- Opzionale: fornire anche una indicazione in tempo reale delle risorse utilizzate dal gruppo.
 
-
+--aggiungere timeout a alert per chiudersi dopo tre secondi
 
 

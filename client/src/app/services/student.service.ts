@@ -105,57 +105,6 @@ export class StudentService {
   }
 
   /**
-   * Metodo che permette di iscrivere uno studente ad un corso corso
-   * @param courseName: nome del corso a cui deve essere iscritto
-   * @param studentId: id studente da iscrivere
-   */
-  enrollOne(courseName: string, studentId: string) {
-    const url = `${this.URL}/courses/${courseName}/enrollOne`;
-    return this.http.post<Student>(url, { id: studentId })
-      .pipe(
-        retry(3),
-        catchError(this.handleError)
-      );
-  }
-
-  /**
-   * Metodo che permette di iscrivere diversi studenti presenti in un file di formato csv ad un derminato corso 
-   * @param courseName: nome del corso a cui gli studenti devono essere iscritti
-   * @param file: file contente gli id degli studenti da iscrivere
-   */
-  enrollManyCSV(courseName: string, file: File) {
-
-    const url = `${this.URL}/courses/${courseName}/enrollManyCSV`
-
-    const uploadData = new FormData();
-    uploadData.append('file', file, file.name);
-
-    return this.http.post(url, uploadData).pipe(
-      retry(3),
-      catchError(this.handleError)
-    );
-  }
-
-  /**
-   * Metodo che permette di disiscrivere diversi studenti presenti in un file di formato csv ad un derminato corso 
-   * @param courseName 
-   * @param students 
-   */
-  unsubscribeMany(courseName: string, students: Student[]) {
-
-    const url = `${this.URL}/courses/${courseName}/unsubscribeMany`;
-
-    let studentIds = []
-    students.forEach(student => studentIds.push(student.id))
-
-    return this.http.post<Student>(url, { students: studentIds })
-      .pipe(
-        retry(3),
-        catchError(this.handleError)
-      );
-  }
-
-  /**
    * Metodo che permette di mandare una proposta per un team
    * @param courseName: nome del corso 
    * @param teamName: nome del team che si propone
@@ -320,18 +269,7 @@ export class StudentService {
     );
   }
 
-  /**
-   * Metodo che permette di ricavare la lista di tutti gli studenti
-   */
-  getStudents(): Observable<Array<Student>> {
 
-    const url = `${this.URL}/students`;
-
-    return this.http.get<Array<Student>>(url).pipe(
-      retry(3),
-      catchError(this.handleError)
-    );
-  }
 
   // //{name}/assignments/{id1}/homeworks/{id2}/studentId
   // getStudentIdByHomework(courseName: string, assignmentId: number, homeworkId: number): Observable<string> {
@@ -341,20 +279,6 @@ export class StudentService {
   //     catchError(this.handleError)
   //   );
   // }
-
-  /**
-   * Metodo che permette di ricavare gli studenti di un determinato corso
-   * @param course_name 
-   */
-  getStudentsInCourse(course_name: string): Observable<Student[]> {
-
-    const url = `${this.URL}/courses/${course_name}/enrolled`;
-
-    return this.http.get<Student[]>(url).pipe(
-      retry(3),
-      catchError(this.handleError)
-    );
-  }
 
   /**
    * Metodo che permette di ricavare i team dello studente che effettua la chiamata

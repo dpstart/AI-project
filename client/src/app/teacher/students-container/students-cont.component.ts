@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Student } from '../../model/student.model';
-import { StudentService } from '../../services/student.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouteStateService } from '../../services/route-state.service';
 import { Course } from 'src/app/model/course.model';
+import { TeacherService } from 'src/app/services/teacher.service';
 
+export interface Message {
+  message: string
+  alertType: string
+}
 
 @Component({
   selector: 'app-students-cont',
@@ -25,17 +29,18 @@ export class StudentsContComponent implements OnInit {
   selectedCourse: string
   courseObj: Course
 
-  message: string
-  alertType: string
+  message: Message
+
 
 
   constructor(
-    private studentService: StudentService,
+    private teacherService: TeacherService,
     private activatedRoute: ActivatedRoute,
     private routeStateService: RouteStateService,
     private router: Router
   ) {
 
+    this.message = { message: "", alertType: "" }
   }
 
 
@@ -49,12 +54,13 @@ export class StudentsContComponent implements OnInit {
         this.selectedCourse = params["course_name"];
 
 
-        this.studentService.getCourse(this.selectedCourse).subscribe((course) => {
+        this.teacherService.getCourse(this.selectedCourse).subscribe((course: Course) => {
+
           this.courseObj = course
-          this.studentService.getStudentsInCourse(this.selectedCourse).subscribe(enrolledStudents => {
+          this.teacherService.getStudentsInCourse(this.selectedCourse).subscribe(enrolledStudents => {
             this.enrolledStudents = enrolledStudents;
 
-            this.studentService.getStudents().subscribe(allStudents => {
+            this.teacherService.getStudents().subscribe(allStudents => {
 
               let allStudentsNotInCourse = []
 
@@ -80,13 +86,15 @@ export class StudentsContComponent implements OnInit {
   addStudent(student: Student) {
 
     if (this.enrolledStudents.indexOf(student) != -1) {
-      this.alertType = "danger"
-      this.message = "Sorry something went wrong try later..."
+      let message = {} as Message
+      message.alertType = "danger"
+      message.message = "Sorry something went wrong try later..."
+      this.message = { ...message }
       return;
     }
 
 
-    this.studentService
+    this.teacherService
       .enrollOne(this.selectedCourse, student.id)
       .subscribe(success => {
         var data = this.enrolledStudents;
@@ -95,21 +103,24 @@ export class StudentsContComponent implements OnInit {
         //remove from all students not in course
         this.studentsNotInCourse = this.studentsNotInCourse.filter(s => s.id != student.id)
 
-        this.alertType = "success"
-        this.message = "Student successfully added."
+        let message = {} as Message
+        message.alertType = "success"
+        message.message = "Student successfully added."
+        this.message = { ...message }
+
 
       }, error => {
-        this.alertType = "danger"
-        this.message = "Sorry something went wrong try later..."
+        let message = {} as Message
+
+        message.alertType = "danger"
+        message.message = "Sorry something went wrong try later..."
+        this.message = { ...message }
       })
 
   }
 
   deleteStudents(students: Student[]) {
-    this.studentService.unsubscribeMany(this.selectedCourse, students).subscribe(_ => {
-
-      console.log(students);
-
+    this.teacherService.unsubscribeMany(this.selectedCourse, students).subscribe(_ => {
 
       let studentsEnrolled: Student[] = this.enrolledStudents
       let studentsNotInCourse = [...this.studentsNotInCourse]
@@ -123,47 +134,89 @@ export class StudentsContComponent implements OnInit {
       this.enrolledStudents = studentsEnrolled
       this.studentsNotInCourse = studentsNotInCourse
 
-      this.alertType = "success"
+      let message = {} as Message
+
+      message.alertType = "success"
 
       if (students.length == 1)
-        this.message = `Student successfully removed from course ${this.selectedCourse}.`
+        message.message = `Student successfully removed from course ${this.selectedCourse}.`
       else
-        this.message = `Students successfully removed from course ${this.selectedCourse}.`
+        message.message = `Students successfully removed from course ${this.selectedCourse}.`
 
+
+      this.message = { ...message }
     }, error => {
-      this.alertType = "danger"
-      this.message = "Sorry something went wrong try later..."
+      let message = {} as Message
+      message.alertType = "danger"
+      message.message = "Sorry something went wrong try later..."
+      this.message = { ...message }
     })
 
 
   }
 
   enrollManyCSV(file: File) {
-    console.log("upload", file.name)
 
-    this.studentService.enrollManyCSV(this.selectedCourse, file).subscribe(success => {
-      this.studentService.getStudentsInCourse(this.selectedCourse).subscribe(data => {
+    this.teacherService.enrollManyCSV(this.selectedCourse, file).subscribe(_ => {
+      this.teacherService.getStudentsInCourse(this.selectedCourse).subscribe(data => {
         this.studentsNotInCourse = data;
         this.enrolledStudents = data;
         this.isAllStudentsLoaded = true;
         this.isEnrolledStudentsLoaded = true;
       });
-      this.alertType = "success"
-      this.message = "Student successfully added."
 
-    }, error => {
-      this.alertType = "danger"
-      this.message = "Sorry something went wrong try later..."
+      let message = {} as Message
+      message.alertType = "success"
+      message.message = "Student successfully added."
+      this.message = { ...message }
+    }, _ => {
+      let message = {} as Message
+      message.alertType = "danger"
+      message.message = "Sorry something went wrong try later..."
+      this.message = { ...message }
     })
   }
 
 
-  updateCourse(course:Course){
-    //TODO: this.studentService
+  updateCourse(courses: Course[]) {
+    this.teacherService.updateCourse(courses[0]).subscribe(response => {
+      this.courseObj = { ...response } as Course
 
+      let message = {} as Message
+      message.alertType = "success"
+      message.message = "Course modified successfully."
+      this.message = { ...message }
+    }, error => {
+      this.courseObj = { ...courses[1] } as Course
 
+      let message = {} as Message
+      message.alertType = "danger"
+      message = error.message
+      this.message = { ...message }
+
+    })
   }
 
+  removeCourse(courseName: string) {
+    this.teacherService.removeCourse(courseName).subscribe( _ => {
+      let message = {} as Message
+      message.alertType = "success"
+      message.message = "Course removed successfully."
+      setTimeout(_=>{
+        this.router.navigate(['home'])
+        this.routeStateService.updatePathParamState("Home")
 
+      },3000)
+      this.message = { ...message }
+    }, error => {
+      let message = {} as Message
+      message.alertType = "danger"
+      message = error.message
+      this.message = { ...message }
 
+    })
+      
+      
+     
+  }
 }

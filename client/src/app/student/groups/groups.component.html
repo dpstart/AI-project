@@ -61,7 +61,7 @@
 
                 <!-- Checkbox Column -->
                 <ng-container matColumnDef="select">
-                    <th mat-header-cell *matHeaderCellDef>
+                    <th mat-header-cell *matHeaderCellDef style="width:3%">
                         <mat-checkbox (change)="$event ? masterToggle() : null" color="primary"
                             [checked]="selection.hasValue() && isAllSelected()"
                             [indeterminate]="selection.hasValue() && !isAllSelected()">
