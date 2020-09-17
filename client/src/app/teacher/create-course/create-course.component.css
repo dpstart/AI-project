@@ -8,3 +8,7 @@ mat-card {
   mat-form-field{
     margin: auto;
   }
+
+  button{
+    margin: 10px;
+  }

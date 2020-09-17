@@ -1,10 +1,21 @@
 <div class="tabContainer">
 
-    <div class="inlineDiv">
-
-        <div [hidden]="!isEditing">
 
 
+
+    <mat-card>
+        <div class="inlineDiv">
+
+            <h4 class="h4InLineDiv">
+                Course settings
+            </h4>
+
+
+            <button mat-mini-fab [color]="!isEditing?'primary':'white'" (click)="toggleEditSettings()">
+                <mat-icon> {{ !isEditing ? 'edit':'close'}}</mat-icon>
+            </button>
+        </div>
+        <div class="inlineDiv" [hidden]="!isEditing">
 
             <form [formGroup]="courseSettingForm">
                 <mat-form-field class="settingField">
@@ -20,129 +31,137 @@
                 </mat-checkbox>
 
             </form>
+            <button mat-raised-button (click)="confirmSettings()" class="formInlineButton" color="primary"
+                [ngStyle]="{'background-color':'green' }">
+                Confirm
+            </button>
+
+            <button mat-raised-button class="formInlineButton" color="warn"
+                aria-label="Example icon button with a delete icon" (click)="onRemoveCourse()">
+                Remove Course
+            </button>
 
         </div>
 
+    </mat-card>
 
-        <button mat-raised-button (click)="toggleEditSettings()" class="formInlineButton" color="primary"
-            [ngStyle]="{'background-color':!isEditing? '#3f51b5': 'green' }">
-            {{ !isEditing ? 'Edit course settings':'Confirm'}}
-        </button>
+    <!-- Messages set by the parent component -->
+    <ngb-alert class="messageParent" *ngIf="message.message" [type]='message.alertType' (close)="message.message=null">
+        {{ message.message }}
+    </ngb-alert>
 
-        <button mat-raised-button class="formInlineButton" color="warn"
-            aria-label="Example icon button with a delete icon" [hidden]="!isEditing" (click)="onRemoveCourse()">
-            Remove Course
-        </button>
+    <mat-card>
+        <h4 class="h4InLineDiv">
+            Students management
+        </h4>
+        <form [formGroup]="addStudentForm">
+            <div class="flexCenter">
+                <div>
+                    <mat-form-field class="inputStudentField">
+                        <input type="text" placeholder="Add Student" aria-label="Number" matInput
+                            formControlName="studentControl" [matAutocomplete]="auto">
+                        <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayWith"
+                            (optionSelected)="autocompleteSelected($event.option.value)">
+                            <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+                                {{option.firstName}} {{option.name}} ({{option.id}})
+                            </mat-option>
+                        </mat-autocomplete>
+                    </mat-form-field>
+                    <button type="button" mat-button (click)="addStudentEvent()">Add</button>
 
-
-    </div>
-
-
-    <h2 class="mat-h2 tabtitle">Elenco studenti iscritti al corso.</h2>
-    <form [formGroup]="addStudentForm">
-        <div class="flexCenter">
-            <div>
-                <mat-form-field class="inputStudentField">
-                    <input type="text" placeholder="Add Student" aria-label="Number" matInput
-                        formControlName="studentControl" [matAutocomplete]="auto">
-                    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayWith"
-                        (optionSelected)="autocompleteSelected($event.option.value)">
-                        <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
-                            {{option.firstName}} {{option.name}} ({{option.id}})
-                        </mat-option>
-                    </mat-autocomplete>
-                </mat-form-field>
-                <button type="button" mat-button (click)="addStudentEvent()">Add</button>
-
-            </div>
-            <div>
-                <button type="button" class="fabButton" mat-fab color="primary"
-                    aria-label="Example icon button with a folder icon" (click)="fileInput.click()">
-                    <mat-icon>folder</mat-icon>
-                    <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;" />
-                </button>
-                <mat-form-field>
-                    <mat-label>Add students</mat-label>
-                    <input matInput placeholder="No file selected" formControlName="fileNameControl" readonly="true">
-                </mat-form-field>
-
-                <button type="button" id="uploadButton" [disabled]="isDisabled" mat-button color="primary"
-                    (click)="onUpload()">Upload</button>
-
-            </div>
-        </div>
-    </form>
-
-
-
-
-    <div class="flexCenter">
-        <button class="fabButton" mat-fab color="warn" aria-label="Example icon button with a delete icon"
-            *ngIf="!isDeleteButtonDisabled()" (click)="_deleteStudents()">
-            <mat-icon>delete</mat-icon>
-        </button>
-
-        <ngb-alert *ngIf="message.message" [type]='message.alertType' (close)="message.message=null">
-            {{ message.message }}
-            <div *ngIf="message.alertType=='secondary'">
-                <button *ngIf="masterToggleInPageOption else m" (click)="toggleSelectionOptionAndSelect()"
-                    mat-flat-button color="primary">Seleziona tutti </button>
-                <ng-template #m>
-                    <button (click)="toggleSelectionOptionAndSelect()" mat-flat-button color="primary">Annulla selezione
+                </div>
+                <div>
+                    <button type="button" class="fabButton" mat-fab color="primary"
+                        aria-label="Example icon button with a folder icon" (click)="fileInput.click()">
+                        <mat-icon>folder</mat-icon>
+                        <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;" />
                     </button>
-                </ng-template>
+                    <mat-form-field>
+                        <mat-label>Add students</mat-label>
+                        <input matInput placeholder="No file selected" formControlName="fileNameControl"
+                            readonly="true">
+                    </mat-form-field>
+
+                    <button type="button" id="uploadButton" [disabled]="isDisabled" mat-button color="primary"
+                        (click)="onUpload()">Upload</button>
+
+                </div>
             </div>
-        </ngb-alert>
-    </div>
+        </form>
+    </mat-card>
 
-    <mat-card *ngIf="enrolledStudentsDataSource.data.length==0">No Students to show.</mat-card>
+    <mat-card *ngIf="enrolledStudentsDataSource.data.length==0">No Students to show</mat-card>
 
-    <table *ngIf="enrolledStudentsDataSource.data.length>0" #table mat-table [dataSource]="enrolledStudentsDataSource"
-        matSort class="mat-elevation-z8">
+    <mat-card *ngIf="enrolledStudentsDataSource.data.length>0">
 
-        <!-- ID Column -->
-        <ng-container matColumnDef="id">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> Id </th>
-            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
-        </ng-container>
+        <h2 class="mat-h2 tabtitle">Elenco studenti iscritti al corso</h2>
 
-        <!-- Group Column -->
-        <!-- Groups are not modelled yet, providing a default value. -->
-        <ng-container matColumnDef="group">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef> Group </th>
-            <td mat-cell *matCellDef="let element"> {{(element.group) || "---"}} </td>
-        </ng-container>
+        <div class="flexCenter">
+            <button class="fabButton" mat-fab color="warn" aria-label="Example icon button with a delete icon"
+                *ngIf="!isDeleteButtonDisabled()" (click)="_deleteStudents()">
+                <mat-icon>delete</mat-icon>
+            </button>
 
-        <!-- Name Column -->
-        <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
-            <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-        </ng-container>
+            <ngb-alert class="flexCenter" *ngIf="msg" [type]='alertType' (close)="msg=null">
+                <span class="message"> {{ msg }} </span>
+                <div *ngIf="alertType=='secondary'">
+                    <button *ngIf="masterToggleInPageOption else m" (click)="toggleSelectionOptionAndSelect()"
+                        mat-flat-button color="primary">Seleziona tutti </button>
+                    <ng-template #m>
+                        <button (click)="toggleSelectionOptionAndSelect()" mat-flat-button color="primary">Annulla
+                            selezione
+                        </button>
+                    </ng-template>
+                </div>
+            </ngb-alert>
+        </div>
 
-        <!-- First Name Column -->
-        <ng-container matColumnDef="first name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Firstname </th>
-            <td mat-cell *matCellDef="let element"> {{element.firstName}} </td>
-        </ng-container>
+        <table #table mat-table [dataSource]="enrolledStudentsDataSource" matSort>
 
-        <!-- Checkbox Column -->
-        <ng-container matColumnDef="select">
-            <th mat-header-cell *matHeaderCellDef style="width: 3%;">
-                <mat-checkbox (change)="$event ? masterToggle() : null" color="primary"
-                    [checked]="selection.hasValue() && isAllSelectedInPage()"
-                    [indeterminate]="selection.hasValue() && !isAllSelectedInPage()">
-                </mat-checkbox>
-            </th>
-            <td mat-cell *matCellDef="let row">
-                <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
-                    color="primary" [checked]="selection.isSelected(row)">
-                </mat-checkbox>
-            </td>
-        </ng-container>
+            <!-- ID Column -->
+            <ng-container matColumnDef="id">
+                <th mat-header-cell mat-sort-header *matHeaderCellDef> Id </th>
+                <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+            </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
-    <mat-paginator *ngIf="enrolledStudentsDataSource.data.length>0" [pageSizeOptions]="[5, 10, 25, 100]">
-    </mat-paginator>
+            <!-- Group Column -->
+            <!-- Groups are not modelled yet, providing a default value. -->
+            <ng-container matColumnDef="group">
+                <th mat-header-cell mat-sort-header *matHeaderCellDef> Group </th>
+                <td mat-cell *matCellDef="let element"> {{(element.group) || "---"}} </td>
+            </ng-container>
+
+            <!-- Name Column -->
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
+                <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+            </ng-container>
+
+            <!-- First Name Column -->
+            <ng-container matColumnDef="first name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Firstname </th>
+                <td mat-cell *matCellDef="let element"> {{element.firstName}} </td>
+            </ng-container>
+
+            <!-- Checkbox Column -->
+            <ng-container matColumnDef="select">
+                <th mat-header-cell *matHeaderCellDef style="width: 3%;">
+                    <mat-checkbox (change)="$event ? masterToggle() : null" color="primary"
+                        [checked]="selection.hasValue() && isAllSelectedInPage()"
+                        [indeterminate]="selection.hasValue() && !isAllSelectedInPage()">
+                    </mat-checkbox>
+                </th>
+                <td mat-cell *matCellDef="let row">
+                    <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+                        color="primary" [checked]="selection.isSelected(row)">
+                    </mat-checkbox>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]">
+        </mat-paginator>
+    </mat-card>
 </div>

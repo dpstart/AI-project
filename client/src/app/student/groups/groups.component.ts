@@ -344,6 +344,7 @@ export class GroupsComponent implements OnInit {
         this.ngOnInit()
         this.message = isAccepted ? "The proposal was successfully accepted" : "The proposal was successfully rejected"
         this.alertType = 'success'
+        this.closeAlertAfterTime(3000)
       }
 
 
@@ -351,7 +352,7 @@ export class GroupsComponent implements OnInit {
 
       this.message = "Sorry your view was not up to date..."
       this.alertType = 'danger'
-
+      this.closeAlertAfterTime(3000)
       this.ngOnInit()
     })
 
@@ -411,6 +412,7 @@ export class GroupsComponent implements OnInit {
 
               this.alertType = "danger"
               this.message = "Sorry something went wrong, try later..."
+              this.closeAlertAfterTime(3000)
               this.selection.clear()
 
             }
@@ -418,12 +420,24 @@ export class GroupsComponent implements OnInit {
           }, (_) => {
             this.alertType = "danger"
             this.message = "Sorry something went wrong, try later..."
+            this.closeAlertAfterTime(3000)
             this.selection.clear()
 
           })
 
       })
     }
+  }
+
+  /**
+   * Utility function used to close alert after tot milliseconds 
+   * @param milliseconds 
+   */
+  closeAlertAfterTime(milliseconds: number) {
+    setTimeout(_ => {
+      this.message = ""
+      this.alertType = ""
+    }, milliseconds)
   }
 }
 
