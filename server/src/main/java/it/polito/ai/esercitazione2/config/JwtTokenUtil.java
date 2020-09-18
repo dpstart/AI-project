@@ -16,9 +16,21 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Component
 public class JwtTokenUtil implements Serializable {
     private static final long serialVersionUID = -2550185165626007488L;
-    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
+    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60; //5h
     @Value("${jwt.secret}")
     private String secret;
+
+    /***************************************************************************************************************
+     ******************************* METHOD TO RETRIEVE FIELDS FROM TOKEN*********************************************
+     ***************************************************************************************************************
+     ****************************************************************************************************************/
+
+    //base method for Claim Retrieval
+    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = getAllClaimsFromToken(token);
+        return claimsResolver.apply(claims);
+    }
+
     //retrieve username from jwt token
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
@@ -28,6 +40,7 @@ public class JwtTokenUtil implements Serializable {
         return Arrays.stream(getClaimFromToken(token, x->x.get("AUTHORITIES")).toString().split(",")).map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }
+    //retrieve password
     public String getPassword(String token){
         return getClaimFromToken(token, x->x.get("PWD")).toString();
     }
@@ -36,20 +49,32 @@ public class JwtTokenUtil implements Serializable {
     public Date getExpirationDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getExpiration);
     }
-    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = getAllClaimsFromToken(token);
-        return claimsResolver.apply(claims);
-    }
+
     //for retrieveing any information from token we will need the secret key
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
+
+    /***************************************************************************
+     ************************* TOKEN VALIDATION ********************************
+     ***************************************************************************/
+
     //check if the token has expired
     private Boolean isTokenExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
         return expiration.before(new Date());
     }
-    //generate token for user
+    //validate token
+    public Boolean validateToken(String token) {
+        return (!isTokenExpired(token));
+    }
+
+    /***************************************************************************
+     ************************* TOKEN GENERATION ********************************
+     ***************************************************************************/
+
+
+    //generate authentication token
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         String authorities = userDetails.getAuthorities().stream()
@@ -58,6 +83,7 @@ public class JwtTokenUtil implements Serializable {
         return doGenerateToken(claims, userDetails.getUsername(),authorities);
     }
 
+    // generate registration token
     public String generateRegisterRequest(String id,String pwd,Collection<String> roles) {
         Map<String, Object> claims = new HashMap<>();
         String authorities = roles.stream()
@@ -65,6 +91,7 @@ public class JwtTokenUtil implements Serializable {
         return doGenerateRegisterRequest(claims, id,pwd,authorities);
     }
 
+    // id request token
     public String generateIdRequest(String id) {
         Map<String, Object> claims = new HashMap<>();
         return doGenerateIdRequest(claims, id);
@@ -96,8 +123,5 @@ public class JwtTokenUtil implements Serializable {
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
     }
-    //validate token
-    public Boolean validateToken(String token) {
-        return (!isTokenExpired(token));
-    }
+
 }

@@ -17,6 +17,7 @@ public class NotificationController {
     @Autowired
     NotificationService notificationService;
 
+    // the user associated to the token accepts the team proposal
     @GetMapping("/confirm/{token}")
     public boolean confirm(@PathVariable String token) {
 
@@ -28,7 +29,7 @@ public class NotificationController {
         }
     }
 
-
+    // the user associated to the token rejects the team proposal
     @GetMapping("/reject/{token}")
     public boolean reject(@PathVariable String token) {
         try {
@@ -40,6 +41,7 @@ public class NotificationController {
 
     }
 
+    // activate the account associated to the token
     @GetMapping("/activate/{token}")
     public boolean activate(@PathVariable String token) {
         try {

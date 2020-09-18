@@ -100,7 +100,384 @@ public class TeamServiceImpl implements TeamService {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
+
+
+    /****************************************************************************************************
+     ******************************  HTTP REQUEST TOWARDS AUTHENTICATION SERVICE ************************
+     ****************************************************************************************************/
+
     WebClient w = WebClient.create("http://localhost:8080");
+
+    /**
+     * HTTP request towards \register endpoint of the authentication service
+     * Registration token is signed with the shared key
+     * @param id,pwd,role: to register user information
+     *
+     * @return true (success) /false (whatever error)
+     */
+    public boolean registerUser(String id, String pwd, String role) {
+
+
+        List<String> roles = new ArrayList<>();
+        roles.add(role);
+        Boolean a = w.post()
+                .uri("/register")
+                .body(Mono.just(jwtTokenUtil.generateRegisterRequest(id, pwd, roles)), JwtResponse.class)
+                .retrieve()
+                .bodyToMono(Boolean.class)
+                .block();
+
+
+        if (a == null)
+            return false;
+        else
+            return a;
+    }
+
+    /**
+     * HTTP request towards \registerMany endpoint of the authentication service
+     * Registration token is signed with the shared key
+     * @param input: map (id,pwd) of the users to be registered
+     * @param role: role of the users to be registered
+     *
+     * @return true (success) /false (whatever error)
+     */
+    public boolean registerUsers(Map<String, String> input, String role) {
+
+        List<JSONObject> list = new ArrayList<>();
+        List<String> roles = new ArrayList<>();
+        roles.add(role);
+        for (String key : input.keySet()) {
+            JSONObject personJsonObject = new JSONObject();
+            personJsonObject.put("token", jwtTokenUtil.generateRegisterRequest(key, input.get(key), roles));
+            list.add(personJsonObject);
+        }
+
+        ValidUserList usersList = new ValidUserList();
+        usersList.setList(list);
+
+
+        Boolean result = w.post()
+                .uri("/registerMany")
+                .body(Mono.just(usersList), ValidUserList.class)
+
+                .retrieve()
+                .bodyToMono(Boolean.class)
+                .block();
+        if (result == null)
+            return false;
+        else
+            return result;
+
+
+    }
+
+
+    @Override
+    public JwtResponse loginUser(JwtRequest authenticationRequest) {
+
+        String username = authenticationRequest.getUsername();
+
+        username = username.toLowerCase();
+
+
+        //standard mail
+        if (username.matches("^(s[0-9]{6}@studenti\\.polito\\.it)$")
+                || username.matches("^(d[0-9]{6}@polito\\.it)$")) {
+            authenticationRequest.setUsername(username.substring(1, 7));
+        }
+
+        //alias
+        if (username.matches("^([a-z]+\\.[a-z]+)$")) {
+            Student stud = studentRepository.getByAlias(username);
+            if (stud != null)
+                username = stud.getId();
+            else {
+                Professor prof = professorRepository.getByAlias(username);
+                if (prof != null)
+                    username = prof.getId();
+                else
+                    throw new AuthenticationServiceException("");
+            }
+            authenticationRequest.setUsername(username);
+        }
+
+        //alias+mail professor
+        if (username.matches("^([a-z]+\\.[a-z]+@polito\\.it)$")) {
+            username = username.substring(0, username.indexOf("@"));
+            Professor prof = professorRepository.getByAlias(username);
+            if (prof != null)
+                username = prof.getId();
+            else
+                throw new AuthenticationServiceException("");
+            authenticationRequest.setUsername(username);
+        }
+        //alias+mail student
+        if (username.matches("^([a-z]+\\.[a-z]+@studenti\\.polito\\.it)$")) {
+            username = username.substring(0, username.indexOf("@"));
+            Student stud = studentRepository.getByAlias(username);
+            if (stud != null)
+                username = stud.getId();
+            else
+                throw new AuthenticationServiceException("");
+            authenticationRequest.setUsername(username);
+        }
+
+
+        // richiesta POST verso /authenticate
+        String a = w.post()
+                .uri("/authenticate")
+                .body(Mono.just(authenticationRequest), JwtRequest.class)
+                .exchange().flatMap(x -> {
+                    if (x.statusCode().is4xxClientError() || x.statusCode().is5xxServerError()) {
+                        Mono<String> msg = x.bodyToMono(String.class);
+
+                        return msg.flatMap(y -> {
+                            throw new AuthenticationServiceException(y);
+                        });
+
+                    } else if (x.statusCode().isError()) {
+
+                        Mono<String> msg = x.bodyToMono(String.class);
+
+                        return msg.flatMap(y -> {
+                            throw new AuthenticationServiceException(y);
+                        });
+                    } else {
+
+                        return x.bodyToMono(String.class);
+
+                    }
+
+                }).block();
+
+
+        return new JwtResponse(a);
+
+    }
+
+
+
+
+    /**********************************************************************
+     *
+     *****************************PROFESSORS********************************
+     *
+     ***********************************************************************/
+
+
+    // add professor with profile  image
+    @Override
+    public ProfessorDTO addProfessor(ProfessorDTO p, MultipartFile file) {
+
+        //check already existing professor
+        if (professorRepository.existsById(p.getId()))
+            return null;
+
+
+        // image saving
+        Image img = null;
+        try {
+            img = imageService.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
+        } catch (IOException e) {
+        }
+
+        Professor prof = modelMapper.map(p, Professor.class);
+
+
+        //search for available alias in progressive way
+        String alias = prof.getFirstName().toLowerCase() + "." + prof.getName().toLowerCase();
+        if (professorRepository.getByAlias(alias) != null) {
+            int i = 3;
+            for (alias += "2"; professorRepository.getByAlias(alias) != null; i++) {
+                alias = alias.substring(0, alias.length() - Integer.toString(i - 1).length());
+                alias += Integer.toString(i);
+            }
+        }
+
+        //alias ad email autogeneration
+        prof.setAlias(alias);
+        p.setAlias(alias);
+        prof.setEmail("d" + p.getId() + "@polito.it");
+        p.setEmail("d" + p.getId() + "@polito.it");
+        if (img != null)
+            prof.setImage_id(img.getId());
+
+        professorRepository.save(prof);
+
+
+        //HTTP request towards \register of the authentication service
+        if (!registerUser(p.getId(), enc.encode(p.getPassword()), "ROLE_PROFESSOR"))
+            throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
+
+        //notify professor with the link confirm account's activation
+        notificationService.notifyProfessor(p);
+        return p;
+    }
+
+    // add professor without profile image
+    @Override
+    public ProfessorDTO  addProfessor(ProfessorDTO p) {
+
+        //check  already existing professor
+        if (professorRepository.existsById(p.getId()))
+            return null;
+
+
+        Professor prof = modelMapper.map(p, Professor.class);
+
+        //search for available alias in progressive way
+        String alias = prof.getFirstName().toLowerCase() + "." + prof.getName().toLowerCase();
+        if (professorRepository.getByAlias(alias) != null) {
+            int i = 3;
+            for (alias += "2"; professorRepository.getByAlias(alias) != null; i++) {
+                alias = alias.substring(0, alias.length() - Integer.toString(i - 1).length());
+                alias += Integer.toString(i);
+            }
+        }
+
+        // alias and email generation
+        prof.setAlias(alias);
+        p.setAlias(alias);
+        prof.setEmail("d" + p.getId() + "@polito.it");
+        p.setEmail("d" + p.getId() + "@polito.it");
+
+        professorRepository.save(prof);
+
+
+        //HTTP request towards \register of the authentication service
+        if (!registerUser(p.getId(), enc.encode(p.getPassword()), "ROLE_PROFESSOR"))
+            throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
+
+        //notify professor with the link confirm account's activation
+        notificationService.notifyProfessor(p);
+
+        return p;
+    }
+
+
+    @Override
+    public Optional<ProfessorDTO> getProfessor(String professorId) {
+        return professorRepository.findById(professorId).filter(Professor::getEnabled).map(x -> modelMapper.map(x, ProfessorDTO.class));
+    }
+
+    /***********************************************************************
+     *
+     *****************************STUDENTS**********************************
+     *
+     ***********************************************************************/
+
+
+    // add student with profile image
+    @Override
+    public StudentDTO addStudent(StudentDTO s, boolean notify, MultipartFile file) {
+
+        // check if student already exists
+        if (studentRepository.existsById(s.getId()))
+                return null;
+
+        // image saving
+        Image img = null;
+        try {
+            img = new Image(file.getContentType(), compressBytes(file.getBytes()));
+            img = imageService.save(img);
+        } catch (IOException e) {
+        }
+
+        Student stud = modelMapper.map(s, Student.class);
+
+        // search free alias
+        String alias = stud.getFirstName().toLowerCase() + "." + stud.getName().toLowerCase();
+        if (studentRepository.getByAlias(alias) != null) {
+            int i = 3;
+            for (alias += "2"; studentRepository.getByAlias(alias) != null; i++) {
+                alias = alias.substring(0, alias.length() - Integer.toString(i - 1).length());
+                alias += Integer.toString(i);
+            }
+        }
+
+        // email and alias autogeneration
+        stud.setEmail("s" + s.getId() + "@studenti.polito.it");
+        stud.setAlias(alias);
+        s.setEmail("s" + s.getId() + "@studenti.polito.it");
+        s.setAlias(alias);
+        if (img != null)
+            stud.setImage_id(img.getId());
+
+        studentRepository.save(stud);
+
+
+        if (notify) {
+
+            if (!registerUser(stud.getId(), enc.encode(s.getPassword()), "ROLE_STUDENT"))
+                throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
+            notificationService.notifyStudent(s);
+
+        }
+
+        return s;
+    }
+
+    // add student without profile image
+    @Override
+    public StudentDTO addStudent(StudentDTO s, boolean notify) {
+
+        // check if student already exists
+        if (studentRepository.existsById(s.getId()))
+                return null;
+
+        Student stud = modelMapper.map(s, Student.class);
+
+        // search for free alias
+        String alias = stud.getFirstName().toLowerCase() + "." + stud.getName().toLowerCase();
+        if (studentRepository.getByAlias(alias) != null) {
+            int i = 3;
+            for (alias += "2"; studentRepository.getByAlias(alias) != null; i++) {
+                alias = alias.substring(0, alias.length() - Integer.toString(i - 1).length());
+                alias += Integer.toString(i);
+            }
+        }
+
+        stud.setAlias(alias);
+        stud.setEmail("s" + s.getId() + "@studenti.polito.it");
+        s.setAlias(alias);
+        s.setEmail("s" + s.getId() + "@studenti.polito.it");
+
+        studentRepository.save(stud);
+
+
+        if (notify) {
+
+            if (!registerUser(stud.getId(), enc.encode(s.getPassword()), "ROLE_STUDENT"))
+                throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
+            notificationService.notifyStudent(s);
+
+        }
+
+        return s;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     // Courses
@@ -328,322 +705,10 @@ public class TeamServiceImpl implements TeamService {
     }
 
 
-    // Professors
-    @Override
-    public boolean addProfessor(ProfessorDTO p, MultipartFile file) {
-        if (professorRepository.existsById(p.getId())) {
-            if (getProfessor(p.getId()).get().equals(p))
-                return false;
-            else
-                throw new IncoherenceException("Professor with id " + p.getId() + " already exist with different names");
-        }
-        Image img = null;
-        try {
-            img = imageService.save(new Image(file.getContentType(), compressBytes(file.getBytes())));
-        } catch (IOException e) {
-        }
-        Professor prof = modelMapper.map(p, Professor.class);
-        String alias = prof.getFirstName().toLowerCase() + "." + prof.getName().toLowerCase();
-        if (professorRepository.getByAlias(alias) != null) {
-            int i = 3;
-            for (alias += "2"; professorRepository.getByAlias(alias) != null; i++) {
-                alias = alias.substring(0, alias.length() - Integer.toString(i - 1).length());
-                alias += Integer.toString(i);
-            }
-        }
-        prof.setAlias(alias);
-        prof.setEmail("d" + p.getId() + "@polito.it");
-        if (img != null)
-            prof.setImage_id(img.getId());
 
-        professorRepository.save(prof);
 
 
-        if (!registerUser(p.getId(), enc.encode(p.getPassword()), "ROLE_PROFESSOR"))
-            throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
-        notificationService.notifyProfessor(p);
 
-
-        return true;
-    }
-
-    @Override
-    public boolean addProfessor(ProfessorDTO p) {
-        if (professorRepository.existsById(p.getId())) {
-            if (getProfessor(p.getId()).get().equals(p))
-                return false;
-            else
-                throw new IncoherenceException("Professor with id " + p.getId() + " already exist with different names");
-        }
-
-        Professor prof = modelMapper.map(p, Professor.class);
-        String alias = prof.getFirstName().toLowerCase() + "." + prof.getName().toLowerCase();
-        if (professorRepository.getByAlias(alias) != null) {
-            int i = 3;
-            for (alias += "2"; professorRepository.getByAlias(alias) != null; i++) {
-                alias = alias.substring(0, alias.length() - Integer.toString(i - 1).length());
-                alias += Integer.toString(i);
-            }
-        }
-        prof.setAlias(alias);
-        professorRepository.save(prof);
-
-
-        if (!registerUser(p.getId(), enc.encode(p.getPassword()), "ROLE_PROFESSOR"))
-            throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
-        notificationService.notifyProfessor(p);
-
-
-        return true;
-    }
-
-    @Override
-    public Optional<ProfessorDTO> getProfessor(String professorId) {
-        return professorRepository.findById(professorId).filter(Professor::getEnabled).map(x -> modelMapper.map(x, ProfessorDTO.class));
-    }
-
-    //Students
-    @Override
-    public boolean addStudent(StudentDTO s, boolean notify, MultipartFile file) {
-
-        if (studentRepository.existsById(s.getId())) {
-            if (getStudent(s.getId()).get().equals(s))
-                return false;
-            else
-                throw new IncoherenceException("Student with id " + s.getId() + " already exist with different names");
-        }
-        Image img = null;
-        try {
-            img = new Image(file.getContentType(), compressBytes(file.getBytes()));
-            img = imageService.save(img);
-        } catch (IOException e) {
-        }
-        Student stud = modelMapper.map(s, Student.class);
-        String alias = stud.getFirstName().toLowerCase() + "." + stud.getName().toLowerCase();
-        if (studentRepository.getByAlias(alias) != null) {
-            int i = 3;
-            for (alias += "2"; studentRepository.getByAlias(alias) != null; i++) {
-                alias = alias.substring(0, alias.length() - Integer.toString(i - 1).length());
-                alias += Integer.toString(i);
-            }
-        }
-        stud.setEmail("s" + s.getId() + "@studenti.polito.it");
-        stud.setAlias(alias);
-        if (img != null)
-            stud.setImage_id(img.getId());
-
-        studentRepository.save(stud);
-
-
-        if (notify) {
-
-            if (!registerUser(stud.getId(), enc.encode(s.getPassword()), "ROLE_STUDENT"))
-                throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
-            notificationService.notifyStudent(s);
-
-        }
-
-        return true;
-    }
-
-    //Students
-    @Override
-    public boolean addStudent(StudentDTO s, boolean notify) {
-        if (studentRepository.existsById(s.getId())) {
-            if (getStudent(s.getId()).get().equals(s))
-                return false;
-            else
-                throw new IncoherenceException("Student with id " + s.getId() + " already exist with different names");
-        }
-        Student stud = modelMapper.map(s, Student.class);
-
-        String alias = stud.getFirstName().toLowerCase() + "." + stud.getName().toLowerCase();
-        if (studentRepository.getByAlias(alias) != null) {
-            int i = 3;
-            for (alias += "2"; studentRepository.getByAlias(alias) != null; i++) {
-                alias = alias.substring(0, alias.length() - Integer.toString(i - 1).length());
-                alias += Integer.toString(i);
-            }
-        }
-        stud.setAlias(alias);
-        stud.setEmail("s" + s.getId() + "@studenti.polito.it");
-
-        studentRepository.save(stud);
-
-
-        if (notify) {
-
-            if (!registerUser(stud.getId(), enc.encode(s.getPassword()), "ROLE_STUDENT"))
-                throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
-            notificationService.notifyStudent(s);
-
-        }
-
-        return true;
-    }
-
-
-    public boolean registerUser(String id, String pwd, String role) {
-
-
-        List<String> roles = new ArrayList<>();
-        roles.add(role);
-        Boolean a = w.post()
-                .uri("/register")
-                .body(Mono.just(jwtTokenUtil.generateRegisterRequest(id, pwd, roles)), JwtResponse.class)
-                /*
-                .exchange().flatMap(x->{
-                    if (x.statusCode().is4xxClientError()||x.statusCode().is5xxServerError()) {
-                        Mono<String> msg=x.bodyToMono(String.class);
-                        return msg.flatMap(y->{
-                            throw new AuthenticationServiceException(y);
-                        });
-                    }
-                    return  x.bodyToMono(String.class);
-                })
-                .subscribe(response -> {
-                    if (dto instanceof StudentDTO)
-                        notificationService.notifyStudent((StudentDTO) dto, pwd);
-                    else if (dto instanceof ProfessorDTO)
-                        notificationService.notifyProfessor((ProfessorDTO) dto, pwd);
-                });
-
-                 */
-                .retrieve()
-                .bodyToMono(Boolean.class)
-                .block();
-        // .onStatus(HttpStatus::is4xxClientError, response -> Mono.error(new CustomRuntimeException("Error")));
-
-        if (a == null)
-            return false;
-        else
-            return a;
-                    /*
-                    .subscribe(response -> {
-                        if (dto instanceof StudentDTO)
-                            notificationService.notifyStudent((StudentDTO) dto, pwd);
-                        else if (dto instanceof ProfessorDTO)
-                            notificationService.notifyProfessor((ProfessorDTO) dto, pwd);
-                    });
-
-                     */
-
-
-    }
-
-    public boolean registerUsers(Map<String, String> input, String role) {
-
-        List<JSONObject> list = new ArrayList<>();
-        List<String> roles = new ArrayList<>();
-        roles.add(role);
-        for (String key : input.keySet()) {
-            JSONObject personJsonObject = new JSONObject();
-            personJsonObject.put("token", jwtTokenUtil.generateRegisterRequest(key, input.get(key), roles));
-            list.add(personJsonObject);
-        }
-
-        ValidUserList usersList = new ValidUserList();
-        usersList.setList(list);
-
-
-        Boolean result = w.post()
-                .uri("/registerMany")
-                .body(Mono.just(usersList), ValidUserList.class)
-
-                .retrieve()
-                .bodyToMono(Boolean.class)
-                .block();
-        if (result == null)
-            return false;
-        else
-            return result;
-
-
-    }
-
-
-    @Override
-    public JwtResponse loginUser(JwtRequest authenticationRequest) {
-
-        String username = authenticationRequest.getUsername();
-
-        username = username.toLowerCase();
-
-
-        //standard mail
-        if (username.matches("^(s[0-9]{6}@studenti\\.polito\\.it)$")
-                || username.matches("^(d[0-9]{6}@polito\\.it)$")) {
-            authenticationRequest.setUsername(username.substring(1, 7));
-        }
-
-        //alias
-        if (username.matches("^([a-z]+\\.[a-z]+)$")) {
-            Student stud = studentRepository.getByAlias(username);
-            if (stud != null)
-                username = stud.getId();
-            else {
-                Professor prof = professorRepository.getByAlias(username);
-                if (prof != null)
-                    username = prof.getId();
-                else
-                    throw new AuthenticationServiceException("");
-            }
-            authenticationRequest.setUsername(username);
-        }
-
-        //alias+mail professor
-        if (username.matches("^([a-z]+\\.[a-z]+@polito\\.it)$")) {
-            username = username.substring(0, username.indexOf("@"));
-            Professor prof = professorRepository.getByAlias(username);
-            if (prof != null)
-                username = prof.getId();
-            else
-                throw new AuthenticationServiceException("");
-            authenticationRequest.setUsername(username);
-        }
-        //alias+mail student
-        if (username.matches("^([a-z]+\\.[a-z]+@studenti\\.polito\\.it)$")) {
-            username = username.substring(0, username.indexOf("@"));
-            Student stud = studentRepository.getByAlias(username);
-            if (stud != null)
-                username = stud.getId();
-            else
-                throw new AuthenticationServiceException("");
-            authenticationRequest.setUsername(username);
-        }
-
-
-        // richiesta POST verso /authenticate
-        String a = w.post()
-                .uri("/authenticate")
-                .body(Mono.just(authenticationRequest), JwtRequest.class)
-                .exchange().flatMap(x -> {
-                    if (x.statusCode().is4xxClientError() || x.statusCode().is5xxServerError()) {
-                        Mono<String> msg = x.bodyToMono(String.class);
-
-                        return msg.flatMap(y -> {
-                            throw new AuthenticationServiceException(y);
-                        });
-
-                    } else if (x.statusCode().isError()) {
-
-                        Mono<String> msg = x.bodyToMono(String.class);
-
-                        return msg.flatMap(y -> {
-                            throw new AuthenticationServiceException(y);
-                        });
-                    } else {
-
-                        return x.bodyToMono(String.class);
-
-                    }
-
-                }).block();
-
-
-        return new JwtResponse(a);
-
-    }
 
 
     @Override

@@ -50,6 +50,8 @@ public class NotificationServiceImpl implements NotificationService {
     public SimpleMailMessage activation_template;
 
 
+    // base method to send Mail
+    // async operation
     @Override
     @Async
     public void sendMessage(String address, String subject, String body) {
@@ -62,7 +64,6 @@ public class NotificationServiceImpl implements NotificationService {
         try {
             emailSender.send(message);
         } catch (MailException e) {
-            //si può gestire meglio
             log.severe("Some problems occur with the mail sending ");
         }
 
@@ -138,6 +139,9 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
+
+
+    // send the mail to the new student with the activation link
     @Override
     @Async
     public void notifyStudent(StudentDTO s) {
@@ -149,28 +153,30 @@ public class NotificationServiceImpl implements NotificationService {
         ca.setUserId(s.getId());
         ca.setExpiryDate(expiryDate);
         confirmAccountRepository.save(ca);
-        String body = String.format(activation_template.getText(), s.getName(), "http://localhost:4200/notification/activate/" + token);
+        String body = String.format(activation_template.getText(), s.getFirstName(), "http://localhost:4200/notification/activate/" + token);
         // sendMessage(s.getEmail(),"Activate your account",body);
         sendMessage("giuseppe.pastore10@libero.it", "Activate your account", body);
 
     }
 
+    // send the mail to the new professor with the activation link
     @Override
     @Async
     public void notifyProfessor(ProfessorDTO s) {
         Timestamp expiryDate = new Timestamp(System.currentTimeMillis() + (60 * 60 * 1000));
-
         String token = UUID.randomUUID().toString();
         ConfirmAccount ca = new ConfirmAccount();
         ca.setId(token);
         ca.setUserId(s.getId());
         ca.setExpiryDate(expiryDate);
         confirmAccountRepository.save(ca);
-        String body = String.format(activation_template.getText(), s.getName(), "http://localhost:4200/notification/activate/" + token);
+        String body = String.format(activation_template.getText(), s.getFirstName(), "http://localhost:4200/notification/activate/" + token);
         //sendMessage(s.getEmail(),"Activate your account",body);
         sendMessage("giuseppe.pastore10@libero.it", "Activate your account", body);
     }
 
+
+    // if present and not expired, activation of the account
     @Override
     public boolean activate(String token) {
         Timestamp today = new Timestamp(System.currentTimeMillis());
@@ -201,7 +207,7 @@ public class NotificationServiceImpl implements NotificationService {
             teamService.evictAll(teams);   // posso riportare eventualmente qualki team erano già stati cancellatio prima della scadenza del token
         }
 
-        //TO DO: move on a separated file for authentication service
+        //TO DO: move on a separated file for authentication service, when they are separated
         List<ConfirmAccount> expired_accounts = confirmAccountRepository.findAllByExpiryDateBefore(now);
         if (expired_accounts.size() != 0) {
             Set<String> users = expired_accounts.stream().map(x -> x.getUserId()).collect(Collectors.toSet());

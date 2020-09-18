@@ -49,6 +49,43 @@ public class StudentController {
     @Qualifier("messageSource")
     MessageSource msg;
 
+
+    /**
+     * Register a new student
+     * Authentication required: none
+     * @param dto: student data
+     * @param file:  optional, student profile image
+     *
+     * @return registered studentDTO
+     */
+    @PostMapping({"", "/"})
+    public StudentDTO addStudent(@Valid @RequestPart("student") StudentDTO dto,
+                                 @RequestPart(value = "image", required = false) MultipartFile file) {
+
+        if (dto.getEmail()!=null || dto.getAlias()!=null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can't set email and alias");
+        try {
+            if (file == null || file.isEmpty()) {
+                if ((dto=teamservice.addStudent(dto, true))==null)
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getId());
+            } else {
+                if ((dto=teamservice.addStudent(dto, true, file))==null)
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getId());
+            }
+        } catch (IncoherenceException | AuthenticationServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
+
+        return ModelHelper.enrich(dto);
+    }
+
+
+
+
+
+
+
+
     /**
      * Gestione generale studenti
      */
@@ -92,34 +129,6 @@ public class StudentController {
         return ModelHelper.enrich(c);
     }
 
-    /**
-     * Register a new student
-     * Authentication required: none
-     * @param dto: student data
-     * @param file:  optional, student profile image
-     *
-     * @return registered StudentDTO
-     */
-    @PostMapping({"", "/"})
-    public StudentDTO addStudent(@Valid @RequestPart("student") StudentDTO dto,
-                                 @RequestPart(value = "image", required = false) MultipartFile file) {
-
-        if (dto.getEmail()!=null || dto.getAlias()!=null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can't set email and alias");
-        try {
-            if (file == null || file.isEmpty()) {
-                if (!teamservice.addStudent(dto, true))
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getId());
-            } else {
-                if (!teamservice.addStudent(dto, true, file))
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getId());
-            }
-        } catch (IncoherenceException | AuthenticationServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-        }
-
-        return ModelHelper.enrich(dto);
-    }
 
     /**
      * Register many students

@@ -41,8 +41,6 @@ public class JWTServiceImpl implements JWTService {
 
     @Override
     public void authenticate(String username, String password) throws Exception {
-        System.out.println(username);
-        System.out.println(password);
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         } catch (DisabledException e) {
@@ -63,15 +61,15 @@ public class JWTServiceImpl implements JWTService {
     public String generateToken(UserDetails u){
         return jwtTokenUtil.generateToken(u);
     }
-    public String generateRegisterRequest(String id, String password, Collection<String> roles) { return jwtTokenUtil.generateRegisterRequest(id,password,roles);}
+
+    public String generateRegisterRequest(String id, String password, Collection<String> roles) {
+        return jwtTokenUtil.generateRegisterRequest(id,password,roles);}
+
 
     @Override
     public void createUser(String id,String pwd, Collection<GrantedAuthority> roles) throws Exception {
-
-        //TO DO: check
         UserDetails user = new User(id, pwd, false, true, true, true, roles);
         jdbcUserDetailsManager.createUser(user);
-
     }
 
     @Override

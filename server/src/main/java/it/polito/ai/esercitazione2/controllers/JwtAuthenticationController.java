@@ -41,12 +41,13 @@ public class JwtAuthenticationController {
 
     /**
      * Authentication required: none
+     * Accessible also from outside the application
      * @param authenticationRequest: {
      *      "username": username,
      *      "password": password
      * }
      *
-     * @return JWT Token
+     * @return token: String
      */
     @PostMapping(value = "/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
@@ -59,6 +60,12 @@ public class JwtAuthenticationController {
         return  ResponseEntity.ok(token);
     }
 
+    /**
+     * Signed token from the application service
+     * @param input: Signed token containing username, pwd, authorities
+     *
+     * @return true/false
+     */
     @PostMapping(value = "/register")
     public ResponseEntity<?> registerUser(@RequestBody JwtResponse input) throws InterruptedException {
 
@@ -85,6 +92,13 @@ public class JwtAuthenticationController {
         return ResponseEntity.ok(true);
     }
 
+
+    /**
+     * Signed tokens from the application service
+     * @param users: list of json containing registration token
+     *
+     * @return true/false; false if any of the user can't be registered
+     */
     @PostMapping(value = "/registerMany")
     public ResponseEntity<?> registerUsers(@RequestBody @Valid ValidUserList users) throws InterruptedException {
         String token = null;
@@ -113,6 +127,13 @@ public class JwtAuthenticationController {
         return ResponseEntity.ok(true);
     }
 
+
+    /**
+     * Signed token from the application service
+     * @param input: list of json containing registration token
+     *
+     * @return true/false; false if any of the user can't be registered
+     */
     @PostMapping(value = "/activate")
     public ResponseEntity<?> activateUser(@RequestBody JwtResponse input) throws InterruptedException {
         String token = input.getToken();
@@ -135,6 +156,12 @@ public class JwtAuthenticationController {
         return ResponseEntity.ok(true);
     }
 
+    /**
+     * Signed token from the application service
+     * @param users: list of json containing registration token
+     *
+     * @return true/false; false if any of the user can't be registered
+     */
     @PostMapping(value = "/removeMany")
     public ResponseEntity<?> deleteUsers(@RequestBody @Valid ValidUserList users) throws InterruptedException {
         String token = null;

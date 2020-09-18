@@ -48,8 +48,8 @@ public interface TeamService {
      *****************************PROFESSORS********************************
      *
      ***********************************************************************/
-    boolean addProfessor(ProfessorDTO p, MultipartFile file);
-    boolean addProfessor(ProfessorDTO p);
+    ProfessorDTO  addProfessor(ProfessorDTO p, MultipartFile file);
+    ProfessorDTO  addProfessor(ProfessorDTO p);
     Optional<ProfessorDTO> getProfessor(String professorId);
     List<ProfessorDTO> getAllProfessors();
 
@@ -79,8 +79,8 @@ public interface TeamService {
      *******************************STUDENTS********************************
      *
      ***********************************************************************/
-    boolean addStudent(StudentDTO s,boolean notify);
-    boolean addStudent(StudentDTO s,boolean notify, MultipartFile file);
+    StudentDTO addStudent(StudentDTO s,boolean notify);
+    StudentDTO addStudent(StudentDTO s,boolean notify, MultipartFile file);
     Optional<StudentDTO> getStudent(String studentId);
     List<StudentDTO> getAllStudents();
     List<StudentDTO> getEnrolledStudents(String courseName);
