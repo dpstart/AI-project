@@ -172,6 +172,58 @@ public class TeamServiceImpl implements TeamService {
 
     }
 
+    /**
+     * HTTP request towards \activate endpoint of the authentication service
+     * Registration token is signed with the shared key
+     * @param id: account to activate
+     *
+     * @return
+     */
+    public void activateAccount(String id) {
+
+
+        if (studentRepository.existsById(id)) {
+            studentRepository.getOne(id).setEnabled(true);
+        } else if (professorRepository.existsById(id)) {
+            professorRepository.getOne(id).setEnabled(true);
+        } else
+            throw new UsernameNotFoundException("Impossible to activate not existing user");
+
+
+        w.post()
+                .uri("/activate")
+                .body(Mono.just(jwtTokenUtil.generateIdRequest(id)), JwtResponse.class)
+                .exchange()
+                .subscribe();
+    }
+
+    /**
+     * HTTP request towards \removeMany endpoint of the authentication service
+     * Remove users for which the activation token is expired
+     * Removal token is signed with the shared key
+     * @param users: account to be removed
+     *
+     * @return
+     */
+    public void removeAccounts(Set<String> users) {
+        List<JSONObject> list = new ArrayList<>();
+        for (String key : users) {
+            JSONObject personJsonObject = new JSONObject();
+            personJsonObject.put("token", jwtTokenUtil.generateIdRequest(key));
+            list.add(personJsonObject);
+        }
+
+        ValidUserList usersList = new ValidUserList();
+        usersList.setList(list);
+        w.post()
+                .uri("/removeMany")
+                .body(Mono.just(usersList), ValidUserList.class)
+                .exchange()
+                .subscribe();
+
+    }
+
+
 
     @Override
     public JwtResponse loginUser(JwtRequest authenticationRequest) {
@@ -1168,91 +1220,7 @@ public class TeamServiceImpl implements TeamService {
         return modelMapper.map(img, ImageDTO.class);
     }
 
-    public void activateAccount(String id) {
 
-
-        if (studentRepository.existsById(id)) {
-            studentRepository.getOne(id).setEnabled(true);
-        } else if (professorRepository.existsById(id)) {
-            professorRepository.getOne(id).setEnabled(true);
-        } else
-            throw new UsernameNotFoundException("Impossible to activate not existing user");
-
-
-        w.post()
-                .uri("/activate")
-                .body(Mono.just(jwtTokenUtil.generateIdRequest(id)), JwtResponse.class)
-                .exchange()
-                .subscribe();
-                /*
-                .exchange().flatMap(x->{
-                    if (x.statusCode().is4xxClientError()||x.statusCode().is5xxServerError()) {
-                        Mono<String> msg=x.bodyToMono(String.class);
-                        return msg.flatMap(y->{
-                            throw new AuthenticationServiceException(y);
-                        });
-                    }
-                    return  x.bodyToMono(String.class);
-                })
-                .subscribe(response -> {
-                    if (dto instanceof StudentDTO)
-                        notificationService.notifyStudent((StudentDTO) dto, pwd);
-                    else if (dto instanceof ProfessorDTO)
-                        notificationService.notifyProfessor((ProfessorDTO) dto, pwd);
-                });
-
-                 */
-                /*.retrieve()
-                .bodyToMono(Boolean.class)
-                .block();
-        // .onStatus(HttpStatus::is4xxClientError, response -> Mono.error(new CustomRuntimeException("Error")));
-
-        if (a==null)
-            return false;
-        else
-            return a;
-                    /*
-                    .subscribe(response -> {
-                        if (dto instanceof StudentDTO)
-                            notificationService.notifyStudent((StudentDTO) dto, pwd);
-                        else if (dto instanceof ProfessorDTO)
-                            notificationService.notifyProfessor((ProfessorDTO) dto, pwd);
-                    });
-
-                     */
-    }
-
-    public void removeAccount(String id) {
-        //TO DO: gestire eventuali casi di errore con il reinvio
-
-
-        w.post()
-                .uri("/remove")
-                .body(Mono.just(jwtTokenUtil.generateIdRequest(id)), JwtResponse.class)
-                .exchange()
-                .subscribe();
-
-    }
-
-
-    public void removeAccounts(Set<String> users) {
-        //TO DO: gestire eventuali casi di errore con il reinvio
-        List<JSONObject> list = new ArrayList<>();
-        for (String key : users) {
-            JSONObject personJsonObject = new JSONObject();
-            personJsonObject.put("token", jwtTokenUtil.generateIdRequest(key));
-            list.add(personJsonObject);
-        }
-
-        ValidUserList usersList = new ValidUserList();
-        usersList.setList(list);
-        w.post()
-                .uri("/removeMany")
-                .body(Mono.just(usersList), ValidUserList.class)
-                .exchange()
-                .subscribe();
-
-    }
 
 
     @Override
