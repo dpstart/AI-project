@@ -1,6 +1,6 @@
 # AI-project
 
-## Server: DB
+## SERVER: DB
 
 ### How to run DB:
 
@@ -68,33 +68,102 @@ The DB reaches 3 version during the application first run:
 
 The ADMIN is added only after this creation.
 
-### Database information:
+### Current state:
 
-| Username |     Password   | Role | Name | First Name | Email |
-|----------|:-------------:|------:|-----:|-----------:|------:|
+| Username |     Password   | Role | Name | First Name | Email | Alias |
+|----------|:-------------:|------:|-----:|-----------:|------:|------:|
 | admin|  admin | ADMIN |
-| 1000 |   a.servetti   |  PROFESSOR  | Antonio | Servetti | antonio.servetti@polito.it|
-| 1001 | g.malnati |  PROFESSOR  |  Giovanni | Malnati | giovanni.malnati@polito.it|
-| 2000 | g.pastore | STUDENT | Giuseppe | Pastore | giuseppe.pastore@studenti.polito.it|
-| 2001 | d.fisicaro | STUDENT | Damiano | Fisicaro | damiano.fisicaro@studenti.polito.it|
-| 2002 | w.forcignano | STUDENT | Walter | Forcignano | walter.forcignano@studenti.polito.it|
-| 2003 | d.paliotta | STUDENT | Daniele | Paliotta | daniele.paliotta@studenti.polito.it|
+| 100000 |   a.servetti   |  PROFESSOR  | Antonio | Servetti | d100000@polito.it|
+| 100001 | g.malnati |  PROFESSOR  |  Giovanni | Malnati | d100001@polito.it|
+| 257649| g.pastore | STUDENT | Giuseppe | Pastore | s257649@studenti.polito.it| giuseppe.pastore|
+| 200000 | d.fisicaro | STUDENT | Damiano | Fisicaro | s200000@studenti.polito.it| damiano.fisicaro|
+| 200001 | w.forcignano | STUDENT | Walter | Forcignano | s200001@studenti.polito.it| walter.forcignano|
+| 200002 | d.paliotta | STUDENT | Daniele | Paliotta | s200002@studenti.polito.it|daniele.paliotta|
 
 | Course |     Acronime  | Min | Max | Professors (C = Creator)| Studenti| VM Model          |                                                                                                                                                                                                      
 |--------|:-------------:|----:|----:|------------------------:|--------:| ------------------:|
-| Applicazioni Internet | AI | 1 | 10 | Servetti (C), Malnati | 2000,2001,2002,2003|macOS High Sierra |
-| Programmazione di Sistema | PDS | 1 | 10 | Servetti (C) | 2000,2001|  Windows 10  |
+
 
 | Team          | Course | ID | Members                    | #cpu | disk space | ram | max active | max_available |
 |--------------:|-------:|---:|---------------------------:|-----:|-----------:|----:|-----------:|--------------:|
-| FirstTeam     | AI     | 9  | 2000 (C), 2001, 2002, 2003 | 10   |  256       | 8   |     5      |     10        | 
-| SecondTeam    | PDS    | 10 | 2000(C), 2001              | 10   |  256       | 8   |     5      |     10        | 
 
 
 | VM Id  |  #cpu | disk space | ram | team  |
 |-------:|------:|-----------:|----:|------:|
-| 28     |  2    |   20       |  2  | 9     |
-| 32     |  2    |   20       |  2  |  9    |
+
+
+## SERVER: Web Security Config
+
+- Based on JWT Token
+- Token provider and application service kept separated
+- All the API of the application service (starting with API/...) are secured except for registration or login endpoints:
+    - API/students (POST)
+    - API/professors (POST)
+    - API/login (POST)
+- The endpoint of the authentication service are not authenticated as they have to be accessible from the application service in case of registration,login,... but they are protected through the encryption of the token containing the information passed.
+- Also the notification endpoints are not authenticated
+
+## SERVER: Authentication service (JwtAuthenticationController.java)
+
+- The authentication service has three roles:
+    - token provider
+    - creation/removal/update(activation)/authentication of users
+    - user's authrities management
+- In this system, it has been chosen to keep it completely separated from the application service
+
+- It provides 5 endpoints:
+    - *\authenticate*: 
+        - received data from application's endpoint \API\login
+        - accessible also from outside (only trough the id)
+        - return the jwt authentication token as string
+        - errors:
+            - Unauthorized: wrong credentials/not-existing user/disabled user;
+    - *\register*:
+        - receives a signed data from application's endpoint \API\register
+        - in this way, it is guaranteed that registration can take place only for student/professor registering through the application form;
+        - the token contains:
+            - usernam
+            - pwd
+            - roles
+        - errors:
+            false: whatever failure (already existing user,...)
+    - *\registerMany*:
+        - the same as the previous one with multiple registration token received;
+        - errors:
+            flase: whatever failure also for only a single user;
+    - *\activate*:
+        - activate the user after the registration
+        - receive a signed token containing the username to be activated
+        - only through the application, to favor the consistency among students/professors and users
+        - errors:
+            false:  whatever failure 
+    - *\removeMany*: 
+        - delete the users indicated
+        - receive a list of signed token, each of which containing the username of user to be deleted
+        - only through the application for consistency reasons
+        
+## SERVER: Registration details
+
+- ADMIN registered a priori: username: ADMIN, password: admin
+- Endpoints: API/students & API/professors (POST)
+
+0. Data are received from the client form
+1. Email and alias are autogenerated and not received from client;
+2. In case of profile image, it is saved on the DB;
+3. Student/Professor entity is stored in the DB with status=disabled;
+4. registration token is built with user data (id,pwd,roles);
+5. HTTP request is sent towards "/register"-"/registerMany" of the authentication service
+6. If success, the user is notified via mail with a link of confirmation account:
+    1. a token is randomly generated;
+    2. a ConfirmationAccount entity is temporarly stored with (token,userID, expiration date) information;
+    2. the user has 1h of time to activate the account through the link; an asyncronous periodical task is entrusted to remove not activate user for which the token is expired;
+    3. the link has the form: localhost:4200/notification/activate/
+    3. by clicking on the link, (while on the client it is always shown a general message for security reasons), on the server:
+        - if the token is expired, the user removed both form the application and authentication DBs;
+        - if the token is valid, the user is enabled on boht the datasets and the token is deleted;
+        
+
+
 
 ## Endpoints
 

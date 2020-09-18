@@ -43,7 +43,6 @@ const routes: Routes = [
     { path: 'notification/activate/:token', component: ActivateAccountComponent },
     { path: 'notification/confirm/:token', component: ConfirmTokenComponent },
     { path: 'notification/reject/:token', component: RejectTokenComponent },
-
     { path: '**', component: PageNotFoundComponent }
 ];
 
