@@ -17,6 +17,7 @@ public class StudentDTO extends RepresentationModel<StudentDTO> {
     @CsvBindByName
     @NotBlank
     @JsonProperty("id")
+    @Pattern(regexp = "^[0-9]{6}$")
     String id;
     @CsvBindByName
     @Pattern(regexp = "^[a-zA-Z]+$")

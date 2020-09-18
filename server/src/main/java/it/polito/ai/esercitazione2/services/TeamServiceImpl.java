@@ -915,7 +915,7 @@ public class TeamServiceImpl implements TeamService {
                         .stream()
                         .map(s -> s.getId())
                         .collect(Collectors.toList());
-                        return l.containsAll(memberIds) && l.size()==memberIds.size()
+                        return l.containsAll(memberIds) && l.size()==memberIds.size();
                         } )) {
             throw new DuplicateTeamException("A team proposal with the same members is already existing");
         }

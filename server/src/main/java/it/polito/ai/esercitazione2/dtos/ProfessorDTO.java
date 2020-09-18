@@ -15,6 +15,7 @@ import javax.validation.constraints.Size;
 @Data
 public class ProfessorDTO extends RepresentationModel<ProfessorDTO> {
 
+    @Pattern(regexp = "^[0-9]{6}$")
     @NotBlank
     String id;
     @Pattern(regexp = "^[a-zA-Z]+$")
