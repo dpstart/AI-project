@@ -331,9 +331,8 @@ export class StudentsComponent implements OnInit {
    * @param student 
    */
   displayWith(student: Student): string {
-    if (student == null)
-      return;
-    return student.firstName + " " + student.name + " (" + student.id + ")";
+    return student && student.firstName && student.name && student.id ?
+      student.firstName + " " + student.name + " (" + student.id + ")" : '';
   }
 
   /**

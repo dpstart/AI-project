@@ -63,7 +63,8 @@
                         <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayWith"
                             (optionSelected)="autocompleteSelected($event.option.value)">
                             <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
-                                {{option.firstName}} {{option.name}} ({{option.id}})
+                                {{option? option.firstName : ''}} {{option.name? option.name:''}}
+                                {{option.id? "("+option.id+")":''}}
                             </mat-option>
                         </mat-autocomplete>
                     </mat-form-field>
@@ -71,8 +72,8 @@
 
                 </div>
                 <div>
-                    <button type="button" mat-fab color="primary"
-                        aria-label="Example icon button with a folder icon" (click)="fileInput.click()">
+                    <button type="button" mat-fab color="primary" aria-label="Example icon button with a folder icon"
+                        (click)="fileInput.click()">
                         <mat-icon>folder</mat-icon>
                         <input #fileInput type="file" (change)="onFileChanged($event)" style="display:none;" />
                     </button>
