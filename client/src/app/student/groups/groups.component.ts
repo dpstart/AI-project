@@ -67,7 +67,7 @@ export class GroupsComponent implements OnInit {
   isInTeam: boolean
 
 
-  //paginators of tables
+  /////paginators of tables//////
   private paginatorNotInTeam: MatPaginator;
   private matSortNotInTeam: MatSort;
 
@@ -226,6 +226,7 @@ export class GroupsComponent implements OnInit {
 
   }
 
+  // GETTERS
   public get authService(): AuthService {
     return this._authService;
   }
@@ -234,9 +235,9 @@ export class GroupsComponent implements OnInit {
   public get studentService(): StudentService {
     return this._studentService;
   }
+  /////////////////
 
-
-
+  /////////////VIEWCHILDS/////////////////
   @ViewChild('matSortNotInTeam') set matSort(ms: MatSort) {
     this.matSortNotInTeam = ms;
     this.setDataSourceAttributes();
@@ -266,7 +267,7 @@ export class GroupsComponent implements OnInit {
     this._paginatorProposal = mp;
     this.setDataSourceAttributes();
   }
-
+  ///////////////////////////////////
 
 
   /** 
@@ -315,10 +316,12 @@ export class GroupsComponent implements OnInit {
    */
   checkValidity() {
     let numSelected = this.selection.selected.length
-    
+
     if (this.selectedCourse.min <= (numSelected + 1) && (numSelected + 1) <= this.selectedCourse.max && this.form.valid) {
+      // proposal valida allora abilito bottone
       this.isDisabled = false
     } else {
+      // proposal invalida allora disabilito bottone
       this.isDisabled = true
     }
 
@@ -331,7 +334,6 @@ export class GroupsComponent implements OnInit {
    */
   actionToken(member: MemberOfProposal, isAccepted: boolean) {
 
-
     this.studentService.actionToken(member.statusToken, isAccepted).subscribe(result => {
 
       if (result) {
@@ -340,22 +342,20 @@ export class GroupsComponent implements OnInit {
         this.alertType = 'success'
         this.closeAlertAfterTime(3000)
       }
-
-
     }, (_) => {
 
       this.message = "Sorry your view was not up to date..."
       this.alertType = 'danger'
       this.closeAlertAfterTime(3000)
-      this.ngOnInit()
+      this.ngOnInit() // riaggiorno la vista
     })
 
   }
 
-
   /**
    * Metodo usato per fare una proposta per un determinato team 
-   * */
+   * 
+   */
   onSubmit() {
 
     // Check if all fields are correctly setted.
@@ -366,6 +366,7 @@ export class GroupsComponent implements OnInit {
 
         studentsForProposal.push(student)
 
+        // Proponi team con la configurazione presente
         this.studentService.proposeTeam(this.selectedCourse.name,
           this.form.get('groupNameControl').value,
           studentsForProposal,
@@ -374,21 +375,24 @@ export class GroupsComponent implements OnInit {
 
               this.dataSourceMembersProposal.push(new MatTableDataSource<MemberOfProposal>())
 
-
               this.authService.getSelf().subscribe((me: Student) => {
+
+                //prendo gli studenti che dovrebbero far parte del team
                 let selected = this.selection.selected
+
+                //aggiungo lo studente che fa la proposal tra i selezionati
                 selected.push(me)
 
-
                 let members: MemberOfProposal[] = []
-
+                //Per ogni membro
                 selected.forEach((member) => {
+                  //Se lo studente coincide con chi fa la richiesta allora ho già accettato, altrimenti no
                   let status = member.id == me.id ? "true" : "false"
                   members.push({ id: member.id, name: member.name, firstname: member.firstName, statusToken: status })
                 })
-
+                //aggiungo una proposal 
                 let proposal = {
-                  row: this.dataSourceMembersProposal.length - 1,
+                  row: this.dataSourceMembersProposal.length - 1, // proposal viene aggiunta al fondo
                   idCreator: me.id,
                   groupName: this.form.get('groupNameControl').value,
                   name: me.name,
@@ -396,29 +400,29 @@ export class GroupsComponent implements OnInit {
                   members: members
                 }
 
+                // aggiorno data sources e deseleziono membri
                 this.dataSourceProposals.data = [...this.dataSourceProposals.data, proposal]
                 this.dataSourceMembersProposal[this.dataSourceMembersProposal.length - 1].data = [...members]
+                this.alertType = "success"
+                this.message = "Team proposal successfully created"
+                this.closeAlertAfterTime(3000)
                 this.selection.clear()
 
               })
 
             } else {
-
+              // Risposta diversa da 201
               this.alertType = "danger"
               this.message = "Sorry something went wrong, try later..."
               this.closeAlertAfterTime(3000)
               this.selection.clear()
-
             }
-
-          }, (_) => {
+          }, (error) => {
             this.alertType = "danger"
-            this.message = "Sorry something went wrong, try later..."
+            this.message = error.message
             this.closeAlertAfterTime(3000)
             this.selection.clear()
-
           })
-
       })
     }
   }

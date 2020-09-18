@@ -1,1 +1,3 @@
 --Opzionale: fornire anche una indicazione in tempo reale delle risorse utilizzate dal gruppo.
+
+

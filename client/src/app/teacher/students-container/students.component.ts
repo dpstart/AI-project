@@ -22,21 +22,29 @@ import { RemoveCourseDialogComponent } from './dialog/remove-course-dialog.compo
 })
 export class StudentsComponent implements OnInit {
 
+  // FIle per aggiunta studenti al corso 
   selectedFile: File;
 
+  // Flag bottone di upload per aggiunta studenti con file csv, inizialmente disabilitato
   isDisabled: boolean
 
+  // Flag che indica se il teacher sta modificando i settings del corso: in base a questo flag 
+  // vengono nsacosti/mostrati elementi nel DOM relativi alla modifica del corso
   isEditing: Boolean
 
-
+  // Flag che indica se la selezione nel master toggle deve essere effettuata inizialmente nella singola pagina
   masterToggleInPageOption = true
 
+  // Messaggio settato dal parent component 
   private _message: Message;
 
+  // Messaggio che invece è settato dal dummy component
   msg: string
   alertType: string
 
+  // Studenti enrolled data source e relative colonne
   enrolledStudentsDataSource: MatTableDataSource<Student>;
+  displayedColumns: string[] = ['select', 'id', 'name', 'first name', 'group'];
 
   // Table selection
   selection = new SelectionModel<Student>(true, []);
@@ -44,42 +52,50 @@ export class StudentsComponent implements OnInit {
   // Autocompletion
   filteredOptions: Observable<Student[]>;
 
-  displayedColumns: string[] = ['select', 'id', 'name', 'first name', 'group'];
-
+  /////////// FORMS //////////////
+  // Aggiunta studenti
   addStudentForm: FormGroup
-
+  // Modifica settings del corso
   courseSettingForm: FormGroup
+  ///////////////////////////////
 
-  // Data sources
+
+  // Data sources ricevuti dal parent
   private _enrolledStudents: Student[];
   private _studentsNotInCourse: Student[];
-
   private _courseObj: Course;
 
+
+  // Paginator e sort
   private _paginator: MatPaginator;
   private _sort: MatSort;
 
 
-  @ViewChild(MatSidenav) sidenav: MatSidenav;
-  @ViewChild(MatTable) table: MatTable<any>;
+  // @ViewChild(MatSidenav) sidenav: MatSidenav;
+  // @ViewChild(MatTable) table: MatTable<any>;
 
   @ViewChild(MatSort, { static: false })
   public set sort(value: MatSort) {
     this._sort = value;
+    // Aggirono sort del data source quando settato
     this.enrolledStudentsDataSource.sort = this.sort
   }
 
   @ViewChild(MatPaginator)
   public set paginator(value: MatPaginator) {
     this._paginator = value;
+    // Aggiorno paginator del data source quando settato
     this.enrolledStudentsDataSource.paginator = this.paginator
   }
 
   @Input()
   public set enrolledStudents(value: Student[]) {
     this._enrolledStudents = [...value];
+    // Quando vengono passati dal parent gli studenti enrolled aggiorno data source
     this.enrolledStudentsDataSource.data = [...this.enrolledStudents]
+    // Rimuovo le eventuali selezioni
     this.selection.clear()
+    // Risetto i messaggi
     this.msg = ""
     this.alertType = ""
   }
@@ -92,9 +108,12 @@ export class StudentsComponent implements OnInit {
   }
 
   @Input() public set courseObj(value: Course) {
+    // Se cambia corso allora il flag deve essere risettato
     this.isEditing = false
+    // Aggiorno corso selezionato
     this._courseObj = value;
 
+    // Setto i campi del form al valore iniziale corretto
     this.courseSettingForm.setValue({
       min: this.courseObj.min,
       max: this.courseObj.max,
@@ -104,15 +123,13 @@ export class StudentsComponent implements OnInit {
 
   @Input()
   public set studentsNotInCourse(value: Student[]) {
+    // Aggiorno source studenti not in course e relativi suggerimenti nell'autocomplete
     this._studentsNotInCourse = value;
     this.filteredOptions = this.addStudentForm.get("studentControl").valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))
     );
   }
-
-
-
 
   // Communicate with container
   @Output() addStudent: EventEmitter<Student> = new EventEmitter<Student>();
@@ -126,7 +143,6 @@ export class StudentsComponent implements OnInit {
     this.enrolledStudentsDataSource = new MatTableDataSource();
     this.isDisabled = true
     this.isEditing = false
-
     this.msg = ""
     this.alertType = ""
 
@@ -144,7 +160,7 @@ export class StudentsComponent implements OnInit {
 
   }
 
-  // Lifecycle hooks -------
+  ////////////////// Lifecycle hooks ////////////////////
 
   ngOnInit() {
 
@@ -159,10 +175,10 @@ export class StudentsComponent implements OnInit {
     this.enrolledStudentsDataSource.sort = this.sort;
   }
 
-  // ----------------------
+  //////////////////////////////////////////////////
 
 
-  //getters
+  ////////// Getters////////////////
 
   public get message(): Message {
     return this._message;
@@ -182,49 +198,67 @@ export class StudentsComponent implements OnInit {
   public get sort(): MatSort {
     return this._sort;
   }
+  ////////////////////////////////////
 
 
-
+  /**
+   * Metodo usato per aggiornare correttamente i filtri nell'autocomplete
+   * @param value 
+   */
   private matchingStudents(value: string): Student[] {
-
     // Correct matches: 
     //  - Name
     //  - Name Surname
     //  - ID
-
     return this.studentsNotInCourse.filter(option => option.id.toLowerCase().indexOf(value) === 0
       || option.name.toLowerCase().indexOf(value) === 0 || option.firstName.toLowerCase().indexOf(value) === 0
       || (option.firstName.toLowerCase() + " " + option.name.toLowerCase()).indexOf(value) === 0)
 
   }
 
+  /**
+   * Metodo che permette di filtrare le opzioni nell'autocomplete
+   * @param value 
+   */
   private _filter(value: string): Student[] {
     const filterValue = value.toString().toLowerCase();
     return this.matchingStudents(filterValue);
   }
 
-  /** Whether the number of selected elements matches the total number of rows. */
-  isAllSelected(): boolean {
+  /** 
+   * Whether the number of selected elements matches the total number of rows. 
+   */
+  private isAllSelected(): boolean {
     const numSelected = this.selection.selected.length;
     const numRows = this.enrolledStudentsDataSource.data.length;
     return numSelected === numRows;
   }
 
+  /**
+   * Metodo che in base al flag controlla se sono tutti gli elementi selezionati nella pagina
+   * o se invece sono selezionati tutti perchè internamente chiama isAllSelected
+   */
   isAllSelectedInPage(): boolean {
 
+    // Controllo che non faccia nulla se il paginator non è settato
     if (!this.paginator) {
       return false
     }
+    // In base al flag sono da selezionare solo gli elementi nella pagina o in tutta
     if (this.masterToggleInPageOption) {
+      // Definisco gli indici
       let indexStartingElement = this.paginator.pageIndex == 0 ? 0 : (this.paginator.pageIndex * this.paginator.pageSize)
       let indexEndElement = (indexStartingElement + this.paginator.pageSize)
 
       indexEndElement = indexEndElement > (this.enrolledStudentsDataSource.data.length - 1) ?
         (this.enrolledStudentsDataSource.data.length) : indexEndElement
 
+      // Flag che indica se sono stati selezionati tutti nella pagina
       let allSelected = true
 
+      // Per ogni elemento
       for (let i = indexStartingElement; i < indexEndElement; i++) {
+        // Se trova anche solo un elemento non settato ritorno false
         if (!this.selection.isSelected(this.enrolledStudentsDataSource.data[i])) {
           allSelected = false
         }
@@ -232,10 +266,13 @@ export class StudentsComponent implements OnInit {
       return allSelected
 
     } else return this.isAllSelected()
-
-
   }
 
+  /**
+   * Metodo che permette di selezionare in base a flag 
+   * se selezionare tutti gli studenti nella pagina corrente
+   * o se tutti gli studenti in tabella
+   */
   toggleSelectionOptionAndSelect() {
     //prima volta che clicco su bottone => Seleziono tutti gli studenti
     if (this.masterToggleInPageOption) {
@@ -252,17 +289,23 @@ export class StudentsComponent implements OnInit {
 
   }
 
-  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  /** 
+   * Selects all rows if they are not all selected; otherwise clear selection. 
+   * */
   masterToggle() {
+    // Controllo che siano selezionati tutti gli studenti che sia in singola pagina o in tutta la tabella
     if (this.isAllSelectedInPage()) {
+      // Se sono selezionati devo deselezionare
       this.selection.clear()
       this.msg = ""
       this.alertType = ""
+      // Risetto la selezione in pagina singola
       this.masterToggleInPageOption = true
     } else {
-
-
+      // Se non sono tutti selezionati allora devo controllare il flag e in base a quello selezionare i rimanenti
+      // studenti sulla pagina oppure gli elementi in tutta la tabella
       if (this.masterToggleInPageOption) {
+        // Definizione indici
         let indexStartingElement = this.paginator.pageIndex == 0 ? 0 : (this.paginator.pageIndex * this.paginator.pageSize)
         let indexEndElement = indexStartingElement + this.paginator.pageSize
 
@@ -272,25 +315,31 @@ export class StudentsComponent implements OnInit {
           this.selection.select(this.enrolledStudentsDataSource.sortData(this.enrolledStudentsDataSource.data, this.sort)[i])
         }
 
-
-
+        // Se i due metodi tornano qualcosa di diverso allora abbiamo selezione in pagina
         if (this.isAllSelected() != this.isAllSelectedInPage()) {
           this.msg = `Tutti i ${this.selection.selected.length} studenti in questa pagina sono stati selezionati.`
           this.alertType = "secondary"
         }
-
       } else {
         this.enrolledStudentsDataSource.data.forEach(row => this.selection.select(row));
       }
     }
   }
 
+  /**
+   * Visualizzazione studenti nell'autocomplete
+   * @param student 
+   */
   displayWith(student: Student): string {
     if (student == null)
       return;
     return student.firstName + " " + student.name + " (" + student.id + ")";
   }
 
+  /**
+   * TODO
+   * @param student 
+   */
   autocompleteSelected(student: Student) {
     this.addStudentForm.get('studentControl').setValue(student)
   }

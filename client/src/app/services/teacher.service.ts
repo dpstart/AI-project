@@ -8,6 +8,7 @@ import { Assignment } from '../model/assignment.model';
 import { Homework } from '../model/homework.model';
 import { Course } from '../model/course.model';
 import { Vm } from '../student/vm/vm-student.component';
+import { VmSettings } from './student.service';
 
 // Interfaccia link del teacher
 export interface NavTeacherLinks {
@@ -294,6 +295,24 @@ export class TeacherService {
         );
     }
 
+    /**
+     * Metodo che ritorna tutte le risorse utilizzate dal team in quel momento, comprese quelle non active
+     */
+    getResourcesByTeam(teamId: number): Observable<VmSettings> {
+        const url = `${this.URL}/vms/teams/${teamId}/resources`;
+        return this.http.get<VmSettings>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+    }
+
+    getRunningResourcesByTeam(teamId: number):Observable<VmSettings> {
+        const url = `${this.URL}/vms/teams/${teamId}/resources/running`;
+        return this.http.get<VmSettings>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+    }
     /**
      * Metodo che ritorna gli hws assegnati ad un derminato corso
      * @param courseName 
