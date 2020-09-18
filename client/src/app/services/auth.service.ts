@@ -36,45 +36,48 @@ export interface ProfileCard {
 export class AuthService {
 
 
+  /**
+   * Variabile che permette l'emissione di una profileCard 
+   */
   private _profileCard: Subject<ProfileCard>;
+  private _profileImage: Subject<Image>;
 
+  ////////////// GETTERS ///////////////////
   public get profileCard(): Subject<ProfileCard> {
     return this._profileCard;
   }
-
-
-
   public getProfileCard(): Observable<ProfileCard> {
     return this._profileCard.asObservable();
   }
-  public set profileCard(value: Subject<ProfileCard>) {
-    this._profileCard = value;
-  }
-
-  private _profileImage: Subject<Image>;
-
   public get profileImage(): Subject<Image> {
     return this._profileImage;
   }
-
   public getProfileImage(): Observable<Image> {
     return this._profileImage.asObservable();
+  }
+  /////////////////////////////////////////
+
+  /////////////// SETTERS /////////////////
+  public set profileCard(value: Subject<ProfileCard>) {
+    this._profileCard = value;
   }
   public set profileImage(value: Subject<Image>) {
     this._profileImage = value;
   }
-
-  UrlLogin = "http://localhost:8080"
+  /////////////////////////////////////////
 
   URL = "http://localhost:4200/API"
 
   constructor(private http: HttpClient, private routeStateService: RouteStateService) {
-
     this.profileCard = new Subject<ProfileCard>()
     this.profileImage = new Subject<Image>()
-
   }
 
+  /**
+   * Metodo che permette di effettuare una richiesta di login passando un oggetto con campi email e password
+   * @param email 
+   * @param password 
+   */
   login(email: string, password: string) {
     const url = `${this.URL}/login`;
     return this.http.post<string>(url, { username: email, password: password }).pipe(
@@ -83,15 +86,29 @@ export class AuthService {
     );
   }
 
+  /**
+   * Metodo che permette di effettuare una richiesta di registrazione passando in un form:
+   * RegisteredUserForm{
+   * id: string
+   * name: string
+   * firstName: string
+   * password: string
+   * email: string
+   * } 
+   * e se setttata l'immagine dello user che si vuole registrare
+   * @param user 
+   * @param file 
+   */
   register(user: RegisteredUserForm, file: File): Observable<RegisteredUserForm> {
-    
+
     const formData = new FormData();
 
     let headers = new HttpHeaders()
     headers.set('Content-Type', 'multipart/form-data;');
 
 
-    // Il tentativo di discernere la fine della mail non è un aggiunta di un livello di sicurezza ma serve solo a discernere quale API contattare
+    // Il tentativo di discernere la fine della mail non è un aggiunta di un livello di sicurezza 
+    // ma serve solo a discernere quale API contattare
     if (user.email.includes("@studenti.polito.it")) {
 
       let url = `${this.URL}/students`;
@@ -103,7 +120,6 @@ export class AuthService {
 
       if (file)
         formData.append('image', file, file.name);
-
 
       return this.http.post<RegisteredUserForm>(url, formData, { "headers": headers }).pipe(
         retry(3),
@@ -129,6 +145,9 @@ export class AuthService {
     }
   }
 
+  /**
+   * Metodo che permette di effettuare il logout rimuovendo l'oggetto sessione
+   */
   logout() {
     localStorage.removeItem('session');
     this.routeStateService.updatePathParamState("Home")
@@ -136,6 +155,10 @@ export class AuthService {
   }
 
 
+  /**
+   * Metodo che permette di ricavare le informazioni riguardo allo user che effettua la richiesta
+   * ritorna a seconda di chi sia uno Student oppure un Professor
+   */
   getSelf(): Observable<any> {
 
     let url = "";
@@ -152,9 +175,6 @@ export class AuthService {
         return new Observable()
     }
 
-
-
-
     return this.http.get<any>(url).pipe(
       retry(3),
       catchError(this.handleError)
@@ -162,7 +182,9 @@ export class AuthService {
   }
 
 
-
+  /**
+   * Metodo che permette di otterne l'immmagine dell'utente che effettua la chiamata
+   */
   getImage(): Observable<Image> {
 
     let url = "";
@@ -183,6 +205,11 @@ export class AuthService {
       catchError(this.handleError)
     )
   }
+
+
+  /**
+   * Metodo che permette di recuperare il token di autenticazione di utente loggato 
+   */
   getAccessToken() {
 
     var session = localStorage.getItem('session');
@@ -192,6 +219,9 @@ export class AuthService {
     return session["token"];
   }
 
+  /**
+   * Metodo che permette di ottenere il ruolo di utente loggato 
+   */
   getRole() {
 
     if (localStorage.getItem('session') === null) return null;
@@ -210,37 +240,47 @@ export class AuthService {
 
   }
 
+  /**
+   * Metodo che permette di ottenere la mail di utente loggato 
+   */
   getEmail(): string {
     let session = JSON.parse(localStorage.getItem('session'));
     return session['email']
   }
 
+  /**
+   * Metodo che permette di ottenere la nome e cognome di utente loggato  
+   */
   getUserNameAndSurname(): string {
     let session = JSON.parse(localStorage.getItem('session'));
     if (session['firstName'] && session['name'])
       return `${session['firstName']} ${session['name']}`
   }
-
+  /**
+    * Metodo che permette di ottenere la matricola di utente loggato  
+   */
   getId(): string {
     let session = JSON.parse(localStorage.getItem('session'));
     return session['id']
   }
 
-  /*
-  getEmail(): string {
-    let session = JSON.parse(localStorage.getItem('session'));
-    return session['email']
-  }
-  */
-
+  /**
+   * Metodo che permette di sapere se l'utente loggato è uno studente   
+   */
   isRoleStudent() {
     return this.getRole() == ROLE.STUDENT
   }
 
+  /**
+   * Metodo che permette di sapere se l'utente loggato è un professore     
+   */
   isRoleTeacher() {
     return this.getRole() == ROLE.TEACHER;
   }
 
+  /**
+ * Metodo che permette di sapere se l'utente è loggato     
+ */
   isLoggedIn() {
 
     if (localStorage.getItem('session') === null) return false;
@@ -260,11 +300,11 @@ export class AuthService {
       // The response body may contain clues as to what went wrong,
       console.error(
         `Backend returned code ${error.status}, ` +
-        `body was: ${error.error.message}`);
+        `body was: ${error.message}`);
     }
     // return an observable with a user-facing error message
 
     console.log(error)
-    return throwError({ status: error.status, message: error.error.message });
+    return throwError({ status: error.status, message: error.message });
   };
 }

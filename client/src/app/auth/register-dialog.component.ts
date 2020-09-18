@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormGroup, FormControl, Validators, ValidatorFn, ValidationErrors } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { AuthService, RegisteredUserForm } from '../services/auth.service';
 
-
+/**
+ * Custom validator per check password e confirm password se uguali
+ * @param control 
+ */
 export const passwordValidator: ValidatorFn = (
   control: FormGroup
 ): ValidationErrors | null => {
@@ -22,23 +25,33 @@ export const passwordValidator: ValidatorFn = (
 })
 export class RegisterDialogComponent implements OnInit {
 
+  // Messaggio per UX
   message: string | null;
   alertType: string
 
   //hide password flag
   hide = true
 
+  // Immagine utente in registrazione
   selectedFile: File;
+
+  // Inizializzazione pattern
   pattern: string = "s******@studenti.polito.it"
 
+  // Form di registrazione
   form: FormGroup;
 
+  // Flag che permette di dire se la registrazione è in corso
   isRegistrationSubmitting: boolean
 
-  constructor(private dialogRef: MatDialogRef<RegisterDialogComponent>, private auth: AuthService) {
+  constructor(
+    private dialogRef: MatDialogRef<RegisterDialogComponent>,
+    private auth: AuthService) {
+
     this.message = ""
     this.alertType = ""
     this.isRegistrationSubmitting = false
+
     this.form = new FormGroup({
       firstName: new FormControl('', Validators.required),
       name: new FormControl('', Validators.required),
@@ -52,28 +65,32 @@ export class RegisterDialogComponent implements OnInit {
         ]),
       password: new FormControl('', [Validators.required, Validators.minLength(8), Validators.maxLength(12)]),
       confirmPassword: new FormControl('')
-    }, { validators: passwordValidator }
-    );
+    }, { validators: passwordValidator });
+
   }
 
   ngOnInit(): void {
-
-    this.form.get('id').valueChanges.subscribe(data => {
+    // Sottoscrivo a cambiamenti della matricola, perché devo genero automaticamente la mail
+    this.form.get('id').valueChanges.subscribe(_ => {
       this.combinePatternId()
     })
   }
 
   submit() {
     if (this.form.valid) {
-
+      // Creo copia del form
       let user: RegisteredUserForm = { ...this.form.value };
 
-
+      // Aggiorno flag 
       this.isRegistrationSubmitting = true
+
+      // Effettuo chiamata per registrazione utente
       this.auth.register(user, this.selectedFile)
         .subscribe(
           data => {
+            // La registrazione è finita aggiorno flag
             this.isRegistrationSubmitting = false
+            // Setto messaggio 
             this.alertType = "success"
             this.message = "An email was sent to your account, please click on the link to confirm."
             setTimeout(() => this.close(), 3000)
@@ -82,11 +99,16 @@ export class RegisterDialogComponent implements OnInit {
             this.isRegistrationSubmitting = false
             this.alertType = "danger"
             this.message = error.message
+            setTimeout(() => {
+              this.message = ""
+              this.alertType = ""
+            }, 3000)
           })
     }
   }
-
-
+  /**
+   * Metodo che serve a chiudere dialog di registrazione
+   */
   close() {
     this.dialogRef.close();
   }
@@ -102,7 +124,9 @@ export class RegisterDialogComponent implements OnInit {
   }
 
 
-
+  /**
+   * Metodo che permette di ricreare automaticamente la mail dato l'id
+   */
   combinePatternId() {
     let id = this.form.get("id").value
     console.log(id);
@@ -111,11 +135,16 @@ export class RegisterDialogComponent implements OnInit {
       this.form.get('email').setValue(this.pattern.charAt(0) + id + this.pattern.substring(1 + id.length))
     } else
       this.form.get('email').setValue(this.pattern)
-
   }
 
+  /**
+   * Metodo che permette di rendersi conto quando il pattern è cambiato. 
+   * Questo avviene in base al ruolo settato, se studente o professore.
+   * @param event 
+   */
   onPatternChanged(event) {
     this.pattern = event
+    // Aggiorno la mail di conseguenza
     this.combinePatternId()
   }
 

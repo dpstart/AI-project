@@ -20,6 +20,7 @@ export class LoginDialogComponent {
     private authService: AuthService,
     private router: Router,
     private activatedRoute: ActivatedRoute) {
+      
     //Controllo utile solo se copi e incolli url del login nella url, allora si viene rediretti alla home
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['home'])
