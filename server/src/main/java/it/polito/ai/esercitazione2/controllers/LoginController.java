@@ -25,6 +25,7 @@ public class LoginController {
     @PostMapping({"", "/"})
     public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest authenticationRequest) {
         try{
+
            return ResponseEntity.ok(teamService.loginUser(authenticationRequest));
         } catch(AuthenticationServiceException e){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());

@@ -1,12 +1,72 @@
 # AI-project
 
-## Server
+## Server: DB
 
 ### How to run DB:
 
 ```console
 docker run --name teams -p 3306:3306 -v <Dtabase volume on the local filesystem>:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=admin -d mariadb:latest
 ```
+
+### Flyway
+
+- It's a database migration tool
+
+```xml
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+```
+
+#### Why did we use it?
+
+Default schema doesn't work because of SQL dialect problem
+
+```java
+ auth.jdbcAuthentication()
+      .dataSource(dataSource)
+      .withDefaultSchema()
+      .withUser(User.withUsername("ADMIN")
+        .password(passwordEncoder().encode("admin"))
+        .roles("ADMIN"));
+```
+
+So, it was necessary to manually create USERS and AUTHORITIES tables and override the custom query:
+
+```java
+usersByUsernameQuery(
+                        "select username,password, enabled from users where username=?")
+               .authoritiesByUsernameQuery(
+                       "select username, authority from authorities where username=?")
+                .passwordEncoder(passwordEncoder());
+                .withUser(User.withUsername("admin") //to comment after the admin has been inserted
+                        .password(passwordEncoder().encode("admin"))
+                        .roles("ADMIN"));
+
+```
+
+However in this way, two issue come out:
+
+1. we want to keep the benefits of automatic table generation: spring.jpa.generate-ddl=true 
+2. we would like to add ADMIN only at the first run automatically;
+
+Solutions:
+
+- db.migration 
+    - V2__create_auth_tables.sql
+    - V3__contraints.sql 
+- flyway schema history table
+- spring.flyway.baseline-on-migrate = true
+
+The DB reaches 3 version during the application first run:
+
+0. init;
+1. creation of the base tables;
+2. creation of USER and AUTHORITIES tables;
+3. creation of the ix_auth_username contraint between the two tables;
+
+The ADMIN is added only after this creation.
 
 ### Database information:
 
