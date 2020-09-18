@@ -337,15 +337,18 @@ export class StudentsComponent implements OnInit {
   }
 
   /**
-   * TODO
+   * Metodo che permette di settare lo studente selezionato nell'autocomplete
    * @param student 
    */
   autocompleteSelected(student: Student) {
     this.addStudentForm.get('studentControl').setValue(student)
   }
 
-  addStudentEvent() {
 
+  /**
+   * Metodo che permette nel momento in cui avviene l'aggiunta di uno studente di scatenare evento gestito poi dal parent 
+   */
+  addStudentEvent() {
     if (this.addStudentForm.get("studentControl").value != null) {
       this.addStudent.emit(this.addStudentForm.get("studentControl").value);
       this.addStudentForm.get('studentControl').setValue(null)
@@ -353,16 +356,25 @@ export class StudentsComponent implements OnInit {
 
   }
 
+  /**
+   * Metodo che permette di far visualizzare il pulsante di elimina studenti, in base al numero di studenti selezionati 
+   */
   isDeleteButtonDisabled() {
     return this.selection.isEmpty();
   }
 
+  /**
+   * Metodo che permette di creare un evento per poter cancellare gli studenti
+   */
   _deleteStudents() {
     this.deleteStudents.emit(this.selection.selected)
     this.selection.clear();
   }
 
-  //Gets called when the user selects an image
+  /**
+   * Metodo che permette di settare il file CSV per l'aggiunta degli studenti, richiamato ad ogni selezione del file.
+   * @param event 
+   */
   public onFileChanged(event) {
     //Select File
     this.selectedFile = event.target.files[0];
@@ -370,36 +382,49 @@ export class StudentsComponent implements OnInit {
     if (this.addStudentForm.get('fileNameControl'))
       this.isDisabled = false
   }
-  //Gets called when the user clicks on submit to upload the image
+
+  /*
+   * Gets called when the user clicks on submit to upload the image 
+   */
   onUpload() {
     this.enrollManyCsvEvent.emit(this.selectedFile);
   }
 
+  /**
+   * Metodo che fa il toggle del flag isEditing
+   */
   toggleEditSettings() {
     this.isEditing = !this.isEditing
   }
 
+  /**
+   * Metodo che permette di emettere un evento per la modifica dei settings di un corso gestito poi dal parent
+   */
   confirmSettings() {
+
     let course = { ...this.courseObj } as Course
 
-    //Corso viene settato allora devi confermarlo
-
+    //Corso viene settato in base ai dati del form
     course.min = this.courseSettingForm.get('min').value
 
     course.max = this.courseSettingForm.get('max').value
 
     course.enabled = this.courseSettingForm.get('enabled').value
 
+    // evento con nuova versione e vecchia versione 
     this.updateCourse.emit([course, this.courseObj])
-
   }
 
+  /**
+   * Metodo che viene chiamata per rimuovere un corso e che richiama un dialog di conferma
+   */
   onRemoveCourse() {
-
     this.openDialog()
-
   }
 
+  /**
+   * Metodo per apertura dialog di conferma rimozione corso
+   */
   openDialog(): void {
     const dialogRef = this.dialog.open(RemoveCourseDialogComponent, {
       width: 'auto',
@@ -412,8 +437,9 @@ export class StudentsComponent implements OnInit {
     });
   }
 
-
-
+  /**
+   * Metodo usato per resettare le informazioni da visualizzare all'interno del form dei settings del corso
+   */
   resetCourseSettings() {
     this.courseSettingForm.get('min').setValue(this.courseObj.min)
     this.courseSettingForm.get('max').setValue(this.courseObj.max)
