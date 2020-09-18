@@ -740,28 +740,7 @@ public class TeamServiceImpl implements TeamService {
 
     // Operations on multiple students
 
-    @Override
-    public List<Boolean> addAll(List<StudentDTO> students, boolean notify) {
-        List<Boolean> res = students.stream().map(x -> addStudent(x, false)).collect(Collectors.toList());
 
-
-        if (notify) {
-            Map<Integer, String> pwds = new HashMap<>();
-            for (int i = 0; i < students.size(); i++) {
-                if (res.get(i)) {
-
-
-                    pwds.put(i, students.get(i).getPassword());
-                }
-            }
-            if (!registerUsers(pwds.entrySet().stream().collect(Collectors.toMap(x -> students.get(x.getKey()).getId(), x -> enc.encode(x.getValue()))), "ROLE_STUDENT"))
-                throw new AuthenticationServiceException("Some errors occurs with the registration of users in the system: retry!");
-
-            for (Integer pos : pwds.keySet())
-                notificationService.notifyStudent(students.get(pos));
-        }
-        return res;
-    }
 
     @Override
     public List<Boolean> enrollAll(List<String> studentIds, String courseName) {
@@ -809,45 +788,6 @@ public class TeamServiceImpl implements TeamService {
 
     }
 
-    @Override
-    public List<Boolean> addAndEnroll(Reader r, String courseName) {
-        // create csv bean reader
-
-        CsvToBean<StudentDTO> csvToBean = new CsvToBeanBuilder(r)
-                .withType(StudentDTO.class)
-                .withIgnoreLeadingWhiteSpace(true)
-                .build();
-
-        // convert `CsvToBean` object to list of users
-        List<StudentDTO> users = csvToBean.parse();
-        List<String> users_ids = users.stream().map(StudentDTO::getId).collect(Collectors.toList());
-        List<Boolean> resAdd = addAll(users, false);
-
-
-        List<Boolean> resEnroll = enrollAll(users_ids, courseName);
-
-        Map<Integer, String> pwds = new HashMap<>();
-        for (int i = 0; i < resAdd.size(); i++) {
-
-            // paranoia
-            if (resAdd.get(i) && !resEnroll.get(i))
-                throw new NotExpectedStatusException("It's impossible that a not existing student is already enrolled in a course");
-
-            if (resAdd.get(i)) {
-
-
-                pwds.put(i, users.get(i).getPassword());
-            }
-            resAdd.set(i, resAdd.get(i) | resEnroll.get(i));
-        }
-
-        if (!registerUsers(pwds.entrySet().stream().collect(Collectors.toMap(x -> users.get(x.getKey()).getId(), x -> enc.encode(x.getValue()))), "ROLE_STUDENT"))
-            throw new AuthenticationServiceException("Some errors occurs with the registration of users in the system: retry!");
-        for (Integer pos : pwds.keySet())
-            notificationService.notifyStudent(users.get(pos));
-
-        return resAdd;
-    }
 
     @Override
     public List<TeamDTO> getTeamsforStudent(String studentId) {

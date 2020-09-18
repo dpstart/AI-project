@@ -63,14 +63,11 @@ public interface TeamService {
     @PreAuthorize("hasRole('PROFESSOR')")
     void disableCourse(String courseName);
 
-    @PreAuthorize("hasRole('ADMIN')")
-    List<Boolean> addAll(List<StudentDTO> students,boolean notify);
     @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
     List<Boolean> enrollAll(List<String> studentIds,String courseName);
     @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
     List<Boolean> unsubscribeAll(List<String> studentIds,String courseName);
-    @PreAuthorize("hasRole('ADMIN')")
-    List<Boolean> addAndEnroll(Reader r, String courseName);
+
     @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
     List<Boolean> enrollCSV(Reader r, String courseName) throws IOException, CsvValidationException;
 

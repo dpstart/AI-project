@@ -130,31 +130,6 @@ public class StudentController {
     }
 
 
-    /**
-     * Register many students
-     * Authentication required: admin
-     * @param students: students data
-     *
-     * @return List of registered StudentDTOs
-     */
-    @PostMapping({"/many"})
-    public List<StudentDTO> addStudents(@RequestBody @Valid ValidStudentDTOList students) {
-        List<Boolean> res;
-        List<StudentDTO> original = students.getList();
-        List<StudentDTO> finalRes = new ArrayList<>();
-        try {
-            res = teamservice.addAll(original, true);
-        } catch (IncoherenceException | AuthenticationServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-        }
-
-
-        for (int i = 0; i < res.size(); i++) {
-            if (res.get(i))
-                finalRes.add(ModelHelper.enrich(original.get(i)));
-        }
-        return finalRes;
-    }
 
     /**
      * Get authenticated student's image
