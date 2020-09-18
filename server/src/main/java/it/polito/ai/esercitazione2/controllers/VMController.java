@@ -137,6 +137,26 @@ public class VMController {
         }
     }
 
+    @GetMapping("/teams/{team_id}/resources")
+    SettingsDTO getResourcesByTeam(@PathVariable Long team_id){
+        try {
+            return vmservice.getResourcesByTeam(team_id);
+        }
+        catch(TeamNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }
+    }
+
+    @GetMapping("/teams/{team_id}/resources/running")
+    SettingsDTO getRunningResourcesByTeam(@PathVariable Long team_id){
+        try {
+            return vmservice.getRunningResourcesByTeam(team_id);
+        }
+        catch(TeamNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }
+    }
+
     @GetMapping({"","/"})
     List<VMDTO> getVMs(){
             return vmservice.getVMs();

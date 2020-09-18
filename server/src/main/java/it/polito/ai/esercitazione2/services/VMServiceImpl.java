@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -411,6 +412,37 @@ public class VMServiceImpl implements VMService {
         Team t = teamRepository.getOne(teamID);
         return vmRepository.getByTeam(t).stream().map(x->modelMapper.map(x,VMDTO.class))
                 .collect(Collectors.toList());
+    }
+    @Override
+    public SettingsDTO getResourcesByTeam(Long teamID){
+        if (!teamRepository.existsById(teamID))
+            throw new TeamNotFoundException("Team "+teamID+ " not found");
+        Team t = teamRepository.getOne(teamID);
+        SettingsDTO settings = new SettingsDTO();
+        List<VM> vms = vmRepository.getByTeam(t);
+
+        settings.setN_cpu(vms.stream().mapToInt(VM::getN_cpu).sum());
+
+        settings.setDisk_space(vms.stream().mapToInt(VM::getDisk_space).sum());
+        settings.setRam(vms.stream().mapToInt(VM::getRam).sum());
+        settings.setMax_active(vms.size());
+        return settings;
+    }
+
+    @Override
+    public SettingsDTO getRunningResourcesByTeam(Long teamID){
+        if (!teamRepository.existsById(teamID))
+            throw new TeamNotFoundException("Team "+teamID+ " not found");
+        Team t = teamRepository.getOne(teamID);
+        SettingsDTO settings = new SettingsDTO();
+        List<VM> vms = vmRepository.getByTeam(t).stream().filter(x->x.getStatus()==1).collect(Collectors.toList());
+
+        settings.setN_cpu(vms.stream().mapToInt(VM::getN_cpu).sum());
+
+        settings.setDisk_space(vms.stream().mapToInt(VM::getDisk_space).sum());
+        settings.setRam(vms.stream().mapToInt(VM::getRam).sum());
+        settings.setMax_active(vms.size());
+        return settings;
     }
 
     @Override
