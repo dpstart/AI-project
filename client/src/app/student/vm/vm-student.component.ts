@@ -61,9 +61,9 @@ export class VmStudentComponent implements OnInit {
 
     this.isAllLoaded = false
     this.dataSourceVm = new MatTableDataSource<Vm>();
-    this.innerDisplayedColumns = ['id', 'n_cpu', 'disk_space', 'ram', 'status'];
+    this.innerDisplayedColumns = ['position', 'n_cpu', 'disk_space', 'ram', 'status'];
 
-    this.displayedColumns = ['actions', 'id', 'n_cpu', 'disk_space', 'ram', 'status', 'delete'];
+    this.displayedColumns = ['actions', 'position', 'n_cpu', 'disk_space', 'ram', 'status', 'delete'];
 
   }
 
@@ -87,6 +87,9 @@ export class VmStudentComponent implements OnInit {
 
           this.studentService.getVmsForTeam(team.id).subscribe(vms => {
 
+            for (let i = 0; i < vms.length; i++) {
+              vms[i]['position'] = i + 1
+            }
             this.dataSourceVm.data = [...vms]
             this.isAllLoaded = true
           })

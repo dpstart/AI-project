@@ -2,81 +2,82 @@
     <mat-spinner diameter="300" strokeWidth="5"></mat-spinner>
 </div>
 <ng-template #loadedBlock>
-    <div class="tabContainer">
-
-        <h2 class="mat-h2 tabtitle">Elenco VM.</h2>
+    <div class="contentContainer">
 
         <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
 
-        <button mat-flat-button color="primary" [disabled]="!teamId" (click)="createVm($event)">Create new VM</button>
-
+        <mat-card style="width: 25%; align-self: center;">
+            <h2 class="mat-h2 tabtitle">Vm Creation</h2>
+            <button mat-flat-button color="primary" [disabled]="!teamId" (click)="createVm($event)">Create</button>
+        </mat-card>
+       
         <mat-card *ngIf="dataSourceVm.data.length==0">No VMs currently available.</mat-card>
 
-        <table *ngIf="dataSourceVm.data.length>0" #innerTables mat-table #innerSort="matSort" [dataSource]=dataSourceVm
-            matSort>
-            <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Name</th>
-                <td mat-cell *matCellDef="let vm"> {{vm.name}} </td>
-            </ng-container>
-            <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> ID</th>
-                <td mat-cell *matCellDef="let vm"> {{vm.id}} </td>
-            </ng-container>
-            <ng-container matColumnDef="disk_space">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Disk Space</th>
-                <td mat-cell *matCellDef="let vm"> {{vm.disk_space}} </td>
-            </ng-container>
-            <ng-container matColumnDef="ram">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> RAM</th>
-                <td mat-cell *matCellDef="let vm"> {{vm.ram}} </td>
-            </ng-container>
+        <mat-card *ngIf="dataSourceVm.data.length>0">
+            <h2 class="mat-h2 tabtitle"> Vm list</h2>
+            <table #innerTables mat-table #innerSort="matSort" [dataSource]=dataSourceVm matSort>
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Name</th>
+                    <td mat-cell *matCellDef="let vm"> {{vm.name}} </td>
+                </ng-container>
+                <ng-container matColumnDef="position">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> No.</th>
+                    <td mat-cell *matCellDef="let vm"> {{vm['position']}} </td>
+                </ng-container>
+                <ng-container matColumnDef="disk_space">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Disk Space</th>
+                    <td mat-cell *matCellDef="let vm"> {{vm.disk_space}} </td>
+                </ng-container>
+                <ng-container matColumnDef="ram">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> RAM</th>
+                    <td mat-cell *matCellDef="let vm"> {{vm.ram}} </td>
+                </ng-container>
 
-            <ng-container matColumnDef="n_cpu">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> N. CPU</th>
-                <td mat-cell *matCellDef="let vm"> {{vm.n_cpu}}</td>
-            </ng-container>
-            <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Status</th>
-                <td mat-cell *matCellDef="let vm">
-                    <span *ngIf="vm.status == 0">Stopped</span>
-                    <span *ngIf="vm.status == 1">Running</span> </td>
-            </ng-container>
+                <ng-container matColumnDef="n_cpu">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> N. CPU</th>
+                    <td mat-cell *matCellDef="let vm"> {{vm.n_cpu}}</td>
+                </ng-container>
+                <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Status</th>
+                    <td mat-cell *matCellDef="let vm">
+                        <span *ngIf="vm.status == 0">Stopped</span>
+                        <span *ngIf="vm.status == 1">Running</span> </td>
+                </ng-container>
 
-            <ng-container *ngIf="dataSourceVm.data.length>0" matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef> Actions </th>
-                <td mat-cell *matCellDef="let vm">
-                    <button mat-raised-button (click)="changeVmStatus(vm)">
-                        <div *ngIf=" vm.status == 0; then runBlock else stopBlock"></div>
-                        <ng-template #runBlock>
-                            Run
-                        </ng-template>
-                        <ng-template #stopBlock>
-                            Stop
-                        </ng-template>
-                    </button>
-                    <button [disabled]="vm.status==0" mat-raised-button (click)="openVmImage(vm)">Open</button>
-                    <button [disabled]="vm.status==1" mat-raised-button
-                        (click)="openEditDialog(vm, $event)">Edit</button>
-                </td>
-            </ng-container>
+                <ng-container *ngIf="dataSourceVm.data.length>0" matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef> Actions </th>
+                    <td mat-cell *matCellDef="let vm">
+                        <button mat-raised-button (click)="changeVmStatus(vm)">
+                            <div *ngIf=" vm.status == 0; then runBlock else stopBlock"></div>
+                            <ng-template #runBlock>
+                                Run
+                            </ng-template>
+                            <ng-template #stopBlock>
+                                Stop
+                            </ng-template>
+                        </button>
+                        <button [disabled]="vm.status==0" mat-raised-button (click)="openVmImage(vm)">Open</button>
+                        <button [disabled]="vm.status==1" mat-raised-button
+                            (click)="openEditDialog(vm, $event)">Edit</button>
+                    </td>
+                </ng-container>
 
-            <ng-container matColumnDef="delete">
-                <th mat-header-cell *matHeaderCellDef> Delete </th>
-                <td mat-cell *matCellDef="let vm">
-                    <mat-icon id="deleteIcon" aria-hidden="false" aria-label="Example home icon" (click)="deleteVm(vm)">
-                        delete
-                    </mat-icon>
-                </td>
-            </ng-container>
+                <ng-container matColumnDef="delete">
+                    <th mat-header-cell *matHeaderCellDef> Delete </th>
+                    <td mat-cell *matCellDef="let vm">
+                        <mat-icon id="deleteIcon" aria-hidden="false" aria-label="Example home icon"
+                            (click)="deleteVm(vm)">
+                            delete
+                        </mat-icon>
+                    </td>
+                </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
-        <!-- Copyright 2020 Google LLC. All Rights Reserved.
-            Use of this source code is governed by an MIT-style license that
-            can be found in the LICENSE file at http://angular.io/license -->
-        <mat-paginator *ngIf="dataSourceVm.data.length>0" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+            </table>
+            <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+        </mat-card>
     </div>
 
 </ng-template>

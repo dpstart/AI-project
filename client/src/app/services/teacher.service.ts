@@ -7,6 +7,7 @@ import { Student } from '../model/student.model';
 import { Assignment } from '../model/assignment.model';
 import { Homework } from '../model/homework.model';
 import { Course } from '../model/course.model';
+import { Vm } from '../student/vm/vm-student.component';
 
 // Interfaccia link del teacher
 export interface NavTeacherLinks {
@@ -284,10 +285,10 @@ export class TeacherService {
      * Metodo che ritorna le vms di un determinato team
      * @param team 
      */
-    getVmsForTeam<T>(team: number): Observable<T> {
+    getVmsForTeam<Vm>(team: number): Observable<Vm[]> {
 
         const url = `${this.URL}/vms/teams/${team}`;
-        return this.http.get<T>(url).pipe(
+        return this.http.get<Vm[]>(url).pipe(
             retry(3),
             catchError(this.handleError)
         );

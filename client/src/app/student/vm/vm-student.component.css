@@ -1,7 +1,8 @@
-mat-spinner{
+mat-spinner {
     margin: 4%;
 }
-#deleteIcon{
+
+#deleteIcon {
     cursor: pointer;
 }
 
@@ -9,15 +10,23 @@ mat-spinner{
     display: flex;
     justify-content: center;
 }
-::ng-deep th,td{
-    text-align:center!important;
+
+::ng-deep th, td {
+    text-align: center!important;
 }
 
-::ng-deep .mat-sort-header-container{
+::ng-deep .mat-sort-header-container {
     justify-content: center!important;
 }
 
-mat-card{
-    text-align:center;
-    margin-top:10%;
+mat-card {
+    text-align: center;
+    margin: 20px;
+}
+
+.contentContainer{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
 }

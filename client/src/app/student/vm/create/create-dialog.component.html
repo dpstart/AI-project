@@ -40,8 +40,8 @@
 
             <br>
             <div>
-                <button [disabled]="!form.valid" (click)="submit()" mat-raised-button color="primary">Confirm</button>
-                <button (click)="close({})" class="cancel" mat-raised-button>Cancel</button>
+                <button [disabled]="!form.valid" (click)="submit()" mat-raised-button color="primary" class="actions">Confirm</button>
+                <button (click)="close({})"  mat-raised-button class="actions">Cancel</button>
             </div>
 
         </form>

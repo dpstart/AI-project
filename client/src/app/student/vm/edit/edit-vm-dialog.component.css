@@ -1,3 +1,7 @@
 mat-card {
-  text-align:center ;
+  text-align: center;
+}
+
+.actions {
+  margin: 0 20px;
 }

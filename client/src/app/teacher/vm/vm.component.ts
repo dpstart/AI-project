@@ -33,8 +33,8 @@ export class VMComponent implements OnInit {
     message: string | null;
     alertType: string;
 
-    columnsToDisplay: string[] = ['actions', 'name', 'id', 'disk_space', 'ram', 'n_cpu'];
-    innerDisplayedColumns = ['id', 'id_creator', 'n_cpu', 'disk_space', 'ram', 'status', 'actions'];
+    columnsToDisplay: string[] = ['position', 'actions', 'name', 'disk_space', 'ram', 'n_cpu'];
+    innerDisplayedColumns = ['position', 'id_creator', 'n_cpu', 'disk_space', 'ram', 'status', 'actions'];
     dataSourceTeams: MatTableDataSource<any> = new MatTableDataSource<any>();
 
     private paginator: MatPaginator;
@@ -92,12 +92,18 @@ export class VMComponent implements OnInit {
                 this.teacherService.getTeams(this.selectedCourse).subscribe((data: Team[]) => {
 
 
-                    data.forEach((element, i) => {
-                        let team_id = element["id"];
+                    data.forEach((team, i) => {
+                        team['position'] = i+1
+
+                        let team_id = team["id"];
 
                         this.teacherService.getVmsForTeam(team_id).subscribe(vms => {
 
                             data[i]["vms"] = vms;
+
+                            for (let i = 0; i < vms.length; i++) {
+                                vms[i]['position'] = i+1
+                            }
                         })
                     });
 

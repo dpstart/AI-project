@@ -3,16 +3,15 @@
 </div>
 <ng-template #loadedBlock>
 
-    <div class="tabContainer">
+    <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
 
-        <h2 class="mat-h2 tabtitle">Elenco team.</h2>
+    <mat-card *ngIf="dataSourceTeams.data.length==0">No Teams to show.</mat-card>
 
-        <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
+    <mat-card *ngIf="dataSourceTeams.data.length>0">
 
-        <mat-card *ngIf="dataSourceTeams.data.length==0">No Teams to show.</mat-card>
+        <h2 class="mat-h2 tabtitle">Team list</h2>
 
-        <table *ngIf="dataSourceTeams.data.length>0" mat-table [dataSource]="dataSourceTeams" multiTemplateDataRows
-            class="mat-elevation-z8">
+        <table mat-table [dataSource]="dataSourceTeams" multiTemplateDataRows>
 
             <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef>
@@ -21,11 +20,11 @@
                     {{element.name}} </td>
             </ng-container>
 
-            <ng-container matColumnDef="id">
+            <ng-container matColumnDef="position">
                 <th mat-header-cell *matHeaderCellDef>
-                    ID </th>
+                    No. </th>
                 <td mat-cell *matCellDef="let element">
-                    {{element.id}} </td>
+                    {{element.position}} </td>
             </ng-container>
 
             <ng-container matColumnDef="disk_space">
@@ -70,11 +69,11 @@
                                     {{element.name}} </td>
                             </ng-container>
 
-                            <ng-container matColumnDef="id">
+                            <ng-container matColumnDef="position">
                                 <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                                    ID </th>
+                                    No. </th>
                                 <td mat-cell *matCellDef="let element">
-                                    {{element.id}} </td>
+                                    {{element.position}} </td>
                             </ng-container>
 
                             <ng-container matColumnDef="disk_space">
@@ -138,10 +137,7 @@
             <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
         </table>
 
+        <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
 
-        <!-- Copyright 2020 Google LLC. All Rights Reserved.
-    Use of this source code is governed by an MIT-style license that
-    can be found in the LICENSE file at http://angular.io/license -->
-        <mat-paginator *ngIf="dataSourceTeams.data.length>0" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
-    </div>
+    </mat-card>
 </ng-template>

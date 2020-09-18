@@ -38,9 +38,9 @@
             <br>
 
             <div>
-                <button type="button" [disabled]="!form.valid" (click)="submit()" mat-raised-button
-                    color="primary">Confirm</button>
-                <button type="button" (click)="close(null)" class="cancel" mat-raised-button>Cancel</button>
+                <button type="button" [disabled]="!form.valid" (click)="submit()" mat-raised-button color="primary"
+                    class="actions">Confirm</button>
+                <button type="button" (click)="close(null)" mat-raised-button class="actions">Cancel</button>
             </div>
         </form>
     </mat-card-content>

@@ -14,6 +14,10 @@ mat-card-title, mat-card-content {
   justify-content: center;
 }
 
+mat-card{
+  text-align: center;
+}
+
 .error {
   padding: 16px;
   width: 300px;
@@ -40,4 +44,8 @@ mat-radio-group {
 
 .mat-hint {
   color: #f44336
+}
+
+.actions{
+  margin: 0 20px;
 }
