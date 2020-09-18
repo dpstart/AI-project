@@ -25,9 +25,7 @@ const routes: Routes = [
                 { path: 'course/:course_name/groups', component: GroupsComponent },
                 { path: 'course/:course_name/vms', component: VmStudentComponent },
                 { path: 'course/:course_name/homework', component: HomeworkContainerComponent }
-
             ]
-
     },
     {
         path: "teacher",
@@ -40,9 +38,9 @@ const routes: Routes = [
     },
     { path: 'home', component: HomeComponent },
     { path: '', redirectTo: '/home', pathMatch: 'full' },
-    { path: 'notification/activate/:token', component: ActivateAccountComponent },
-    { path: 'notification/confirm/:token', component: ConfirmTokenComponent },
-    { path: 'notification/reject/:token', component: RejectTokenComponent },
+    { path: 'activate/:token', component: ActivateAccountComponent },
+    { path: 'confirm/:token', component: ConfirmTokenComponent },
+    { path: 'reject/:token', component: RejectTokenComponent },
     { path: '**', component: PageNotFoundComponent }
 ];
 

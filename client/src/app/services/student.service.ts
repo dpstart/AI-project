@@ -200,6 +200,18 @@ export class StudentService {
   }
 
   /**
+   * Metodo che permette di confermare account
+   * @param token 
+   */
+  confirmAccount(token: string) {
+    const url = `http://localhost:4200/notification/activate/${token}`
+    return this.http.get<boolean>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
    * Metodo che permette di ottenere le proposte ricevute dallo studente che effettua la chiamata
    * @param courseName: nome del corso
    */
