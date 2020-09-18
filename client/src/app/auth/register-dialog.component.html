@@ -70,9 +70,11 @@
 
             <br>
 
-            <div>
-                <button [disabled]="form.invalid" (click)="submit()" mat-raised-button color="primary"
-                    class="actions">Register</button>
+            <div class="flexCenter">
+                <div *ngIf="isRegistrationSubmitting; then yes else no"></div>
+                <ng-template #yes> <mat-spinner diameter="36" strokeWidth="3" class="actions"></mat-spinner></ng-template>
+                <ng-template #no> <button [disabled]="form.invalid" (click)="submit()" mat-raised-button color="primary"
+                        class="actions">Register</button></ng-template>
                 <button (click)="close()" mat-raised-button class="actions">Cancel</button>
             </div>
 

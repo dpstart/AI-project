@@ -33,11 +33,12 @@ export class RegisterDialogComponent implements OnInit {
 
   form: FormGroup;
 
+  isRegistrationSubmitting: boolean
 
   constructor(private dialogRef: MatDialogRef<RegisterDialogComponent>, private auth: AuthService) {
     this.message = ""
     this.alertType = ""
-
+    this.isRegistrationSubmitting = false
     this.form = new FormGroup({
       firstName: new FormControl('', Validators.required),
       name: new FormControl('', Validators.required),
@@ -49,7 +50,7 @@ export class RegisterDialogComponent implements OnInit {
           Validators.required,
           Validators.pattern('^(s|d){0,1}[0-9]{6}((@studenti.polito.it)|(@polito.it))$')
         ]),
-      password: new FormControl('', [Validators.required,Validators.minLength(8),Validators.maxLength(12)]),
+      password: new FormControl('', [Validators.required, Validators.minLength(8), Validators.maxLength(12)]),
       confirmPassword: new FormControl('')
     }, { validators: passwordValidator }
     );
@@ -66,13 +67,19 @@ export class RegisterDialogComponent implements OnInit {
     if (this.form.valid) {
 
       let user: RegisteredUserForm = this.form.value;
+
+      
+      this.isRegistrationSubmitting = true
       this.auth.register(user, this.selectedFile)
         .subscribe(
           data => {
+            this.isRegistrationSubmitting = false
             this.alertType = "success"
             this.message = "An email was sent to your account, please click on the link to confirm."
+            setTimeout(() => this.close(), 3000)
           },
           error => {
+            this.isRegistrationSubmitting = false
             this.alertType = "danger"
             this.message = error.message
           })
