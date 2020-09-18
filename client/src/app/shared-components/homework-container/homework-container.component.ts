@@ -21,11 +21,11 @@ export class HomeworkContainerComponent implements OnInit {
   /* Questo componente è il container di Homework component. Il suo scopo sarà quello di ritirare tutti i dati 
      e passarli una volta ottenuti al figlio.  */
 
-  //** Proprietà da passare a HomeworkContainer
+  //** Proprietà da passare a HomeworkContainer **//
   selectedCourse: string
   displayedHomeworks: DisplayedHomework[];
   displayedAssignments: DisplayedAssignment[]
-  //** 
+  //**********************************************//
 
   // flag usato per visualizzare loading 
   isAllLoaded: boolean
@@ -162,7 +162,6 @@ export class HomeworkContainerComponent implements OnInit {
                       // il voto è settato, definisco cosa visualizzare
                       mark = homework.mark < 18 ? "RESPINTO" : homework.mark.toString()
                     }
-
 
                     //Retrieve info about the corresponding student
                     let href = homework.links.find(link => link.rel === "student").href

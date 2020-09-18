@@ -10,8 +10,10 @@ import { TeacherService } from 'src/app/services/teacher.service';
 })
 export class CreateCourseComponent implements OnInit {
 
+  // Flag che permette di disabilitare bottone di confirm
   isDisabled = true
 
+  // Form di aggunta corso
   form: FormGroup = new FormGroup({
     name: new FormControl('', Validators.required),
     acronime: new FormControl('', Validators.required),
@@ -19,12 +21,16 @@ export class CreateCourseComponent implements OnInit {
     max: new FormControl('', Validators.required),
   });
 
+
+  // Alert 
   message: string | null;
   alertType: string;
 
 
 
-  constructor(private teacherService: TeacherService, public dialogRef: MatDialogRef<CreateCourseComponent>
+  constructor(
+    private teacherService: TeacherService,
+    public dialogRef: MatDialogRef<CreateCourseComponent>
   ) { }
 
   ngOnInit(): void {
@@ -33,9 +39,10 @@ export class CreateCourseComponent implements OnInit {
   close(data) { this.dialogRef.close(data); }
 
   submit() {
-
+    //se form è valido
     if (this.form.valid) {
 
+      // creo corso
       this.teacherService.createCourse(this.form.value).subscribe(res => {
         this.close({ message: "Course Successfully Created", type: "success" });
       },

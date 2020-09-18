@@ -91,6 +91,11 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   private _displayedHomeworks: DisplayedHomework[];
   /////////////////////
 
+  // Paginator e sort degli assignment
+  private _paginator: MatPaginator;
+  private _sort: MatSort;
+
+
   //Expanded element
   assignmentExpandedElement: DisplayedAssignment | null;
   homeworkExpandedElement: DisplayedHomework | null;
@@ -118,8 +123,18 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   //*****************************************************************************/
 
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: false }) sort: MatSort;
+
+  @ViewChild(MatPaginator)
+  public set paginator(value: MatPaginator) {
+    this._paginator = value;
+    this.consegneDataSource.paginator = this.paginator
+  }
+
+  @ViewChild(MatSort, { static: false })
+  public set sort(value: MatSort) {
+    this._sort = value;
+    this.consegneDataSource.sort = this.sort
+  }
 
 
   @Input() public set selectedCourse(value: string) {
@@ -283,6 +298,14 @@ export class HomeworkComponent implements OnInit, AfterViewInit {
   public get authService(): AuthService {
     return this._authService;
   }
+
+  public get paginator(): MatPaginator {
+    return this._paginator;
+  }
+  public get sort(): MatSort {
+    return this._sort;
+  }
+
   //////////////////////////////////
 
 
