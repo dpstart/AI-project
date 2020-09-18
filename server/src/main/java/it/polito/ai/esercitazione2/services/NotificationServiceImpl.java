@@ -132,7 +132,7 @@ public class NotificationServiceImpl implements NotificationService {
             t.setUserId(s);
             t.setExpiryDate(expiryDate);
             tokenRepository.save(t);
-            String body = String.format(template.getText(), "http://localhost:4200/notification/confirm/" + token, "http://localhost:4200/notification/reject/" + token);
+            String body = String.format(template.getText(), "http://localhost:4200/confirm/" + token, "http://localhost:4200/reject/" + token);
             //sendMessage("s"+s+"@studenti.polito.it","Invitation to join team: "+dto.getName(),body);
             sendMessage("giuseppe.pastore10@libero.it", "Invitation to join team: " + dto.getName(), body);
 
@@ -153,7 +153,7 @@ public class NotificationServiceImpl implements NotificationService {
         ca.setUserId(s.getId());
         ca.setExpiryDate(expiryDate);
         confirmAccountRepository.save(ca);
-        String body = String.format(activation_template.getText(), s.getFirstName(), "http://localhost:4200/notification/activate/" + token);
+        String body = String.format(activation_template.getText(), s.getFirstName(), "http://localhost:4200/activate/" + token);
         // sendMessage(s.getEmail(),"Activate your account",body);
         sendMessage("giuseppe.pastore10@libero.it", "Activate your account", body);
 
@@ -170,7 +170,7 @@ public class NotificationServiceImpl implements NotificationService {
         ca.setUserId(s.getId());
         ca.setExpiryDate(expiryDate);
         confirmAccountRepository.save(ca);
-        String body = String.format(activation_template.getText(), s.getFirstName(), "http://localhost:4200/notification/activate/" + token);
+        String body = String.format(activation_template.getText(), s.getFirstName(), "http://localhost:4200/activate/" + token);
         //sendMessage(s.getEmail(),"Activate your account",body);
         sendMessage("giuseppe.pastore10@libero.it", "Activate your account", body);
     }
