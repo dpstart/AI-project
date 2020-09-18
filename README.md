@@ -156,11 +156,13 @@ The ADMIN is added only after this creation.
 6. If success, the user is notified via mail with a link of confirmation account:
     1. a token is randomly generated;
     2. a ConfirmationAccount entity is temporarly stored with (token,userID, expiration date) information;
-    2. the user has 1h of time to activate the account through the link; an asyncronous periodical task is entrusted to remove not activate user for which the token is expired;
+    2. the user has 1h of time to activate the account through the link; an asyncronous periodical task is entrusted to remove not activate user for which the token is expired contacting \removeMany endpoint trough signed removal token;
     3. the link has the form: localhost:4200/notification/activate/
     3. by clicking on the link, (while on the client it is always shown a general message for security reasons), on the server:
         - if the token is expired, the user removed both form the application and authentication DBs;
-        - if the token is valid, the user is enabled on boht the datasets and the token is deleted;
+        - if the token is valid, the user is enabled on both the datasets and the token is deleted;
+        
+## SERVER: Login details
         
 
 

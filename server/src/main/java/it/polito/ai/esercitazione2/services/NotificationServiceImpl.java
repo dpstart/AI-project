@@ -69,6 +69,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     }
 
+    // if present and not expired, delete the token if not the last; if it's the last, confirm the activation of the team
     @Override
     public boolean confirm(String token) {
         Timestamp today = new Timestamp(System.currentTimeMillis());
@@ -92,6 +93,7 @@ public class NotificationServiceImpl implements NotificationService {
         return true;
     }
 
+    // if present and not expired, evict the team associated
     @Override
     public boolean reject(String token) {
         Timestamp today = new Timestamp(System.currentTimeMillis());
@@ -120,6 +122,9 @@ public class NotificationServiceImpl implements NotificationService {
         return t.get().getId();
     }
 
+
+    // generate a token for a team with the defined expiration time
+    // send a mail tothe user with a confirm and a reject link.
     @Override
     @Async
     public void notifyTeam(TeamDTO dto, List<String> memberIds, Long expiration) {
@@ -141,7 +146,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 
 
-    // send the mail to the new student with the activation link
+    // generate a ConfirmAccount token and send the mail to the new student with the activation link
     @Override
     @Async
     public void notifyStudent(StudentDTO s) {
@@ -159,7 +164,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     }
 
-    // send the mail to the new professor with the activation link
+    // generate a ConfirmAccount token and send the mail to the new professor with the activation link
     @Override
     @Async
     public void notifyProfessor(ProfessorDTO s) {
@@ -176,7 +181,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
 
-    // if present and not expired, activation of the account
+    // if present and not expired, delete the confirmation accourn and activate the account thoruhg \activate of the authentication service
     @Override
     public boolean activate(String token) {
         Timestamp today = new Timestamp(System.currentTimeMillis());
@@ -196,7 +201,8 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
 
-    @Scheduled(initialDelay = 6 * 1000, fixedRate = 10 * 1000)
+    // fixedRate: for now, each hour
+    @Scheduled(initialDelay = 6 * 1000, fixedRate = 60*60 * 1000)
     public void run() {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         List<Token> expired = tokenRepository.findAllByExpiryDateBefore(now);
@@ -204,7 +210,7 @@ public class NotificationServiceImpl implements NotificationService {
             Set<Long> teams = expired.stream().map(x -> x.getTeamId()).collect(Collectors.toSet());
             tokenRepository.deleteAll(expired);
             teams.stream().forEach(x -> tokenRepository.deleteAll(tokenRepository.findAllByTeamId(x)));
-            teamService.evictAll(teams);   // posso riportare eventualmente qualki team erano già stati cancellatio prima della scadenza del token
+            teamService.evictAll(teams);
         }
 
         //TO DO: move on a separated file for authentication service, when they are separated

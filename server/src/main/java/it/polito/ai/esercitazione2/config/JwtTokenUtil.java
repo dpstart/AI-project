@@ -91,7 +91,7 @@ public class JwtTokenUtil implements Serializable {
         return doGenerateRegisterRequest(claims, id,pwd,authorities);
     }
 
-    // id request token
+    // removal token
     public String generateIdRequest(String id) {
         Map<String, Object> claims = new HashMap<>();
         return doGenerateIdRequest(claims, id);
