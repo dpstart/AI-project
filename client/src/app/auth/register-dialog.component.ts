@@ -66,9 +66,9 @@ export class RegisterDialogComponent implements OnInit {
   submit() {
     if (this.form.valid) {
 
-      let user: RegisteredUserForm = this.form.value;
+      let user: RegisteredUserForm = { ...this.form.value };
 
-      
+
       this.isRegistrationSubmitting = true
       this.auth.register(user, this.selectedFile)
         .subscribe(

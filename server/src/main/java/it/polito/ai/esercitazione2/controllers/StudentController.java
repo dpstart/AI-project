@@ -53,37 +53,32 @@ public class StudentController {
     /**
      * Register a new student
      * Authentication required: none
-     * @param dto: student data
-     * @param file:  optional, student profile image
      *
+     * @param dto:  student data
+     * @param file: optional, student profile image
      * @return registered studentDTO
      */
     @PostMapping({"", "/"})
     public StudentDTO addStudent(@Valid @RequestPart("student") StudentDTO dto,
                                  @RequestPart(value = "image", required = false) MultipartFile file) {
 
-        if (dto.getEmail()!=null || dto.getAlias()!=null)
+        if (dto.getEmail() != null || dto.getAlias() != null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can't set email and alias");
         try {
+            StudentDTO student;
             if (file == null || file.isEmpty()) {
-                if ((dto=teamservice.addStudent(dto, true))==null)
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getId());
+                if ((student = teamservice.addStudent(dto, true)) == null)
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "The id " + dto.getId() + " is already present");
             } else {
-                if ((dto=teamservice.addStudent(dto, true, file))==null)
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, dto.getId());
+                if ((student = teamservice.addStudent(dto, true, file)) == null)
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "The id " + dto.getId() + " is already present");
             }
+            return ModelHelper.enrich(student);
         } catch (IncoherenceException | AuthenticationServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
 
-        return ModelHelper.enrich(dto);
     }
-
-
-
-
-
-
 
 
     /**
@@ -118,8 +113,8 @@ public class StudentController {
     /**
      * Get one student
      * Authentication required: none
-     * @param id: student id (path variable)
      *
+     * @param id: student id (path variable)
      * @return Requested StudentDTO
      */
     @GetMapping("/{id}")
@@ -128,7 +123,6 @@ public class StudentController {
 
         return ModelHelper.enrich(c);
     }
-
 
 
     /**
@@ -186,8 +180,8 @@ public class StudentController {
     /**
      * Get authenticated student's team for specified course
      * Authentication required: student
-     * @param name: course name (path variable)
      *
+     * @param name: course name (path variable)
      * @return Requested TeamDTO
      */
     @GetMapping("/courses/{name}/team")
@@ -212,8 +206,8 @@ public class StudentController {
     /**
      * Get authenticated student's team proposals for specified course
      * Authentication required: student
-     * @param name: course name (path variable)
      *
+     * @param name: course name (path variable)
      * @return Requested List of TeamDTOs
      */
     @GetMapping("/courses/{name}/teamsProposals")
@@ -267,9 +261,9 @@ public class StudentController {
     /**
      * Get one assignment, equal to courseController.getAssignment
      * Authentication required: professor of the course or student enrolled in it
-     * @param id: student id (path variable) -- unused
-     * @param aId: assignment id (path variable)
      *
+     * @param id:  student id (path variable) -- unused
+     * @param aId: assignment id (path variable)
      * @return Requested AssignmentDTO
      */
     @GetMapping("/{id}/assignments/{aId}/")
@@ -309,9 +303,9 @@ public class StudentController {
     /**
      * Get one homework, equal to courseController.getHomework
      * Authentication required: professor of the course or student owner of the homework
-     * @param id: student id (path variable) -- unused
-     * @param hId: homework id (path variable)
      *
+     * @param id:  student id (path variable) -- unused
+     * @param hId: homework id (path variable)
      * @return Requested HomeworkDTO
      */
     @GetMapping("/{id}/homeworks/{hId}/")
