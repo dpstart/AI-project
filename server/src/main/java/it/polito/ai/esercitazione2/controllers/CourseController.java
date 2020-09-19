@@ -101,6 +101,51 @@ public class CourseController {
     }
 
     /**
+     * Add other professors to the course
+     * Authentication required: professor owning the course
+     *
+     * @param name:  name of the course to share (path variable);
+     * @param input: {
+     *               "id": {id of the professor}
+     *               }
+     * @return void
+     */
+    @PostMapping("/{name}/share")
+    void share(@PathVariable String name, @RequestBody Map<String, String> input) {
+        if (!input.containsKey("id") || input.keySet().size() > 1)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Expected only one field: usage 'id':<professorsId>");
+        String user = input.get("id");
+        try {
+            teamService.shareOwnership(name, user);
+        } catch (IncoherenceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        } catch (AuthorizationServiceException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    /**
+     * Get the professors not engaged in this course
+     * Authentication required: professor owning the course
+     *
+     * @param name:  name of the course to share (path variable);
+     *
+     * @return list of avilable ProfessorDTO
+     */
+    @GetMapping("/{name}/professors/available")
+    List<ProfessorDTO> getProfessorsNotInCourse(@PathVariable String name){
+        try {
+            return teamService.getProfessorNotInCourse(name);
+        } catch (CourseNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (AuthorizationServiceException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        }
+    }
+
+    /**
      * Get all courses
      * Authentication required: any user
      *
@@ -126,31 +171,7 @@ public class CourseController {
         return ModelHelper.enrich(c);
     }
 
-    /**
-     * Add other professors to the course
-     * Authentication required: professor owning the course
-     *
-     * @param name:  name of the course to share (path variable);
-     * @param input: {
-     *               "id": {id of the professor}
-     *               }
-     * @return void
-     */
-    @PostMapping("/{name}/share")
-    void share(@PathVariable String name, @RequestBody Map<String, String> input) {
-        if (!input.containsKey("id") || input.keySet().size() > 1)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Expected only one field: usage 'id':<professorsId>");
-        String user = input.get("id");
-        try {
-            teamService.shareOwnership(name, user);
-        } catch (IncoherenceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-        } catch (AuthorizationServiceException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
-        } catch (TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
-    }
+
 
     /**
      * Course activation
@@ -375,29 +396,6 @@ public class CourseController {
     }
 
 
-
-/*
-
-    @PostMapping("/{name}/addEnrollMany")
-    @ResponseStatus(HttpStatus.CREATED)
-    void addEnrollStudents(@PathVariable String name, @RequestParam("file") MultipartFile file) {
-        if (!file.getContentType().equals("text/csv"))
-            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, file.getName());
-
-        try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-            teamService.addAndEnroll(reader, name);
-        } catch (IncoherenceException | AuthenticationServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-        } catch (NotExpectedStatusException | IOException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (CourseAuthorizationException e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
-        } catch (TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
-    }
-
- */
 
     /**
      * Get list of the students enrolled in the course

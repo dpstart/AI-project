@@ -517,28 +517,11 @@ public class TeamServiceImpl implements TeamService {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Courses
+    /***********************************************************************
+     *
+     *****************************COURSES***********************************
+     *
+     ***********************************************************************/
 
     @Override
     public boolean addCourse(CourseDTO c) {
@@ -557,7 +540,28 @@ public class TeamServiceImpl implements TeamService {
         courseRepository.save(course);
         return true;
     }
+    @Override
+    public void shareOwnership(String courseName, String profId) {
+        String prof = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
+            throw new CourseNotFoundException("Course " + courseName + " not found");
+        Course c = courseRepository.getOne(courseName);
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof))) {
+            throw new AuthorizationServiceException("Autenticated user is not a professor for this course");
+        }
+        if (!professorRepository.existsById(profId))
+            throw new ProfessorNotFoundException("Professor " + profId + " not found");
+        Professor p = professorRepository.getOne(profId);
+        if (!p.getEnabled())
+            throw new ProfessorNotFoundException("Professor " + profId + " not found");
 
+        if (c.getProfessors().stream().anyMatch(x -> x.getId().equals(profId)))
+            throw new IncoherenceException("Professor " + profId + " already a professor for this course");
+
+        c.addProfessor(p);
+        courseRepository.save(c);
+
+    }
     @Override
     public void removeCourse(String courseName) {
         String prof = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -580,6 +584,40 @@ public class TeamServiceImpl implements TeamService {
         courseRepository.delete(c);
 
     }
+    @Override
+    public List<ProfessorDTO> getProfessorNotInCourse(String courseName) {
+
+        String prof = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
+            throw new CourseNotFoundException("Course " + courseName + " not found");
+        Course c = courseRepository.getOne(courseName);
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof))) {
+            throw new AuthorizationServiceException("Autenticated user is not a professor for this course");
+        }
+
+
+        return professorRepository.getProfessorNotInCourse(courseName).stream().map(x->modelMapper.map(x,ProfessorDTO.class)).collect(Collectors.toList());
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Courses
+
+
+
+
 
     @Override
     public CourseDTO updateCourse(CourseDTO c) {
@@ -664,28 +702,7 @@ public class TeamServiceImpl implements TeamService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public void shareOwnership(String courseName, String profId) {
-        String prof = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course " + courseName + " not found");
-        Course c = courseRepository.getOne(courseName);
-        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof))) {
-            throw new AuthorizationServiceException("Autenticated user is not a professor for this course");
-        }
-        if (!professorRepository.existsById(profId))
-            throw new ProfessorNotFoundException("Professor " + profId + " not found");
-        Professor p = professorRepository.getOne(profId);
-        if (!p.getEnabled())
-            throw new ProfessorNotFoundException("Professor " + profId + " not found");
 
-        if (c.getProfessors().stream().anyMatch(x -> x.getId().equals(profId)))
-            throw new IncoherenceException("Professor " + profId + " already a professor for this course");
-
-        c.addProfessor(p);
-        courseRepository.save(c);
-
-    }
 
     @Override
     public boolean addStudentToCourse(String studentId, String courseName) {

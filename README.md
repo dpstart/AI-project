@@ -83,6 +83,7 @@ The ADMIN is added only after this creation.
 
 | Course |     Acronime  | Min | Max | Professors (C = Creator)| Studenti| VM Model          |                                                                                                                                                                                                      
 |--------|:-------------:|----:|----:|------------------------:|--------:| ------------------:|
+| Applicazioni Internet | AI | 1 | 4 | Servetti (C), Malnati | | |
 
 
 | Team          | Course | ID | Members                    | #cpu | disk space | ram | max active | max_available |
@@ -143,7 +144,7 @@ The ADMIN is added only after this creation.
         - receive a list of signed token, each of which containing the username of user to be deleted
         - only through the application for consistency reasons
         
-## SERVER: Registration details (StudentController & ProfessorController)
+## SERVER: User Registration (StudentController & ProfessorController)
 
 - ADMIN registered a priori: username: ADMIN, password: admin
 - Endpoints: API/students & API/professors (POST)
@@ -163,7 +164,7 @@ The ADMIN is added only after this creation.
         - if the token is expired, the user removed both form the application and authentication DBs;
         - if the token is valid, the user is enabled on both the datasets and the token is deleted;
         
-## SERVER: Login details (LoginController)
+## SERVER: Login (LoginController)
 
 - The LoginController exposes one single endpoint for the login of a user;
 - The login doesn't set any session, but provides the authentication user the authentication token;
@@ -180,7 +181,11 @@ The ADMIN is added only after this creation.
 3a. If success, the jwttoken is returned;
 3b. If failure, Unauthorized or general Internal Server Error;
 
+## SERVER : Course Creation ( /API/courses (POST))
 
+## SERVER : Course Managament (settings, share, remove)
+
+## SERVER : Course adding student to course (  (POST))
         
 
 
