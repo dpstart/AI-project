@@ -2,4 +2,4 @@ client/node_modules/
 .DS_Store
 client/.idea/*
 volume/ib_logfile*
-server/src/main/resources/application.properties
+application.properties
