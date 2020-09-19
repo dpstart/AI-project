@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { StudentService, ServerError } from 'src/app/services/student.service';
 import { Student } from 'src/app/model/student.model';
 import { MatTableDataSource } from '@angular/material/table';
@@ -11,6 +11,7 @@ import { RouteStateService } from 'src/app/services/route-state.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-groups',
@@ -24,7 +25,7 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
     ]),
   ]
 })
-export class GroupsComponent implements OnInit {
+export class GroupsComponent implements OnInit, OnDestroy {
 
   studentsInTeam: Student[];
 
@@ -78,6 +79,10 @@ export class GroupsComponent implements OnInit {
   private _matSortProposal: MatSort;
   //////////////////////
 
+
+  courseSub: Subscription;
+
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private _studentService: StudentService,
@@ -91,7 +96,7 @@ export class GroupsComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.activatedRoute.params.subscribe(params => {
+    this.courseSub = this.activatedRoute.params.subscribe(params => {
       if (params['course_name']) {
 
         this.isInTeam = false // inizializzato a false indica che lo studente non è in un team
@@ -224,6 +229,9 @@ export class GroupsComponent implements OnInit {
       }
     })
 
+  }
+  ngOnDestroy(): void {
+    this.courseSub.unsubscribe()
   }
 
   // GETTERS

@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, ViewChild, AfterViewInit, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { TeacherService } from '../../services/teacher.service';
 import { Team } from '../../model/team.model';
@@ -8,9 +8,9 @@ import { EditTeamDialogComponent } from './edit/edit-team-dialog.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouteStateService } from 'src/app/services/route-state.service';
 import { StudentService } from 'src/app/services/student.service';
-import { Student } from 'src/app/model/student.model';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { Subscription } from 'rxjs';
 
 
 
@@ -26,7 +26,7 @@ import { MatSort } from '@angular/material/sort';
         ]),
     ]
 })
-export class VMComponent implements OnInit {
+export class VMComponent implements OnInit, OnDestroy {
 
     selectedCourse: string
 
@@ -45,6 +45,8 @@ export class VMComponent implements OnInit {
 
     isAllLoaded: boolean
     image: string
+
+    courseSub: Subscription;
 
     @ViewChild(MatSort) set matSort(ms: MatSort) {
         this.sort = ms;
@@ -68,8 +70,12 @@ export class VMComponent implements OnInit {
         this.isAllLoaded = false
     }
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.getData()
+    }
+
+    ngOnDestroy(): void {
+        this.courseSub.unsubscribe()
     }
 
     setDataSourceAttributes() {
@@ -80,7 +86,10 @@ export class VMComponent implements OnInit {
 
     getData() {
 
-        this.activatedRoute.params.subscribe((params) => {
+        // Voglio sempre e solo una sub
+        if (this.courseSub) this.courseSub.unsubscribe()
+
+        this.courseSub = this.activatedRoute.params.subscribe((params) => {
 
             if (params['course_name']) {
 
@@ -93,7 +102,7 @@ export class VMComponent implements OnInit {
 
 
                     data.forEach((team, i) => {
-                        team['position'] = i+1
+                        team['position'] = i + 1
 
                         let team_id = team["id"];
 
@@ -102,11 +111,10 @@ export class VMComponent implements OnInit {
                             data[i]["vms"] = vms;
 
                             for (let i = 0; i < vms.length; i++) {
-                                vms[i]['position'] = i+1
+                                vms[i]['position'] = i + 1
                             }
                         })
                     });
-
                     this.dataSourceTeams.data = data;
                     this.isAllLoaded = true
                 }, (_) => this.router.navigate(['PageNotFound']))

@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { StudentService } from 'src/app/services/student.service';
 
 @Component({
@@ -7,7 +8,9 @@ import { StudentService } from 'src/app/services/student.service';
   templateUrl: './reject-token.component.html',
   styleUrls: ['./reject-token.component.css']
 })
-export class RejectTokenComponent implements OnInit {
+export class RejectTokenComponent implements OnInit, OnDestroy {
+
+  courseSub: Subscription;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -17,7 +20,7 @@ export class RejectTokenComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.activatedRoute.params.subscribe(params => {
+    this.courseSub = this.activatedRoute.params.subscribe(params => {
       let token = params['token']
       if (token)
         this.studentService.actionToken(token, true).subscribe(
@@ -30,4 +33,9 @@ export class RejectTokenComponent implements OnInit {
         )
     })
   }
+
+  ngOnDestroy(): void {
+    this.courseSub.unsubscribe()
+  }
+
 }
