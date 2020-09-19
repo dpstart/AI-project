@@ -5,7 +5,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home.component';
 import { VMComponent } from 'src/app/teacher/vm/vm.component';
 import { PageNotFoundComponent } from './page-not-found.component';
-import { StudentsContComponent } from './teacher/students-container/students-cont.component';
 
 import { TeacherGuard } from './auth/teacher.guard';
 import { StudentGuard } from './auth/student.guard';
@@ -15,6 +14,7 @@ import { HomeworkContainerComponent } from './shared-components/homework-contain
 import { ConfirmTokenComponent } from './shared-components/token/confirm/confirm-token.component';
 import { RejectTokenComponent } from './shared-components/token/reject/reject-token.component';
 import { ActivateAccountComponent } from './shared-components/account/activate-account.component';
+import { CourseManagementContainerComponent } from './teacher/course-management/course-container/course-management-container.component';
 
 const routes: Routes = [
     {
@@ -31,7 +31,7 @@ const routes: Routes = [
         path: "teacher",
         canActivate: [TeacherGuard],
         children: [
-            { path: 'course/:course_name/students', component: StudentsContComponent },
+            { path: 'course/:course_name/students', component: CourseManagementContainerComponent },
             { path: 'course/:course_name/vms', component: VMComponent },
             { path: 'course/:course_name/homework', component: HomeworkContainerComponent },
         ]

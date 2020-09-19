@@ -1,26 +1,24 @@
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ChangeDetectorRef, OnChanges, SimpleChange, SimpleChanges } from '@angular/core';
-import { MatSidenav } from '@angular/material/sidenav';
-import { Student } from '../../model/student.model';
 import { SelectionModel } from '@angular/cdk/collections';
-import { MatTable } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatSort } from '@angular/material/sort';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { Course } from 'src/app/model/course.model';
-import { Message } from 'src/app/teacher/students-container/students-cont.component';
-import { MatDialog } from '@angular/material/dialog';
+import { Student } from 'src/app/model/student.model';
+import { Message } from '../course-container/course-management-container.component';
 import { RemoveCourseDialogComponent } from './dialog/remove-course-dialog.component';
 
-
 @Component({
-  selector: 'app-students',
-  templateUrl: './students.component.html',
-  styleUrls: ['./students.component.css']
+  selector: 'app-course-management',
+  templateUrl: './course-management.component.html',
+  styleUrls: ['./course-management.component.css']
 })
-export class StudentsComponent implements OnInit {
+export class CourseManagementComponent implements OnInit {
+
 
   // FIle per aggiunta studenti al corso 
   selectedFile: File;
@@ -109,7 +107,7 @@ export class StudentsComponent implements OnInit {
 
   @Input() public set courseObj(value: Course) {
     // Se cambia corso allora il flag deve essere risettato
-    this.isEditing = false
+    // this.isEditing = false
     // Aggiorno corso selezionato
     this._courseObj = value;
 
@@ -446,4 +444,5 @@ export class StudentsComponent implements OnInit {
 
     this.isEditing = false
   }
+
 }

@@ -1,8 +1,5 @@
 <div class="tabContainer">
 
-
-
-
     <mat-card>
         <div class="inlineDiv">
 
@@ -31,12 +28,12 @@
                 </mat-checkbox>
 
             </form>
-            <button mat-raised-button (click)="confirmSettings()" class="formInlineButton" color="primary"
+            <button type="button" mat-raised-button (click)="confirmSettings()" class="formInlineButton" color="primary"
                 [ngStyle]="{'background-color':'green' }">
                 Confirm
             </button>
 
-            <button mat-raised-button class="formInlineButton" color="warn"
+            <button type="button" mat-raised-button class="formInlineButton" color="warn"
                 aria-label="Example icon button with a delete icon" (click)="onRemoveCourse()">
                 Remove Course
             </button>
