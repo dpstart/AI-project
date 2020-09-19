@@ -1,22 +1,22 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Student } from '../../model/student.model';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RouteStateService } from '../../services/route-state.service';
-import { Course } from 'src/app/model/course.model';
-import { TeacherService } from 'src/app/services/teacher.service';
 import { Subscription } from 'rxjs';
+import { Course } from 'src/app/model/course.model';
+import { Student } from 'src/app/model/student.model';
+import { RouteStateService } from 'src/app/services/route-state.service';
+import { TeacherService } from 'src/app/services/teacher.service';
+
 
 export interface Message {
   message: string
   alertType: string
 }
-
 @Component({
-  selector: 'app-students-cont',
-  templateUrl: './students-cont.component.html',
-  styleUrls: ['./students-cont.component.css']
+  selector: 'app-course-management-container',
+  templateUrl: './course-management-container.component.html',
+  styleUrls: ['./course-management-container.component.css']
 })
-export class StudentsContComponent implements OnInit, OnDestroy {
+export class CourseManagementContainerComponent implements OnInit {
 
   /*
 [message]="message"
@@ -250,12 +250,24 @@ export class StudentsContComponent implements OnInit, OnDestroy {
     })
   }
 
-
   /**
    * Metodo che permette di aggiornare i parametri di un corso
    * @param courses: contiene due elementi: [ versione aggiornata , versione originaria] 
    */
   updateCourse(courses: Course[]) {
+
+    // Controllo validità richiesta
+    if (courses[0].min > courses[0].max) {
+      this.courseObj = { ...courses[1] } as Course
+      // Setto messaggio di errore
+      let message = {} as Message
+      message.alertType = "danger"
+      message.message = "Impossible to set a minimum number of members greater than the maximum one "
+      this.message = { ...message }
+      this.closeAlertAfterTime(3000)
+      return;
+    }
+
     // Richista aggiornamento corso
     this.teacherService.updateCourse(courses[0]).subscribe(response => {
 
@@ -269,12 +281,13 @@ export class StudentsContComponent implements OnInit, OnDestroy {
       this.closeAlertAfterTime(3000)
 
     }, error => {
+
       // Se l'aggiornamento non va a buon fine risetto il corso alla configurazione originaria
       this.courseObj = { ...courses[1] } as Course
       // Setto messaggio di errore
       let message = {} as Message
       message.alertType = "danger"
-      message = error.message
+      message.message = error.message
       this.message = { ...message }
       this.closeAlertAfterTime(3000)
     })

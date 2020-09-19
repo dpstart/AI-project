@@ -19,8 +19,6 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import { MatSortModule } from '@angular/material/sort';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { StudentsComponent } from './teacher/students-container/students.component';
-import { StudentsContComponent } from './teacher/students-container/students-cont.component';
 import { AppRoutingModule } from './app-routing-module';
 import { HomeComponent } from './home.component';
 import { PageNotFoundComponent } from './page-not-found.component';
@@ -51,13 +49,13 @@ import { ConfirmTokenComponent } from './shared-components/token/confirm/confirm
 import { ActivateAccountComponent } from './shared-components/account/activate-account.component';
 import { CreateCourseComponent } from './teacher/create-course/create-course.component';
 import {MatRadioModule} from "@angular/material/radio";
-import { RemoveCourseDialogComponent } from './teacher/students-container/dialog/remove-course-dialog.component';
+import { CourseManagementContainerComponent } from './teacher/course-management/course-container/course-management-container.component';
+import { CourseManagementComponent } from './teacher/course-management/course/course-management.component';
+import { RemoveCourseDialogComponent } from './teacher/course-management/course/dialog/remove-course-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    StudentsComponent,
-    StudentsContComponent,
     HomeComponent,
     PageNotFoundComponent,
     VMComponent,
@@ -76,6 +74,8 @@ import { RemoveCourseDialogComponent } from './teacher/students-container/dialog
     ActivateAccountComponent,
     CreateCourseComponent,
     RemoveCourseDialogComponent,
+    CourseManagementContainerComponent,
+    CourseManagementComponent,
   ],
     imports: [
         BrowserModule,

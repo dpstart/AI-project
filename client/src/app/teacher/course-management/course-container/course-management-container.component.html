@@ -2,7 +2,7 @@
     <mat-spinner diameter="300" strokeWidth="5"></mat-spinner>
 </div>
 <ng-template #loadedBlock>
-<app-students 
+<app-course-management 
 [message]="message"
 [courseObj]="courseObj"
 [selectedCourse]="selectedCourse"
@@ -14,5 +14,5 @@
 (updateCourse)="updateCourse($event)"
 (removeCourse)="removeCourse($event)">
 
-</app-students>
+</app-course-management>
 </ng-template>
