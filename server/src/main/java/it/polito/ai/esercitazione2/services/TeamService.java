@@ -27,11 +27,11 @@ public interface TeamService {
 
      JwtResponse loginUser(JwtRequest authenticationRequest);
 
-    /**********************************************************************
+    /******************************************************************************************
      *
-     *******************************COURSE********************************
+     ******************************* GENERAL COURSE MANAGEMENT ********************************
      *
-     ***********************************************************************/
+     *****************************************************************************************/
     @PreAuthorize("hasRole('PROFESSOR')")
     boolean addCourse(CourseDTO c);
     @PreAuthorize("hasRole('PROFESSOR')")
@@ -44,6 +44,48 @@ public interface TeamService {
     List<ProfessorDTO> getProfessorNotInCourse(String courseName);
     Optional<CourseDTO> getCourse(String name);
     List<CourseDTO> getAllCourses();
+    @PreAuthorize("hasRole('PROFESSOR')")
+    void enableCourse(String courseName);
+    @PreAuthorize("hasRole('PROFESSOR')")
+    void disableCourse(String courseName);
+
+    /******************************************************************************************
+     *
+     ******************************* STUDENTS ENROLLMENT IN THE COURSE ************************
+     *
+     *****************************************************************************************/
+
+
+     @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
+     boolean addStudentToCourse(String  studentId, String courseName);
+
+     @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
+     List<Boolean> enrollAll(List<String> studentIds,String courseName);
+
+     @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
+     List<Boolean> enrollCSV(Reader r, String courseName) throws IOException, CsvValidationException;
+
+     @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
+     List<Boolean> unsubscribe(List<String> studentIds,String courseName);
+
+     List<StudentDTO> getEnrolledStudents(String courseName);
+
+    /**********************************************************************
+     *
+     *******************************TEAMS***********************************
+     *
+     ***********************************************************************/
+
+
+    //propose a team to a list of students enrolled in a course
+    @PreAuthorize("hasRole('STUDENT')")
+    TeamDTO proposeTeam(String courseId,String name, List<String> memberIds,Long duration);
+
+
+
+
+
+
 
 
 
@@ -57,23 +99,7 @@ public interface TeamService {
     Optional<ProfessorDTO> getProfessor(String professorId);
     List<ProfessorDTO> getAllProfessors();
 
-    @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
-    boolean addStudentToCourse(String  studentId, String courseName);
-    @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
-    public boolean removeStudentFromCourse(String studentId, String courseName);
 
-    @PreAuthorize("hasRole('PROFESSOR')")
-    void enableCourse(String courseName);
-    @PreAuthorize("hasRole('PROFESSOR')")
-    void disableCourse(String courseName);
-
-    @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
-    List<Boolean> enrollAll(List<String> studentIds,String courseName);
-    @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
-    List<Boolean> unsubscribeAll(List<String> studentIds,String courseName);
-
-    @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
-    List<Boolean> enrollCSV(Reader r, String courseName) throws IOException, CsvValidationException;
 
     /**********************************************************************
      *
@@ -84,7 +110,7 @@ public interface TeamService {
     StudentDTO addStudent(StudentDTO s,boolean notify, MultipartFile file);
     Optional<StudentDTO> getStudent(String studentId);
     List<StudentDTO> getAllStudents();
-    List<StudentDTO> getEnrolledStudents(String courseName);
+
     @PreAuthorize("hasRole('STUDENT')")
     List<CourseDTO> getCourses(String studentId);
     List<CourseDTO> getCoursesByProf(String profID);
@@ -114,9 +140,7 @@ public interface TeamService {
     List<Boolean> evictAll(Set<Long> teams);
 
 
-    //propose a team to a list of students enrolled to a course
-    @PreAuthorize("hasRole('STUDENT')")
-    TeamDTO proposeTeam(String courseId,String name, List<String> memberIds,Long duration);
+
     // get all the teams for a course for which the principal is the professor or an enrolled student
     List<TeamDTO> getTeamForCourse(String courseName);
     // get one team for a course for which the principal is the professor or an enrolled student

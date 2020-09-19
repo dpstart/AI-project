@@ -1,4 +1,8 @@
 TODO SERVER_SIDE:
-- Possibilità di riempimento automatico del db all'accensione del server
+
 - nel rimuovere gli studenti dal corso bisogna controllare che se non ci sono più homeworks allora va eliminato anche il rispettivo assignment
+
+- ADMIN?? O rimuoverlo oppure decidere quali operazioni può fare con annessa vista sul client
+
+- getEnrolled: ruoli ammessi...tutti o solo il prof di quel corso?
 

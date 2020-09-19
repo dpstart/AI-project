@@ -124,7 +124,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 
     // generate a token for a team with the defined expiration time
-    // send a mail tothe user with a confirm and a reject link.
+    // send a mail to the user with a confirm and a reject link.
     @Override
     @Async
     public void notifyTeam(TeamDTO dto, List<String> memberIds, Long expiration) {
@@ -140,7 +140,6 @@ public class NotificationServiceImpl implements NotificationService {
             String body = String.format(template.getText(), "http://localhost:4200/confirm/" + token, "http://localhost:4200/reject/" + token);
             //sendMessage("s"+s+"@studenti.polito.it","Invitation to join team: "+dto.getName(),body);
             sendMessage("giuseppe.pastore10@libero.it", "Invitation to join team: " + dto.getName(), body);
-
         }
     }
 

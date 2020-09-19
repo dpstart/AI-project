@@ -1,3 +1,12 @@
 --Opzionale: fornire anche una indicazione in tempo reale delle risorse utilizzate dal gruppo.
 
 
+- Le informazioni sull'adesione a un team non vengono visualizzate in tempo reale:
+Ex. Sono sulla pagina delle proposte-> uno studente che ho inviato accetta la richiesta--> il checkbox non passa a true ma devo aggiornare la pagina...
+
+		- ci potrebbe anche stare;
+		- se esiste un modo semplice per trincerare un aggionermaneto dei checkbox dopo che qualcuno è andato sulla pagina di accettazione del team sarebbe carino farlo.
+
+- TeamProposal: se creo un team in cui sonol'unico membro (ed è ammesso farlo per quel corso) la pagina non si aggiorna ma mi fa vedere ancora l'elenco degli studenti che potrei invitare anche se il team è stato già formato ed abilitato;
+
+

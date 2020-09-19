@@ -162,7 +162,7 @@ export class CourseManagementContainerComponent implements OnInit {
   deleteStudents(students: Student[]) {
 
     // Effettuo richiesta per rimuovere gli studenti dal corso
-    this.teacherService.unsubscribeMany(this.selectedCourse, students).subscribe(_ => {
+    this.teacherService.unsubscribe(this.selectedCourse, students).subscribe(_ => {
 
       let studentsEnrolled: Student[] = this.enrolledStudents
 

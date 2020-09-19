@@ -80,16 +80,25 @@ The ADMIN is added only after this creation.
 | 200000 | d.fisicaro | STUDENT | Damiano | Fisicaro | s200000@studenti.polito.it| damiano.fisicaro|
 | 200001 | w.forcignano | STUDENT | Walter | Forcignano | s200001@studenti.polito.it| walter.forcignano|
 | 200002 | d.paliotta | STUDENT | Daniele | Paliotta | s200002@studenti.polito.it|daniele.paliotta|
+| 222220 | a.rossisi | STUDENT | Antonio | Rossi | s222220@studenti.polito.it | antonio.rossi |
+| 222221 | r.rossisi | STUDENT | Rocco | Rossi | s222221@studenti.polito.it | rocco.rossi|
+| 222222 | m.bianchi | STUDENT | Mario | Bianchi | s222222@studenti.polito.it | mario.bianchi |
+| 222223 | c.verdidi | STUDENT | Chiara | Verdi | s222223@studenti.polito.it | chiara.verdi |
+| 222224 | s.ventura | STUDENT | Simona | Ventura | s222224@studenti.polito.it|simona.ventura|
+| 222225 | f.totti10 | STUDENT | Francesco | Totti | s222225@studenti.polito.it | francesco.totti|
+| 222226 | v.valentini | STUDENT | Valentina | Valentini| s222226@studenti.polito.it | valentina.valentini|
+| 222227 | g.buffon | STUDENT | Gialuigi | Buffon | s222227@studenti.polito.it | gianluigi.buffon |
 
-| Course |     Acronime  | Min | Max | Professors (C = Creator)| Studenti| VM Model          |                                                                                                                                                                                                      
+| Course |     Acronime  | Min | Max | Professors (C = Creator)| Students| VM Model          |                                                                                                                                                                                                      
 |--------|:-------------:|----:|----:|------------------------:|--------:| ------------------:|
-| Applicazioni Internet | AI | 1 | 4 | Servetti (C), Malnati | | |
-| Programmazione di Sistema| PDS | 1 | 5 | Malnati(C), Cabodi | | |
+| Applicazioni Internet | AI | 1 | 4 | Servetti (C), Malnati | 200000,200001,200002,257649| |
+| Programmazione di Sistema| PDS | 1 | 5 | Malnati(C), Cabodi | 222220 - 222227 | |
 
 
 | Team          | Course | ID | Members                    | #cpu | disk space | ram | max active | max_available |
 |--------------:|-------:|---:|---------------------------:|-----:|-----------:|----:|-----------:|--------------:|
-
+| SecondoTeam | AI | 9 | 200000,200002,257649||||||
+| IlCapitano | PDS | 10 | 222225 ||||||
 
 | VM Id  |  #cpu | disk space | ram | team  |
 |-------:|------:|-----------:|----:|------:|
@@ -184,10 +193,43 @@ The ADMIN is added only after this creation.
 
 ## SERVER : Course Creation ( /API/courses (POST))
 
-## SERVER : Course Managament (settings, share, remove)
+TODO
 
-## SERVER : Course adding student to course (  (POST))
-        
+## SERVER : Course Managament (settings, share, remove, update)
+
+TODO
+
+### Update:
+
+- It is not possible to set a minimum or maximum size for the teams of a course, such that some already existing teams are invalidated;
+- ...
+
+## SERVER : Course student enrollment (enroll, enrollMany, enrollManyCSV, unsubscribe)
+    
+
+## SERVER : Team proposal
+
+- A student can send a team proposal for a course to other students enrolled in the same course;
+- The team proposed must be part of the proposed team and his token is always considered as accepted;
+- A user can't be part of more than one team for a course;
+- A user can create as many proposal as he wants but only the first accepted by all the invited members will create the team; (all the other proposal will be evicted)
+- The name of a team must be unique for a course;
+- The number of members invited must respect the course's constraint set by the professor that created the team;
+- A disabled team is created with token associated to each invited user
+- A user can accept/reject the invitation
+- If all the invitation for the team are accepted, all the other proposal including the members of just created team are evicted;
+- If also only one invitation for a team is rejected or expires, the team is evicted;
+
+0. Input are received from the client form (Name of the team, members list, expiration time)
+1. If the team proposal (name, memebrs list, # members,...) respect the setted constraints, a disabled team is created along with as many token as the number of invited students;
+2. Each token is associated with a team and a user; a periodical asynchronous task check if expired tokens exist to evict the associated team proposal;
+3. Each invited student receive an email with two links: one to accept the invitation, the other one to reject it;
+4. Once the user click on one of the two link, he sees a summary page on the action he just performed;
+4b. A user can accept/reject the invitation also from its personal page (on the specific course tab);
+5. Once a team is created, its member will be not able to see the team proposal page anymore but they only see a summary page on the team composition;
+
+
+
 
 
 

@@ -134,9 +134,9 @@ export class TeacherService {
      * @param courseName 
      * @param students 
      */
-    unsubscribeMany(courseName: string, students: Student[]) {
+    unsubscribe(courseName: string, students: Student[]) {
 
-        const url = `${this.URL}/courses/${courseName}/unsubscribeMany`;
+        const url = `${this.URL}/courses/${courseName}/unsubscribe`;
 
         let studentIds = []
         students.forEach(student => studentIds.push(student.id))

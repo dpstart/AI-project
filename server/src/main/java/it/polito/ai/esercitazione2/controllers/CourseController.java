@@ -52,7 +52,7 @@ public class CourseController {
 
 
     /************************************************************************************************************************************************************************
-     ***************************************************************************GENERAL CORUSES MANAGEMENT*******************************************************************
+     ***************************************************************************GENERAL COURSES MANAGEMENT*******************************************************************
      ************************************************************************************************************************************************************************/
 
     /**
@@ -146,11 +146,6 @@ public class CourseController {
     }
 
 
-
-
-
-
-
     /**
      * Get all courses
      * Authentication required: any user
@@ -176,8 +171,6 @@ public class CourseController {
         CourseDTO c = teamService.getCourse(name).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, name));
         return ModelHelper.enrich(c);
     }
-
-
 
     /**
      * Course activation
@@ -215,9 +208,8 @@ public class CourseController {
         }
     }
 
-
     /**
-     * Update course details
+     * Update course details, except the name
      * Authentication required: professor owning the course
      *
      * @param dto: {
@@ -243,6 +235,9 @@ public class CourseController {
         }
     }
 
+    /************************************************************************************************************************************************************************
+     ***************************************************************************STUDENTS ENROLLMENT IN THE COURSE ***********************************************************
+     ************************************************************************************************************************************************************************/
 
     /**
      * Enroll one student in the course
@@ -254,7 +249,6 @@ public class CourseController {
      *               }
      * @return void
      */
-
     @PostMapping("/{name}/enrollOne")
     @ResponseStatus(HttpStatus.CREATED)
     void enrollOne(@PathVariable String name, @RequestBody Map<String, String> input) {
@@ -273,7 +267,6 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
-
 
     /**
      * Enroll a list of students in the course
@@ -337,38 +330,8 @@ public class CourseController {
 
     }
 
-
     /**
-     * Remove one student from the course
-     * Authentication required: professor owning the course
-     *
-     * @param name: name of the course (path variable)
-     * @param input: {
-     *               "id":{student id}
-     *               }
-     * @return void
-     */
-    @PostMapping("/{name}/unsubscribeOne")
-    @ResponseStatus(HttpStatus.CREATED)
-    void unsubscribeOne(@PathVariable String name, @RequestBody Map<String, String> input) {
-        if (!input.containsKey("id") || input.get("id").isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please valorize the key ID");
-        if (input.keySet().size() > 1)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Received more keys then expected");
-        String id = input.get("id");
-
-        try {
-            teamService.removeStudentFromCourse(id, name);
-        } catch (CourseAuthorizationException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
-        } catch (TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
-    }
-
-
-    /**
-     * Remove many students from the course
+     * Remove students from the course
      * Authentication required: professor owning the course
      *
      * @param name: name of the course (path variable)
@@ -377,7 +340,7 @@ public class CourseController {
      *               }
      * @return void
      */
-    @PostMapping("/{name}/unsubscribeMany")
+    @PostMapping("/{name}/unsubscribe")
     @ResponseStatus(HttpStatus.CREATED)
     void unsubscribeStudents(@PathVariable String name, @RequestBody Map<String, Object> input) {
 
@@ -390,7 +353,7 @@ public class CourseController {
         List<String> students = (List<String>) input.get("students");
 
         try {
-            teamService.unsubscribeAll(students, name);
+            teamService.unsubscribe(students, name);
         } catch (StudentNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (CourseAuthorizationException e) {
@@ -400,8 +363,6 @@ public class CourseController {
         }
 
     }
-
-
 
     /**
      * Get list of the students enrolled in the course
@@ -421,6 +382,8 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
+
+
 
     /************************************************************************************************************************************************************************
      ********************************************************************************TEAM MANAGEMENT*************************************************************************
@@ -442,6 +405,8 @@ public class CourseController {
     @PostMapping("/{name}/proposeTeam")
     @ResponseStatus(HttpStatus.CREATED)
     void proposeTeam(@PathVariable String name, @RequestBody Map<String, Object> input) {
+
+        //check on the format of the input received
         if (!input.containsKey("team"))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing team key");
 
@@ -456,14 +421,18 @@ public class CourseController {
 
 
         try {
+            //list of members to invite
             List<String> members = (List<String>) input.get("members");
+            //name of the team
             String team = input.get("team").toString().trim();
-            Long duration = ((Integer) input.get("timeout")).longValue() * 1000 * 60; //Vengono ricevuti minuti, convertiamo a millisecondi
+
+            //expiration time
+            Long duration = ((Integer) input.get("timeout")).longValue() * 1000 * 60;
 
             if (team.isEmpty())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Specify a valid team name");
 
-            //almeno 10 minuti
+            //not possible to set a timeout less than 10 minutes
             if (duration < (60 * 1000 * 10)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Impossible to set a tiemout less than 10 minutes");
             }
