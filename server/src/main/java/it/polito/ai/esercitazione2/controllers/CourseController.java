@@ -466,7 +466,7 @@ public class CourseController {
     }
 
     /**
-     * Get one team of the course
+     * NOT USED BY THE CLIENT: Get one team of the course
      * Authentication required: user enrolled in the course
      *
      * @param name: name of the course (path variable)
@@ -484,6 +484,22 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Get team adhesion status info with token for logged user

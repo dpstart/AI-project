@@ -81,12 +81,15 @@ public class NotificationServiceImpl implements NotificationService {
         if (to.getExpiryDate().before(today))
             throw new ExpiredTokenException("Expired token");
 
+        // delete the confrimed token
         tokenRepository.deleteById(token);
 
+        // if there are other tokens associated to the same team, simply return
         List<Token> lt = tokenRepository.findAllByTeamId(to.getTeamId());
         if (lt.size() > 0)
             return false;
 
+        // .. otherwise the teams is ready to be activated, unless other unexpected events occured
         if (!teamService.activateTeam(to.getTeamId()))
             throw new TeamNotFoundException("Team associated with this token doesn't exist anymore");
 
@@ -105,9 +108,12 @@ public class NotificationServiceImpl implements NotificationService {
         if (to.getExpiryDate().before(today))
             throw new ExpiredTokenException("Expired token");
 
+        // delete the rejected token
         tokenRepository.deleteById(token);
+        // delete all the tokens associated to the team to be evicted
         tokenRepository.deleteAll(tokenRepository.findAllByTeamId(to.getTeamId()));
 
+        // evict the team
         if (!teamService.evictTeam(to.getTeamId()))
             throw new TeamNotFoundException("Team associated with this token doesn't exist anymore");
 
@@ -180,7 +186,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
 
-    // if present and not expired, delete the confirmation accourn and activate the account thoruhg \activate of the authentication service
+    // if present and not expired, delete the confirmation account and activate the account through \activate of the authentication service
     @Override
     public boolean activate(String token) {
         Timestamp today = new Timestamp(System.currentTimeMillis());
@@ -204,19 +210,29 @@ public class NotificationServiceImpl implements NotificationService {
     @Scheduled(initialDelay = 6 * 1000, fixedRate = 60*60 * 1000)
     public void run() {
         Timestamp now = new Timestamp(System.currentTimeMillis());
+        // find all the token with an expiration date prior to the current one
         List<Token> expired = tokenRepository.findAllByExpiryDateBefore(now);
         if (expired.size() != 0) {
+            // find the distinct teams associated to the expired tokens
             Set<Long> teams = expired.stream().map(x -> x.getTeamId()).collect(Collectors.toSet());
+            //delete the expired tokens
             tokenRepository.deleteAll(expired);
+            // delete all the tokens associated to the "expired" team, that for some reasons have not yet expired
             teams.stream().forEach(x -> tokenRepository.deleteAll(tokenRepository.findAllByTeamId(x)));
+            // evict the teams associated to the expired tokens
             teamService.evictAll(teams);
         }
 
+        // do the same for account tokens
+
         //TO DO: move on a separated file for authentication service, when they are separated
+        // find all the expired account confrimation tokens
         List<ConfirmAccount> expired_accounts = confirmAccountRepository.findAllByExpiryDateBefore(now);
         if (expired_accounts.size() != 0) {
             Set<String> users = expired_accounts.stream().map(x -> x.getUserId()).collect(Collectors.toSet());
+            //delete all the expred tokens
             confirmAccountRepository.deleteAll(expired_accounts);
+            //delete all the disabled account for which the token is expired
             teamService.deleteAll(users);
         }
     }

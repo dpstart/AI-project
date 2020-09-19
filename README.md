@@ -219,6 +219,7 @@ TODO
 - A user can accept/reject the invitation
 - If all the invitation for the team are accepted, all the other proposal including the members of just created team are evicted;
 - If also only one invitation for a team is rejected or expires, the team is evicted;
+- A team is evicted by setting his course to null;
 
 0. Input are received from the client form (Name of the team, members list, expiration time)
 1. If the team proposal (name, memebrs list, # members,...) respect the setted constraints, a disabled team is created along with as many token as the number of invited students;
@@ -227,6 +228,7 @@ TODO
 4. Once the user click on one of the two link, he sees a summary page on the action he just performed;
 4b. A user can accept/reject the invitation also from its personal page (on the specific course tab);
 5. Once a team is created, its member will be not able to see the team proposal page anymore but they only see a summary page on the team composition;
+
 
 
 

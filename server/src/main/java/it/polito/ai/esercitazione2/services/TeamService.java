@@ -25,7 +25,12 @@ public interface TeamService {
      *
      ***********************************************************************/
 
+    // login the user by HTTP post to \authenticate
      JwtResponse loginUser(JwtRequest authenticationRequest);
+
+
+     void activateAccount(String ID);
+     void deleteAll(Set<String> students);
 
     /******************************************************************************************
      *
@@ -76,10 +81,25 @@ public interface TeamService {
      *
      ***********************************************************************/
 
-
     //propose a team to a list of students enrolled in a course
     @PreAuthorize("hasRole('STUDENT')")
     TeamDTO proposeTeam(String courseId,String name, List<String> memberIds,Long duration);
+
+    // active one team (after all the invitation have been accepted)
+    boolean activateTeam(Long ID);
+    // evict one team
+    boolean evictTeam(Long ID);
+    // evict a set of teams
+    List<Boolean> evictAll(Set<Long> teams);
+
+
+    // get all the teams for a course for which the principal is the professor
+    @PreAuthorize("hasRole('PROFESSOR')")
+    List<TeamDTO> getTeamForCourse(String courseName);
+
+    // get one team for a course for which the principal is the professor or an enrolled student
+    @PreAuthorize("hasRole('PROFESSOR') or hasRole('STUDENT')")
+    TeamDTO getOneTeamForCourse(String courseName,Long TeamID);
 
 
 
@@ -135,16 +155,13 @@ public interface TeamService {
     @PreAuthorize("hasRole('PROFESSOR')")
     TeamDTO setSettings(String courseName, Long TeamID, SettingsDTO settings);
 
-    boolean activateTeam(Long ID);
-    boolean evictTeam(Long ID);
-    List<Boolean> evictAll(Set<Long> teams);
 
 
 
-    // get all the teams for a course for which the principal is the professor or an enrolled student
-    List<TeamDTO> getTeamForCourse(String courseName);
-    // get one team for a course for which the principal is the professor or an enrolled student
-    TeamDTO getOneTeamForCourse(String courseName,Long TeamID);
+
+
+
+
     // get the information about adhesion of  memebrs to a team; only members of the team can call it
     Map<String,String> getAdhesionInfo(Long teamID);
     // get all the students members of a team; only students enrolled in the course or the professors for the course can call it
@@ -164,8 +181,7 @@ public interface TeamService {
      ***********************************************************************/
     ImageDTO getProfessorImage();
     ImageDTO getStudentImage();
-    void activateAccount(String ID);
-    void deleteAll(Set<String> students);
+
 
 
 }

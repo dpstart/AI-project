@@ -172,57 +172,12 @@ public class TeamServiceImpl implements TeamService {
 
     }
 
-    /**
-     * HTTP request towards \activate endpoint of the authentication service
-     * Registration token is signed with the shared key
-     * @param id: account to activate
+
+    /**********************************************************************
      *
-     * @return
-     */
-    public void activateAccount(String id) {
-
-
-        if (studentRepository.existsById(id)) {
-            studentRepository.getOne(id).setEnabled(true);
-        } else if (professorRepository.existsById(id)) {
-            professorRepository.getOne(id).setEnabled(true);
-        } else
-            throw new UsernameNotFoundException("Impossible to activate not existing user");
-
-
-        w.post()
-                .uri("/activate")
-                .body(Mono.just(jwtTokenUtil.generateIdRequest(id)), JwtResponse.class)
-                .exchange()
-                .subscribe();
-    }
-
-    /**
-     * HTTP request towards \removeMany endpoint of the authentication service
-     * Remove users for which the activation token is expired
-     * Removal token is signed with the shared key
-     * @param users: account to be removed
+     *****************************login*************************************
      *
-     * @return
-     */
-    public void removeAccounts(Set<String> users) {
-        List<JSONObject> list = new ArrayList<>();
-        for (String key : users) {
-            JSONObject personJsonObject = new JSONObject();
-            personJsonObject.put("token", jwtTokenUtil.generateIdRequest(key));
-            list.add(personJsonObject);
-        }
-
-        ValidUserList usersList = new ValidUserList();
-        usersList.setList(list);
-        w.post()
-                .uri("/removeMany")
-                .body(Mono.just(usersList), ValidUserList.class)
-                .exchange()
-                .subscribe();
-
-    }
-
+     ***********************************************************************/
 
     /**
      * HTTP request towards \authenticate endpoint of the authentication service
@@ -314,7 +269,68 @@ public class TeamServiceImpl implements TeamService {
 
     }
 
+    /**
+     * Remove all the not enabled account for which the confirmation token is expired
+     * Remove the users from the student/professor table and then from the users one through HTTP post to \removeMany
+     * @param users: set of user IDs to delete
+     */
+    @Override
+    public void deleteAll(Set<String> users) {
+        studentRepository.deleteAll(users.stream().filter(x -> studentRepository.existsById(x)).map(x -> studentRepository.getOne(x)).collect(Collectors.toList()));
+        professorRepository.deleteAll(users.stream().filter(x -> professorRepository.existsById(x)).map(x -> professorRepository.getOne(x)).collect(Collectors.toList()));
+        removeAccounts(users);
+    }
 
+    /**
+     * HTTP request towards \removeMany endpoint of the authentication service
+     * Remove users for which the activation token is expired
+     * Removal token is signed with the shared key
+     * @param users: account to be removed
+     *
+     * @return
+     */
+    public void removeAccounts(Set<String> users) {
+        List<JSONObject> list = new ArrayList<>();
+        for (String key : users) {
+            JSONObject personJsonObject = new JSONObject();
+            personJsonObject.put("token", jwtTokenUtil.generateIdRequest(key));
+            list.add(personJsonObject);
+        }
+
+        ValidUserList usersList = new ValidUserList();
+        usersList.setList(list);
+        w.post()
+                .uri("/removeMany")
+                .body(Mono.just(usersList), ValidUserList.class)
+                .exchange()
+                .subscribe();
+
+    }
+
+    /**
+     * HTTP request towards \activate endpoint of the authentication service
+     * Registration token is signed with the shared key
+     * @param id: account to activate
+     *
+     * @return
+     */
+    public void activateAccount(String id) {
+
+
+        if (studentRepository.existsById(id)) {
+            studentRepository.getOne(id).setEnabled(true);
+        } else if (professorRepository.existsById(id)) {
+            professorRepository.getOne(id).setEnabled(true);
+        } else
+            throw new UsernameNotFoundException("Impossible to activate not existing user");
+
+
+        w.post()
+                .uri("/activate")
+                .body(Mono.just(jwtTokenUtil.generateIdRequest(id)), JwtResponse.class)
+                .exchange()
+                .subscribe();
+    }
 
 
     /**********************************************************************
@@ -867,6 +883,90 @@ public class TeamServiceImpl implements TeamService {
 
     }
 
+    // Get the list of teams for a course, only if the principal is a professor owning the course
+    @Override
+    public List<TeamDTO> getTeamForCourse(String courseName) {
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
+
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Course c = courseRepository.getOne(courseName);
+
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)))
+            throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
+
+        return teamRepository.getByCourse(c).stream().map(x -> modelMapper.map(x, TeamDTO.class))
+                .collect(Collectors.toList());
+
+    }
+
+    //NOT USED BY THE CLIENT: retrieve a specific team of a course
+    @Override
+    public TeamDTO getOneTeamForCourse(String courseName, Long teamID) {
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
+
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Course c = courseRepository.getOne(courseName);
+
+        // il principal è un docente o studente del corso? o
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && c.getStudents().stream().noneMatch(x -> x.getId().equals(principal)))
+            throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
+
+        Optional<Team> t = teamRepository.findById(teamID);
+        if (t.isEmpty() || (!t.get().getCourse().getName().equals(courseName) && !t.get().getCourse().getAcronime().equals(courseName))) {
+            throw new TeamNotFoundException("Team " + teamID + " not found");
+        }
+        return modelMapper.map(t.get(), TeamDTO.class);
+
+    }
+
+    // activate the teams for which all the invitations have been accepted
+    // evict all the other teams waiting for one of ther members of the currently activated team
+    @Override
+    public boolean activateTeam(Long ID) {
+        Optional<Team> t = teamRepository.findById(ID);
+        if (t.isEmpty())
+            return false;
+        t.get().setStatus(1);
+        // evict all the other teams waiting for one of ther members of the currently activated team
+        for (Student s : t.get().getMembers()) {
+            s.getTeams().stream()
+                    .filter(x -> x.getCourse() == t.get().getCourse() && x.getStatus() == 0)
+                    .forEach(x -> {
+                        evictTeam(x.getId());
+                    });
+        }
+        return true;
+    }
+
+    // evict all the teams
+    @Override
+    public List<Boolean> evictAll(Set<Long> teams) {
+        return teams.stream().map(this::evictTeam).collect(Collectors.toList());
+    }
+
+    // evict a team by setting his course to Null
+    @Override
+    public boolean evictTeam(Long ID) {
+        Optional<Team> t = teamRepository.findById(ID);
+        if (t.isEmpty())
+            return false;
+        Team team = t.get();
+        team.setCourse(null);
+        return true;
+    }
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1065,42 +1165,8 @@ public class TeamServiceImpl implements TeamService {
     }
 
 
-    @Override
-    public List<TeamDTO> getTeamForCourse(String courseName) {
-        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: " + courseName + " not found!");
 
-        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        Course c = courseRepository.getOne(courseName);
-        // il principal è un docente o studente del corso? o
-        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && c.getStudents().stream().noneMatch(x -> x.getId().equals(principal)))
-            throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
-
-        return teamRepository.getByCourse(c).stream().map(x -> modelMapper.map(x, TeamDTO.class))
-                .collect(Collectors.toList());
-
-    }
-
-    @Override
-    public TeamDTO getOneTeamForCourse(String courseName, Long teamID) {
-        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: " + courseName + " not found!");
-
-        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
-        Course c = courseRepository.getOne(courseName);
-
-        // il principal è un docente o studente del corso? o
-        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && c.getStudents().stream().noneMatch(x -> x.getId().equals(principal)))
-            throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
-
-        Optional<Team> t = teamRepository.findById(teamID);
-        if (t.isEmpty() || (!t.get().getCourse().getName().equals(courseName) && !t.get().getCourse().getAcronime().equals(courseName))) {
-            throw new TeamNotFoundException("Team " + teamID + " not found");
-        }
-        return modelMapper.map(t.get(), TeamDTO.class);
-
-    }
 
 
     @Override
@@ -1139,36 +1205,7 @@ public class TeamServiceImpl implements TeamService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public boolean activateTeam(Long ID) {
-        Optional<Team> t = teamRepository.findById(ID);
-        if (t.isEmpty())
-            return false;
-        t.get().setStatus(1);
-        for (Student s : t.get().getMembers()) {
-            s.getTeams().stream()
-                    .filter(x -> x.getCourse() == t.get().getCourse() && x.getStatus() == 0)
-                    .forEach(x -> {
-                        evictTeam(x.getId());
-                    });
-        }
-        return true;
-    }
 
-    @Override
-    public List<Boolean> evictAll(Set<Long> teams) {
-        return teams.stream().map(this::evictTeam).collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean evictTeam(Long ID) {
-        Optional<Team> t = teamRepository.findById(ID);
-        if (t.isEmpty())
-            return false;
-        Team team = t.get();
-        team.setCourse(null);
-        return true;
-    }
 
     @Override
     public List<ProfessorDTO> getAllProfessors() {
@@ -1244,12 +1281,7 @@ public class TeamServiceImpl implements TeamService {
 
 
 
-    @Override
-    public void deleteAll(Set<String> users) {
-        studentRepository.deleteAll(users.stream().filter(x -> studentRepository.existsById(x)).map(x -> studentRepository.getOne(x)).collect(Collectors.toList()));
-        professorRepository.deleteAll(users.stream().filter(x -> professorRepository.existsById(x)).map(x -> professorRepository.getOne(x)).collect(Collectors.toList()));
-        removeAccounts(users);
-    }
+
 
 
     @Override
