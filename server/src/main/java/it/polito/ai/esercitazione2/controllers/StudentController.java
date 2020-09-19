@@ -278,7 +278,7 @@ public class StudentController {
 
     /**
      * Get student's homeworks for all of his courses
-     * Authentication required: same student or admin
+     * Authentication required: same student
      *
      * @return Requested List of HomeworkDTOs
      */

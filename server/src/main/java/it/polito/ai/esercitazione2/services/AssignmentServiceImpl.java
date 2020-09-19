@@ -365,7 +365,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         Student s = studentRepository.getOne(studentId);
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
         Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        if (principal != studentId && !roles.contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+        if (principal != studentId)
             throw new UserUnathorizedException("User " + principal + " is not authorized to view assignments of student " + studentId);
         return s.getCourses()
                 .stream()

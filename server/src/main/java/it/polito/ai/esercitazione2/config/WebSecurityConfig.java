@@ -64,7 +64,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .withUser(User.withUsername("admin") //to comment after the admin has been inserted
                         .password(passwordEncoder().encode("admin"))
                         .roles("ADMIN"));
-                */
+              */
 
        JdbcUserDetailsManager manager=UserDetailsManager();
        List<GrantedAuthority> authority = new ArrayList<>();

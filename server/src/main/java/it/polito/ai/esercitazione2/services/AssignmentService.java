@@ -19,7 +19,6 @@ public interface AssignmentService {
     String getAssignmentProfessor(Integer assignmentId);
     String getAssignmentCourse(Integer assignmentId);
     List<HomeworkDTO> getAssignmentHomeworks(Integer assignmentId);
-    @PreAuthorize("hasRole('ADMIN')")
     List<AssignmentDTO> getAllAssignments();
     List<AssignmentDTO> getByCourse(String courseId);
     List<HomeworkDTO> getHomeworksByCourse(String courseId);

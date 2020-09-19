@@ -680,8 +680,8 @@ public class TeamServiceImpl implements TeamService {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: " + courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
-        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)) && !SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
-            throw new CourseAuthorizationException("User " + prof + " has not the rights to modify this course: he's not the admin or the professor for this course");
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)) )
+            throw new CourseAuthorizationException("User " + prof + " has not the rights to modify this course: he's not a professor for this course");
         if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
             throw new StudentNotFoundException("Student: " + studentId + " not found!");
 
@@ -768,8 +768,8 @@ public class TeamServiceImpl implements TeamService {
         if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
             throw new CourseNotFoundException("Course: " + courseName + " not found!");
         Course c = courseRepository.getOne(courseName);
-        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)) && !SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
-            throw new CourseAuthorizationException("User " + prof + " has not the rights to modify this course: he's not the admin or the professor for this course");
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)))
+            throw new CourseAuthorizationException("User " + prof + " has not the rights to modify this course: he's not a professor for this course");
         return studentIds.stream().map(x -> removeStudentFromCourse(x, c)).collect(Collectors.toList());
     }
 

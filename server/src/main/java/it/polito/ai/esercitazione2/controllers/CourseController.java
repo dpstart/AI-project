@@ -293,7 +293,7 @@ public class CourseController {
         try {
             teamService.enrollAll(students, name);
         } catch (StudentNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage() + " Ask the administrator to add it!");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage() );
         } catch (CourseAuthorizationException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         } catch (TeamServiceException e) {
