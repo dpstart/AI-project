@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { RouteStateService } from 'src/app/services/route-state.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
@@ -12,13 +12,14 @@ import { EditTeamDialogComponent } from 'src/app/teacher/vm/edit/edit-team-dialo
 import { CreateDialogComponent } from './create/create-dialog.component';
 import { EditVmDialogComponent } from './edit/edit-vm-dialog.component';
 import { Image } from 'src/app/model/image.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-vm-student',
   templateUrl: './vm-student.component.html',
   styleUrls: ['./vm-student.component.css']
 })
-export class VmStudentComponent implements OnInit {
+export class VmStudentComponent implements OnInit, OnDestroy {
 
   // Error handling
   message: string | null;
@@ -34,6 +35,8 @@ export class VmStudentComponent implements OnInit {
   image: string;
 
   dataSourceVm: MatTableDataSource<Vm>
+
+  courseSub: Subscription;
 
   // Components
   private paginator: MatPaginator;
@@ -71,8 +74,14 @@ export class VmStudentComponent implements OnInit {
     this.getData()
   }
 
+  ngOnDestroy(): void {
+    this.courseSub.unsubscribe()
+  }
+
   getData() {
-    this.activatedRoute.params.subscribe(params => {
+    // Voglio sempre e solo una sub
+    if(this.courseSub) this.courseSub.unsubscribe()
+    this.courseSub = this.activatedRoute.params.subscribe(params => {
 
       this.selectedCourse = params["course_name"]
       if (this.selectedCourse)

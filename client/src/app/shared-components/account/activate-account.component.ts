@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { StudentService } from 'src/app/services/student.service';
 
 @Component({
@@ -7,9 +8,11 @@ import { StudentService } from 'src/app/services/student.service';
   templateUrl: './activate-account.component.html',
   styleUrls: ['./activate-account.component.css']
 })
-export class ActivateAccountComponent implements OnInit {
-  
-  
+export class ActivateAccountComponent implements OnInit, OnDestroy {
+
+
+  courseSub: Subscription
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private studentService: StudentService) {
@@ -18,7 +21,7 @@ export class ActivateAccountComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.activatedRoute.params.subscribe(params => {
+    this.courseSub = this.activatedRoute.params.subscribe(params => {
       let token = params['token']
       if (token)
         this.studentService.confirmAccount(token).subscribe(
@@ -31,6 +34,11 @@ export class ActivateAccountComponent implements OnInit {
         )
     })
   }
+
+  ngOnDestroy(): void {
+    this.courseSub.unsubscribe()
+  }
+
 
 
 }

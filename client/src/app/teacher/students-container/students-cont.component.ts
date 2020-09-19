@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Student } from '../../model/student.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouteStateService } from '../../services/route-state.service';
 import { Course } from 'src/app/model/course.model';
 import { TeacherService } from 'src/app/services/teacher.service';
+import { Subscription } from 'rxjs';
 
 export interface Message {
   message: string
@@ -15,7 +16,7 @@ export interface Message {
   templateUrl: './students-cont.component.html',
   styleUrls: ['./students-cont.component.css']
 })
-export class StudentsContComponent implements OnInit {
+export class StudentsContComponent implements OnInit, OnDestroy {
 
   /*
 [message]="message"
@@ -48,6 +49,8 @@ export class StudentsContComponent implements OnInit {
   //Studenti che devono essere eliminati
   studentsToDelete: Student[];
 
+  courseSub: Subscription
+
   constructor(
     private teacherService: TeacherService,
     private activatedRoute: ActivatedRoute,
@@ -60,7 +63,7 @@ export class StudentsContComponent implements OnInit {
 
   ngOnInit() {
     // sottoscrivo a cambiamenti nella url del corso
-    this.activatedRoute.params.subscribe(params => {
+    this.courseSub = this.activatedRoute.params.subscribe(params => {
       if (params['course_name']) {
 
         // Emissione evento per il corso in questione 
@@ -102,6 +105,10 @@ export class StudentsContComponent implements OnInit {
         }, (_) => this.router.navigate(['PageNotFound']))
       }
     })
+  }
+
+  ngOnDestroy() {
+    this.courseSub.unsubscribe()
   }
 
   /**

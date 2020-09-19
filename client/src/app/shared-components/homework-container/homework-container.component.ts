@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DisplayedHomework, DisplayedAssignment } from '../homework/homework.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouteStateService } from 'src/app/services/route-state.service';
@@ -8,6 +8,7 @@ import { Homework } from 'src/app/model/homework.model';
 import { Student } from 'src/app/model/student.model';
 import { Image } from 'src/app/model/image.model';
 import { DomSanitizer } from '@angular/platform-browser';
+import { Subscription } from 'rxjs';
 
 
 const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' };
@@ -17,7 +18,7 @@ const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'nume
   templateUrl: './homework-container.component.html',
   styleUrls: ['./homework-container.component.css']
 })
-export class HomeworkContainerComponent implements OnInit {
+export class HomeworkContainerComponent implements OnInit, OnDestroy {
   /* Questo componente è il container di Homework component. Il suo scopo sarà quello di ritirare tutti i dati 
      e passarli una volta ottenuti al figlio.  */
 
@@ -29,6 +30,9 @@ export class HomeworkContainerComponent implements OnInit {
 
   // flag usato per visualizzare loading 
   isAllLoaded: boolean
+
+
+  courseSub: Subscription;
 
 
   constructor(
@@ -45,7 +49,8 @@ export class HomeworkContainerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.activatedRoute.params.subscribe((params) => {
+    
+    this.courseSub = this.activatedRoute.params.subscribe((params) => {
       if (params['course_name']) {
         this.routeStateService.updatePathParamState(params['course_name'])
 
@@ -241,4 +246,7 @@ export class HomeworkContainerComponent implements OnInit {
     })
   }
 
+  ngOnDestroy(): void {
+    this.courseSub.unsubscribe()
+  }
 }

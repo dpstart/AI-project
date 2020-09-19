@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators, ValidatorFn, ValidationErrors } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { AuthService, RegisteredUserForm } from '../services/auth.service';
 
 /**
@@ -46,7 +47,14 @@ export class RegisterDialogComponent implements OnInit {
 
   constructor(
     private dialogRef: MatDialogRef<RegisterDialogComponent>,
-    private auth: AuthService) {
+    private authService: AuthService,
+    private router: Router) {
+
+    //Controllo utile solo se copi e incolli url della register nella url, allora si viene rediretti alla home
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['home'])
+      this.close()
+    }
 
     this.message = ""
     this.alertType = ""
@@ -85,11 +93,14 @@ export class RegisterDialogComponent implements OnInit {
       this.isRegistrationSubmitting = true
 
       // Effettuo chiamata per registrazione utente
-      this.auth.register(user, this.selectedFile)
+      this.authService.register(user, this.selectedFile)
         .subscribe(
           data => {
             // La registrazione è finita aggiorno flag
             this.isRegistrationSubmitting = false
+            // In caso di successo disabilito il form
+            // Questo perchè mostro messaggio di successo e chiudo il form
+            this.form.disable()
             // Setto messaggio 
             this.alertType = "success"
             this.message = "An email was sent to your account, please click on the link to confirm."
