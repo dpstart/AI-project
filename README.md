@@ -84,6 +84,7 @@ The ADMIN is added only after this creation.
 | Course |     Acronime  | Min | Max | Professors (C = Creator)| Studenti| VM Model          |                                                                                                                                                                                                      
 |--------|:-------------:|----:|----:|------------------------:|--------:| ------------------:|
 | Applicazioni Internet | AI | 1 | 4 | Servetti (C), Malnati | | |
+| Programmazione di Sistema| PDS | 1 | 5 | Malnati(C), Cabodi | | |
 
 
 | Team          | Course | ID | Members                    | #cpu | disk space | ram | max active | max_available |
