@@ -73,8 +73,9 @@ The ADMIN is added only after this creation.
 | Username |     Password   | Role | Name | First Name | Email | Alias |
 |----------|:-------------:|------:|-----:|-----------:|------:|------:|
 | admin|  admin | ADMIN |
-| 100000 |   a.servetti   |  PROFESSOR  | Antonio | Servetti | d100000@polito.it|
-| 100001 | g.malnati |  PROFESSOR  |  Giovanni | Malnati | d100001@polito.it|
+| 100000 |   a.servetti   |  PROFESSOR  | Antonio | Servetti | d100000@polito.it| antonio.servetti |
+| 100001 | g.malnati |  PROFESSOR  |  Giovanni | Malnati | d100001@polito.it| giovanni.malnati|
+| 100002 | g.cabodi |  PROFESSOR  |  Gianpiero | Cabodi | d100002@polito.it| gianpiero.cabodi |
 | 257649| g.pastore | STUDENT | Giuseppe | Pastore | s257649@studenti.polito.it| giuseppe.pastore|
 | 200000 | d.fisicaro | STUDENT | Damiano | Fisicaro | s200000@studenti.polito.it| damiano.fisicaro|
 | 200001 | w.forcignano | STUDENT | Walter | Forcignano | s200001@studenti.polito.it| walter.forcignano|
@@ -142,7 +143,7 @@ The ADMIN is added only after this creation.
         - receive a list of signed token, each of which containing the username of user to be deleted
         - only through the application for consistency reasons
         
-## SERVER: Registration details
+## SERVER: Registration details (StudentController & ProfessorController)
 
 - ADMIN registered a priori: username: ADMIN, password: admin
 - Endpoints: API/students & API/professors (POST)
@@ -162,7 +163,24 @@ The ADMIN is added only after this creation.
         - if the token is expired, the user removed both form the application and authentication DBs;
         - if the token is valid, the user is enabled on both the datasets and the token is deleted;
         
-## SERVER: Login details
+## SERVER: Login details (LoginController)
+
+- The LoginController exposes one single endpoint for the login of a user;
+- The login doesn't set any session, but provides the authentication user the authentication token;
+- It is possible to obtain the token also from the public API /authenticate on the authentication service but only with the id;
+- From the login form of the application instead it is possible to perform the login using one of the following information as username:
+    - ID;
+    - email;
+    - alias;
+    - alias - mail (<alias>@studenti.polito.it or <alias>@polito.it)
+    
+0. Data are received from the client form
+1. If the username is different from the user ID (mail,alias, alias-mail), the student/professor table is accessed to retrieve it;
+2. HTTP request is sent towards "/authenticate" of the authentication service
+3a. If success, the jwttoken is returned;
+3b. If failure, Unauthorized or general Internal Server Error;
+
+
         
 
 

@@ -175,7 +175,7 @@ public class NotificationServiceImpl implements NotificationService {
         ca.setUserId(s.getId());
         ca.setExpiryDate(expiryDate);
         confirmAccountRepository.save(ca);
-        String body = String.format(activation_template.getText(), s.getFirstName(), "http://localhost:4200/activate/" + token);
+        String body = String.format(activation_template.getText(), "Prof."+ s.getName(), "http://localhost:4200/activate/" + token);
         //sendMessage(s.getEmail(),"Activate your account",body);
         sendMessage("giuseppe.pastore10@libero.it", "Activate your account", body);
     }

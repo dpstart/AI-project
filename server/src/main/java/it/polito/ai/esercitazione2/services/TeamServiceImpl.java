@@ -224,7 +224,13 @@ public class TeamServiceImpl implements TeamService {
     }
 
 
-
+    /**
+     * HTTP request towards \authenticate endpoint of the authentication service
+     * If the username is different from the user ID (mail,alias,alias-mail), pre-access to the student/professor table to retrieve it
+     * @param authenticationRequest: {"username":...,"password":pwd}
+     *
+     * @return jwtToken
+     */
     @Override
     public JwtResponse loginUser(JwtRequest authenticationRequest) {
 
@@ -233,13 +239,13 @@ public class TeamServiceImpl implements TeamService {
         username = username.toLowerCase();
 
 
-        //standard mail
+        // if standard standard mail
         if (username.matches("^(s[0-9]{6}@studenti\\.polito\\.it)$")
                 || username.matches("^(d[0-9]{6}@polito\\.it)$")) {
             authenticationRequest.setUsername(username.substring(1, 7));
         }
 
-        //alias
+        // if alias
         if (username.matches("^([a-z]+\\.[a-z]+)$")) {
             Student stud = studentRepository.getByAlias(username);
             if (stud != null)
@@ -254,7 +260,7 @@ public class TeamServiceImpl implements TeamService {
             authenticationRequest.setUsername(username);
         }
 
-        //alias+mail professor
+        // if alias+mail professor
         if (username.matches("^([a-z]+\\.[a-z]+@polito\\.it)$")) {
             username = username.substring(0, username.indexOf("@"));
             Professor prof = professorRepository.getByAlias(username);
@@ -264,7 +270,7 @@ public class TeamServiceImpl implements TeamService {
                 throw new AuthenticationServiceException("");
             authenticationRequest.setUsername(username);
         }
-        //alias+mail student
+        // if alias+mail student
         if (username.matches("^([a-z]+\\.[a-z]+@studenti\\.polito\\.it)$")) {
             username = username.substring(0, username.indexOf("@"));
             Student stud = studentRepository.getByAlias(username);
@@ -276,7 +282,7 @@ public class TeamServiceImpl implements TeamService {
         }
 
 
-        // richiesta POST verso /authenticate
+        // HTTP POST towards /authenticate
         String a = w.post()
                 .uri("/authenticate")
                 .body(Mono.just(authenticationRequest), JwtRequest.class)
@@ -293,7 +299,7 @@ public class TeamServiceImpl implements TeamService {
                         Mono<String> msg = x.bodyToMono(String.class);
 
                         return msg.flatMap(y -> {
-                            throw new AuthenticationServiceException(y);
+                            throw new RuntimeException(y);
                         });
                     } else {
 

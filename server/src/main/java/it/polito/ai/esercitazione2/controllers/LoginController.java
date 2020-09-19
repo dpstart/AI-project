@@ -22,6 +22,11 @@ public class LoginController {
     @Autowired
     TeamService teamService;
 
+    /**
+     *
+     * @param authenticationRequest {"username":<id,mail,alias,alias-mail>, "password":<pwd>}
+     * @return jwtToken
+     */
     @PostMapping({"", "/"})
     public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest authenticationRequest) {
         try{
