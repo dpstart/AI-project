@@ -233,7 +233,7 @@ The ADMIN is added only after this creation.
 
 - To share a course the user needs to be authenticated as a professor teaching in it;
 - Sending a professorId inside the body of a POST to "/API/courses/{name}/share" will share the course with the given professor, if it exists;
-- expected input:
+- Expected input:
         {
                 "id": id of the professor (string)
         }
@@ -246,7 +246,44 @@ The ADMIN is added only after this creation.
 - Disabling a course stops all of its VMs
 
 
-## SERVER : Course student enrollment (enroll, enrollMany, enrollManyCSV, unsubscribe)
+## SERVER : Course student enrollment
+
+### EnrollOne
+
+- To enroll a student in a course the user needs to be authenticated as a professor teaching in it;
+- Sending a studentId inside the body of a POST to "/API/courses/{name}/enrollOne" will enroll the given student in the course, if it exists;
+- Enrolling a new student to the course will create for him an empty homework for each assignment that has at least 10 minutes remaining before expiration;
+- Expected input:
+        {
+                "id": id of the student (string)
+        }
+
+### EnrollMany
+
+- To enroll more students in a course the user needs to be authenticated as a professor teaching in it;
+- Sending a list of studentIds inside the body of a POST to "/API/courses/{name}/enrollMany" will enroll the given students in the course, if they exist;
+- Enrolling the new students to the course will create for them an empty homework for each assignment that has at least 10 minutes remaining before expiration;
+- Expected input:
+        {
+                "students": id of the students (List<string>)
+        }
+
+### EnrollStudentsCSV
+
+- To enroll more students in a course using a CSV the user needs to be authenticated as a professor teaching in it;
+- Sending a list of studentIds inside a csv file in a POST to "/API/courses/{name}/enrollManyCSV" will enroll the given students in the course, if they exist;
+- Enrolling the new students to the course will create for them an empty homework for each assignment that has at least 10 minutes remaining before expiration;
+- Expected input: CSV file containing all the ids in the first columns, one for each row;
+
+### Unsubscribe
+
+- To unsubscribe one or more students in a course the user needs to be authenticated as a professor teaching in it;
+- Sending a list of studentIds inside the body of a POST to "/API/courses/{name}/unsubscribe" will unsubscribe the given students from the course, if they exist and are enrolled in it;
+- Unsubscribing the new students from the course will delete their roles in regards to their teams vms, remove them from their teams, deleting the teams if they fall under the course minimum team size;
+- Expected input:
+        {
+                "students": id of the students to remove (List<string>)
+        }
     
 
 ## SERVER : Team proposal
