@@ -19,7 +19,6 @@ export class CreateCourseComponent implements OnInit {
     acronime: new FormControl(''),
     min: new FormControl(''),
     max: new FormControl(''),
-    vmmodel: new FormControl('')
   });
 
 
