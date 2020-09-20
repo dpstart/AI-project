@@ -36,6 +36,10 @@ export class VMComponent implements OnInit, OnDestroy {
     message: string | null;
     alertType: string;
 
+
+    // flag to know wheter vms were retrieved. This is used in the template
+    // to conditionally show the vm table
+
     columnsToDisplay: string[] = ['position', 'actions', 'name', 'disk_space', 'ram', 'n_cpu'];
     innerDisplayedColumns = ['position', 'id_creator', 'n_cpu', 'disk_space', 'ram', 'status', 'actions'];
     dataSourceTeams: MatTableDataSource<any> = new MatTableDataSource<any>();
@@ -122,6 +126,7 @@ export class VMComponent implements OnInit, OnDestroy {
                             for (let i = 0; i < vms.length; i++) {
                                 vms[i]['position'] = i + 1
                             }
+
                         })
                     });
                     this.dataSourceTeams.data = data;

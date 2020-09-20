@@ -60,7 +60,12 @@
                 <td mat-cell *matCellDef="let element" [attr.colspan]="columnsToDisplay.length">
                     <div class="example-element-detail"
                         [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
-                        <table #innerTables mat-table #innerSort="matSort" [dataSource]="element.vms" matSort>
+
+                        <div *ngIf="element.vms.length==0">
+                            <p>No Vms for this team</p>
+                        </div>
+                        <table *ngIf="element.vms.length>0" #innerTables mat-table #innerSort="matSort"
+                            [dataSource]="element.vms" matSort>
 
                             <ng-container matColumnDef="name">
                                 <th mat-header-cell *matHeaderCellDef mat-sort-header>
