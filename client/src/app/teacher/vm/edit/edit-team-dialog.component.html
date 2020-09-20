@@ -36,7 +36,7 @@
             <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
 
             <div>
-                <button type="button" mat-raised-button (click)="submit()" color="primary"
+                <button [disabled]="!form.valid" type="button" mat-raised-button (click)="submit()" color="primary"
                     class="actions">Confirm</button>
                 <button type="button" (click)="close(null,null)" mat-raised-button class="actions">Cancel</button>
             </div>

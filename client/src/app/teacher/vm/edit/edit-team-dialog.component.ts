@@ -1,6 +1,6 @@
 import { Inject, Component, Input } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormGroup, FormControl } from '@angular/forms';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { TeacherService } from 'src/app/services/teacher.service';
 import { Team } from 'src/app/model/team.model';
 
@@ -15,11 +15,11 @@ export class EditTeamDialogComponent {
   course: string
 
   form: FormGroup = new FormGroup({
-    ram: new FormControl(this.data.team.ram),
-    n_cpu: new FormControl(this.data.team.n_cpu),
-    disk_space: new FormControl(this.data.team.disk_space),
-    max_active: new FormControl(this.data.team.max_active || "--"),
-    max_available: new FormControl(this.data.team.max_available || "--")
+    ram: new FormControl(this.data.team.ram, Validators.required),
+    n_cpu: new FormControl(this.data.team.n_cpu, Validators.required),
+    disk_space: new FormControl(this.data.team.disk_space, Validators.required),
+    max_active: new FormControl(this.data.team.max_active, Validators.required),
+    max_available: new FormControl(this.data.team.max_available, Validators.required)
   });
 
   message: string | null;
@@ -42,20 +42,23 @@ export class EditTeamDialogComponent {
 
   close(message: string, type: string) { this.dialogRef.close({ message: message, type: type }); }
   submit() {
-    this.teacherService.changeTeamSettings(this.course, this.team.id, this.form.value).subscribe(
-      (team) => this.close("Team settings updated successfully.", "success"),
-      (error) => {
-        this.message = error.message
-        this.alertType = "danger"
-        this.closeAlertAfterTime(3000)
-      }
-    )
+
+    if (this.form.valid) {
+      this.teacherService.changeTeamSettings(this.course, this.team.id, this.form.value).subscribe(
+        (team) => this.close("Team settings updated successfully.", "success"),
+        (error) => {
+          this.message = error.message
+          this.alertType = "danger"
+          this.closeAlertAfterTime(3000)
+        }
+      )
+    }
   }
 
   /**
- * Utility function used to close alert after tot milliseconds 
- * @param milliseconds 
- */
+  * Utility function used to close alert after tot milliseconds 
+  * @param milliseconds 
+  */
   closeAlertAfterTime(milliseconds: number) {
     setTimeout(_ => {
       this.message = ""
