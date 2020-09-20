@@ -1,6 +1,3 @@
---Opzionale: fornire anche una indicazione in tempo reale delle risorse utilizzate dal gruppo.
-
-
 - Le informazioni sull'adesione a un team non vengono visualizzate in tempo reale:
 Ex. Sono sulla pagina delle proposte-> uno studente che ho inviato accetta la richiesta--> il checkbox non passa a true ma devo aggiornare la pagina...
 
