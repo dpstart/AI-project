@@ -199,18 +199,52 @@ The ADMIN is added only after this creation.
 3a. If success, the jwttoken is returned;
 3b. If failure, Unauthorized or general Internal Server Error;
 
-## SERVER : Course Creation ( /API/courses (POST))
+## SERVER : Course Creation
 
-TODO
+- To add a new course an authentication as professor is required;
+- Sending a CourseDTO inside the body of a POST to "/API/courses" will create the course if the name and the acronime aren't already used by other courses;
+- The response will contain the updated DTO (retrieves the Course entity from the database and maps it back to a CourseDTO, used to avoid potential changes in saveing the new entity in the db)
+- CourseDTO structure: 
+        {
+                "name":"Applicazioni Internet",
+                "acronime":"AI",
+                "max": optional (int)
+                "min": 1 ore above
+                "enabled": optional (boolean)
+        }
 
-## SERVER : Course Managament (settings, share, remove, update)
+## SERVER : Course Managament (remove, update, share, enable/disable)
 
-TODO
+### Remove:
+
+- To delete a course the user needs to be authenticated as a professor teaching in it;
+- Sending an empty DELETE to "/API/courses/{name}" will delete the course, if it exists;
+- The course can't be deleted if it is enabled (meaning VMs can be used in that moment);
+- Deleting the course implies deleting all of its VM images;
+- Teams, Assignments and Homeworks are mainteined to allow data recovery.
 
 ### Update:
 
-- It is not possible to set a minimum or maximum size for the teams of a course, such that some already existing teams are invalidated;
-- ...
+- To modify a course the user needs to be authenticated as a professor teaching in it;
+- Sending a CourseDTO inside the body of a POST to "/API/courses/update" will modify the course settings of the given course, if it exists;
+- It is not possible to set a minimum or maximum size for the teams of a course, such that any already existing team would be invalidated.
+
+### Share:
+
+- To share a course the user needs to be authenticated as a professor teaching in it;
+- Sending a professorId inside the body of a POST to "/API/courses/{name}/share" will share the course with the given professor, if it exists;
+- expected input:
+        {
+                "id": id of the professor (string)
+        }
+
+### Enable/Disable:
+
+- To enable/disable a course the user needs to be authenticated as a professor teaching in it;
+- Sending an empty POST to "/API/courses/{name}/enable" will enable the course, if it exists;
+- Sending an empty POST to "/API/courses/{name}/disable" will disable the course, if it exists;
+- Disabling a course stops all of its VMs
+
 
 ## SERVER : Course student enrollment (enroll, enrollMany, enrollManyCSV, unsubscribe)
     
@@ -251,8 +285,8 @@ TODO
     2b. if the token does not exists, it means the user has already accepted the invitation;
     
 - API/courses/{course}/teams/{id}/members: return the members of the team;
-- API/courses/{course}/teams/{id}/inTeams: students not yet enrolled in a team;
-- API/courses/{course}/teams/{id}/available:  students already in a team;
+- API/courses/{course}/teams/{id}/inTeams: students already in a team;
+- API/courses/{course}/teams/{id}/available: students not yet enrolled in a team;
 
 ## SERVER : Team VM settings
 
