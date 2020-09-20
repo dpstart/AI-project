@@ -14,6 +14,7 @@ import { EditVmDialogComponent } from './edit/edit-vm-dialog.component';
 import { Image } from 'src/app/model/image.model';
 import { Subscription } from 'rxjs';
 import { TeacherService } from 'src/app/services/teacher.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-vm-student',
@@ -65,13 +66,14 @@ export class VmStudentComponent implements OnInit, OnDestroy {
     private studentService: StudentService,
     private change: ChangeDetectorRef,
     private router: Router,
-    private teacherService: TeacherService) {
+    private teacherService: TeacherService,
+    private auth: AuthService) {
 
     this.isAllLoaded = false
     this.dataSourceVm = new MatTableDataSource<Vm>();
-    this.innerDisplayedColumns = ['position', 'n_cpu', 'disk_space', 'ram', 'status'];
+    this.innerDisplayedColumns = ['position', 'n_cpu', 'disk_space', 'ram', 'status', 'id_creator'];
 
-    this.displayedColumns = ['actions', 'position', 'n_cpu', 'disk_space', 'ram', 'status', 'delete'];
+    this.displayedColumns = ['actions', 'position', 'n_cpu', 'disk_space', 'ram', 'status', 'delete', 'id_creator'];
 
   }
 
@@ -110,8 +112,11 @@ export class VmStudentComponent implements OnInit, OnDestroy {
 
           this.studentService.getVmsForTeam(team.id).subscribe(vms => {
 
+
+
             for (let i = 0; i < vms.length; i++) {
               vms[i]['position'] = i + 1
+
             }
             this.dataSourceVm.data = [...vms]
             this.isAllLoaded = true
@@ -250,7 +255,15 @@ export class VmStudentComponent implements OnInit, OnDestroy {
       this.alertType = ""
     }, milliseconds)
   }
+
+  getAuthId() {
+    return this.auth.getId();
+  }
+
 }
+
+
+
 
 
 export interface Vm {
