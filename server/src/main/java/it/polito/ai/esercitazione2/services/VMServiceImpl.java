@@ -245,7 +245,7 @@ public class VMServiceImpl implements VMService {
 
     @Override
     public void updateVM(Long vmID, SettingsDTO settings){
-        
+
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if(!vmRepository.existsById(vmID))

@@ -31,21 +31,21 @@
                 <th mat-header-cell *matHeaderCellDef>
                     Disk Space </th>
                 <td mat-cell *matCellDef="let element">
-                    {{element.disk_space}} </td>
+                    {{teamsRunningResources[element.id]?.disk_space}}/{{element.disk_space}} </td>
             </ng-container>
 
             <ng-container matColumnDef="ram">
                 <th mat-header-cell *matHeaderCellDef>
                     RAM </th>
                 <td mat-cell *matCellDef="let element">
-                    {{element.ram}} </td>
+                    {{teamsRunningResources[element.id]?.ram}}/{{element.ram}} </td>
             </ng-container>
 
             <ng-container matColumnDef="n_cpu">
                 <th mat-header-cell *matHeaderCellDef>
                     N. CPU </th>
                 <td mat-cell *matCellDef="let element">
-                    {{element.n_cpu}} </td>
+                    {{teamsRunningResources[element.id]?.n_cpu}}/{{element.n_cpu}} </td>
             </ng-container>
 
             <ng-container matColumnDef="actions">

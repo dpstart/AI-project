@@ -7,12 +7,15 @@ import { MatDialog } from '@angular/material/dialog';
 import { EditTeamDialogComponent } from './edit/edit-team-dialog.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouteStateService } from 'src/app/services/route-state.service';
-import { StudentService } from 'src/app/services/student.service';
+import { StudentService, VmSettings } from 'src/app/services/student.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { Subscription } from 'rxjs';
 
-
+interface teamResources {
+    team_id: string;
+    settings: VmSettings
+}
 
 @Component({
     selector: 'app-vm',
@@ -36,6 +39,7 @@ export class VMComponent implements OnInit, OnDestroy {
     columnsToDisplay: string[] = ['position', 'actions', 'name', 'disk_space', 'ram', 'n_cpu'];
     innerDisplayedColumns = ['position', 'id_creator', 'n_cpu', 'disk_space', 'ram', 'status', 'actions'];
     dataSourceTeams: MatTableDataSource<any> = new MatTableDataSource<any>();
+    teamsRunningResources: { [id: string]: VmSettings; } = {}
 
     private paginator: MatPaginator;
     private sort: MatSort;
@@ -100,11 +104,15 @@ export class VMComponent implements OnInit, OnDestroy {
 
                 this.teacherService.getTeams(this.selectedCourse).subscribe((data: Team[]) => {
 
-
                     data.forEach((team, i) => {
                         team['position'] = i + 1
 
                         let team_id = team["id"];
+
+                        this.teacherService.getResourcesByTeam(team_id).subscribe((settings: VmSettings) => {
+
+                            this.teamsRunningResources[team_id] = settings;
+                        })
 
                         this.teacherService.getVmsForTeam(team_id).subscribe(vms => {
 
