@@ -958,8 +958,54 @@ public class TeamServiceImpl implements TeamService {
         return true;
     }
 
+    // return information about the current adhesion ifno for the memebrs of the team, and the confirmation/rejection token for the authenticated user
+    @Override
+    public Map<String, String> getAdhesionInfo(String courseName, Long teamID) {
+
+        //check if the course exists
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
+
+        // check if the team exists
+        if (!teamRepository.existsById(teamID))
+            throw new TeamNotFoundException("Team " + teamID + " not found");
+
+        Team t = teamRepository.getOne(teamID);
+
+        // check if the team exists in thic course
+        if (!t.getCourse().getName().equals(courseName) && !t.getCourse().getAcronime().equals(courseName)) {
+            throw new TeamNotFoundException("Team " + teamID + " not found");
+        }
+
+        Map<String, String> m = new HashMap<>();
+        List<Student> members = t.getMembers();
+
+        // check if the requesting user is part of the team
+        if (!members.stream().map(Student::getId).anyMatch(x -> x.equals(SecurityContextHolder.getContext().getAuthentication().getName())))
+            throw new AuthorizationServiceException("Student not belonging to this team");
 
 
+        // find all tokens associated to a team
+        List<Token> tokens = tokenRepository.findAllByTeamId(teamID);
+        List<String> user_tokens = tokens.stream().map(x->x.getUserId()).collect(Collectors.toList());
+
+        for (Student s : members) {
+            String token="false";
+
+
+            // if it exists a token for this user it means it not accepted/rejected yet the invitation
+            if (user_tokens.contains(s.getId())){
+                // if this token is associated to the authenticated user return the token to send in the request
+                if (s.getId().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
+                    token = tokens.stream().filter(x->x.getUserId().equals(s.getId())).findFirst().get().getId();
+            }
+            else
+                token = "true"; //already accepted
+
+            m.put(s.getId(), token);
+        }
+        return m;
+    }
 
 
 
@@ -1284,32 +1330,7 @@ public class TeamServiceImpl implements TeamService {
 
 
 
-    @Override
-    public Map<String, String> getAdhesionInfo(Long teamID) {
 
-        Team t = teamRepository.getOne(teamID);
-        Map<String, String> m = new HashMap<>();
-        List<Student> members = t.getMembers();
-        if (!members.stream().map(Student::getId).anyMatch(x -> x.equals(SecurityContextHolder.getContext().getAuthentication().getName())))
-            throw new AuthorizationServiceException("Student not belonging to this team");
-
-
-        List<Token> tokens = tokenRepository.findAllByTeamId(teamID);
-
-        for (Student s : members) {
-            String token = notificationService.getToken(s.getId(), t.getId());
-
-            if (token == null) { //ha già accettato
-                token = "true";
-            } else {
-                if (!s.getId().equals(SecurityContextHolder.getContext().getAuthentication().getName())) {
-                    token = "false";
-                }
-            }
-            m.put(s.getId(), token);
-        }
-        return m;
-    }
 
 
     @Scheduled(initialDelay = 6 * 1000, fixedRate = 10 * 1000)

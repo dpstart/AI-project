@@ -229,6 +229,19 @@ TODO
 4b. A user can accept/reject the invitation also from its personal page (on the specific course tab);
 5. Once a team is created, its member will be not able to see the team proposal page anymore but they only see a summary page on the team composition;
 
+## SERVER : Team information
+
+- API/courses/{course}/teams: return all the temas created for this course to a professor owning the course;
+- API/courses/{course}/teams/{teamID}: return the information about a team to a professor owning the course or to a student enrolled in the team; not used by the client;
+- API/courses/{course}/{name}/teams/{id}/adhesion: return the status of the invitation for each student in the team; for the requesting use it returns the token to accept;
+0. A user belonging to a team for a specified course can ask for the adhesion info by clicking on the team information tab on its "groups" page;
+1. All the tokens associated to a team are collected;
+2. For each user it is checked if an associated token exists:
+    2a. If the token exits it means the user has not yet accepted/rejected the invitation:
+        - if the user is not the authenticated one, "false" is returned;
+        - if the user is the principal, the token is returned;
+    2b. if the token does not exists, it means the user has already accepted the invitation;
+
 
 
 

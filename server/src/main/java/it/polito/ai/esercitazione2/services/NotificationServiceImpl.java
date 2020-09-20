@@ -120,15 +120,6 @@ public class NotificationServiceImpl implements NotificationService {
         return true;
     }
 
-    @Override
-    public String getToken(String userID, Long teamID) {
-        Optional<Token> t = tokenRepository.findByUserIdAndTeamId(userID, teamID);
-        if (t.isEmpty())
-            return null;
-        return t.get().getId();
-    }
-
-
     // generate a token for a team with the defined expiration time
     // send a mail to the user with a confirm and a reject link.
     @Override

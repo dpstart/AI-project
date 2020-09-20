@@ -28,8 +28,7 @@ public interface NotificationService {
     boolean activate(String token);
 
 
-    // access the team token for a specified user
-    String getToken(String userID,Long teamID);
+
 
 
 }

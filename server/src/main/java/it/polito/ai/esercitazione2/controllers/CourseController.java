@@ -485,28 +485,12 @@ public class CourseController {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * Get team adhesion status info with token for logged user
      * Authentication required: student in the team
      *
      * @param name: name of the course (path variable)
-     * @param id: team id (path varaible)
+     * @param id: team id (path variable)
      * @return {
      * "2000": "true"
      * "2001": "false"
@@ -516,13 +500,31 @@ public class CourseController {
     @GetMapping("/{name}/teams/{id}/adhesion")
     Map<String, String> getAdhesionInfo(@PathVariable String name, @PathVariable Long id) {
         try {
-            return teamService.getAdhesionInfo(id);
+            return teamService.getAdhesionInfo(name,id);
         } catch (AuthorizationServiceException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        } catch (TeamServiceException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
 
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     /**

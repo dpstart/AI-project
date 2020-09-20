@@ -101,6 +101,9 @@ public interface TeamService {
     @PreAuthorize("hasRole('PROFESSOR') or hasRole('STUDENT')")
     TeamDTO getOneTeamForCourse(String courseName,Long TeamID);
 
+    // get the information about adhesion of  members to a team; only members of the team can call it
+    Map<String,String> getAdhesionInfo(String course,Long teamID);
+
 
 
 
@@ -162,8 +165,7 @@ public interface TeamService {
 
 
 
-    // get the information about adhesion of  memebrs to a team; only members of the team can call it
-    Map<String,String> getAdhesionInfo(Long teamID);
+
     // get all the students members of a team; only students enrolled in the course or the professors for the course can call it
     List<StudentDTO> getMembers(String courseName, Long TeamId);
 

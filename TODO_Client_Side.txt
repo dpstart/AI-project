@@ -9,4 +9,6 @@ Ex. Sono sulla pagina delle proposte-> uno studente che ho inviato accetta la ri
 
 - TeamProposal: se creo un team in cui sonol'unico membro (ed è ammesso farlo per quel corso) la pagina non si aggiorna ma mi fa vedere ancora l'elenco degli studenti che potrei invitare anche se il team è stato già formato ed abilitato;
 
+- TeamProposal: quango si preme il pulsante ACCEPT non succede nulla (ne un messaggio, ne compare la checkbox), se lo si ripreme compare un messaggio di errore "sorry, the page was not updated..." --> cambiare in modo che alla prima pressione compare la checkbox;
+
 
