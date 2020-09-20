@@ -750,7 +750,14 @@ public class TeamServiceImpl implements TeamService {
 
         co.setMin(min);
         co.setMax(max);
-        co.setEnabled(c.getEnabled());
+        if(c.getEnabled() != co.getEnabled()){
+            if(!c.getEnabled()){
+                this.disableCourse(c.getName());
+            }
+            else{
+                this.enableCourse(c.getName());
+            }
+        }
 
         return modelMapper.map(co, CourseDTO.class);
 

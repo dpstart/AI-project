@@ -129,7 +129,7 @@ public class CourseController {
     @PostMapping("/{name}/share")
     void share(@PathVariable String name, @RequestBody Map<String, String> input) {
         if (!input.containsKey("id") || input.keySet().size() > 1)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Expected only one field: usage 'id':<professorsId>");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Expected only one field: usage 'id':<professorId>");
         String user = input.get("id");
         try {
             teamService.shareOwnership(name, user);
