@@ -49,21 +49,31 @@ public interface VMService {
      *
      *****************************************************************************/
 
+    // create a VM instance
     @PreAuthorize("hasRole('STUDENT')")
     VMDTO createVM(String courseName,Long teamID, MultipartFile file, SettingsDTO settings);
+
+    // only a student owner of the VM can run it, if the associated course is enabled
     @PreAuthorize("hasRole('STUDENT')")
     void runVM(Long VMID);
+    // a student of the team or the professor of the course can connect to a VM
+    @PreAuthorize("hasRole('PROFESSOR') or hasRole('STUDENT')")
+    ImageDTO connectToVM(Long VMID);
+    // a VM's owner can update it
     @PreAuthorize("hasRole('STUDENT')")
     void updateVM(Long vmID, MultipartFile file, SettingsDTO settings);
     @PreAuthorize("hasRole('STUDENT')")
+    // Only the owner of the team can update it
     void updateVM(Long vmID, SettingsDTO settings);
+    // Only the owner of the team can stop it
     @PreAuthorize("hasRole('STUDENT')")
     void stopVM(Long VMID);
+
+    // an owner can remove the VM
     @PreAuthorize("hasRole('STUDENT')")
     void removeVM(Long VMID);
-    @PreAuthorize("hasRole('PROFESSOR') or hasRole('STUDENT')")
-    ImageDTO connectToVM(Long VMID);
 
+    // an owner can share this role tih all the other team members
     @PreAuthorize("hasRole('STUDENT')")
     void shareOwnership(Long id, String studentId);
 

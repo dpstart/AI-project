@@ -103,11 +103,13 @@ The ADMIN is added only after this creation.
 | Team          | Course | ID | Members (P=proposer)                | #cpu | disk space | ram | max active | max_available |
 |--------------:|-------:|---:|---------------------------:|-----:|-----------:|----:|-----------:|--------------:|
 | SecondoTeam | AI | 9 | 200000,200002,257649 (P) |8|512|4|1|4|
-| IlCapitano | PDS | 17 | 222225 (P) |2|128|4|1|1|
+| IlCapitano | PDS | 17 | 222225 (P) |5|128|4|1|1|
 | SecondoTeam | PDS | 12 | 222227 (P),222220,222221 |4|256|8|2|3|
 
 | VM Id  |  #cpu | disk space | ram | team  |
 |-------:|------:|-----------:|----:|------:|
+| 33 | 1 | 50 | 1 | 9 |
+
 
 
 ## SERVER: Web Security Config
@@ -281,8 +283,30 @@ TODO
 ### VM instances (CourseController + VMController)
 
 *Creation (API/courses/{courseName}/teams/{teamId}/createVM):*
-- only the student that is member of a team can create a VM instances, after that a VM model has been defined for the course and the professor grant some resources to the team;
+- only the student that is member of a team can create a VM instance, after that a VM model has been defined for the course and the professor grant some resources to the team;
 
+*Execution (API/vms/{id}/run):*
+- Only a student owning it can run the VM
+- If the current number of active VMs is under the defined threshold
+- The course must be enabled to run the VM
+
+*Connect( API/vms/{id}/connect):*
+- Only the students part of the teams associated to the VM or the professor of the course associated to the team can connect to the VM;
+- Only if the VM is running;
+- Connecting means obtaining the VM's image;
+
+*Stop( API/vms/{id}/stop):*
+- Only a VM's owner can stop it;
+
+*Update( API/vms/{id}/update):*
+- Only a VM's owner can update it;
+- With or withou the image;
+
+*Remove( API/vms/{id}/remove):*
+- Only a VM's owner can remove it;
+
+*Share Ownership( API/vms/{id}/share):*
+- All the owners can share this role with the other team members;
 
 
 

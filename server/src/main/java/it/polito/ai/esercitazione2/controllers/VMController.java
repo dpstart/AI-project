@@ -28,16 +28,29 @@ public class VMController {
     @Autowired
     VMService vmservice;
 
+    /*****************************************************************************
+     *
+     ******************* VM INSTANCES: operation  ********************************
+     *
+     *****************************************************************************/
 
-    @GetMapping("/{id}")
-    VMDTO getVM(@PathVariable Long id){
+    // the student owning the VM can run it
+    @GetMapping("/{id}/run")
+    void runVM(@PathVariable Long id){
         try{
-            return ModelHelper.enrich(vmservice.getVM(id));
-        }catch (TeamServiceException e){
+            vmservice.runVM(id);
+        } catch(VMInstanceNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        } catch(TeamAuthorizationException e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,e.getMessage());
+        } catch(UnavailableResourcesForTeamException | VMAlreadyInExecutionException e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
+        } catch (CourseNotEnabledException e){
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_REQUIRED,e.getMessage());
         }
     }
 
+    // a student of the team or the professor of the course can connect to a VM
     @GetMapping("/{id}/connect")
     ImageDTO connectToVM(@PathVariable Long id){
         try{
@@ -49,27 +62,13 @@ public class VMController {
         }
     }
 
-    @GetMapping("/{id}/run")
-    void runVM(@PathVariable Long id){
-            try{
-                vmservice.runVM(id);
-            } catch(VMInstanceNotFoundException e){
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
-            } catch(TeamAuthorizationException e){
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN,e.getMessage());
-            } catch(UnavailableResourcesForTeamException | VMAlreadyInExecutionException e){
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
-            } catch (CourseNotEnabledException e){
-                throw new ResponseStatusException(HttpStatus.PRECONDITION_REQUIRED,e.getMessage());
-            }
-    }
-
+    // a VM's owner can update it
     @PostMapping("/{id}/update")
     void updateVM(@PathVariable Long id,@RequestPart(value="image",required=false) MultipartFile file, @Valid @RequestPart("settings") SettingsDTO settings){
         if (settings.getMax_active() != null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max_active' field not allowed"); //da generalizzare
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max_active' field not allowed");
         if (settings.getMax_available() != null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max_available' field not allowed"); //da generalizzare
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max_available' field not allowed");
 
 
         try{
@@ -86,6 +85,7 @@ public class VMController {
         }
     }
 
+    // Only the owner of the team can stop it
     @GetMapping("{id}/stop")
     void stopVM(@PathVariable Long id){
         try{
@@ -99,7 +99,7 @@ public class VMController {
         }
     }
 
-
+    // a vm's owner can remove it
     @DeleteMapping("{id}")
     void removeVM(@PathVariable Long id){
         try{
@@ -114,6 +114,7 @@ public class VMController {
 
     }
 
+    // an owner can share this role tih all the other team members
     @PostMapping("{id}/share")
     void shareOwnershipWithOne(@PathVariable Long id,@RequestBody Map<String,String> input){
         if (!input.containsKey("id") || input.keySet().size()>1)
@@ -126,6 +127,24 @@ public class VMController {
         }
 
     }
+
+
+    /*****************************************************************************
+     *
+     ******************* VM INSTANCES: getters ***********************************
+     *
+     *****************************************************************************/
+
+    @GetMapping("/{id}")
+    VMDTO getVM(@PathVariable Long id){
+        try{
+            return ModelHelper.enrich(vmservice.getVM(id));
+        }catch (TeamServiceException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }
+    }
+
+
 
     @GetMapping("/teams/{team_id}")
     List<VMDTO> getVMsByTeam(@PathVariable Long team_id){

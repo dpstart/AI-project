@@ -38,6 +38,9 @@ import java.util.stream.Collectors;
  *         * Students enrollment in the course;
  *         * Team manaegement;
  *         * VM model & VM instances;
+ *         * Assignments:
+ *         * Homeworks;
+ *         * Exceptions handler;
  */
 
 
@@ -687,7 +690,7 @@ public class CourseController {
     @PostMapping("/{courseName}/teams/{teamId}/createVM")
     VMDTO createVM(@PathVariable String courseName, @PathVariable  Long teamId, @RequestPart(value = "image") MultipartFile file, @Valid @RequestPart("settings") SettingsDTO settings) {
 
-        // SettingsDTO is used also to specify the settings of the VMs but without the files max_active and max_available
+        // SettingsDTO is used also to specify the settings of the VMs but without the fields max_active and max_available
         if (settings.getMax_active() == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max active' field not expected here");
         if (settings.getMax_available() == null) //active + off
@@ -1052,6 +1055,12 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
+
+    /************************************************************************************************************************************************************************
+     ********************************************************************************EXCEPTIONS HANDLER*******************************************************************************
+     ************************************************************************************************************************************************************************/
+
+
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -153,16 +153,20 @@ public class VMServiceImpl implements VMService {
 
 
 
+        // only a team meber can create a VM instance
         if (!t.getMembers().stream().anyMatch(x->x.getId().equals(creator)))
             throw new AuthorizationServiceException("Unauthorized to create VM's instances for this team");
 
+        // it's not possible create a vm for a course wiht no vm model associated
         if (t.getCourse().getVm_model()==null)
             throw new VMModelNotDefinedException("Impossible to create an instance of VM without a defined model");
+
 
         if (!t.getCourse().getName().equals(courseName) && !t.getCourse().getAcronime().equals(courseName) )
             throw new CourseAuthorizationException("Not a VM of the course "+ courseName);
 
 
+        // check on the availability of tha available resources
         if (t.getVMs().size()==t.getMax_available()||
                 t.getVMs().stream().map(VM::getRam).mapToInt(Integer::intValue).sum()+settings.getRam()>t.getRam() ||
                 t.getVMs().stream().map(VM::getDisk_space).mapToInt(Integer::intValue).sum()+settings.getDisk_space()>t.getDisk_space() ||
@@ -197,7 +201,7 @@ public class VMServiceImpl implements VMService {
     }
 
 
-
+    // only a student owning a VM can run it
     @Override
     public void runVM(Long vmID){
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -276,6 +280,7 @@ public class VMServiceImpl implements VMService {
         vmRepository.save(vm);
     }
 
+    // an owner of the team can update it
     @Override
     public void updateVM(Long vmID, SettingsDTO settings){
 
@@ -291,14 +296,16 @@ public class VMServiceImpl implements VMService {
         }
 
 
+        // it's possible to update the vM only if it's not running
         if (vm.getStatus()==1){
-            throw new VMAlreadyInExecutionException("Running instance"); // TO DO: cambiare
+            throw new VMAlreadyInExecutionException("Running instance");
         }
 
         Team t= vm.getTeam();
 
         List<VM> vms=t.getVMs().stream().filter(x->!x.getId().equals(vm.getId())).collect(Collectors.toList());
 
+        // check of the constraints
         if (vms.size()==t.getMax_available()||
                vms.stream().map(VM::getRam).mapToInt(Integer::intValue).sum()+settings.getRam()>t.getRam() ||
                 vms.stream().map(VM::getDisk_space).mapToInt(Integer::intValue).sum()+settings.getDisk_space()>t.getDisk_space() ||
@@ -313,6 +320,7 @@ public class VMServiceImpl implements VMService {
         vmRepository.save(vm);
     }
 
+    // a professor of a course or a student of the teams associated to the VM can connect to it, i.e. receive the VM's image
     @Override
     public ImageDTO connectToVM(Long vmID){
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -323,6 +331,7 @@ public class VMServiceImpl implements VMService {
         VM vm = vmRepository.getOne(vmID);
         Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         if(roles.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))){
+            // if it's a student, check it exists and it is part of the team associated to the VM
             if(!studentRepository.existsById(principal)){
                 throw new StudentNotFoundException("Student " + principal + " not found");
             }
@@ -331,6 +340,7 @@ public class VMServiceImpl implements VMService {
             }
         }
         else if(roles.contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))){
+            // if it's a professor, check it exists and it is the professor for the course associated to the VM
             if(!professorRepository.existsById(principal)){
                 throw new ProfessorNotFoundException("Professor " + principal + " not found");
             }
@@ -339,11 +349,12 @@ public class VMServiceImpl implements VMService {
             }
         }
 
+        // paranoia
         if (!vm.getTeam().getCourse().getEnabled()){
             throw new CourseNotEnabledException("Impossible to use VM of a disabled course");
         }
 
-
+        // paranoia
         if (vm.getStatus()!=1){
             throw new OffMachineException("This instance is not running");
         }
@@ -351,7 +362,6 @@ public class VMServiceImpl implements VMService {
         return modelMapper.map(imageService.getImage(vm.getImageId()), ImageDTO.class);
 
     }
-
 
     @Override
     public void stopVM(Long vmID){
