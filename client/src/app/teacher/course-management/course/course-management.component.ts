@@ -9,6 +9,7 @@ import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { Course } from 'src/app/model/course.model';
 import { Student } from 'src/app/model/student.model';
+import { TeacherService, VmModel } from 'src/app/services/teacher.service';
 import { Message } from '../course-container/course-management-container.component';
 import { RemoveCourseDialogComponent } from './dialog/remove-course-dialog.component';
 
@@ -40,6 +41,9 @@ export class CourseManagementComponent implements OnInit {
   msg: string
   alertType: string
 
+  vmModels: VmModel[];
+
+
   // Studenti enrolled data source e relative colonne
   enrolledStudentsDataSource: MatTableDataSource<Student>;
   displayedColumns: string[] = ['select', 'id', 'name', 'first name', 'group'];
@@ -55,6 +59,8 @@ export class CourseManagementComponent implements OnInit {
   addStudentForm: FormGroup
   // Modifica settings del corso
   courseSettingForm: FormGroup
+  // set vm model
+  courseVmModelForm: FormGroup
   ///////////////////////////////
 
 
@@ -134,10 +140,11 @@ export class CourseManagementComponent implements OnInit {
   @Output() deleteStudents: EventEmitter<Student[]> = new EventEmitter<Student[]>();
   @Output() enrollManyCsvEvent: EventEmitter<File> = new EventEmitter<File>()
   @Output() updateCourse: EventEmitter<Course[]> = new EventEmitter<Course[]>()
+  @Output() setVmModelForCourse: EventEmitter<object> = new EventEmitter<object>()
   @Output() removeCourse: EventEmitter<string> = new EventEmitter<string>()
 
 
-  constructor(public dialog: MatDialog) {
+  constructor(public dialog: MatDialog, private teacherService: TeacherService) {
     this.enrolledStudentsDataSource = new MatTableDataSource();
     this.isDisabled = true
     this.isEditing = false
@@ -156,11 +163,17 @@ export class CourseManagementComponent implements OnInit {
       enabled: new FormControl(false, Validators.required)
     })
 
+    this.courseVmModelForm = new FormGroup({
+      vmmodel: new FormControl('', Validators.required),
+    })
+
   }
 
   ////////////////// Lifecycle hooks ////////////////////
 
   ngOnInit() {
+
+    this.teacherService.getVmModels().subscribe((models: VmModel[]) => this.vmModels = models)
 
     this.filteredOptions = this.addStudentForm.get("studentControl").valueChanges.pipe(
       startWith(''),
@@ -410,6 +423,12 @@ export class CourseManagementComponent implements OnInit {
 
     // evento con nuova versione e vecchia versione 
     this.updateCourse.emit([course, this.courseObj])
+  }
+
+  confirmVmModel() {
+
+    if (this.courseVmModelForm.valid)
+      this.setVmModelForCourse.emit({ course: this.courseObj, vmModel: this.courseVmModelForm.value.vmmodel })
   }
 
   /**

@@ -140,7 +140,6 @@ export class RegisterDialogComponent implements OnInit {
    */
   combinePatternId() {
     let id = this.form.get("id").value
-    console.log(id);
 
     if (id.length > 0 && id.length <= 6) {
       this.form.get('email').setValue(this.pattern.charAt(0) + id + this.pattern.substring(1 + id.length))

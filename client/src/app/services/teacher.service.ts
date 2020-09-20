@@ -25,6 +25,10 @@ export interface TeamSettings {
     max_available: number
 }
 
+export interface VmModel {
+    name: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -169,6 +173,17 @@ export class TeacherService {
             catchError(this.handleError)
         );
     }
+
+
+    setVmModelForCourse(courseName: string, vmModel: string) {
+
+        const url = `${this.URL}/courses/${courseName}/model`;
+        return this.http.post(url, { model: vmModel }).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+
+    }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //************************************ RESEARCH *****************************************//
@@ -306,7 +321,7 @@ export class TeacherService {
         );
     }
 
-    getRunningResourcesByTeam(teamId: number):Observable<VmSettings> {
+    getRunningResourcesByTeam(teamId: number): Observable<VmSettings> {
         const url = `${this.URL}/vms/teams/${teamId}/resources/running`;
         return this.http.get<VmSettings>(url).pipe(
             retry(3),
@@ -359,6 +374,17 @@ export class TeacherService {
     getAssignmentsByCourse<Assignment>(courseName: string): Observable<Assignment[]> {
         const url = `${this.URL}/courses/${courseName}/assignments`;
         return this.http.get<Assignment[]>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+    }
+
+    /**
+     * Metodo che ritorna la lista dei modelli di vm
+     */
+    getVmModels() {
+        const url = `${this.URL}/models/`;
+        return this.http.get<VmModel[]>(url).pipe(
             retry(3),
             catchError(this.handleError)
         );

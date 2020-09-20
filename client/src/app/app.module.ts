@@ -48,10 +48,11 @@ import { RejectTokenComponent } from './shared-components/token/reject/reject-to
 import { ConfirmTokenComponent } from './shared-components/token/confirm/confirm-token.component';
 import { ActivateAccountComponent } from './shared-components/account/activate-account.component';
 import { CreateCourseComponent } from './teacher/create-course/create-course.component';
-import {MatRadioModule} from "@angular/material/radio";
+import { MatRadioModule } from "@angular/material/radio";
 import { CourseManagementContainerComponent } from './teacher/course-management/course-container/course-management-container.component';
 import { CourseManagementComponent } from './teacher/course-management/course/course-management.component';
 import { RemoveCourseDialogComponent } from './teacher/course-management/course/dialog/remove-course-dialog.component';
+import { MatSelectModule } from '@angular/material/select';
 
 @NgModule({
   declarations: [
@@ -77,37 +78,38 @@ import { RemoveCourseDialogComponent } from './teacher/course-management/course/
     CourseManagementContainerComponent,
     CourseManagementComponent,
   ],
-    imports: [
-        BrowserModule,
-        BrowserAnimationsModule,
-        MatToolbarModule,
-        MatIconModule,
-        MatSidenavModule,
-        MatButtonModule,
-        MatTabsModule,
-        MatListModule,
-        MatTableModule,
-        MatCheckboxModule,
-        MatInputModule,
-        MatAutocompleteModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatPaginatorModule,
-        MatSortModule,
-        HttpClientModule,
-        AppRoutingModule,
-        MatDialogModule,
-        MatCardModule,
-        MatFormFieldModule,
-        MatDividerModule,
-        MatProgressSpinnerModule,
-        MatChipsModule,
-        NgbModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        NgxMaterialTimepickerModule.setLocale("it"),
-        MatRadioModule,
-    ],
+  imports: [
+    BrowserModule,
+    BrowserAnimationsModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatSidenavModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatTabsModule,
+    MatListModule,
+    MatTableModule,
+    MatCheckboxModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatPaginatorModule,
+    MatSortModule,
+    HttpClientModule,
+    AppRoutingModule,
+    MatDialogModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatDividerModule,
+    MatProgressSpinnerModule,
+    MatChipsModule,
+    NgbModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    NgxMaterialTimepickerModule.setLocale("it"),
+    MatRadioModule,
+  ],
   entryComponents: [LoginDialogComponent],
   providers: [
     TeacherGuard,

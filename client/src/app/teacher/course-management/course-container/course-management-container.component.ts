@@ -250,6 +250,27 @@ export class CourseManagementContainerComponent implements OnInit {
     })
   }
 
+  setVmModelForCourse(data: { course: Course, vmModel: string }) {
+
+
+    this.teacherService.setVmModelForCourse(data.course.name, data.vmModel).subscribe(
+      () => {
+        let message = {} as Message
+        message.alertType = "success"
+        message.message = "Vm Model set."
+        this.message = { ...message }
+      },
+      error => {
+
+
+        let message = {} as Message
+        message.alertType = "danger"
+        message.message = error.message
+        this.message = { ...message }
+      })
+
+  }
+
   /**
    * Metodo che permette di aggiornare i parametri di un corso
    * @param courses: contiene due elementi: [ versione aggiornata , versione originaria] 

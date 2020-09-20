@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
-import { TeacherService } from 'src/app/services/teacher.service';
+import { TeacherService, VmModel } from 'src/app/services/teacher.service';
 
 @Component({
   selector: 'app-create-course',
@@ -15,10 +15,11 @@ export class CreateCourseComponent implements OnInit {
 
   // Form di aggunta corso
   form: FormGroup = new FormGroup({
-    name: new FormControl('', Validators.required),
-    acronime: new FormControl('', Validators.required),
-    min: new FormControl('', Validators.required),
-    max: new FormControl('', Validators.required),
+    name: new FormControl(''),
+    acronime: new FormControl(''),
+    min: new FormControl(''),
+    max: new FormControl(''),
+    vmmodel: new FormControl('')
   });
 
 
@@ -34,11 +35,13 @@ export class CreateCourseComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+
   }
 
   close(data) { this.dialogRef.close(data); }
 
   submit() {
+
     //se form è valido
     if (this.form.valid) {
 

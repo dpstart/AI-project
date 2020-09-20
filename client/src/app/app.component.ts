@@ -364,7 +364,7 @@ export class AppComponent implements OnInit, OnDestroy {
       // Una volta che il corso è stato aggiunto, aggiorno il source corsi
       this.retrieveCourses()
 
-      if (data.message === undefined) return;
+      if (!data) return;
 
       // Se il messaggio è settato
       this.message = data.message;

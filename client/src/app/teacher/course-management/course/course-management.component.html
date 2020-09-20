@@ -7,12 +7,12 @@
                 Course settings
             </h4>
 
-
             <button mat-mini-fab [color]="!isEditing?'primary':'white'" (click)="toggleEditSettings()">
                 <mat-icon> {{ !isEditing ? 'edit':'close'}}</mat-icon>
             </button>
         </div>
         <div class="inlineDiv" [hidden]="!isEditing">
+
 
             <form [formGroup]="courseSettingForm">
                 <mat-form-field class="settingField">
@@ -37,6 +37,26 @@
                 aria-label="Example icon button with a delete icon" (click)="onRemoveCourse()">
                 Remove Course
             </button>
+
+        </div>
+
+        <div [hidden]="!isEditing">
+            <h4 class="h4InLineDiv">
+                Set VM Model
+            </h4>
+            <form [formGroup]="courseVmModelForm">
+                <mat-form-field appearance="fill">
+                    <mat-label>Vm Model</mat-label>
+                    <mat-select formControlName="vmmodel" required>
+                        <mat-option *ngFor="let model of vmModels" [value]="model.name">{{model.name}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <button [disabled]="courseVmModelForm.invalid" type="button" mat-raised-button
+                    (click)="confirmVmModel()" class="formInlineButton" color="primary"
+                    [ngStyle]="{'background-color':'green' }">
+                    Confirm
+                </button>
+            </form>
 
         </div>
 
