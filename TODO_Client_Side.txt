@@ -9,3 +9,6 @@ Ex. Sono sulla pagina delle proposte-> uno studente che ho inviato accetta la ri
 - TeamProposal: quango si preme il pulsante ACCEPT non succede nulla (ne un messaggio, ne compare la checkbox), se lo si ripreme compare un messaggio di errore "sorry, the page was not updated..." --> cambiare in modo che alla prima pressione compare la checkbox;
 
 
+- VM: la open per studenti non owner di una vM non funziona;
+
+- VM: non c'è la funzione di share wonserhips per le VM; ogni owner di una vm dovrebbe poter condividere questa qualifica con qualsiasi altro membro del team;

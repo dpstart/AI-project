@@ -212,6 +212,9 @@ public class TeamServiceImpl implements TeamService {
 
         username = username.toLowerCase();
 
+        if (username.equals("admin"))
+            throw new AuthenticationServiceException("The ADMIN can't access the system from the public web page");
+
 
         // if standard standard mail
         if (username.matches("^(s[0-9]{6}@studenti\\.polito\\.it)$")
