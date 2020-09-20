@@ -5,7 +5,7 @@
 ### How to run DB:
 
 ```console
-docker run --name teams -p 3306:3306 -v <Dtabase volume on the local filesystem>:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=admin -d mariadb:latest
+docker run --name teams -p 3306:3306 -v <Database volume on the local filesystem>:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=admin -d mariadb:latest
 ```
 
 ### Flyway
