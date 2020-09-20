@@ -183,7 +183,7 @@ public class StudentController {
     @GetMapping("/courses/{name}/team")
     public TeamDTO getTeamForCourse(@PathVariable String name) {
         try {
-            List<TeamDTO> teams = teamservice.getTeamProposalsForStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
+            List<TeamDTO> teams = teamservice.getTeamForStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
                     .stream()
                     .filter(t -> t.getStatus() == 1)
                     .map(t -> ModelHelper.enrich(t, name))
@@ -209,7 +209,7 @@ public class StudentController {
     @GetMapping("/courses/{name}/teamsProposals")
     public List<TeamDTO> getTeamsProposalsForCourse(@PathVariable String name) {
         try {
-            return teamservice.getTeamProposalsForStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
+            return teamservice.getTeamForStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
                     .stream()
                     .peek(x -> {
                         if (x.getStatus() == 1)

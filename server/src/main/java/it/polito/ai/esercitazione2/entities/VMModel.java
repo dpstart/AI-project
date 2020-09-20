@@ -15,7 +15,6 @@ public class VMModel {
 
     @OneToMany(mappedBy="vm_model",cascade = CascadeType.ALL, orphanRemoval = true)
     List<Course> courses = new ArrayList<>();
-    // TO DO: add other attributes
 
     public void addCourse(Course c){
         courses.add(c);

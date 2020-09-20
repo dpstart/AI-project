@@ -52,9 +52,11 @@ import java.util.zip.Inflater;
  *             * Students:  getters,
  *             * Professors: getters;
  *             * Students Enrollment In The Course;
- *             * Teams;
+ *             * Teams: operation;
+ *             * Teams: setters;
  *             * Courses: operation;
  *             * Courses: getters;
+ *             * Utilities (compressByte, decompressByte, checkExpirated);
  *
  *
  *
@@ -557,6 +559,21 @@ public class TeamServiceImpl implements TeamService {
                 .collect(Collectors.toList());
     }
 
+    // get the profile image of the current authenticated professor
+    @Override
+    public ImageDTO getProfessorImage() {
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Image img;
+        if (professorRepository.existsById(principal))
+            img = imageService.getImage(professorRepository.getOne(principal).getImage_id());
+        else
+            throw new UsernameNotFoundException("Can't retrieve profile image for the specified professor");
+
+        if (img == null)
+            img = new Image();
+        return modelMapper.map(img, ImageDTO.class);
+    }
+
     /***********************************************************************
      *
      *****************************STUDENTS: GETTERS**********************************
@@ -577,6 +594,25 @@ public class TeamServiceImpl implements TeamService {
                 .filter(Student::getEnabled)
                 .map(s -> modelMapper.map(s, StudentDTO.class))
                 .collect(Collectors.toList());
+    }
+
+
+
+
+
+    // get the profile image of a student
+    @Override
+    public ImageDTO getStudentImage() {
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Image img;
+        if (studentRepository.existsById(principal))
+            img = imageService.getImage(studentRepository.getOne(principal).getImage_id());
+        else
+            throw new UsernameNotFoundException("Can't retrieve profile image for the specified student");
+
+        if (img == null)
+            img = new Image();
+        return modelMapper.map(img, ImageDTO.class);
     }
 
 
@@ -887,11 +923,11 @@ public class TeamServiceImpl implements TeamService {
                 .collect(Collectors.toList());
     }
 
-    /**********************************************************************
+    /***********************************************************************************
      *
-     *******************************TEAMS***********************************
+     *******************************TEAMS: operation ***********************************
      *
-     ***********************************************************************/
+     ***********************************************************************************/
 
 
     // create a disable team if it respects all the constraint for a course;
@@ -971,8 +1007,13 @@ public class TeamServiceImpl implements TeamService {
         Team t = new Team();
         t.setName(name);
         t.setCourse(c);
-        t.setStatus(0);
+
         t.setId_creator(proposer);
+
+        if (members.size()==1)
+            t.setStatus(1);
+        else
+            t.setStatus(0);
 
         for (Student s : members)
             t.addStudent(s);
@@ -981,10 +1022,100 @@ public class TeamServiceImpl implements TeamService {
 
         // the proposer accepts the team invitation by default, so he should not receive the activation/rejection link
         memberIds.remove(proposer);
-        notificationService.notifyTeam(dto, memberIds, duration);
+
+        Map<String,String> tokens=notificationService.generateTokens(t.getId(),memberIds,duration);
+        notificationService.notifyTeam(t.getName(),tokens);
         return dto;
 
     }
+
+    // activate the teams for which all the invitations have been accepted
+    // evict all the other teams waiting for one of ther members of the currently activated team
+    @Override
+    public boolean activateTeam(Long ID) {
+        Optional<Team> t = teamRepository.findById(ID);
+        if (t.isEmpty())
+            return false;
+        t.get().setStatus(1);
+        // evict all the other teams waiting for one of ther members of the currently activated team
+        for (Student s : t.get().getMembers()) {
+            s.getTeams().stream()
+                    .filter(x -> x.getCourse() == t.get().getCourse() && x.getStatus() == 0)
+                    .forEach(x -> {
+                        evictTeam(x.getId());
+                    });
+        }
+        return true;
+    }
+
+    // evict all the teams
+    @Override
+    public List<Boolean> evictAll(Set<Long> teams) {
+        return teams.stream().map(this::evictTeam).collect(Collectors.toList());
+    }
+
+    // evict a team by setting his course to Null
+    @Override
+    public boolean evictTeam(Long ID) {
+        Optional<Team> t = teamRepository.findById(ID);
+        if (t.isEmpty())
+            return false;
+        Team team = t.get();
+        team.setCourse(null);
+        return true;
+    }
+
+    // set the VM settings of a team
+    @Override
+    public TeamDTO setSettings(String courseName, Long teamId, SettingsDTO settings) {
+        String prof = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // does the course exist?
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
+        Course c = courseRepository.getOne(courseName);
+        // is the principal a professor owning this course?
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)))
+            throw new CourseAuthorizationException("User " + prof + " has not the rights to modify this course: he's not the professor for this course");
+        // does the team exist?
+        if (!teamRepository.existsById(teamId))
+            throw new TeamNotFoundException("Team: " + teamId + " not found!");
+
+        Team t = teamRepository.getOne(teamId);
+
+        //  check  if the team belongs to the specified course
+        if (!t.getCourse().getName().equals(courseName) && !t.getCourse().getAcronime().equals(courseName))
+            throw new IncoherenceException("Team " + teamId + " doens't belong to this course");
+
+        // coherence constraint on max active and available
+        if (settings.getMax_active() > settings.getMax_available())
+            throw new NotExpectedStatusException("It's not possible assign a maximum value for active machines greater than the available one!");
+
+        // It's not possible assign less resources than already allocated
+
+        if (t.getVMs().size() > settings.getMax_available() ||
+                t.getVMs().stream().map(VM::getRam).mapToInt(Integer::intValue).sum() > settings.getRam() ||
+                t.getVMs().stream().map(VM::getDisk_space).mapToInt(Integer::intValue).sum() > settings.getDisk_space() ||
+                t.getVMs().stream().map(VM::getN_cpu).mapToInt(Integer::intValue).sum() > settings.getN_cpu() ||
+                t.getVMs().stream().map(VM::getStatus).mapToInt(Integer::intValue).sum() > settings.getMax_active())
+            throw new NotExpectedStatusException("It's not possible assign less resources than already allocated!");
+
+        t.setN_cpu(settings.getN_cpu());
+        t.setDisk_space(settings.getDisk_space());
+        t.setRam(settings.getRam());
+        t.setMax_active(settings.getMax_active());
+        t.setMax_available(settings.getMax_available());
+
+
+        return modelMapper.map(teamRepository.save(t), TeamDTO.class);
+    }
+
+
+    /***********************************************************************************
+     *
+     *******************************TEAMS: getters *************************************
+     *
+     ***********************************************************************************/
 
     // Get the list of teams for a course, only if the principal is a professor owning the course
     @Override
@@ -1023,42 +1154,6 @@ public class TeamServiceImpl implements TeamService {
         }
         return modelMapper.map(t.get(), TeamDTO.class);
 
-    }
-
-    // activate the teams for which all the invitations have been accepted
-    // evict all the other teams waiting for one of ther members of the currently activated team
-    @Override
-    public boolean activateTeam(Long ID) {
-        Optional<Team> t = teamRepository.findById(ID);
-        if (t.isEmpty())
-            return false;
-        t.get().setStatus(1);
-        // evict all the other teams waiting for one of ther members of the currently activated team
-        for (Student s : t.get().getMembers()) {
-            s.getTeams().stream()
-                    .filter(x -> x.getCourse() == t.get().getCourse() && x.getStatus() == 0)
-                    .forEach(x -> {
-                        evictTeam(x.getId());
-                    });
-        }
-        return true;
-    }
-
-    // evict all the teams
-    @Override
-    public List<Boolean> evictAll(Set<Long> teams) {
-        return teams.stream().map(this::evictTeam).collect(Collectors.toList());
-    }
-
-    // evict a team by setting his course to Null
-    @Override
-    public boolean evictTeam(Long ID) {
-        Optional<Team> t = teamRepository.findById(ID);
-        if (t.isEmpty())
-            return false;
-        Team team = t.get();
-        team.setCourse(null);
-        return true;
     }
 
     // return information about the current adhesion ifno for the memebrs of the team, and the confirmation/rejection token for the authenticated user
@@ -1101,9 +1196,8 @@ public class TeamServiceImpl implements TeamService {
                 // if this token is associated to the authenticated user return the token to send in the request
                 if (s.getId().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
                     token = tokens.stream().filter(x->x.getUserId().equals(s.getId())).findFirst().get().getId();
-            }
-            else
-                token = "true"; //already accepted
+            } else
+                token="true";
 
             m.put(s.getId(), token);
         }
@@ -1171,49 +1265,7 @@ public class TeamServiceImpl implements TeamService {
                 .collect(Collectors.toList());
     }
 
-
-
-
-
-
-
-
-
-
-
-    // Courses
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Operations on multiple students
-
-
-
-
-
-
+    // get all the teams a student is enrolled to
     @Override
     public List<TeamDTO> getTeamsforStudent(String studentId) {
         if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
@@ -1225,12 +1277,13 @@ public class TeamServiceImpl implements TeamService {
                 .map(x -> {
                     TeamDTO t = modelMapper.map(x, TeamDTO.class);
                     return ModelHelper.enrich(t,x.getCourse().getName());
-                         } )
+                } )
                 .collect(Collectors.toList());
     }
 
+    //get all the team proposals for a student enrolled in a specified course
     @Override
-    public List<TeamDTO> getTeamProposalsForStudentAndCourse(String studentId, String courseId) {
+    public List<TeamDTO> getTeamForStudentAndCourse(String studentId, String courseId) {
         if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled()) {
             throw new StudentNotFoundException("Student: " + studentId + " not found!");
         }
@@ -1243,69 +1296,14 @@ public class TeamServiceImpl implements TeamService {
     }
 
 
+    /*****************************************************************************
+     *
+     ******************************* UTILITIES ***********************************
+     *
+     *****************************************************************************/
 
 
-
-    @Override
-    public TeamDTO setSettings(String courseName, Long teamId, SettingsDTO settings) {
-        String prof = SecurityContextHolder.getContext().getAuthentication().getName();
-
-
-        // il corso esiste?
-        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: " + courseName + " not found!");
-        Course c = courseRepository.getOne(courseName);
-        // il docente è il docente del corso?
-        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(prof)))
-            throw new CourseAuthorizationException("User " + prof + " has not the rights to modify this course: he's not the professor for this course");
-        // il team esiste?
-        if (!teamRepository.existsById(teamId))
-            throw new TeamNotFoundException("Team: " + teamId + " not found!");
-
-        Team t = teamRepository.getOne(teamId);
-
-        //check  se il team è associato al corso
-        if (!t.getCourse().getName().equals(courseName) && !t.getCourse().getAcronime().equals(courseName))
-            throw new IncoherenceException("Team " + teamId + " doens't belong to this course");
-
-        //check on the single fields
-
-        if (settings.getMax_active() > settings.getMax_available())
-            throw new NotExpectedStatusException("It's not possible assign a maximum value for active machines greater than the available one!");
-
-        // check che siano almeno pari a quelle già occupate in caso di modifiche a runtime
-
-        if (t.getVMs().size() > settings.getMax_available() ||
-                t.getVMs().stream().map(VM::getRam).mapToInt(Integer::intValue).sum() > settings.getRam() ||
-                t.getVMs().stream().map(VM::getDisk_space).mapToInt(Integer::intValue).sum() > settings.getDisk_space() ||
-                t.getVMs().stream().map(VM::getN_cpu).mapToInt(Integer::intValue).sum() > settings.getN_cpu() ||
-                t.getVMs().stream().map(VM::getStatus).mapToInt(Integer::intValue).sum() > settings.getMax_active())
-            throw new NotExpectedStatusException("It's not possible assign less resources than already allocated!");
-
-        //AGGIUNGERE CONTROLLO RELATIVO A RIMODULAZIONE DELLE MACCHINE ATTIVE
-
-
-        t.setN_cpu(settings.getN_cpu());
-        t.setDisk_space(settings.getDisk_space());
-        t.setRam(settings.getRam());
-        t.setMax_active(settings.getMax_active());
-        t.setMax_available(settings.getMax_available());
-
-
-        return modelMapper.map(teamRepository.save(t), TeamDTO.class);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
+    // compress the image to store it on the DB
     public static byte[] compressBytes(byte[] data) {
         Deflater deflater = new Deflater();
         deflater.setInput(data);
@@ -1342,41 +1340,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
 
-    public ImageDTO getProfessorImage() {
-        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
-        Image img;
-        if (professorRepository.existsById(principal))
-            img = imageService.getImage(professorRepository.getOne(principal).getImage_id());
-        else
-            throw new UsernameNotFoundException("Can't retrieve profile image for the specified professor");
-
-        if (img == null)
-            img = new Image();
-        return modelMapper.map(img, ImageDTO.class);
-    }
-
-    public ImageDTO getStudentImage() {
-        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
-        Image img;
-        if (studentRepository.existsById(principal))
-            img = imageService.getImage(studentRepository.getOne(principal).getImage_id());
-        else
-            throw new UsernameNotFoundException("Can't retrieve profile image for the specified student");
-
-        if (img == null)
-            img = new Image();
-        return modelMapper.map(img, ImageDTO.class);
-    }
-
-
-
-
-
-
-
-
-
-
+    // periodic check of the assignment expiration date: if expirated, set it to "EXPIRED" status
     @Scheduled(initialDelay = 6 * 1000, fixedRate = 10 * 1000)
     public void checkExpired() {
         homeworkRepository.findAll().forEach(homework -> {

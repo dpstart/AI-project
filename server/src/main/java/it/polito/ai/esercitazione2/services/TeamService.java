@@ -23,7 +23,8 @@ import java.util.Set;
  *             * Students:  getters,
  *             * Professors: getters;
  *             * Students Enrollment In The Course;
- *             * Teams;
+ *             * Teams: operation;
+ *             * Teams: getters;
  *             * Courses: operation;
  *             * Courses: getters;
  *
@@ -73,6 +74,8 @@ public interface TeamService {
     Optional<ProfessorDTO> getProfessor(String professorId);
     // Get the information of all the  professors enrolled in the system
     List<ProfessorDTO> getAllProfessors();
+    ImageDTO getProfessorImage();
+
 
 
     /**********************************************************************
@@ -85,6 +88,7 @@ public interface TeamService {
     Optional<StudentDTO> getStudent(String studentId);
     // get the information of all the student enrolled in the system
     List<StudentDTO> getAllStudents();
+    ImageDTO getStudentImage();
 
 
 
@@ -149,7 +153,7 @@ public interface TeamService {
 
     /**********************************************************************
      *
-     *******************************TEAMS***********************************
+     *******************************TEAMS: operation ***********************************
      *
      ***********************************************************************/
 
@@ -164,6 +168,15 @@ public interface TeamService {
     // evict a set of teams
     List<Boolean> evictAll(Set<Long> teams);
 
+    @PreAuthorize("hasRole('PROFESSOR')")
+    TeamDTO setSettings(String courseName, Long TeamID, SettingsDTO settings);
+
+
+    /**********************************************************************************
+     *
+     *******************************TEAMS: getters  ***********************************
+     *
+     **********************************************************************************/
 
     // get all the teams for a course for which the principal is the professor
     @PreAuthorize("hasRole('PROFESSOR')")
@@ -190,58 +203,10 @@ public interface TeamService {
     @PreAuthorize("hasRole('STUDENT')")
     List<TeamDTO> getTeamsforStudent(String studentId);
 
-    // get the list of teams proposals for a student and for a course
+    // get the list of teams proposals for a student in a course
     @PreAuthorize("hasRole('STUDENT')")
-    List<TeamDTO> getTeamProposalsForStudentAndCourse(String studentId, String courseId);
+    List<TeamDTO> getTeamForStudentAndCourse(String studentId, String courseId);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /**********************************************************************
-     *
-     *******************************TEAMS***********************************
-     *
-     ***********************************************************************/
-
-
-
-
-
-    @PreAuthorize("hasRole('PROFESSOR')")
-    TeamDTO setSettings(String courseName, Long TeamID, SettingsDTO settings);
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /**********************************************************************
-     *
-     *******************************IMAGES********************************
-     *
-     ***********************************************************************/
-    ImageDTO getProfessorImage();
-    ImageDTO getStudentImage();
 
 
 

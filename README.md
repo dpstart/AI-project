@@ -91,14 +91,20 @@ The ADMIN is added only after this creation.
 
 | Course |     Acronime  | Min | Max | Professors (C = Creator)| Students| VM Model          |                                                                                                                                                                                                      
 |--------|:-------------:|----:|----:|------------------------:|--------:| ------------------:|
-| Applicazioni Internet | AI | 1 | 4 | Servetti (C), Malnati | 200000,200001,200002,257649| |
-| Programmazione di Sistema| PDS | 1 | 5 | Malnati(C), Cabodi | 222220 - 222227 | |
+| Applicazioni Internet | AI | 1 | 4 | Servetti (C), Malnati | 200000,200001,200002,257649| MacOS High Sierra |
+| Programmazione di Sistema| PDS | 1 | 5 | Malnati(C), Cabodi | 222220 - 222227 | Windows 10 |
 
+| VM Model| 
+|:-------:|
+| Ubuntu 18.04.2 LTS|
+| Windows 10 |
+| MacOS High Sierra |
 
-| Team          | Course | ID | Members                    | #cpu | disk space | ram | max active | max_available |
+| Team          | Course | ID | Members (P=proposer)                | #cpu | disk space | ram | max active | max_available |
 |--------------:|-------:|---:|---------------------------:|-----:|-----------:|----:|-----------:|--------------:|
-| SecondoTeam | AI | 9 | 200000,200002,257649||||||
-| IlCapitano | PDS | 10 | 222225 ||||||
+| SecondoTeam | AI | 9 | 200000,200002,257649 (P) |8|512|4|1|4|
+| IlCapitano | PDS | 17 | 222225 (P) |2|128|4|1|1|
+| SecondoTeam | PDS | 12 | 222227 (P),222220,222221 |4|256|8|2|3|
 
 | VM Id  |  #cpu | disk space | ram | team  |
 |-------:|------:|-----------:|----:|------:|
@@ -245,6 +251,39 @@ TODO
 - API/courses/{course}/teams/{id}/members: return the members of the team;
 - API/courses/{course}/teams/{id}/inTeams: students not yet enrolled in a team;
 - API/courses/{course}/teams/{id}/available:  students already in a team;
+
+## SERVER : Team VM settings
+
+- The professor can grant to each team of his courses the usage of certain quantity of VM resources;
+- API/courses/{name}/teams/{id}/settings (POST)
+    - {
+          "n_cpu":"10",
+          "disk_space":"256",
+          "ram":"8",
+          "max_active":"5",
+          "max_available":"10"            
+      }
+- He can change it whenever he wants, without invalidate the already existing VMs;
+
+## SERVER : VM management
+
+### VM Model (VMModelController)
+
+*Creation/Removal:*
+- Only the ADMIN can create/remove the VMModel through the endpoints /API/models/ (POST) & /API/models/{name}/remove;
+- A VMModel is identified by the name of the operating system of the machine (e.g. Windows 10, macOS High Sierra,...);
+
+*Definition of a VM Model for a course:*
+- API/courses/{course}/model (POST)
+- A professor can define a vmm model for a course, that is valid for all the teams belonging to this course;
+- It is impossible to change the Vm model for a course for which VMs have been already instantiated;
+
+### VM instances (CourseController + VMController)
+
+*Creation (API/courses/{courseName}/teams/{teamId}/createVM):*
+- only the student that is member of a team can create a VM instances, after that a VM model has been defined for the course and the professor grant some resources to the team;
+
+
 
 
 

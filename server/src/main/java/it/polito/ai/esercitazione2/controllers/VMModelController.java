@@ -19,35 +19,13 @@ import java.util.Map;
 public class VMModelController {
     @Autowired
     TeamService teamservice;
-
     @Autowired
     VMService vmservice;
 
     /**
-     * Authentication required: Any role
-     * INPUT: none
-     * @return lista di VMModel
-     */
-    @GetMapping({"","/"})
-    List<VMModelDTO> getVMModels(){
-        return vmservice.getVMModels();
-    }
-
-    /**
-     * Authentication required: Any role
-     * INPUT: path variable
-     * @return VMModel
-     */
-    @GetMapping("/{name}")
-    VMModelDTO getVMModel(@PathVariable String name){
-        return ModelHelper.enrich(vmservice.getVMModel(name));
-    }
-
-
-    /**
      * Creation of a VMModel
      * Authentication required: Admin
-     * INPUT: {
+     * @param modelName : {
      *          "name": "macOS High Sierra"
      *        }
      * @return void
@@ -68,7 +46,7 @@ public class VMModelController {
     /**
      * Removal of a VMModel
      * Authentication required: Admin
-     * INPUT: path variable
+     * @param name: path variable
      * @return boolean (true: removed; false: not removed)
      */
 
@@ -79,6 +57,28 @@ public class VMModelController {
         }catch (IncoherenceException e){
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
+    }
+
+    /**
+     * Get the list of all the VM models
+     * Authentication required: Any role
+     *
+     * @return list of available VMModel
+     */
+    @GetMapping({"","/"})
+    List<VMModelDTO> getVMModels(){
+        return vmservice.getVMModels();
+    }
+
+    /**
+     * Get the VM model
+     * Authentication required: Any role
+     * @param name: path variable
+     * @return VMModel
+     */
+    @GetMapping("/{name}")
+    VMModelDTO getVMModel(@PathVariable String name){
+        return ModelHelper.enrich(vmservice.getVMModel(name));
     }
 
 

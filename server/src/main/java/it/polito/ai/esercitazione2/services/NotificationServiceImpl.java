@@ -55,7 +55,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Async
     public void sendMessage(String address, String subject, String body) {
-
         SimpleMailMessage message = new SimpleMailMessage();
         //message.setTo(address);
         message.setTo("giuseppe.pastore10@libero.it");
@@ -120,24 +119,38 @@ public class NotificationServiceImpl implements NotificationService {
         return true;
     }
 
-    // generate a token for a team with the defined expiration time
+
     // send a mail to the user with a confirm and a reject link.
     @Override
     @Async
-    public void notifyTeam(TeamDTO dto, List<String> memberIds, Long expiration) {
+    public void notifyTeam(String team,Map<String,String> tokens ) {
+
+        for (String s : tokens.keySet()) {
+            String token = tokens.get(s);
+
+            String body = String.format(template.getText(), "http://localhost:4200/confirm/" + token, "http://localhost:4200/reject/" + token);
+            //sendMessage("s"+s+"@studenti.polito.it","Invitation to join team: "+dto.getName(),body);
+            sendMessage("giuseppe.pastore10@libero.it", "Invitation to join team: " + team, body);
+
+        }
+    }
+
+    // generate a token for a team with the defined expiration time
+    @Override
+    public Map<String,String> generateTokens(Long team,List<String> memberIds,Long expiration){
+        Map<String,String> tokens= new HashMap<>();
         Timestamp expiryDate = new Timestamp(System.currentTimeMillis() + expiration);
         for (String s : memberIds) {
             String token = UUID.randomUUID().toString();
+            tokens.put(s, token);
             Token t = new Token();
             t.setId(token);
-            t.setTeamId(dto.getId());
+            t.setTeamId(team);
             t.setUserId(s);
             t.setExpiryDate(expiryDate);
             tokenRepository.save(t);
-            String body = String.format(template.getText(), "http://localhost:4200/confirm/" + token, "http://localhost:4200/reject/" + token);
-            //sendMessage("s"+s+"@studenti.polito.it","Invitation to join team: "+dto.getName(),body);
-            sendMessage("giuseppe.pastore10@libero.it", "Invitation to join team: " + dto.getName(), body);
         }
+        return tokens;
     }
 
 

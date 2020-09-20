@@ -10,31 +10,44 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+/**
+ * The functions in this service are divided in:
+ *             * VM models;
+ *             * VM instances: operation;
+ *             * VM instances: getters;
+ */
+
 public interface VMService {
 
-    List<VMModelDTO> getVMModels();
-    VMModelDTO getVMModel(String modelName);
+    /*****************************************************************************
+     *
+     ******************************* VM MODELS ***********************************
+     *
+     *****************************************************************************/
 
-
+    // the admin creates a vmm model
     @PreAuthorize("hasRole('ADMIN')")
+    // the admin removes the specified vmmmodel
     boolean createVMModel(String modelName);
+
     @PreAuthorize("hasRole('ADMIN')")
     boolean removeVMModel(String modelName);
 
+    // get the list of VM models
+    List<VMModelDTO> getVMModels();
+    // get the VM model
+    VMModelDTO getVMModel(String modelName);
+
+    // associate a VM model for a course
     @PreAuthorize("hasRole('PROFESSOR')")
     void defineVMModel(String teamID,String modelName);
 
 
-    //TO DO: definrie autorizzazioni; per ora tutti posssono visualizzare i dettagli sulle risorse delle VM rpesenti
-    VMDTO getVM(Long teamID);
-    List<VMDTO> getVMByTeam(Long teamID);
-    SettingsDTO getResourcesByTeam(Long teamID);
-    SettingsDTO getRunningResourcesByTeam(Long teamID);
-
-    List<VMDTO> getVMs();
-    @PreAuthorize("hasRole('PROFESSOR')")
-    List<VMDTO> getVMsByCourse(String name);
-
+    /*****************************************************************************
+     *
+     ******************* VM INSTANCES: operation  ********************************
+     *
+     *****************************************************************************/
 
     @PreAuthorize("hasRole('STUDENT')")
     VMDTO createVM(String courseName,Long teamID, MultipartFile file, SettingsDTO settings);
@@ -53,4 +66,26 @@ public interface VMService {
 
     @PreAuthorize("hasRole('STUDENT')")
     void shareOwnership(Long id, String studentId);
+
+    /*****************************************************************************
+     *
+     ********************* VM INSTANCES: getters  ********************************
+     *
+     *****************************************************************************/
+
+     //TO DO: definrie autorizzazioni; per ora tutti posssono visualizzare i dettagli sulle risorse delle VM rpesenti
+     VMDTO getVM(Long teamID);
+     List<VMDTO> getVMByTeam(Long teamID);
+     SettingsDTO getResourcesByTeam(Long teamID);
+     SettingsDTO getRunningResourcesByTeam(Long teamID);
+
+     List<VMDTO> getVMs();
+     @PreAuthorize("hasRole('PROFESSOR')")
+     List<VMDTO> getVMsByCourse(String name);
+
+
+
+
+
+
 }

@@ -26,6 +26,14 @@ import java.util.stream.Collectors;
 
 import static it.polito.ai.esercitazione2.services.TeamServiceImpl.compressBytes;
 
+/**
+ * The functions in this service are divided in:
+ *             * VM models;
+ *             * VM instances: operation;
+ *             * VM instances: getters;
+ */
+
+
 @Service
 @Transactional
 @Log(topic = "VM Service")
@@ -56,6 +64,13 @@ public class VMServiceImpl implements VMService {
     @Autowired
     ModelMapper modelMapper;
 
+    /*****************************************************************************
+     *
+     ******************************* VM MODELS ***********************************
+     *
+     *****************************************************************************/
+
+    // the admin creates a vmm model
     @Override
     public boolean createVMModel(String modelName){
         if (vmModelRepository.existsById(modelName)){
@@ -67,6 +82,7 @@ public class VMServiceImpl implements VMService {
         return true;
     }
 
+    // the admin removes the specified vmmmodel
     @Override
     public boolean removeVMModel(String modelName) {
         if (!vmModelRepository.existsById(modelName)){
@@ -79,6 +95,7 @@ public class VMServiceImpl implements VMService {
         return true;
     }
 
+    // define the VM model for a course
     @Override
     public void defineVMModel(String courseId, String modelName){
         String creator = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -102,6 +119,28 @@ public class VMServiceImpl implements VMService {
         c.setVm_model(vm);
         courseRepository.save(c);
     }
+
+    @Override
+    public List<VMModelDTO> getVMModels(){
+        return vmModelRepository.findAll()
+                .stream()
+                .map(c->modelMapper.map(c,VMModelDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public VMModelDTO getVMModel(String modelName){
+        if (!vmModelRepository.existsById(modelName))
+            throw new VMModelNotFoundException("No defined module for "+modelName);
+        return modelMapper.map(vmModelRepository.getOne(modelName),VMModelDTO.class);
+    }
+
+    /*****************************************************************************
+     *
+     ******************* VM INSTANCES: operation  ********************************
+     *
+     *****************************************************************************/
+
 
     @Override
     public VMDTO createVM(String courseName, Long teamId, MultipartFile file, SettingsDTO settings){
@@ -157,13 +196,7 @@ public class VMServiceImpl implements VMService {
         return dto;
     }
 
-    @Override
-    public List<VMModelDTO> getVMModels(){
-        return vmModelRepository.findAll()
-                .stream()
-                .map(c->modelMapper.map(c,VMModelDTO.class))
-                .collect(Collectors.toList());
-    }
+
 
     @Override
     public void runVM(Long vmID){
@@ -391,12 +424,11 @@ public class VMServiceImpl implements VMService {
 
     }
 
-    @Override
-    public VMModelDTO getVMModel(String modelName){
-        if (!vmModelRepository.existsById(modelName))
-            throw new VMModelNotFoundException("No defined module for "+modelName);
-        return modelMapper.map(vmModelRepository.getOne(modelName),VMModelDTO.class);
-    }
+    /*****************************************************************************
+     *
+     ********************* VM INSTANCES: getters  ********************************
+     *
+     *****************************************************************************/
 
     @Override
     public VMDTO getVM(Long vmID) {

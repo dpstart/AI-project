@@ -5,6 +5,7 @@ import it.polito.ai.esercitazione2.dtos.StudentDTO;
 import it.polito.ai.esercitazione2.dtos.TeamDTO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface NotificationService {
 
@@ -17,8 +18,11 @@ public interface NotificationService {
     // confirm the removal of a team
     boolean reject(String token);
 
-    // create team token and notify the members
-    void notifyTeam(TeamDTO dto, List<String> memberIds,Long duration);
+    // notify the members
+    void notifyTeam(String team, Map<String,String> tokens);
+
+    // create team token
+    Map<String,String> generateTokens(Long team, List<String> tokens,Long duration);
 
     // send activation link to student
     void notifyStudent(StudentDTO s);

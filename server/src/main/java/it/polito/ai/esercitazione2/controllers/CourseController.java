@@ -596,14 +596,9 @@ public class CourseController {
 
 
 
-
-
-
-
     /************************************************************************************************************************************************************************
-     ********************************************************************************GESTIONE VM MODEL & VM INSTANCES*************************************************************************
+     ******************************************************************************** VM MODEL & VM INSTANCES*************************************************************************
      ************************************************************************************************************************************************************************/
-
 
 
     /**
@@ -635,7 +630,7 @@ public class CourseController {
     }
 
     /**
-     * Modify settings for a vm for a team in the course
+     * Modify the VMs settings for a team in the course
      * Authentication required: professor of the course
      * @param name: name of the course (path variable)
      * @param id: team id (path variable)
@@ -651,10 +646,12 @@ public class CourseController {
      */
     @PostMapping("/{name}/teams/{id}/settings")
     TeamDTO setSettings(@PathVariable String name, @PathVariable Long id, @Valid @RequestBody SettingsDTO settings) {
+
+        // these two fields are not defined as mandatory as settingsDTO is also used for single Vms settings
         if (settings.getMax_active() == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please specify 'max_active' field"); //da generalizzare
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please specify 'max_active' field");
         if (settings.getMax_available() == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please specify 'max_available' field"); //da generalizzare
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please specify 'max_available' field");
 
 
         try {
@@ -668,7 +665,6 @@ public class CourseController {
         }
 
     }
-
 
 
     /**
@@ -691,7 +687,8 @@ public class CourseController {
     @PostMapping("/{courseName}/teams/{teamId}/createVM")
     VMDTO createVM(@PathVariable String courseName, @PathVariable  Long teamId, @RequestPart(value = "image") MultipartFile file, @Valid @RequestPart("settings") SettingsDTO settings) {
 
-        if (settings.getMax_active() == null) //contemporary active
+        // SettingsDTO is used also to specify the settings of the VMs but without the files max_active and max_available
+        if (settings.getMax_active() == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max active' field not expected here");
         if (settings.getMax_available() == null) //active + off
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'Max available' field not expected here");
@@ -699,7 +696,7 @@ public class CourseController {
         try {
             return vmService.createVM(courseName,teamId, file, settings);
         } catch (AuthorizationServiceException|CourseAuthorizationException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());  //DA CAMBIARE!!!!
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         } catch (TeamNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (UnavailableResourcesForTeamException e) {
