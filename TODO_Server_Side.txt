@@ -6,3 +6,4 @@ TODO SERVER_SIDE:
 
 - getEnrolled: ruoli ammessi...tutti o solo il prof di quel corso?
 
+- nella creazione di un corso il professore non viene settato nel db
