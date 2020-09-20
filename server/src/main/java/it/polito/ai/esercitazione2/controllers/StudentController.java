@@ -67,10 +67,10 @@ public class StudentController {
         try {
             StudentDTO student;
             if (file == null || file.isEmpty()) {
-                if ((student = teamservice.addStudent(dto, true)) == null)
+                if ((student = teamservice.addStudent(dto)) == null)
                     throw new ResponseStatusException(HttpStatus.CONFLICT, "The id " + dto.getId() + " is already present");
             } else {
-                if ((student = teamservice.addStudent(dto, true, file)) == null)
+                if ((student = teamservice.addStudent(dto, file)) == null)
                     throw new ResponseStatusException(HttpStatus.CONFLICT, "The id " + dto.getId() + " is already present");
             }
             return ModelHelper.enrich(student);
@@ -166,11 +166,7 @@ public class StudentController {
     @GetMapping("/teams")
     public List<TeamDTO> getTeams() {
         try {
-            return teamservice.getTeamsforStudent(SecurityContextHolder.getContext().getAuthentication().getName())
-                    .stream()
-                    .filter(t -> t.getStatus() == 1)
-                    .map(t -> ModelHelper.enrich(t, teamservice.getTeamCourse(t.getId())))
-                    .collect(Collectors.toList());
+            return teamservice.getTeamsforStudent(SecurityContextHolder.getContext().getAuthentication().getName());
 
         } catch (StudentNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -187,7 +183,7 @@ public class StudentController {
     @GetMapping("/courses/{name}/team")
     public TeamDTO getTeamForCourse(@PathVariable String name) {
         try {
-            List<TeamDTO> teams = teamservice.getTeamsforStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
+            List<TeamDTO> teams = teamservice.getTeamProposalsForStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
                     .stream()
                     .filter(t -> t.getStatus() == 1)
                     .map(t -> ModelHelper.enrich(t, name))
@@ -213,7 +209,7 @@ public class StudentController {
     @GetMapping("/courses/{name}/teamsProposals")
     public List<TeamDTO> getTeamsProposalsForCourse(@PathVariable String name) {
         try {
-            return teamservice.getTeamsforStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
+            return teamservice.getTeamProposalsForStudentAndCourse(SecurityContextHolder.getContext().getAuthentication().getName(), name)
                     .stream()
                     .peek(x -> {
                         if (x.getStatus() == 1)

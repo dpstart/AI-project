@@ -7,6 +7,7 @@ import com.opencsv.exceptions.CsvValidationException;
 import it.polito.ai.esercitazione2.config.JwtRequest;
 import it.polito.ai.esercitazione2.config.JwtResponse;
 import it.polito.ai.esercitazione2.config.JwtTokenUtil;
+import it.polito.ai.esercitazione2.controllers.ModelHelper;
 import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.entities.*;
 import it.polito.ai.esercitazione2.exceptions.*;
@@ -42,6 +43,22 @@ import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
+
+/**
+ * The functions in this service are divided in:
+ *             * HTTP Requests towards authentication service;
+ *             * Login;
+ *             * Registration;
+ *             * Students:  getters,
+ *             * Professors: getters;
+ *             * Students Enrollment In The Course;
+ *             * Teams;
+ *             * Courses: operation;
+ *             * Courses: getters;
+ *
+ *
+ *
+ */
 
 
 @Service
@@ -175,7 +192,7 @@ public class TeamServiceImpl implements TeamService {
 
     /**********************************************************************
      *
-     *****************************login*************************************
+     *****************************Login*************************************
      *
      ***********************************************************************/
 
@@ -269,76 +286,13 @@ public class TeamServiceImpl implements TeamService {
 
     }
 
-    /**
-     * Remove all the not enabled account for which the confirmation token is expired
-     * Remove the users from the student/professor table and then from the users one through HTTP post to \removeMany
-     * @param users: set of user IDs to delete
-     */
-    @Override
-    public void deleteAll(Set<String> users) {
-        studentRepository.deleteAll(users.stream().filter(x -> studentRepository.existsById(x)).map(x -> studentRepository.getOne(x)).collect(Collectors.toList()));
-        professorRepository.deleteAll(users.stream().filter(x -> professorRepository.existsById(x)).map(x -> professorRepository.getOne(x)).collect(Collectors.toList()));
-        removeAccounts(users);
-    }
 
-    /**
-     * HTTP request towards \removeMany endpoint of the authentication service
-     * Remove users for which the activation token is expired
-     * Removal token is signed with the shared key
-     * @param users: account to be removed
+
+    /******************************************************************************
      *
-     * @return
-     */
-    public void removeAccounts(Set<String> users) {
-        List<JSONObject> list = new ArrayList<>();
-        for (String key : users) {
-            JSONObject personJsonObject = new JSONObject();
-            personJsonObject.put("token", jwtTokenUtil.generateIdRequest(key));
-            list.add(personJsonObject);
-        }
-
-        ValidUserList usersList = new ValidUserList();
-        usersList.setList(list);
-        w.post()
-                .uri("/removeMany")
-                .body(Mono.just(usersList), ValidUserList.class)
-                .exchange()
-                .subscribe();
-
-    }
-
-    /**
-     * HTTP request towards \activate endpoint of the authentication service
-     * Registration token is signed with the shared key
-     * @param id: account to activate
+     *******************************REGISTRATION***********************************
      *
-     * @return
-     */
-    public void activateAccount(String id) {
-
-
-        if (studentRepository.existsById(id)) {
-            studentRepository.getOne(id).setEnabled(true);
-        } else if (professorRepository.existsById(id)) {
-            professorRepository.getOne(id).setEnabled(true);
-        } else
-            throw new UsernameNotFoundException("Impossible to activate not existing user");
-
-
-        w.post()
-                .uri("/activate")
-                .body(Mono.just(jwtTokenUtil.generateIdRequest(id)), JwtResponse.class)
-                .exchange()
-                .subscribe();
-    }
-
-
-    /**********************************************************************
-     *
-     *****************************PROFESSORS********************************
-     *
-     ***********************************************************************/
-
+     ******************************************************************************/
 
     // add professor with profile  image
     @Override
@@ -429,26 +383,13 @@ public class TeamServiceImpl implements TeamService {
         return p;
     }
 
-
-    @Override
-    public Optional<ProfessorDTO> getProfessor(String professorId) {
-        return professorRepository.findById(professorId).filter(Professor::getEnabled).map(x -> modelMapper.map(x, ProfessorDTO.class));
-    }
-
-    /***********************************************************************
-     *
-     *****************************STUDENTS**********************************
-     *
-     ***********************************************************************/
-
-
     // add student with profile image
     @Override
-    public StudentDTO addStudent(StudentDTO s, boolean notify, MultipartFile file) {
+    public StudentDTO addStudent(StudentDTO s, MultipartFile file) {
 
         // check if student already exists
         if (studentRepository.existsById(s.getId()))
-                return null;
+            return null;
 
         // image saving
         Image img = null;
@@ -481,24 +422,24 @@ public class TeamServiceImpl implements TeamService {
         studentRepository.save(stud);
 
 
-        if (notify) {
 
-            if (!registerUser(stud.getId(), enc.encode(s.getPassword()), "ROLE_STUDENT"))
-                throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
-            notificationService.notifyStudent(s);
 
-        }
+        if (!registerUser(stud.getId(), enc.encode(s.getPassword()), "ROLE_STUDENT"))
+            throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
+        notificationService.notifyStudent(s);
+
+
 
         return s;
     }
 
     // add student without profile image
     @Override
-    public StudentDTO addStudent(StudentDTO s, boolean notify) {
+    public StudentDTO addStudent(StudentDTO s) {
 
         // check if student already exists
         if (studentRepository.existsById(s.getId()))
-                return null;
+            return null;
 
         Student stud = modelMapper.map(s, Student.class);
 
@@ -520,22 +461,130 @@ public class TeamServiceImpl implements TeamService {
         studentRepository.save(stud);
 
 
-        if (notify) {
 
-            if (!registerUser(stud.getId(), enc.encode(s.getPassword()), "ROLE_STUDENT"))
-                throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
-            notificationService.notifyStudent(s);
 
-        }
+        if (!registerUser(stud.getId(), enc.encode(s.getPassword()), "ROLE_STUDENT"))
+            throw new AuthenticationServiceException("Some errors occurs with the registration of this new user in the system: retry!");
+        notificationService.notifyStudent(s);
+
+
 
         return s;
     }
+
+    /**
+     * Remove all the not enabled account for which the confirmation token is expired
+     * Remove the users from the student/professor table and then from the users one through HTTP post to \removeMany
+     * @param users: set of user IDs to delete
+     */
+    @Override
+    public void deleteAll(Set<String> users) {
+        studentRepository.deleteAll(users.stream().filter(x -> studentRepository.existsById(x)).map(x -> studentRepository.getOne(x)).collect(Collectors.toList()));
+        professorRepository.deleteAll(users.stream().filter(x -> professorRepository.existsById(x)).map(x -> professorRepository.getOne(x)).collect(Collectors.toList()));
+        removeAccounts(users);
+    }
+
+    /**
+     * HTTP request towards \removeMany endpoint of the authentication service
+     * Remove users for which the activation token is expired
+     * Removal token is signed with the shared key
+     * @param users: account to be removed
+     *
+     * @return
+     */
+    public void removeAccounts(Set<String> users) {
+        List<JSONObject> list = new ArrayList<>();
+        for (String key : users) {
+            JSONObject personJsonObject = new JSONObject();
+            personJsonObject.put("token", jwtTokenUtil.generateIdRequest(key));
+            list.add(personJsonObject);
+        }
+
+        ValidUserList usersList = new ValidUserList();
+        usersList.setList(list);
+        w.post()
+                .uri("/removeMany")
+                .body(Mono.just(usersList), ValidUserList.class)
+                .exchange()
+                .subscribe();
+
+    }
+
+    /**
+     * HTTP request towards \activate endpoint of the authentication service
+     * Registration token is signed with the shared key
+     * @param id: account to activate
+     *
+     * @return
+     */
+    public void activateAccount(String id) {
+
+
+        if (studentRepository.existsById(id)) {
+            studentRepository.getOne(id).setEnabled(true);
+        } else if (professorRepository.existsById(id)) {
+            professorRepository.getOne(id).setEnabled(true);
+        } else
+            throw new UsernameNotFoundException("Impossible to activate not existing user");
+
+
+        w.post()
+                .uri("/activate")
+                .body(Mono.just(jwtTokenUtil.generateIdRequest(id)), JwtResponse.class)
+                .exchange()
+                .subscribe();
+    }
+
+
+
+    /**********************************************************************
+     *
+     *****************************PROFESSORS: GETTERS ********************************
+     *
+     ***********************************************************************/
+
+    @Override
+    public Optional<ProfessorDTO> getProfessor(String professorId) {
+        return professorRepository.findById(professorId).filter(Professor::getEnabled).map(x -> modelMapper.map(x, ProfessorDTO.class));
+    }
+
+    @Override
+    public List<ProfessorDTO> getAllProfessors() {
+        return professorRepository.findAll()
+                .stream()
+                .filter(Professor::getEnabled)
+                .map(s -> modelMapper.map(s, ProfessorDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    /***********************************************************************
+     *
+     *****************************STUDENTS: GETTERS**********************************
+     *
+     ***********************************************************************/
+
+
+    @Override
+    public Optional<StudentDTO> getStudent(String studentId) {
+        return studentRepository.findById(studentId).filter(Student::getEnabled).map(x -> modelMapper.map(x, StudentDTO.class));
+    }
+
+
+    @Override
+    public List<StudentDTO> getAllStudents() {
+        return studentRepository.findAll()
+                .stream()
+                .filter(Student::getEnabled)
+                .map(s -> modelMapper.map(s, StudentDTO.class))
+                .collect(Collectors.toList());
+    }
+
 
 
 
     /***********************************************************************
      *
-     *****************************COURSES***********************************
+     *****************************COURSES: operation***********************************
      *
      ***********************************************************************/
 
@@ -667,6 +716,60 @@ public class TeamServiceImpl implements TeamService {
         return modelMapper.map(co, CourseDTO.class);
 
     }
+
+    /********************************************************************************
+     *
+     *****************************COURSES: GETTERS ***********************************
+     *
+     ********************************************************************************/
+
+
+
+    @Override
+    public Optional<CourseDTO> getCourse(String name) {
+        Optional<Course> c = courseRepository.findById(name);
+        if (c.isEmpty() && courseRepository.existsByAcronime(name))
+            c = Optional.of(courseRepository.getOne(name));
+        return c.map(x -> modelMapper.map(x, CourseDTO.class));
+    }
+
+    @Override
+    public List<CourseDTO> getAllCourses() {
+        return courseRepository.findAll()
+                .stream()
+                .map(c -> modelMapper.map(c, CourseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CourseDTO> getCourses(String studentId) {
+        if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
+            throw new StudentNotFoundException("Student: " + studentId + " not found!");
+        Student s = studentRepository.getOne(studentId);
+        return s.getCourses()
+                .stream()
+                .map(x -> modelMapper.map(x, CourseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CourseDTO> getCoursesByProf(String profID) {
+        String message = "Prof " + profID + " not found";
+        if (profID == null || profID.isEmpty()) {
+            profID = SecurityContextHolder.getContext().getAuthentication().getName();
+            message = "Currently authenticated user is not a professor";
+        }
+        if (!professorRepository.existsById(profID))
+            throw new ProfessorNotFoundException(message);
+
+        if (!professorRepository.getOne(profID).getEnabled())
+            throw new ProfessorNotFoundException("Not activated account");
+        Professor p = professorRepository.getOne(profID);
+        return p.getCourses().stream()
+                .map(x -> modelMapper.map(x, CourseDTO.class))
+                .collect(Collectors.toList());
+    }
+
 
     /******************************************************************************************
      *
@@ -1008,6 +1111,67 @@ public class TeamServiceImpl implements TeamService {
     }
 
 
+    // return the list of members for a team; only a student part of the team or a professor owning the course can call it;
+    @Override
+    public List<StudentDTO> getMembers(String courseName, Long teamID) {
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
+        Course c = courseRepository.getOne(courseName);
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        // is the principal a student memebr of the course or a professor owning it?
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && c.getStudents().stream().noneMatch(x -> x.getId().equals(principal)))
+            throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
+        Optional<Team> t = teamRepository.findById(teamID);
+        if (t.isEmpty() || (!t.get().getCourse().getName().equals(courseName) && !t.get().getCourse().getAcronime().equals(courseName))) {
+            throw new TeamNotFoundException("Team " + teamID + " not found");
+        }
+        Team team = teamRepository.getOne(teamID);
+        return team.getMembers()
+                .stream()
+                .map(x -> modelMapper.map(x, StudentDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    // return the list of students enrolled in a specific course that are already part of a team
+    @Override
+    public List<StudentDTO> getStudentsInTeams(String courseName) {
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Course c = courseRepository.getOne(courseName);
+
+        // is the principal a professor or a student memebr of the course?
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && c.getStudents().stream().noneMatch(x -> x.getId().equals(principal)))
+            throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
+
+        //return the students that are enrolled in the course and that are already associated with a team.
+        return courseRepository.getStudentsInTeams(courseName)
+                .stream()
+                .map(x -> modelMapper.map(x, StudentDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    // return the list of students enrolled in a specific course that are not part of a team yet
+    @Override
+    public List<StudentDTO> getAvailableStudents(String courseName) {
+        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
+            throw new CourseNotFoundException("Course: " + courseName + " not found!");
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Course c = courseRepository.getOne(courseName);
+
+        // is the principal a professor or a student memebr of the course?
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && c.getStudents().stream().noneMatch(x -> x.getId().equals(principal)))
+            throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
+
+        //return the students that are enrolled in the course but that are not associated with a team yet
+        return courseRepository.getStudentsNotInTeams(courseName)
+                .stream()
+                .filter(Student::getEnabled)
+                .map(x -> modelMapper.map(x, StudentDTO.class))
+                .collect(Collectors.toList());
+    }
+
+
 
 
 
@@ -1025,34 +1189,6 @@ public class TeamServiceImpl implements TeamService {
 
 
 
-    @Override
-    public Optional<CourseDTO> getCourse(String name) {
-        Optional<Course> c = courseRepository.findById(name);
-        if (c.isEmpty() && courseRepository.existsByAcronime(name))
-            c = Optional.of(courseRepository.getOne(name));
-        return c.map(x -> modelMapper.map(x, CourseDTO.class));
-    }
-
-    @Override
-    public List<CourseDTO> getAllCourses() {
-        return courseRepository.findAll()
-                .stream()
-                .map(c -> modelMapper.map(c, CourseDTO.class))
-                .collect(Collectors.toList());
-    }
-
-
-
-    @Override
-    public List<CourseDTO> getCourses(String studentId) {
-        if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled())
-            throw new StudentNotFoundException("Student: " + studentId + " not found!");
-        Student s = studentRepository.getOne(studentId);
-        return s.getCourses()
-                .stream()
-                .map(x -> modelMapper.map(x, CourseDTO.class))
-                .collect(Collectors.toList());
-    }
 
 
 
@@ -1065,20 +1201,8 @@ public class TeamServiceImpl implements TeamService {
 
 
 
-    @Override
-    public Optional<StudentDTO> getStudent(String studentId) {
-        return studentRepository.findById(studentId).filter(Student::getEnabled).map(x -> modelMapper.map(x, StudentDTO.class));
-    }
 
 
-    @Override
-    public List<StudentDTO> getAllStudents() {
-        return studentRepository.findAll()
-                .stream()
-                .filter(Student::getEnabled)
-                .map(s -> modelMapper.map(s, StudentDTO.class))
-                .collect(Collectors.toList());
-    }
 
 
 
@@ -1097,13 +1221,16 @@ public class TeamServiceImpl implements TeamService {
         Student s = studentRepository.getOne(studentId);
         return s.getTeams()
                 .stream()
-                .filter(t -> t.getCourse() != null)
-                .map(x -> modelMapper.map(x, TeamDTO.class))
+                .filter(t -> t.getCourse() != null && t.getStatus() == 1)
+                .map(x -> {
+                    TeamDTO t = modelMapper.map(x, TeamDTO.class);
+                    return ModelHelper.enrich(t,x.getCourse().getName());
+                         } )
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<TeamDTO> getTeamsforStudentAndCourse(String studentId, String courseId) {
+    public List<TeamDTO> getTeamProposalsForStudentAndCourse(String studentId, String courseId) {
         if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled()) {
             throw new StudentNotFoundException("Student: " + studentId + " not found!");
         }
@@ -1115,50 +1242,8 @@ public class TeamServiceImpl implements TeamService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public String getTeamCourse(Long teamId) {
-        if (!teamRepository.existsById(teamId) || teamRepository.getOne(teamId).getCourse() == null)
-            throw new TeamNotFoundException("Team " + teamId + " not found");
-        return teamRepository.getOne(teamId).getCourse().getName();
-    }
 
-    @Override
-    public List<StudentDTO> getMembers(String courseName, Long teamID) {
-        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: " + courseName + " not found!");
-        Course c = courseRepository.getOne(courseName);
-        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
-        // il principal è un docente o studente del corso? o
-        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && c.getStudents().stream().noneMatch(x -> x.getId().equals(principal)))
-            throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
-        Optional<Team> t = teamRepository.findById(teamID);
-        if (t.isEmpty() || (!t.get().getCourse().getName().equals(courseName) && !t.get().getCourse().getAcronime().equals(courseName))) {
-            throw new TeamNotFoundException("Team " + teamID + " not found");
-        }
-        Team team = teamRepository.getOne(teamID);
-        return team.getMembers()
-                .stream()
-                .map(x -> modelMapper.map(x, StudentDTO.class))
-                .collect(Collectors.toList());
-    }
 
-    @Override
-    public List<CourseDTO> getCoursesByProf(String profID) {
-        String message = "Prof " + profID + " not found";
-        if (profID == null || profID.isEmpty()) {
-            profID = SecurityContextHolder.getContext().getAuthentication().getName();
-            message = "Currently authenticated user is not a professor";
-        }
-        if (!professorRepository.existsById(profID))
-            throw new ProfessorNotFoundException(message);
-
-        if (!professorRepository.getOne(profID).getEnabled())
-            throw new ProfessorNotFoundException("Not activated account");
-        Professor p = professorRepository.getOne(profID);
-        return p.getCourses().stream()
-                .map(x -> modelMapper.map(x, CourseDTO.class))
-                .collect(Collectors.toList());
-    }
 
 
     @Override
@@ -1215,52 +1300,11 @@ public class TeamServiceImpl implements TeamService {
 
 
 
-    @Override
-    public List<StudentDTO> getStudentsInTeams(String courseName) {
-        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: " + courseName + " not found!");
-        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
-        Course c = courseRepository.getOne(courseName);
-
-        // il principal è un docente o studente del corso? o
-        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && c.getStudents().stream().noneMatch(x -> x.getId().equals(principal)))
-            throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
-
-        return courseRepository.getStudentsInTeams(courseName)
-                .stream()
-                .map(x -> modelMapper.map(x, StudentDTO.class))
-                .collect(Collectors.toList());
-    }
-
-
-    @Override
-    public List<StudentDTO> getAvailableStudents(String courseName) {
-        if (!courseRepository.existsById(courseName) && !courseRepository.existsByAcronime(courseName))
-            throw new CourseNotFoundException("Course: " + courseName + " not found!");
-        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
-        Course c = courseRepository.getOne(courseName);
-
-        // il principal è un docente o studente del corso? o
-        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && c.getStudents().stream().noneMatch(x -> x.getId().equals(principal)))
-            throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
-
-        return courseRepository.getStudentsNotInTeams(courseName)
-                .stream()
-                .filter(Student::getEnabled)
-                .map(x -> modelMapper.map(x, StudentDTO.class))
-                .collect(Collectors.toList());
-    }
 
 
 
-    @Override
-    public List<ProfessorDTO> getAllProfessors() {
-        return professorRepository.findAll()
-                .stream()
-                .filter(Professor::getEnabled)
-                .map(s -> modelMapper.map(s, ProfessorDTO.class))
-                .collect(Collectors.toList());
-    }
+
+
 
     public static byte[] compressBytes(byte[] data) {
         Deflater deflater = new Deflater();

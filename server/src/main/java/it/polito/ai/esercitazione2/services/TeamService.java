@@ -16,6 +16,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * The functions in this service are divided in:
+ *             * Login;
+ *             * Registration;
+ *             * Students:  getters,
+ *             * Professors: getters;
+ *             * Students Enrollment In The Course;
+ *             * Teams;
+ *             * Courses: operation;
+ *             * Courses: getters;
+ *
+ *
+ */
+
+
+
 public interface TeamService {
 
 
@@ -32,9 +48,49 @@ public interface TeamService {
      void activateAccount(String ID);
      void deleteAll(Set<String> students);
 
+    /******************************************************************************
+     *
+     *******************************REGISTRATION***********************************
+     *
+     ******************************************************************************/
+
+    // register a new user with PROFESSOR's role with profile image
+    ProfessorDTO  addProfessor(ProfessorDTO p, MultipartFile file);
+    // register a new user with PROFESSOR's role without profile image
+    ProfessorDTO  addProfessor(ProfessorDTO p);
+    // register a new user with STUDENT's role without profile image
+    StudentDTO addStudent(StudentDTO s);
+    // register a new user with STUDENT's role with profile image
+    StudentDTO addStudent(StudentDTO s, MultipartFile file);
+
+    /**********************************************************************
+     *
+     *****************************PROFESSORS: getters ********************************
+     *
+     ***********************************************************************/
+
+    // Get the information of a professor
+    Optional<ProfessorDTO> getProfessor(String professorId);
+    // Get the information of all the  professors enrolled in the system
+    List<ProfessorDTO> getAllProfessors();
+
+
+    /**********************************************************************
+     *
+     *******************************STUDENTS: getters ********************************
+     *
+     ***********************************************************************/
+
+    // get the information of a student
+    Optional<StudentDTO> getStudent(String studentId);
+    // get the information of all the student enrolled in the system
+    List<StudentDTO> getAllStudents();
+
+
+
     /******************************************************************************************
      *
-     ******************************* GENERAL COURSE MANAGEMENT ********************************
+     ******************************* COURSES: operation ****************************************
      *
      *****************************************************************************************/
     @PreAuthorize("hasRole('PROFESSOR')")
@@ -47,12 +103,28 @@ public interface TeamService {
     void shareOwnership(String courseName,String profId);
     @PreAuthorize("hasRole('PROFESSOR')")
     List<ProfessorDTO> getProfessorNotInCourse(String courseName);
-    Optional<CourseDTO> getCourse(String name);
-    List<CourseDTO> getAllCourses();
     @PreAuthorize("hasRole('PROFESSOR')")
     void enableCourse(String courseName);
     @PreAuthorize("hasRole('PROFESSOR')")
     void disableCourse(String courseName);
+
+    /******************************************************************************************
+     *
+     ******************************* COURSES: getters ****************************************
+     *
+     *****************************************************************************************/
+
+
+    // get one course if present
+    Optional<CourseDTO> getCourse(String name);
+    // get all the courses available
+    List<CourseDTO> getAllCourses();
+    //  get the courses a student is enrolled to
+    @PreAuthorize("hasRole('STUDENT')")
+    List<CourseDTO> getCourses(String studentId);
+    // get all the courses a professor owns
+    List<CourseDTO> getCoursesByProf(String profID);
+
 
     /******************************************************************************************
      *
@@ -104,39 +176,37 @@ public interface TeamService {
     // get the information about adhesion of  members to a team; only members of the team can call it
     Map<String,String> getAdhesionInfo(String course,Long teamID);
 
+    @PreAuthorize("hasRole('PROFESSOR') or hasRole('STUDENT')")
+    // get all the students members of a team; only students enrolled in the course  can call it
+    List<StudentDTO> getMembers(String courseName, Long TeamId);
+
+    // get the students already in a team for a course
+    List<StudentDTO> getStudentsInTeams(String courseName);
+    // get the available students to form a team for a course
+    List<StudentDTO> getAvailableStudents(String courseName);
 
 
-
-
-
-
-
-
-    /**********************************************************************
-     *
-     *****************************PROFESSORS********************************
-     *
-     ***********************************************************************/
-    ProfessorDTO  addProfessor(ProfessorDTO p, MultipartFile file);
-    ProfessorDTO  addProfessor(ProfessorDTO p);
-    Optional<ProfessorDTO> getProfessor(String professorId);
-    List<ProfessorDTO> getAllProfessors();
-
-
-
-    /**********************************************************************
-     *
-     *******************************STUDENTS********************************
-     *
-     ***********************************************************************/
-    StudentDTO addStudent(StudentDTO s,boolean notify);
-    StudentDTO addStudent(StudentDTO s,boolean notify, MultipartFile file);
-    Optional<StudentDTO> getStudent(String studentId);
-    List<StudentDTO> getAllStudents();
-
+    // get the list of teams to which a student in enrolled to
     @PreAuthorize("hasRole('STUDENT')")
-    List<CourseDTO> getCourses(String studentId);
-    List<CourseDTO> getCoursesByProf(String profID);
+    List<TeamDTO> getTeamsforStudent(String studentId);
+
+    // get the list of teams proposals for a student and for a course
+    @PreAuthorize("hasRole('STUDENT')")
+    List<TeamDTO> getTeamProposalsForStudentAndCourse(String studentId, String courseId);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -146,11 +216,6 @@ public interface TeamService {
      *
      ***********************************************************************/
 
-    @PreAuthorize("hasRole('STUDENT')")
-    List<TeamDTO> getTeamsforStudent(String studentId);
-    @PreAuthorize("hasRole('STUDENT')")
-    List<TeamDTO> getTeamsforStudentAndCourse(String studentId, String courseId);
-    String getTeamCourse(Long teamId);
 
 
 
@@ -166,13 +231,7 @@ public interface TeamService {
 
 
 
-    // get all the students members of a team; only students enrolled in the course or the professors for the course can call it
-    List<StudentDTO> getMembers(String courseName, Long TeamId);
 
-    // get the students already in a team for a course
-    List<StudentDTO> getStudentsInTeams(String courseName);
-    // get the available students to form a team for a course
-    List<StudentDTO> getAvailableStudents(String courseName);
 
 
 

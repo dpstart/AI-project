@@ -31,6 +31,18 @@ import java.util.*;
 
 import java.util.stream.Collectors;
 
+
+/**
+ * The endpoints of this controller are divided in :
+ *         * General courses management;
+ *         * Students enrollment in the course;
+ *         * Team manaegement;
+ *         * VM model & VM instances;
+ */
+
+
+
+
 @RestController
 @RequestMapping("/API/courses")
 public class CourseController {
@@ -510,26 +522,9 @@ public class CourseController {
 
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * Get team's members
-     * Authentication required: student in the course or professor of the course
+     * Authentication required: students in the course
      * @param name: name of the course (path variable)
      * @param id: team id (path varaible)
      *
@@ -549,7 +544,7 @@ public class CourseController {
 
     /**
      * Get already in-team students
-     * Authentication required: student enrolled in the course or professor of the course
+     * Authentication required: student enrolled in the course
      * @param name: name of the course (path variable)
      *
      * @return list of busy students
@@ -570,7 +565,7 @@ public class CourseController {
 
     /**
      * Get students available for team proposals
-     * Authentication required: student enrolled in the course or professor of the course
+     * Authentication required: student enrolled in the course
      * @param name: name of the course (path variable)
      *
      * @return list of available students
@@ -587,6 +582,21 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
