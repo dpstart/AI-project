@@ -77,8 +77,8 @@ public class CourseController {
      * @param dto: {
      *             "name":"Applicazioni Internet",
      *             "acronime":"AI",
-     *             "max":10
-     *             "min": optional
+     *             "max": optional
+     *             "min": 1 or above
      *             }
      * @return the courseDTO created
      */
