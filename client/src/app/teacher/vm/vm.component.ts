@@ -104,6 +104,7 @@ export class VMComponent implements OnInit, OnDestroy {
 
                 this.teacherService.getTeams(this.selectedCourse).subscribe((data: Team[]) => {
 
+
                     data.forEach((team, i) => {
                         team['position'] = i + 1
 

@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, ViewChild, AfterViewInit, OnDestr
 import { RouteStateService } from 'src/app/services/route-state.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
-import { StudentService } from 'src/app/services/student.service';
+import { StudentService, VmSettings } from 'src/app/services/student.service';
 import { Team } from 'src/app/model/team.model';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -13,6 +13,7 @@ import { CreateDialogComponent } from './create/create-dialog.component';
 import { EditVmDialogComponent } from './edit/edit-vm-dialog.component';
 import { Image } from 'src/app/model/image.model';
 import { Subscription } from 'rxjs';
+import { TeacherService } from 'src/app/services/teacher.service';
 
 @Component({
   selector: 'app-vm-student',
@@ -31,8 +32,11 @@ export class VmStudentComponent implements OnInit, OnDestroy {
   displayedColumns: string[]
 
   selectedCourse: string
+  team: Team;
   teamId: number;
   image: string;
+
+  utilization: VmSettings;
 
   dataSourceVm: MatTableDataSource<Vm>
 
@@ -60,7 +64,8 @@ export class VmStudentComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private studentService: StudentService,
     private change: ChangeDetectorRef,
-    private router: Router) {
+    private router: Router,
+    private teacherService: TeacherService) {
 
     this.isAllLoaded = false
     this.dataSourceVm = new MatTableDataSource<Vm>();
@@ -80,7 +85,7 @@ export class VmStudentComponent implements OnInit, OnDestroy {
 
   getData() {
     // Voglio sempre e solo una sub
-    if(this.courseSub) this.courseSub.unsubscribe()
+    if (this.courseSub) this.courseSub.unsubscribe()
     this.courseSub = this.activatedRoute.params.subscribe(params => {
 
       this.selectedCourse = params["course_name"]
@@ -91,8 +96,17 @@ export class VmStudentComponent implements OnInit, OnDestroy {
       this.studentService.getTeamForCourse(this.selectedCourse).subscribe((team: Team) => {
 
 
+        this.team = team;
+
+
+
         if (team) {
           this.teamId = team.id
+
+          this.teacherService.getResourcesByTeam(this.teamId).subscribe((settings: VmSettings) => {
+
+            this.utilization = settings;
+          })
 
           this.studentService.getVmsForTeam(team.id).subscribe(vms => {
 
@@ -150,6 +164,7 @@ export class VmStudentComponent implements OnInit, OnDestroy {
       this.message = "The vm was successfully deleted"
       this.alertType = "success"
       this.closeAlertAfterTime(3000)
+      this.getData()
     },
       (error) => {
         this.message = error.message

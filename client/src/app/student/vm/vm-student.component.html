@@ -10,7 +10,31 @@
             <h2 class="mat-h2 tabtitle">Vm Creation</h2>
             <button mat-flat-button color="primary" [disabled]="!teamId" (click)="createVm($event)">Create</button>
         </mat-card>
-       
+
+
+        <mat-card style="width: 25%; align-self: center;">
+            <h2 class="mat-h2 tabtitle">Resource Utilization</h2>
+
+            <table mdbTable>
+                <thead>
+                    <tr>
+                        <th scope="col">RAM </th>
+                        <th scope="col">Disk Space </th>
+                        <th scope="col">N.CPU </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr mdbTableCol>
+                        <td>{{utilization.ram}}/{{team.ram}}</td>
+                        <td>{{utilization.disk_space}}/{{team.disk_space}}</td>
+                        <td>{{utilization.n_cpu}}/{{team.n_cpu}}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+        </mat-card>
+
         <mat-card *ngIf="dataSourceVm.data.length==0">No VMs currently available.</mat-card>
 
         <mat-card *ngIf="dataSourceVm.data.length>0">
