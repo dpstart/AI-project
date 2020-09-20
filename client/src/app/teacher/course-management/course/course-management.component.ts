@@ -9,6 +9,7 @@ import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { Course } from 'src/app/model/course.model';
 import { Student } from 'src/app/model/student.model';
+import { Teacher } from 'src/app/model/teacher.model';
 import { TeacherService, VmModel } from 'src/app/services/teacher.service';
 import { Message } from '../course-container/course-management-container.component';
 import { RemoveCourseDialogComponent } from './dialog/remove-course-dialog.component';
@@ -21,7 +22,7 @@ import { RemoveCourseDialogComponent } from './dialog/remove-course-dialog.compo
 export class CourseManagementComponent implements OnInit {
 
 
-  // FIle per aggiunta studenti al corso 
+  // File per aggiunta studenti al corso 
   selectedFile: File;
 
   // Flag bottone di upload per aggiunta studenti con file csv, inizialmente disabilitato
@@ -54,6 +55,8 @@ export class CourseManagementComponent implements OnInit {
   // Autocompletion
   filteredOptions: Observable<Student[]>;
 
+  filteredProfessors: Observable<Teacher[]>;
+
   /////////// FORMS //////////////
   // Aggiunta studenti
   addStudentForm: FormGroup
@@ -61,13 +64,23 @@ export class CourseManagementComponent implements OnInit {
   courseSettingForm: FormGroup
   // set vm model
   courseVmModelForm: FormGroup
-  ///////////////////////////////
+  // Form per condivisione corso con altri prof
+  shareCourseForm: FormGroup
 
+
+  // Form Control per condivisione del corso con professori (autocomplete)
+  professorsControl = new FormControl();
+
+  // Professori disponibili a condivisione del corso 
+  profOptions: Teacher[] = []
+
+  ///////////////////////////////
 
   // Data sources ricevuti dal parent
   private _enrolledStudents: Student[];
   private _studentsNotInCourse: Student[];
   private _courseObj: Course;
+  private _availableTeachers: Teacher[];
 
 
   // Paginator e sort
@@ -129,10 +142,29 @@ export class CourseManagementComponent implements OnInit {
   public set studentsNotInCourse(value: Student[]) {
     // Aggiorno source studenti not in course e relativi suggerimenti nell'autocomplete
     this._studentsNotInCourse = value;
+    console.log(this.studentsNotInCourse);
+
     this.filteredOptions = this.addStudentForm.get("studentControl").valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))
     );
+  }
+
+  @Input()
+  public set availableTeachers(value: Teacher[]) {
+    this._availableTeachers = value;
+
+    console.log(this.availableTeachers);
+
+    // aggiorno le opzioni nell'autocomplete
+    this.profOptions = value
+
+    /* Filtro elementi nell'autocomplete dei professori */
+    this.filteredProfessors = this.professorsControl.valueChanges
+      .pipe(
+        startWith(''),
+        map(value => this._filterProfessors(value))
+      );
   }
 
   // Communicate with container
@@ -142,6 +174,7 @@ export class CourseManagementComponent implements OnInit {
   @Output() updateCourse: EventEmitter<Course[]> = new EventEmitter<Course[]>()
   @Output() setVmModelForCourse: EventEmitter<object> = new EventEmitter<object>()
   @Output() removeCourse: EventEmitter<string> = new EventEmitter<string>()
+  @Output() shareCourseWithProf: EventEmitter<string> = new EventEmitter<string>()
 
 
   constructor(public dialog: MatDialog, private teacherService: TeacherService) {
@@ -167,6 +200,10 @@ export class CourseManagementComponent implements OnInit {
       vmmodel: new FormControl('', Validators.required),
     })
 
+    this.shareCourseForm = new FormGroup({
+      professorsControl: new FormControl(null, Validators.required),
+    })
+
   }
 
   ////////////////// Lifecycle hooks ////////////////////
@@ -175,10 +212,18 @@ export class CourseManagementComponent implements OnInit {
 
     this.teacherService.getVmModels().subscribe((models: VmModel[]) => this.vmModels = models)
 
+    /* Filtro elementi nell'autocomplete degli studenti */
     this.filteredOptions = this.addStudentForm.get("studentControl").valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))
     );
+
+    /* Filtro elementi nell'autocomplete dei professori */
+    this.filteredProfessors = this.professorsControl.valueChanges
+      .pipe(
+        startWith(''),
+        map(value => this._filterProfessors(value))
+      );
   }
 
   ngAfterViewInit() {
@@ -209,6 +254,9 @@ export class CourseManagementComponent implements OnInit {
   public get sort(): MatSort {
     return this._sort;
   }
+  public get availableTeachers(): Teacher[] {
+    return this._availableTeachers;
+  }
   ////////////////////////////////////
 
 
@@ -228,12 +276,33 @@ export class CourseManagementComponent implements OnInit {
   }
 
   /**
+ * Metodo usato per aggiornare correttamente i filtri nell'autocomplete per i professori
+ * @param value 
+ */
+  private matchingProf(value: string): Teacher[] {
+    // Correct matches: 
+    //  - Name
+    //  - Name Surname
+    //  - ID
+    return this.availableTeachers.filter(option => option.id.toLowerCase().indexOf(value) === 0
+      || option.name.toLowerCase().indexOf(value) === 0 || option.firstName.toLowerCase().indexOf(value) === 0
+      || (option.firstName.toLowerCase() + " " + option.name.toLowerCase()).indexOf(value) === 0)
+
+  }
+
+  /**
    * Metodo che permette di filtrare le opzioni nell'autocomplete
    * @param value 
    */
   private _filter(value: string): Student[] {
-    const filterValue = value.toString().toLowerCase();
+    const filterValue = value.toLowerCase();
     return this.matchingStudents(filterValue);
+  }
+
+
+  private _filterProfessors(value: string): any[] {
+    const filterValue = value.toLowerCase();
+    return this.matchingProf(filterValue);
   }
 
   /** 
@@ -346,12 +415,25 @@ export class CourseManagementComponent implements OnInit {
       student.firstName + " " + student.name + " (" + student.id + ")" : '';
   }
 
+  displayProf(teacher: Teacher): string {
+    return teacher && teacher.name && teacher.firstName && teacher.id ?
+      teacher.firstName + " " + teacher.name + " (" + teacher.id + ")" : '';
+  }
+
   /**
    * Metodo che permette di settare lo studente selezionato nell'autocomplete
    * @param student 
    */
   autocompleteSelected(student: Student) {
     this.addStudentForm.get('studentControl').setValue(student)
+  }
+
+  /**
+   * Metodo che permette di settare il prof selezionato nell'autocomplete
+   * @param teacher
+   */
+  profSelected(teacher: Teacher) {
+    this.shareCourseForm.get('professorsControl').setValue(teacher)
   }
 
 
@@ -462,6 +544,19 @@ export class CourseManagementComponent implements OnInit {
     this.courseSettingForm.get('enabled').setValue(this.courseObj.enabled)
 
     this.isEditing = false
+  }
+
+  /**
+   * Metodo usato per condividere corso con altro teacher settato nell'autocomplete
+   */
+  shareCourse() {
+
+    //controllo validità form: se campo settato
+    if (this.shareCourseForm.valid) {
+      this.shareCourseWithProf.emit((this.shareCourseForm.get('professorsControl').value as Teacher).id)
+      this.shareCourseForm.get('professorsControl').setValue(null)
+      
+    }
   }
 
 }

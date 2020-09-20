@@ -7,7 +7,6 @@ import { Student } from '../model/student.model';
 import { Assignment } from '../model/assignment.model';
 import { Homework } from '../model/homework.model';
 import { Course } from '../model/course.model';
-import { Vm } from '../student/vm/vm-student.component';
 import { VmSettings } from './student.service';
 
 // Interfaccia link del teacher
@@ -63,7 +62,6 @@ export class TeacherService {
             retry(3),
             catchError(this.handleError)
         );
-
     }
 
 
@@ -96,6 +94,20 @@ export class TeacherService {
     createCourse(course: Course) {
         const url = `${this.URL}/courses/`
         return this.http.post<Course>(url, course).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+    }
+
+
+    /**
+     * Metodo che permette la condivisione di un corso con altri prof
+     * @param courseName 
+     * @param professorId 
+     */
+    shareCourse(courseName: string, professorId: string) {
+        const url = `${this.URL}/courses/${courseName}/share`
+        return this.http.post<Course>(url, { id: professorId }).pipe(
             retry(3),
             catchError(this.handleError)
         );
@@ -388,6 +400,20 @@ export class TeacherService {
             retry(3),
             catchError(this.handleError)
         );
+    }
+
+
+    /**
+     * Metodo che permette di ottenere i professori che non sono proprietari del corso
+     * @param courseName 
+     */
+    getProfessorsAvailable<Teacher>(courseName: string): Observable<Teacher[]> {
+        const url = `${this.URL}/courses/${courseName}/professors/available`
+        return this.http.get<Teacher[]>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

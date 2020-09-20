@@ -11,54 +11,84 @@
                 <mat-icon> {{ !isEditing ? 'edit':'close'}}</mat-icon>
             </button>
         </div>
-        <div class="inlineDiv" [hidden]="!isEditing">
+        <div class="containerDiv" [hidden]="!isEditing">
 
+            <div class="inlineDiv">
+                <form [formGroup]="courseSettingForm">
+                    <mat-form-field class="settingField">
+                        <input type="number" matInput placeholder="Min. group size" formControlName="min">
+                    </mat-form-field>
 
-            <form [formGroup]="courseSettingForm">
-                <mat-form-field class="settingField">
-                    <input type="number" matInput placeholder="Min. group size" formControlName="min">
-                </mat-form-field>
+                    <mat-form-field class="settingField">
+                        <input type="number" matInput placeholder="Max. group size" formControlName="max">
+                    </mat-form-field>
 
-                <mat-form-field class="settingField">
-                    <input type="number" matInput placeholder="Max. group size" formControlName="max">
-                </mat-form-field>
+                    <mat-checkbox id="enabled" class="settingField" color="primary" formControlName="enabled">
+                        Enable Course
+                    </mat-checkbox>
 
-                <mat-checkbox id="enabled" class="settingField" color="primary" formControlName="enabled">
-                    Enable Course
-                </mat-checkbox>
-
-            </form>
-            <button type="button" mat-raised-button (click)="confirmSettings()" class="formInlineButton" color="primary"
-                [ngStyle]="{'background-color':'green' }">
-                Confirm
-            </button>
-
-            <button type="button" mat-raised-button class="formInlineButton" color="warn"
-                aria-label="Example icon button with a delete icon" (click)="onRemoveCourse()">
-                Remove Course
-            </button>
-
-        </div>
-
-        <div [hidden]="!isEditing">
-            <h4 class="h4InLineDiv">
-                Set VM Model
-            </h4>
-            <form [formGroup]="courseVmModelForm">
-                <mat-form-field appearance="fill">
-                    <mat-label>Vm Model</mat-label>
-                    <mat-select formControlName="vmmodel" required>
-                        <mat-option *ngFor="let model of vmModels" [value]="model.name">{{model.name}}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <button [disabled]="courseVmModelForm.invalid" type="button" mat-raised-button
-                    (click)="confirmVmModel()" class="formInlineButton" color="primary"
-                    [ngStyle]="{'background-color':'green' }">
+                </form>
+                <button type="button" mat-raised-button (click)="confirmSettings()" class="formInlineButton"
+                    color="primary" [ngStyle]="{'background-color':'green'}">
                     Confirm
                 </button>
-            </form>
+
+                <button type="button" mat-raised-button class="formInlineButton" color="warn"
+                    aria-label="Example icon button with a delete icon" (click)="onRemoveCourse()">
+                    Remove Course
+                </button>
+            </div>
+
+
+            <div>
+                <h6 class="h4InLineDiv">
+                    Add professor to course
+                </h6>
+                <div class="inlineDiv">
+                    <form [formGroup]="shareCourseForm">
+                        <mat-form-field class="inputStudentField">
+                            <mat-label> Available professors </mat-label>
+                            <input type="text" matInput [formControl]="professorsControl" [matAutocomplete]="auto">
+                            <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayProf"
+                                (optionSelected)="profSelected($event.option.value)">
+                                <mat-option *ngFor="let teacher of filteredProfessors | async" [value]="teacher">
+                                    {{teacher? teacher.firstName : ''}} {{teacher.name? teacher.name:''}}
+                                    {{teacher.id? "("+teacher.id+")":''}}
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </form>
+                    <button [disabled]="shareCourseForm.invalid " (click)="shareCourse()" mat-raised-button
+                        color="primary" class="formInlineButton">Share
+                        course</button>
+                </div>
+            </div>
+            <div>
+                <h6 class="h4InLineDiv">
+                    Set VM Model
+                </h6>
+                <div class="inlineDiv">
+                    <form [formGroup]="courseVmModelForm">
+                        <mat-form-field>
+                            <mat-label>Vm Model</mat-label>
+                            <mat-select formControlName="vmmodel" required>
+                                <mat-option *ngFor="let model of vmModels" [value]="model.name">{{model.name}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <button [disabled]="courseVmModelForm.invalid" type="button" mat-raised-button
+                            (click)="confirmVmModel()" color="primary" class="formInlineButton"
+                            [ngStyle]="{'background-color': courseVmModelForm.valid? 'green':'' }">
+                            Confirm
+                        </button>
+                    </form>
+                </div>
+            </div>
+
 
         </div>
+
+
 
     </mat-card>
 
@@ -76,9 +106,9 @@
                 <div>
                     <mat-form-field class="inputStudentField">
                         <input type="text" placeholder="Add Student" aria-label="Number" matInput
-                            formControlName="studentControl" [matAutocomplete]="auto">
-                        <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayWith"
-                            (optionSelected)="autocompleteSelected($event.option.value)">
+                            formControlName="studentControl" [matAutocomplete]="autoStudent">
+                        <mat-autocomplete autoActiveFirstOption #autoStudent="matAutocomplete"
+                            [displayWith]="displayWith" (optionSelected)="autocompleteSelected($event.option.value)">
                             <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
                                 {{option? option.firstName : ''}} {{option.name? option.name:''}}
                                 {{option.id? "("+option.id+")":''}}

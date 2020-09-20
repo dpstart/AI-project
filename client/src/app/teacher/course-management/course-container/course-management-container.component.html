@@ -2,11 +2,19 @@
     <mat-spinner diameter="300" strokeWidth="5"></mat-spinner>
 </div>
 <ng-template #loadedBlock>
-    <app-course-management [message]="message" [courseObj]="courseObj" [selectedCourse]="selectedCourse"
-        [studentsNotInCourse]="studentsNotInCourse" [enrolledStudents]="enrolledStudents"
-        (addStudent)="addStudent($event)" (deleteStudents)="deleteStudents($event)"
-        (enrollManyCsvEvent)="enrollManyCSV($event)" (updateCourse)="updateCourse($event)"
-        (removeCourse)="removeCourse($event)" (setVmModelForCourse)="setVmModelForCourse($event)">
-
-    </app-course-management>
+<app-course-management 
+[message]="message"
+[courseObj]="courseObj"
+[selectedCourse]="selectedCourse"
+[studentsNotInCourse]="studentsNotInCourse"
+[enrolledStudents]="enrolledStudents"
+[availableTeachers]="availableTeachers" 
+(addStudent)="addStudent($event)" 
+(deleteStudents)="deleteStudents($event)"
+(enrollManyCsvEvent)="enrollManyCSV($event)"
+(updateCourse)="updateCourse($event)"
+(removeCourse)="removeCourse($event)"
+(setVmModelForCourse)="setVmModelForCourse($event)"
+(shareCourseWithProf)="shareCourseWithProf($event)">
+</app-course-management>
 </ng-template>

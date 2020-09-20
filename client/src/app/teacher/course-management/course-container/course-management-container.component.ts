@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Course } from 'src/app/model/course.model';
 import { Student } from 'src/app/model/student.model';
+import { Teacher } from 'src/app/model/teacher.model';
 import { RouteStateService } from 'src/app/services/route-state.service';
 import { TeacherService } from 'src/app/services/teacher.service';
 
@@ -41,6 +42,10 @@ export class CourseManagementContainerComponent implements OnInit {
   // Data sources
   studentsNotInCourse: Student[];
   enrolledStudents: Student[];
+
+  availableTeachers: Teacher[];
+
+
   // Flag usato per caricare tutte le informazioni mentre è presente il loading 
   // e poi far visualizzare il componente dummy
   isAllStudentsLoaded: boolean = false;
@@ -83,23 +88,27 @@ export class CourseManagementContainerComponent implements OnInit {
             // Setto gli studenti che sono iscritti al corso
             this.enrolledStudents = enrolledStudents;
 
-            // Prendo tutti gli studenti che sono registrati sulla piattaforma
-            this.teacherService.getStudents().subscribe(allStudents => {
+            this.teacherService.getProfessorsAvailable(this.selectedCourse).subscribe((teachers: Teacher[]) => {
 
-              // Array di supporto per definire quali studenti non sono in team
-              let allStudentsNotInCourse = []
+              this.availableTeachers = teachers
+              // Prendo tutti gli studenti che sono registrati sulla piattaforma
+              this.teacherService.getStudents().subscribe(allStudents => {
 
-              for (let student of allStudents) {
+                // Array di supporto per definire quali studenti non sono in team
+                let allStudentsNotInCourse = []
 
-                // Se non trovo l'indice negli studenti del corso allora lo studente non è nel corso 
-                if (this.enrolledStudents.findIndex(x => student.id === x.id) == -1)
-                  allStudentsNotInCourse.push(student)
-              }
+                for (let student of allStudents) {
 
-              // Aggiorno data sources
-              this.studentsNotInCourse = allStudentsNotInCourse
-              this.isAllStudentsLoaded = true;
-              this.isEnrolledStudentsLoaded = true;
+                  // Se non trovo l'indice negli studenti del corso allora lo studente non è nel corso 
+                  if (this.enrolledStudents.findIndex(x => student.id === x.id) == -1)
+                    allStudentsNotInCourse.push(student)
+                }
+
+                // Aggiorno data sources
+                this.studentsNotInCourse = allStudentsNotInCourse
+                this.isAllStudentsLoaded = true;
+                this.isEnrolledStudentsLoaded = true;
+              })
             })
           });
         }, (_) => this.router.navigate(['PageNotFound']))
@@ -341,6 +350,37 @@ export class CourseManagementContainerComponent implements OnInit {
       this.message = { ...message }
       this.closeAlertAfterTime(3000)
     })
+  }
+
+  /**
+   * Metodo che permette di condividere un corso con un altro professore che ha come id quello passato come parametro
+   * @param teacherId 
+   */
+  shareCourseWithProf(teacherId: string) {
+
+    
+    this.teacherService.shareCourse(this.selectedCourse, teacherId).subscribe(data => {
+
+
+      this.availableTeachers = this.availableTeachers.filter(teacher => teacher.id !== teacherId)
+
+      let message = {} as Message
+      message.alertType = "success"
+      message.message = "Course shared successfully."
+
+      // Se il corso è stato cancellato allora dopo tre secondi si viene rediretti alla home
+      this.message = { ...message }
+      this.closeAlertAfterTime(3000)
+
+    }, error => {
+      // Setto messaggio di errore
+      let message = {} as Message
+      message.alertType = "danger"
+      message = error.message
+      this.message = { ...message }
+      this.closeAlertAfterTime(3000)
+    })
+
   }
 
   /**
