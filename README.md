@@ -208,8 +208,8 @@ The ADMIN is added only after this creation.
         {
                 "name":"Applicazioni Internet",
                 "acronime":"AI",
-                "max": optional (int)
-                "min": 1 ore above
+                "max": optional (int),
+                "min": 1 ore above,
                 "enabled": optional (boolean)
         }
 
@@ -380,7 +380,7 @@ The ADMIN is added only after this creation.
 - All the owners can share this role with the other team members;
 
 
-## SERVER : Assignments
+## SERVER : Assignments management
 
 ### Add
 
@@ -391,8 +391,8 @@ The ADMIN is added only after this creation.
 - An empty homework entity is created for each student enrolled in the course;
 - AssignmentDTO structure: 
         {
-                id: received value ignored, added by server, (Integer)
-                releaseDate: received value ignored, added by server, (Timestamp)
+                id: received value ignored, added by server (Integer),
+                releaseDate: received value ignored, added by server (Timestamp),
                 expirationDate: timestamp containing the expiration date (Timestamp)
         }
 
@@ -401,5 +401,24 @@ The ADMIN is added only after this creation.
 - To delete an assignment in a course the user needs to be authenticated as a professor teaching in it;
 - Sending an empty POST to "/API/courses/{name}/assignments/{id}" will delete the assignment with the given id, if it exists;
 - Professors can't delete an assignment if at least one student has read it(we assume that a student that has read the assignment is working on it);
-- Deleting an assignment destroys also the homeworks related to it (all empty, since none of the students has read it)
+- Deleting an assignment destroys also the homeworks related to it (all empty, since none of the students has read it);
 
+
+## SERVER : Homeworks management
+
+### Review
+
+- To review an homework the user needs to be authenticated as a professor teaching in the relative course;
+- Sending an HomeworkDTO and/or an image containing the reviewed version inside the body of a POST to "/API/courses/{name}/assignments/{id1}/homeworks/{id2}" will mark the homework with the given id as reviewed, if it exists;
+- Professors can either upload a reviewed version of the homework without assigning a mark, assign a mark without uploading a review version, or both;
+- Homeworks can be reviewed and/or marked only if their state is "delivered";
+- Not delivered homeworks will be automatically set as reviewed with 0 points at expiration date;
+- Homeworks with at least 1 version delivered at expiration date will be set to "delivered" state, to allow the professors to assign them a mark, if they don't have one already;
+- Professors can review homeworks only before expiration date, while marks can be assigned also after it has passed;
+
+### Delivery
+
+- To deliver an homework the user needs to be authenticated as a student attending the relative course;
+- Sending an image containing inside the body of a POST to "/API/courses/{name}/assignments/{id}" will add a new version to the homework of the student related to the assignment with the given id, if it exists;
+- Students can upload new versions of the homework only if its state is "read" or "reviewed" and its assignment is not expired;
+- After a student delivers a new version he has to wait for the professor to review his homework before he can deliver a newer version;
