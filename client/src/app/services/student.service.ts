@@ -481,7 +481,7 @@ export class StudentService {
     const url = `${this.URL}/vms/${vmId}/share`;
     const source: Observable<any>[] = studentIds.map(s => this.http.post(url, { id: s }).pipe(catchError(this.handleError)))
 
-    return forkJoin(source);
+    return combineLatest(source);
   }
 
 

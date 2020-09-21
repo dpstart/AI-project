@@ -113,15 +113,28 @@ export class VmStudentComponent implements OnInit, OnDestroy {
           this.studentService.getVmsForTeam(team.id).subscribe(vms => {
 
 
+
+
             // Need to get owners for each team and set the position
             for (let i = 0; i < vms.length; i++) vms[i]['position'] = i + 1;
 
 
+
+            // Do not make requests if vms array is empty
+            if (vms.length == 0) {
+              this.dataSourceVm.data = [...vms]
+              this.isAllLoaded = true
+            }
+
+
             this.studentService.getOwnersMultiple(vms.map(v => v.id)).subscribe((owners: Student[][]) => {
+
+
 
               for (let i = 0; i < owners.length; i++) {
                 vms[i]['owners'] = owners[i].map(elem => elem.id);
               }
+
 
               this.dataSourceVm.data = [...vms]
               this.isAllLoaded = true
