@@ -114,8 +114,8 @@ public class HomeworkServiceImpl implements HomeworkService {
                 throw new ProfessorNotFoundException("Professor " + principal + " is not a teacher of the course " + h.getAssignment().getCourse().getName());
             }
         }
-        if(h.getState() == Homework.states.unread || h.getState() == Homework.states.read)
-            throw new HomeworkIsNotFinalException("Homeworks can be marked only if they are delivered or reviewed");
+        if(h.getState() != Homework.states.delivered)
+            throw new HomeworkIsNotFinalException("Homeworks can be marked only if their state is \"delivered\"");
         if (h.getState() == Homework.states.delivered)
             h.setState(Homework.states.reviewed);
         h.setLastModified(new Timestamp(System.currentTimeMillis()));
