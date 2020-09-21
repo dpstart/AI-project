@@ -165,7 +165,15 @@ export class HomeworkContainerComponent implements OnInit, OnDestroy {
                       state = "REGISTRATO"
                       rawState = 2
                       // il voto è settato, definisco cosa visualizzare
-                      mark = homework.mark < 18 ? "RESPINTO" : homework.mark.toString()
+                      if (homework.mark < 18) mark = "RESPINTO"
+                      else {
+                        // se è lode
+                        if (homework.mark == 31) {
+                          mark = "30L"
+                        } else
+                          //altrimenti
+                          homework.mark.toString()
+                      }
                     }
 
                     //Retrieve info about the corresponding student

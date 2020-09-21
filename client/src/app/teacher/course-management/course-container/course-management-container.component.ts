@@ -266,16 +266,16 @@ export class CourseManagementContainerComponent implements OnInit {
       () => {
         let message = {} as Message
         message.alertType = "success"
-        message.message = "Vm Model set."
+        message.message = "Vm model successfully set"
         this.message = { ...message }
+        this.closeAlertAfterTime(3000)
       },
       error => {
-
-
         let message = {} as Message
         message.alertType = "danger"
         message.message = error.message
         this.message = { ...message }
+        this.closeAlertAfterTime(3000)
       })
 
   }
@@ -296,41 +296,41 @@ export class CourseManagementContainerComponent implements OnInit {
       this.message = { ...message }
       this.closeAlertAfterTime(3000)
       return;
-    }else 
-    if (courses[0].min < 0 || courses[0].max < 0){
-      this.courseObj = { ...courses[1] } as Course
-      // Setto messaggio di errore
-      let message = {} as Message
-      message.alertType = "danger"
-      message.message = "Impossible to set team size with a number less than 0"
-      this.message = { ...message }
-      this.closeAlertAfterTime(3000)
-      return;
-    }
-
-      // Richista aggiornamento corso
-      this.teacherService.updateCourse(courses[0]).subscribe(response => {
-
-        // Aggiornamento ha avuto successo
-        this.courseObj = { ...response } as Course
-
-        let message = {} as Message
-        message.alertType = "success"
-        message.message = "Course modified successfully."
-        this.message = { ...message }
-        this.closeAlertAfterTime(3000)
-
-      }, error => {
-
-        // Se l'aggiornamento non va a buon fine risetto il corso alla configurazione originaria
+    } else
+      if (courses[0].min < 0 || courses[0].max < 0) {
         this.courseObj = { ...courses[1] } as Course
         // Setto messaggio di errore
         let message = {} as Message
         message.alertType = "danger"
-        message.message = "Sorry something went wrong, try later..."
+        message.message = "Impossible to set team size with a number less than 0"
         this.message = { ...message }
         this.closeAlertAfterTime(3000)
-      })
+        return;
+      }
+
+    // Richista aggiornamento corso
+    this.teacherService.updateCourse(courses[0]).subscribe(response => {
+
+      // Aggiornamento ha avuto successo
+      this.courseObj = { ...response } as Course
+
+      let message = {} as Message
+      message.alertType = "success"
+      message.message = "Course modified successfully."
+      this.message = { ...message }
+      this.closeAlertAfterTime(3000)
+
+    }, error => {
+
+      // Se l'aggiornamento non va a buon fine risetto il corso alla configurazione originaria
+      this.courseObj = { ...courses[1] } as Course
+      // Setto messaggio di errore
+      let message = {} as Message
+      message.alertType = "danger"
+      message.message = "Sorry something went wrong, try later..."
+      this.message = { ...message }
+      this.closeAlertAfterTime(3000)
+    })
   }
   /**
    * Metodo che permette di rimuovere il corso che ha il nome passato come parametro

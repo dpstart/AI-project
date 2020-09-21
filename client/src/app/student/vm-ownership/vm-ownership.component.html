@@ -7,7 +7,7 @@
             </ngb-alert>
 
             <div *ngFor="let student of studentsInTeam">
-                <mat-checkbox [value]="student.id" [disabled]="isOwner(student)" (change)="onCheckboxChange($event)">
+                <mat-checkbox color="primary" [value]="student.id" [disabled]="isOwner(student)" (change)="onCheckboxChange($event)">
                     {{student.id}}
                 </mat-checkbox>
             </div>
