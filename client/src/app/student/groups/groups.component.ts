@@ -345,10 +345,10 @@ export class GroupsComponent implements OnInit, OnDestroy {
     this.studentService.actionToken(member.statusToken, isAccepted).subscribe(result => {
 
       if (result) {
-        this.ngOnInit()
         this.message = isAccepted ? "The proposal was successfully accepted" : "The proposal was successfully rejected"
         this.alertType = 'success'
         this.closeAlertAfterTime(3000)
+        this.ngOnInit()
       }
     }, (_) => {
 
@@ -380,6 +380,15 @@ export class GroupsComponent implements OnInit, OnDestroy {
           studentsForProposal,
           this.form.get('timeoutControl').value).subscribe((resp) => {
             if (resp.status === 201) { // Ok created
+
+              // La richiesta è per un solo membro
+              if (this.selection.selected.length == 0) {
+                this.alertType = "success"
+                this.message = "Team proposal successfully created"
+                this.closeAlertAfterTime(3000)
+                this.ngOnInit()
+                return;
+              }
 
               this.dataSourceMembersProposal.push(new MatTableDataSource<MemberOfProposal>())
 
