@@ -343,13 +343,10 @@ export class GroupsComponent implements OnInit, OnDestroy {
   actionToken(member: MemberOfProposal, isAccepted: boolean) {
 
     this.studentService.actionToken(member.statusToken, isAccepted).subscribe(result => {
-
-      if (result) {
-        this.message = isAccepted ? "The proposal was successfully accepted" : "The proposal was successfully rejected"
-        this.alertType = 'success'
-        this.closeAlertAfterTime(3000)
-        this.ngOnInit()
-      }
+      this.message = isAccepted ? "The proposal was successfully accepted" : "The proposal was successfully rejected"
+      this.alertType = 'success'
+      this.closeAlertAfterTime(3000)
+      this.ngOnInit()
     }, (_) => {
 
       this.message = "Sorry your view was not up to date..."
