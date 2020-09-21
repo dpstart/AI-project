@@ -57,7 +57,7 @@ export class VmOwnershipComponent implements OnInit {
         this.studentsInTeam = res.filter(s => s.id != this.auth.getId());
 
         this.studentService.getOwners(this.vm.id).subscribe(
-          (res: Student[]) => { this.owners = res.map(elem => elem.id); console.log(this.owners) },
+          (res: Student[]) => { this.owners = res.map(elem => elem.id); },
           error => { this.message = error.message; this.alertType = "danger" })
       },
       error => { this.message = error.message; this.alertType = "danger" })

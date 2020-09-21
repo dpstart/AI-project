@@ -7,7 +7,8 @@
             </ngb-alert>
 
             <div *ngFor="let student of studentsInTeam">
-                <mat-checkbox color="primary" [value]="student.id" [disabled]="isOwner(student)" (change)="onCheckboxChange($event)">
+                <mat-checkbox color="primary" [value]="student.id" [disabled]="isOwner(student)"
+                    (change)="onCheckboxChange($event)">
                     {{student.id}}
                 </mat-checkbox>
             </div>
@@ -15,7 +16,7 @@
             <div>
                 <button [disabled]="!form.valid" (click)="submit()" mat-raised-button color="primary"
                     class="actions">Confirm</button>
-                <button (click)="close({})" mat-raised-button class="actions">Cancel</button>
+                <button (click)="close(null)" mat-raised-button class="actions">Cancel</button>
             </div>
         </form>
     </mat-card-content>

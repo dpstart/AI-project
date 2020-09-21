@@ -240,6 +240,8 @@ export class VmStudentComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((response) => {
       this.getData();
+
+      if (!response) return
       this.message = response.message;
       this.alertType = response.type;
       this.closeAlertAfterTime(3000)
