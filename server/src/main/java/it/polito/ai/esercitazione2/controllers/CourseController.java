@@ -742,6 +742,8 @@ public class CourseController {
      * Add a new assignment for the course
      * Authentication required: professor of the course
      * @param name: name of the course (path variable)
+     * @param dto: assignment in the form of an AssignmentDTO
+     * @param file: image file containing the assignment
      *
      * @return added AssignmentDTO
      */
