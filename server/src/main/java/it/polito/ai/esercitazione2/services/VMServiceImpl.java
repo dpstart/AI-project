@@ -1,9 +1,6 @@
 package it.polito.ai.esercitazione2.services;
 
-import it.polito.ai.esercitazione2.dtos.ImageDTO;
-import it.polito.ai.esercitazione2.dtos.SettingsDTO;
-import it.polito.ai.esercitazione2.dtos.VMDTO;
-import it.polito.ai.esercitazione2.dtos.VMModelDTO;
+import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.entities.*;
 import it.polito.ai.esercitazione2.exceptions.*;
 import it.polito.ai.esercitazione2.repositories.*;
@@ -11,6 +8,8 @@ import lombok.extern.java.Log;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -514,4 +513,17 @@ public class VMServiceImpl implements VMService {
 
         return c.getTeams().stream().flatMap(x->x.getVMs().stream()).map(x->modelMapper.map(x,VMDTO.class)).collect(Collectors.toList());
     }
+
+    @Override
+    public List<StudentDTO> getOwners(Long id){
+        if (vmRepository.existsById(id))
+            throw new VMInstanceNotFoundException("VM "+id+ " not found");
+        VM vm = vmRepository.getOne(id);
+
+        if (vm.getTeam().getMembers().stream().map(Student::getId).anyMatch(x->x.equals(SecurityContextHolder.getContext().getAuthentication().getName())))
+            throw new AuthenticationServiceException("Current logged user is not part of the team");
+        return vm.getOwners().stream().map(x->modelMapper.map(x,StudentDTO.class)).collect(Collectors.toList());
+    }
+
 }
+

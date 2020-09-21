@@ -1,9 +1,6 @@
 package it.polito.ai.esercitazione2.services;
 
-import it.polito.ai.esercitazione2.dtos.ImageDTO;
-import it.polito.ai.esercitazione2.dtos.SettingsDTO;
-import it.polito.ai.esercitazione2.dtos.VMDTO;
-import it.polito.ai.esercitazione2.dtos.VMModelDTO;
+import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.entities.Image;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
@@ -92,6 +89,11 @@ public interface VMService {
      List<VMDTO> getVMs();
      @PreAuthorize("hasRole('PROFESSOR')")
      List<VMDTO> getVMsByCourse(String name);
+
+     @PreAuthorize("hasRole('STUDENT')")
+     List<StudentDTO> getOwners(Long id);
+
+
 
 
 

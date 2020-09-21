@@ -1,9 +1,6 @@
 package it.polito.ai.esercitazione2.controllers;
 
-import it.polito.ai.esercitazione2.dtos.ImageDTO;
-import it.polito.ai.esercitazione2.dtos.SettingsDTO;
-import it.polito.ai.esercitazione2.dtos.VMDTO;
-import it.polito.ai.esercitazione2.dtos.VMModelDTO;
+import it.polito.ai.esercitazione2.dtos.*;
 import it.polito.ai.esercitazione2.exceptions.*;
 import it.polito.ai.esercitazione2.services.TeamService;
 import it.polito.ai.esercitazione2.services.VMService;
@@ -17,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/API/vms")
@@ -187,6 +185,18 @@ public class VMController {
             return vmservice.getVMsByCourse(course_name);
         }
         catch(CourseNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }catch(AuthorizationServiceException e){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/owners")
+    List<StudentDTO> getOwners(@PathVariable Long id){
+        try {
+            return vmservice.getOwners(id).stream().map(x->ModelHelper.enrich(x)).collect(Collectors.toList());
+        }
+        catch(VMInstanceNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }catch(AuthorizationServiceException e){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,e.getMessage());
