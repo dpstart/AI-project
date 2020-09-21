@@ -502,6 +502,33 @@ public class CourseController {
     }
 
     /**
+     * Get student's team for given course
+     * Authentication required: student or professor teaching in it
+     *
+     * @param name: course name (path variable)
+     * @param id: student id (path variable)
+     * @return Requested TeamDTO
+     */
+    @GetMapping("/courses/{name}/teamByStudent/{id}")
+    public TeamDTO getTeamForStudentAndCourse(@PathVariable String name, @PathVariable String id) {
+        try {
+            List<TeamDTO> teams = teamService.getTeamForStudentAndCourse(id, name)
+                    .stream()
+                    .filter(t -> t.getStatus() == 1)
+                    .map(t -> ModelHelper.enrich(t, name))
+                    .collect(Collectors.toList());
+            if (teams.size() > 1)
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "More than one team active for this course");
+            if (teams.size() == 0)
+                return null;
+            return teams.get(0);
+
+        } catch (StudentNotFoundException | CourseNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    /**
      * Get team adhesion status info with token for logged user
      * Authentication required: student in the team
      *
@@ -586,18 +613,6 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /************************************************************************************************************************************************************************

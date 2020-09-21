@@ -1263,7 +1263,7 @@ public class TeamServiceImpl implements TeamService {
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
         Course c = courseRepository.getOne(courseName);
 
-        // is the principal a professor or a student memebr of the course?
+        // is the principal a professor or a student member of the course?
         if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && c.getStudents().stream().noneMatch(x -> x.getId().equals(principal)))
             throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
 
@@ -1297,6 +1297,10 @@ public class TeamServiceImpl implements TeamService {
         if (!studentRepository.existsById(studentId) || !studentRepository.getOne(studentId).getEnabled()) {
             throw new StudentNotFoundException("Student: " + studentId + " not found!");
         }
+        String principal = SecurityContextHolder.getContext().getAuthentication().getName();
+        Course c = courseRepository.getOne(courseId);
+        if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && studentId != principal)
+            throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
         Student s = studentRepository.getOne(studentId);
         return s.getTeams()
                 .stream()
