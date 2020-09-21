@@ -516,11 +516,11 @@ public class VMServiceImpl implements VMService {
 
     @Override
     public List<StudentDTO> getOwners(Long id){
-        if (vmRepository.existsById(id))
+        if (!vmRepository.existsById(id))
             throw new VMInstanceNotFoundException("VM "+id+ " not found");
         VM vm = vmRepository.getOne(id);
 
-        if (vm.getTeam().getMembers().stream().map(Student::getId).anyMatch(x->x.equals(SecurityContextHolder.getContext().getAuthentication().getName())))
+        if (!vm.getTeam().getMembers().stream().map(Student::getId).anyMatch(x->x.equals(SecurityContextHolder.getContext().getAuthentication().getName())))
             throw new AuthenticationServiceException("Current logged user is not part of the team");
         return vm.getOwners().stream().map(x->modelMapper.map(x,StudentDTO.class)).collect(Collectors.toList());
     }
