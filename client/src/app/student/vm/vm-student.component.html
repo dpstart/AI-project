@@ -75,7 +75,7 @@
                 <ng-container *ngIf="dataSourceVm.data.length>0" matColumnDef="actions">
                     <th mat-header-cell *matHeaderCellDef> Actions </th>
                     <td mat-cell *matCellDef="let vm">
-                        <button *ngIf="vm.id_creator == getAuthId()" mat-raised-button (click)="changeVmStatus(vm)">
+                        <button *ngIf="isOwner(vm)" mat-raised-button (click)="changeVmStatus(vm)">
                             <div *ngIf=" vm.status == 0; then runBlock else stopBlock"></div>
                             <ng-template #runBlock>
                                 Run
@@ -85,21 +85,20 @@
                             </ng-template>
                         </button>
                         <button [disabled]="vm.status==0" mat-raised-button (click)="openVmImage(vm)">Open</button>
-                        <button *ngIf="vm.id_creator == getAuthId()" [disabled]="vm.status==1" mat-raised-button
+                        <button *ngIf="isOwner(vm)" [disabled]="vm.status==1" mat-raised-button
                             (click)="openEditDialog(vm, $event)">Edit</button>
-                        <button *ngIf="vm.id_creator == getAuthId()" mat-raised-button
-                            (click)="openShareDialog(vm)">Share</button>
+                        <button *ngIf="isOwner(vm)" mat-raised-button (click)="openShareDialog(vm)">Share</button>
                     </td>
                 </ng-container>
 
                 <ng-container matColumnDef="delete">
                     <th mat-header-cell *matHeaderCellDef> Delete </th>
                     <td mat-cell *matCellDef="let vm">
-                        <mat-icon *ngIf="vm.id_creator == getAuthId()" id="deleteIcon" aria-hidden="false"
-                            aria-label="Example home icon" (click)="deleteVm(vm)">
+                        <mat-icon *ngIf="isOwner(vm)" id="deleteIcon" aria-hidden="false" aria-label="Example home icon"
+                            (click)="deleteVm(vm)">
                             delete
                         </mat-icon>
-                        <span *ngIf="vm.id_creator != getAuthId()">--</span>
+                        <span *ngIf="!isOwner(vm)">--</span>
                     </td>
                 </ng-container>
 

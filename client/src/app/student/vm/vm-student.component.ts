@@ -16,6 +16,7 @@ import { Subscription } from 'rxjs';
 import { TeacherService } from 'src/app/services/teacher.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { VmOwnershipComponent } from '../vm-ownership/vm-ownership.component';
+import { Student } from 'src/app/model/student.model';
 
 @Component({
   selector: 'app-vm-student',
@@ -96,32 +97,38 @@ export class VmStudentComponent implements OnInit, OnDestroy {
         this.routeStateService.updatePathParamState(this.selectedCourse)
 
 
+
+      // Get teams for current course, the need to get vms for each team
       this.studentService.getTeamForCourse(this.selectedCourse).subscribe((team: Team) => {
 
 
         this.team = team;
 
-
-
         if (team) {
           this.teamId = team.id
 
-          this.teacherService.getResourcesByTeam(this.teamId).subscribe((settings: VmSettings) => {
-
-            this.utilization = settings;
-          })
+          this.teacherService.getResourcesByTeam(this.teamId).subscribe((settings: VmSettings) => this.utilization = settings)
 
           this.studentService.getVmsForTeam(team.id).subscribe(vms => {
 
 
+            // Need to get owners for each team and set the position
+            for (let i = 0; i < vms.length; i++) vms[i]['position'] = i + 1;
 
-            for (let i = 0; i < vms.length; i++) {
-              vms[i]['position'] = i + 1
 
-            }
-            this.dataSourceVm.data = [...vms]
-            this.isAllLoaded = true
-          })
+            this.studentService.getOwnersMultiple(vms.map(v => v.id)).subscribe((owners: Student[][]) => {
+
+              for (let i = 0; i < owners.length; i++) {
+                vms[i]['owners'] = owners[i].map(elem => elem.id);
+              }
+
+              this.dataSourceVm.data = [...vms]
+              this.isAllLoaded = true
+
+            });
+          });
+
+
         } else {
           this.message = "In order to use a Vm you need to be part of a team"
           this.alertType = "warning"
@@ -229,6 +236,11 @@ export class VmStudentComponent implements OnInit, OnDestroy {
       this.closeAlertAfterTime(3000)
     })
     event.stopPropagation();
+  }
+
+  isOwner(vm: Vm) {
+
+    if (vm["owners"].includes(this.auth.getId())) return true;
   }
 
 

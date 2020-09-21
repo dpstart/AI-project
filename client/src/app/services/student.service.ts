@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { forkJoin, Observable, throwError } from 'rxjs';
+import { combineLatest, forkJoin, Observable, throwError } from 'rxjs';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Student } from '../model/student.model';
-import { catchError, mergeMap, retry } from 'rxjs/operators';
+import { catchError, mergeAll, mergeMap, retry } from 'rxjs/operators';
 import { Course } from '../model/course.model';
 import { Vm } from '../student/vm/vm-student.component';
 import { Team } from '../model/team.model';
@@ -353,6 +353,15 @@ export class StudentService {
    * Metodo che permette di ricavare gli owner di una vm
    * @param vmId: ID della vm
    */
+  getOwnersMultiple(vmIds: number[]) {
+
+
+    const source: Observable<any>[] = vmIds.map(id => this.http.get<Student[]>(`${this.URL}/vms/${id}/owners`).pipe(catchError(this.handleError)))
+
+
+    return combineLatest(source);
+  }
+
   getOwners(vmId: number) {
 
     const url = `${this.URL}/vms/${vmId}/owners`;
