@@ -91,8 +91,8 @@ The ADMIN is added only after this creation.
 
 | Course |     Acronime  | Min | Max | Professors (C = Creator)| Students| VM Model          |                                                                                                                                                                                                      
 |--------|:-------------:|----:|----:|------------------------:|--------:| ------------------:|
-| Applicazioni Internet | AI | 1 | 4 | Servetti (C), Malnati | 200000,200001,200002,257649| MacOS High Sierra |
-| Programmazione di Sistema| PDS | 1 | 5 | Malnati(C), Cabodi | 222220 - 222227 | Windows 10 |
+| Applicazioni Internet | AI | 1 | 4 | Servetti (C), Malnati | 200000, 200001, 200002, 257649| MacOS High Sierra |
+| Programmazione di Sistema| PDS | 1 | 5 | Malnati (C), Cabodi | 222220 - 222227 | Windows 10 |
 
 | VM Model| 
 |:-------:|
@@ -102,9 +102,9 @@ The ADMIN is added only after this creation.
 
 | Team          | Course | ID | Members (P=proposer)                | #cpu | disk space | ram | max active | max_available |
 |--------------:|-------:|---:|---------------------------:|-----:|-----------:|----:|-----------:|--------------:|
-| SecondoTeam | AI | 9 | 200000,200002,257649 (P) |8|512|4|1|4|
+| SecondoTeam | AI | 9 | 200000, 200002, 257649 (P) |8|512|4|1|4|
 | IlCapitano | PDS | 17 | 222225 (P) |5|128|4|1|1|
-| SecondoTeam | PDS | 12 | 222227 (P),222220,222221 |4|256|8|2|3|
+| SecondoTeam | PDS | 12 | 222227 (P), 222220, 222221 |4|256|8|2|3|
 
 | VM Id  |  #cpu | disk space | ram | team  |
 |-------:|------:|-----------:|----:|------:|
@@ -380,5 +380,26 @@ The ADMIN is added only after this creation.
 - All the owners can share this role with the other team members;
 
 
+## SERVER : Assignments
 
+### Add
+
+- To add a new assignment to a course the user needs to be authenticated as a professor teaching in it;
+- Sending an AssignmentDTO and an image file inside the body of a POST to "/API/courses/{name}/assignments" will create the assignment;
+- The response will contain the updated DTO (assignment id is generated automatically by the server);
+- Professors can't create a new assignment giving less than 23 hours and 59 minutes to the students to deliver it;
+- An empty homework entity is created for each student enrolled in the course;
+- AssignmentDTO structure: 
+        {
+                id: received value ignored, added by server, (Integer)
+                releaseDate: received value ignored, added by server, (Timestamp)
+                expirationDate: timestamp containing the expiration date (Timestamp)
+        }
+
+### Delete
+
+- To delete an assignment in a course the user needs to be authenticated as a professor teaching in it;
+- Sending an empty POST to "/API/courses/{name}/assignments/{id}" will delete the assignment with the given id, if it exists;
+- Professors can't delete an assignment if at least one student has read it(we assume that a student that has read the assignment is working on it);
+- Deleting an assignment destroys also the homeworks related to it (all empty, since none of the students has read it)
 
