@@ -87,6 +87,8 @@
                         <button [disabled]="vm.status==0" mat-raised-button (click)="openVmImage(vm)">Open</button>
                         <button *ngIf="vm.id_creator == getAuthId()" [disabled]="vm.status==1" mat-raised-button
                             (click)="openEditDialog(vm, $event)">Edit</button>
+                        <button *ngIf="vm.id_creator == getAuthId()" mat-raised-button
+                            (click)="openShareDialog(vm)">Share</button>
                     </td>
                 </ng-container>
 

@@ -53,6 +53,7 @@ import { CourseManagementContainerComponent } from './teacher/course-management/
 import { CourseManagementComponent } from './teacher/course-management/course/course-management.component';
 import { RemoveCourseDialogComponent } from './teacher/course-management/course/dialog/remove-course-dialog.component';
 import { MatSelectModule } from '@angular/material/select';
+import { VmOwnershipComponent } from './student/vm-ownership/vm-ownership.component';
 
 @NgModule({
   declarations: [
@@ -77,6 +78,7 @@ import { MatSelectModule } from '@angular/material/select';
     RemoveCourseDialogComponent,
     CourseManagementContainerComponent,
     CourseManagementComponent,
+    VmOwnershipComponent,
   ],
   imports: [
     BrowserModule,

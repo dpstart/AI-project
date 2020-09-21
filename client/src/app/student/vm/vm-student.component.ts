@@ -15,6 +15,7 @@ import { Image } from 'src/app/model/image.model';
 import { Subscription } from 'rxjs';
 import { TeacherService } from 'src/app/services/teacher.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { VmOwnershipComponent } from '../vm-ownership/vm-ownership.component';
 
 @Component({
   selector: 'app-vm-student',
@@ -194,6 +195,23 @@ export class VmStudentComponent implements OnInit, OnDestroy {
       this.alertType = "warning"
       this.closeAlertAfterTime(3000)
     }
+  }
+
+  openShareDialog(vm: Vm) {
+    this.message = ""
+    this.alertType = ""
+
+    const dialogRef = this.dialog.open(VmOwnershipComponent, {
+      width: '500px',
+      data: { vm: vm, teamId: this.teamId, courseName: this.selectedCourse }
+    });
+
+    dialogRef.afterClosed().subscribe((response) => {
+      this.getData();
+      this.message = response.message;
+      this.alertType = response.type;
+      this.closeAlertAfterTime(3000)
+    })
   }
 
   openEditDialog(element, event) {

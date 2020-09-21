@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { forkJoin, Observable, throwError } from 'rxjs';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Student } from '../model/student.model';
-import { catchError, retry } from 'rxjs/operators';
+import { catchError, mergeMap, retry } from 'rxjs/operators';
 import { Course } from '../model/course.model';
 import { Vm } from '../student/vm/vm-student.component';
 import { Team } from '../model/team.model';
@@ -10,6 +10,7 @@ import { HomeworkVersion } from '../model/homework-version';
 import { Assignment } from '../model/assignment.model';
 import { Homework } from '../model/homework.model';
 import { Image } from '../model/image.model';
+import { of } from 'rxjs/internal/observable/of';
 
 
 /**
@@ -348,6 +349,20 @@ export class StudentService {
     );
   }
 
+  /**
+   * Metodo che permette di ricavare gli owner di una vm
+   * @param vmId: ID della vm
+   */
+  getOwners(vmId: number) {
+
+    const url = `${this.URL}/vms/${vmId}/owners`;
+
+    return this.http.get<Student[]>(url).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+  }
+
 
   /**
    * Metodo che permette di ricavare le Vm per un determinato team
@@ -450,6 +465,14 @@ export class StudentService {
     return this.http.get(url).pipe(
       retry(3), catchError(this.handleError)
     );
+  }
+
+  shareOwnership(vmId: number, studentIds: string[]) {
+
+    const url = `${this.URL}/vms/${vmId}/share`;
+    const source: Observable<any>[] = studentIds.map(s => this.http.post(url, { id: s }).pipe(catchError(this.handleError)))
+
+    return forkJoin(source);
   }
 
 

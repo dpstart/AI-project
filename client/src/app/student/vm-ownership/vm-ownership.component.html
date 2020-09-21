@@ -1,0 +1,22 @@
+<mat-card>
+    <mat-card-title>Share VM ownership with your teammates</mat-card-title>
+    <mat-card-content>
+        <form [formGroup]="form">
+            <ngb-alert *ngIf="message" [type]='alertType' (close)="message=null">{{ message }}</ngb-alert>
+            <ngb-alert *ngIf="isEveryoneOwner()" [dismissible]="false">Everyone is currently an owner.
+            </ngb-alert>
+
+            <div *ngFor="let student of studentsInTeam">
+                <mat-checkbox [value]="student.id" [disabled]="isOwner(student)" (change)="onCheckboxChange($event)">
+                    {{student.id}}
+                </mat-checkbox>
+            </div>
+
+            <div>
+                <button [disabled]="!form.valid" (click)="submit()" mat-raised-button color="primary"
+                    class="actions">Confirm</button>
+                <button (click)="close({})" mat-raised-button class="actions">Cancel</button>
+            </div>
+        </form>
+    </mat-card-content>
+</mat-card>
