@@ -57,10 +57,10 @@ export class VmOwnershipComponent implements OnInit {
         this.studentsInTeam = res.filter(s => s.id != this.auth.getId());
 
         this.studentService.getOwners(this.vm.id).subscribe(
-          (res: Student[]) => { this.owners = res.map(elem => elem.id); },
-          error => { })
+          (res: Student[]) => { this.owners = res.map(elem => elem.id); console.log(this.owners) },
+          error => { this.message = error.message; this.alertType = "danger" })
       },
-      error => { })
+      error => { this.message = error.message; this.alertType = "danger" })
 
   }
 
@@ -85,6 +85,7 @@ export class VmOwnershipComponent implements OnInit {
 
   close(data) { this.dialogRef.close(data); }
   submit() {
+
 
     if (this.form.valid) {
       this.studentService.shareOwnership(this.vm.id, this.form.value["checkArray"]).subscribe(
