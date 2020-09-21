@@ -17,6 +17,7 @@ import { TeacherService } from 'src/app/services/teacher.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { VmOwnershipComponent } from '../vm-ownership/vm-ownership.component';
 import { Student } from 'src/app/model/student.model';
+import { DeleteComponent } from './delete/delete.component';
 
 @Component({
   selector: 'app-vm-student',
@@ -169,21 +170,32 @@ export class VmStudentComponent implements OnInit, OnDestroy {
 
 
   deleteVm(vm: Vm) {
-    this.message = ""
-    this.alertType = ""
-    this.studentService.deleteVm(vm).subscribe((_) => {
-      this.dataSourceVm.data.splice(this.dataSourceVm.data.indexOf(vm), 1)
-      this.dataSourceVm._updateChangeSubscription()
-      this.message = "The vm was successfully deleted"
-      this.alertType = "success"
-      this.closeAlertAfterTime(3000)
-      this.getData()
-    },
-      (error) => {
-        this.message = error.message
-        this.alertType = "danger"
-        this.closeAlertAfterTime(3000)
-      })
+
+    const dialogRef = this.dialog.open(DeleteComponent, {
+      width: '500px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (result) {
+        this.message = ""
+        this.alertType = ""
+        this.studentService.deleteVm(vm).subscribe((_) => {
+          this.dataSourceVm.data.splice(this.dataSourceVm.data.indexOf(vm), 1)
+          this.dataSourceVm._updateChangeSubscription()
+          this.message = "The vm was successfully deleted"
+          this.alertType = "success"
+          this.closeAlertAfterTime(3000)
+          this.getData()
+        },
+          (error) => {
+            this.message = error.message
+            this.alertType = "danger"
+            this.closeAlertAfterTime(3000)
+          })
+
+      }
+    })
   }
 
   openVmImage(vm: Vm) {

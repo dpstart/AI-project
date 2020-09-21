@@ -1,0 +1,16 @@
+<mat-card>
+    <mat-card-title>Confirm</mat-card-title>
+    <mat-card-content>
+        Are you sure you want to delete the vm?
+    </mat-card-content>
+
+    <mat-dialog-actions align="center">
+
+        <button (click)="close(true)" mat-raised-button color="warn" class="actions">Confirm</button>
+        <button (click)="close(false)" mat-raised-button class="actions">Cancel</button>
+
+    </mat-dialog-actions>
+
+
+
+</mat-card>
