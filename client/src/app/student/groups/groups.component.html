@@ -67,7 +67,7 @@
                     </ng-container>
 
                     <!-- First Name Column -->
-                    <ng-container matColumnDef="first name">
+                    <ng-container matColumnDef="firstName">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header>First name</th>
                         <td mat-cell *matCellDef="let student"> {{student.firstName}} </td>
                     </ng-container>
@@ -144,7 +144,8 @@
                                 [@detailExpand]="element == expandedProposal ? 'expanded' : 'collapsed'">
 
                                 <mat-card class="fullWidth">
-                                    <table class="greyBkg" mat-table [dataSource]="dataSourceMembersProposal[element.row]">
+                                    <table class="greyBkg" mat-table
+                                        [dataSource]="dataSourceMembersProposal[element.row]">
 
                                         <!--- Note that these columns can be defined in any order.
                                       The actual rendered columns are set as a property on the row definition" -->
@@ -162,7 +163,7 @@
                                         </ng-container>
 
                                         <!-- Weight Column -->
-                                        <ng-container matColumnDef="firstname">
+                                        <ng-container matColumnDef="firstName">
                                             <th mat-header-cell *matHeaderCellDef> First name </th>
                                             <td mat-cell *matCellDef="let element"> {{element.firstname}} </td>
                                         </ng-container>
@@ -242,7 +243,7 @@
                 </ng-container>
 
                 <!-- First Name Column -->
-                <ng-container matColumnDef="first name">
+                <ng-container matColumnDef="firstName">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> First name </th>
                     <td mat-cell *matCellDef="let student"> {{student.firstName}} </td>
                 </ng-container>

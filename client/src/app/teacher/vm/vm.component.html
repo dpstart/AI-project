@@ -61,9 +61,10 @@
                     <div class="example-element-detail"
                         [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
 
-                        <ngb-alert *ngIf="element.vms.length==0" [dismissible]="false">No Vms for this team</ngb-alert>
+                        <ngb-alert *ngIf="element.vms && element.vms.length==0" [dismissible]="false">No Vms for this
+                            team</ngb-alert>
 
-                        <table *ngIf="element.vms.length>0" #innerTables mat-table #innerSort="matSort"
+                        <table *ngIf="element.vms && element.vms.length>0" #innerTables mat-table #innerSort="matSort"
                             [dataSource]="element.vms" matSort>
 
                             <ng-container matColumnDef="name">

@@ -509,7 +509,7 @@ public class CourseController {
      * @param id: student id (path variable)
      * @return Requested TeamDTO
      */
-    @GetMapping("/courses/{name}/teamByStudent/{id}")
+    @GetMapping("/{name}/teamByStudent/{id}")
     public TeamDTO getTeamForStudentAndCourse(@PathVariable String name, @PathVariable String id) {
         try {
             List<TeamDTO> teams = teamService.getTeamForStudentAndCourse(id, name)

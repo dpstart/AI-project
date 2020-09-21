@@ -1299,6 +1299,7 @@ public class TeamServiceImpl implements TeamService {
         }
         String principal = SecurityContextHolder.getContext().getAuthentication().getName();
         Course c = courseRepository.getOne(courseId);
+
         if (c.getProfessors().stream().noneMatch(x -> x.getId().equals(principal)) && studentId != principal)
             throw new CourseAuthorizationException("User " + principal + " has not the rights to see the teams for this course");
         Student s = studentRepository.getOne(studentId);

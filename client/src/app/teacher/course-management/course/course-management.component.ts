@@ -47,7 +47,7 @@ export class CourseManagementComponent implements OnInit {
 
   // Studenti enrolled data source e relative colonne
   enrolledStudentsDataSource: MatTableDataSource<Student>;
-  displayedColumns: string[] = ['select', 'id', 'name', 'first name', 'group'];
+  displayedColumns: string[] = ['select', 'id', 'name', 'firstName', 'team'];
 
   // Table selection
   selection = new SelectionModel<Student>(true, []);
@@ -69,7 +69,7 @@ export class CourseManagementComponent implements OnInit {
 
 
   // Form Control per condivisione del corso con professori (autocomplete)
-  professorsControl = new FormControl();
+  //professorsControl = new FormControl();
 
   // Professori disponibili a condivisione del corso 
   profOptions: Teacher[] = []
@@ -154,13 +154,11 @@ export class CourseManagementComponent implements OnInit {
   public set availableTeachers(value: Teacher[]) {
     this._availableTeachers = value;
 
-    console.log(this.availableTeachers);
-
     // aggiorno le opzioni nell'autocomplete
     this.profOptions = value
 
     /* Filtro elementi nell'autocomplete dei professori */
-    this.filteredProfessors = this.professorsControl.valueChanges
+    this.filteredProfessors = this.shareCourseForm.get("professorsControl").valueChanges
       .pipe(
         startWith(''),
         map(value => this._filterProfessors(value))
@@ -201,7 +199,7 @@ export class CourseManagementComponent implements OnInit {
     })
 
     this.shareCourseForm = new FormGroup({
-      professorsControl: new FormControl(null, Validators.required),
+      professorsControl: new FormControl(null),
     })
 
   }
@@ -219,7 +217,7 @@ export class CourseManagementComponent implements OnInit {
     );
 
     /* Filtro elementi nell'autocomplete dei professori */
-    this.filteredProfessors = this.professorsControl.valueChanges
+    this.filteredProfessors = this.shareCourseForm.get("professorsControl").valueChanges
       .pipe(
         startWith(''),
         map(value => this._filterProfessors(value))
@@ -301,8 +299,9 @@ export class CourseManagementComponent implements OnInit {
 
 
   private _filterProfessors(value: string): any[] {
-    const filterValue = value.toLowerCase();
-    return this.matchingProf(filterValue);
+
+    if (value === null) value = ''
+    return this.matchingProf(value["id"] || value);
   }
 
   /** 
@@ -555,8 +554,17 @@ export class CourseManagementComponent implements OnInit {
     if (this.shareCourseForm.valid) {
       this.shareCourseWithProf.emit((this.shareCourseForm.get('professorsControl').value as Teacher).id)
       this.shareCourseForm.get('professorsControl').setValue(null)
-      
+      this.shareCourseForm.markAsPristine()
+
     }
+  }
+
+  isProfSelected() {
+    return this.shareCourseForm.get('professorsControl').value
+  }
+
+  isStudentSelected() {
+    return this.addStudentForm.get('studentControl').value
   }
 
 }

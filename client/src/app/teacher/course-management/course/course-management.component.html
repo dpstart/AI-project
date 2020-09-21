@@ -48,7 +48,7 @@
                     <form [formGroup]="shareCourseForm">
                         <mat-form-field class="inputStudentField">
                             <mat-label> Available professors </mat-label>
-                            <input type="text" matInput [formControl]="professorsControl" [matAutocomplete]="auto">
+                            <input type="text" matInput formControlName="professorsControl" [matAutocomplete]="auto">
                             <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayProf"
                                 (optionSelected)="profSelected($event.option.value)">
                                 <mat-option *ngFor="let teacher of filteredProfessors | async" [value]="teacher">
@@ -58,8 +58,8 @@
                             </mat-autocomplete>
                         </mat-form-field>
                     </form>
-                    <button [disabled]="shareCourseForm.invalid " (click)="shareCourse()" mat-raised-button
-                        color="primary" class="formInlineButton">Share
+                    <button [disabled]="!isProfSelected()" (click)="shareCourse()" mat-raised-button color="primary"
+                        class="formInlineButton">Share
                         course</button>
                 </div>
             </div>
@@ -115,7 +115,8 @@
                             </mat-option>
                         </mat-autocomplete>
                     </mat-form-field>
-                    <button type="button" mat-button (click)="addStudentEvent()">Add</button>
+                    <button [disabled]="!isStudentSelected()" type="button" mat-button
+                        (click)="addStudentEvent()">Add</button>
 
                 </div>
                 <div>
@@ -142,7 +143,7 @@
 
     <mat-card *ngIf="enrolledStudentsDataSource.data.length>0">
 
-        <h2 class="mat-h2 tabtitle">Elenco studenti iscritti al corso</h2>
+        <h2 class="mat-h2 tabtitle">Enrolled students</h2>
 
         <div class="flexCenter">
             <button class="fabButton" mat-fab color="warn" aria-label="Example icon button with a delete icon"
@@ -174,9 +175,9 @@
 
             <!-- Group Column -->
             <!-- Groups are not modelled yet, providing a default value. -->
-            <ng-container matColumnDef="group">
-                <th mat-header-cell mat-sort-header *matHeaderCellDef> Group </th>
-                <td mat-cell *matCellDef="let element"> {{(element.group) || "---"}} </td>
+            <ng-container matColumnDef="team">
+                <th mat-header-cell mat-sort-header *matHeaderCellDef> Team </th>
+                <td mat-cell *matCellDef="let element"> {{(element.team) || "---"}} </td>
             </ng-container>
 
             <!-- Name Column -->
@@ -186,8 +187,8 @@
             </ng-container>
 
             <!-- First Name Column -->
-            <ng-container matColumnDef="first name">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Firstname </th>
+            <ng-container matColumnDef="firstName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> First name </th>
                 <td mat-cell *matCellDef="let element"> {{element.firstName}} </td>
             </ng-container>
 

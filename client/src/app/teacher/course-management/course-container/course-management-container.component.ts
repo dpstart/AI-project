@@ -4,7 +4,9 @@ import { Subscription } from 'rxjs';
 import { Course } from 'src/app/model/course.model';
 import { Student } from 'src/app/model/student.model';
 import { Teacher } from 'src/app/model/teacher.model';
+import { Team } from 'src/app/model/team.model';
 import { RouteStateService } from 'src/app/services/route-state.service';
+import { StudentService } from 'src/app/services/student.service';
 import { TeacherService } from 'src/app/services/teacher.service';
 
 
@@ -85,7 +87,28 @@ export class CourseManagementContainerComponent implements OnInit {
           // Ritiro gli studenti del corso in questione
           this.teacherService.getStudentsInCourse(this.selectedCourse).subscribe(enrolledStudents => {
 
+            // enrolledStudents.forEach(student => {
+
+
+            //   let link = student.links.find(x => x.rel == "teams").href
+
+
+            //   if (link)
+            //     this.teacherService.getResourceByUrl(link).subscribe(res => console.log(res));
+
+            // })
+
             // Setto gli studenti che sono iscritti al corso
+
+            enrolledStudents.forEach((student, i) => {
+              this.teacherService.getTeamForStudentAndCourse(student.id, this.selectedCourse).subscribe(
+                (team: Team) => {
+                  if (team) {
+                    this.enrolledStudents[i]["team"] = team.name
+                  }
+                })
+            })
+
             this.enrolledStudents = enrolledStudents;
 
             this.teacherService.getProfessorsAvailable(this.selectedCourse).subscribe((teachers: Teacher[]) => {
@@ -245,7 +268,7 @@ export class CourseManagementContainerComponent implements OnInit {
           // Setto messaggio di successo
           let message = {} as Message
           message.alertType = "success"
-          message.message = "Student successfully added"
+          message.message = "Students successfully added"
           this.message = { ...message }
           this.closeAlertAfterTime(3000)
         })
@@ -339,6 +362,8 @@ export class CourseManagementContainerComponent implements OnInit {
   removeCourse(courseName: string) {
     // Effettuo richiesta di rimozione
     this.teacherService.removeCourse(courseName).subscribe(_ => {
+
+      this.teacherService.courseList$.next(courseName);
       let message = {} as Message
       message.alertType = "success"
       message.message = "Course removed successfully."
@@ -356,7 +381,7 @@ export class CourseManagementContainerComponent implements OnInit {
       // Setto messaggio di errore
       let message = {} as Message
       message.alertType = "danger"
-      message = error.message
+      message.message = "Impossible to remove the current course."
       this.message = { ...message }
       this.closeAlertAfterTime(3000)
     })
@@ -394,9 +419,9 @@ export class CourseManagementContainerComponent implements OnInit {
   }
 
   /**
- * Utility function used to close alert after tot milliseconds 
- * @param milliseconds 
- */
+  * Utility function used to close alert after tot milliseconds 
+  * @param milliseconds 
+  */
   closeAlertAfterTime(milliseconds: number) {
     setTimeout(_ => {
       this.message.message = ""

@@ -107,16 +107,16 @@ export class GroupsComponent implements OnInit, OnDestroy {
         this.studentsInTeam = []
         this.dataSourceStudentInTeam = new MatTableDataSource<Student>();
         this.dataSourceStudentNotYetInTeam = new MatTableDataSource<Student>();
-        this.displayedColumnsNotInTeam = ['select', 'id', 'name', 'first name', 'group'];
+        this.displayedColumnsNotInTeam = ['select', 'id', 'name', 'firstName', 'group'];
 
         //proposals table
         this.dataSourceProposals = new MatTableDataSource()
         this.displayedColumnsProposals = ['idCreator', 'groupName', 'name', 'firstName'];
-        this.displayedColumnsInTeam = ['group', 'id', 'name', 'first name']
+        this.displayedColumnsInTeam = ['group', 'id', 'name', 'firstName']
 
         //inner members table
         this.dataSourceMembersProposal = []
-        this.displayedColumnsMembers = ['id', 'name', 'firstname', 'status']
+        this.displayedColumnsMembers = ['id', 'name', 'firstName', 'status']
 
         // Inizializzazione form per i gruppi
         this.form = new FormGroup({

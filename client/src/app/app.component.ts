@@ -178,6 +178,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Ottengo informazioni sui corsi dell'utente se loggato 
     this.retrieveCourses()
+
+
+    // Quando il corso viene rimosso, rimuovo dalla lista dei corsi.
+    this.teacherService.getCourseList$().subscribe((removedCourse: string) => {
+
+      this.courses = this.courses.filter(course => course.name != removedCourse)
+    })
   }
 
   ngOnDestroy(): void {

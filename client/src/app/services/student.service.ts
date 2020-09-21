@@ -52,7 +52,7 @@ export class StudentService {
     this.navStudentLinks = [
       { link: 'groups', label: 'Groups' },
       { link: 'vms', label: 'VMs' },
-      { link: 'homework', label: 'Elaborati' }
+      { link: 'homework', label: 'Homeworks' }
     ]
   }
 

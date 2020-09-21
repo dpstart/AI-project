@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { Observable, Subject, throwError } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { HomeworkVersion } from '../model/homework-version';
 import { retry, catchError } from 'rxjs/operators';
@@ -8,6 +8,7 @@ import { Assignment } from '../model/assignment.model';
 import { Homework } from '../model/homework.model';
 import { Course } from '../model/course.model';
 import { VmSettings } from './student.service';
+import { Team } from '../model/team.model';
 
 // Interfaccia link del teacher
 export interface NavTeacherLinks {
@@ -36,6 +37,18 @@ export class TeacherService {
     //tabs of the teacher 
     private navTeacherLinks: NavTeacherLinks[];
 
+    private _courseList$: Subject<string>;
+    public get courseList$(): Subject<string> {
+        return this._courseList$;
+    }
+    public set courseList$(value: Subject<string>) {
+        this._courseList$ = value;
+    }
+
+    public getCourseList$(): Observable<string> {
+        return this._courseList$.asObservable();
+    }
+
     URL = "http://localhost:4200/API"
 
     constructor(private http: HttpClient) {
@@ -44,9 +57,13 @@ export class TeacherService {
         this.navTeacherLinks = [
             { link: 'students', label: 'Students' },
             { link: 'vms', label: 'VMs' },
-            { link: 'homework', label: 'Consegne ed Elaborati' }
+            { link: 'homework', label: 'Assignments and Homeworks' }
         ]
+
+        this.courseList$ = new Subject<string>();
     }
+
+
 
     //***********************************************CREATE******************************************************//
 
@@ -206,6 +223,16 @@ export class TeacherService {
         return this.navTeacherLinks
     }
 
+    getTeamForStudentAndCourse(studentId: string, courseName: string) {
+
+        const url = `${this.URL}/courses/${courseName}/teamByStudent/${studentId}`
+
+        return this.http.get<Team>(url).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+
+    }
 
     /**Metodo generico che richiede una determinata risorsa, 
      * usato quando risulta necessario prendere risorse raggiungibili con link
@@ -223,7 +250,7 @@ export class TeacherService {
      */
     getStudentById(id: string): Observable<Student> {
 
-        const url = `${this.URL}/students/${id}`
+        const url = `${this.URL}/students/${id} `
         return this.http.get<Student>(url).pipe(
             retry(3),
             catchError(this.handleError)
@@ -237,7 +264,7 @@ export class TeacherService {
      * @param homeworkId  id hw
      */
     getStudentIdByHomework(courseName: string, assignmentId: number, homeworkId: number): Observable<string> {
-        const url = `${this.URL}/courses/${courseName}/assignments/${assignmentId}/homeworks/${homeworkId}/studentId`;
+        const url = `${this.URL} /courses/${courseName} /assignments/${assignmentId} /homeworks/${homeworkId} /studentId`;
         return this.http.get<string>(url).pipe(
             retry(3),
             catchError(this.handleError)

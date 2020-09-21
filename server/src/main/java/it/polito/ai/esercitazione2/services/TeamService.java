@@ -204,7 +204,7 @@ public interface TeamService {
     List<TeamDTO> getTeamsforStudent(String studentId);
 
     // get the list of teams proposals for a student in a course
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasRole('STUDENT') or hasRole('PROFESSOR')")
     List<TeamDTO> getTeamForStudentAndCourse(String studentId, String courseId);
 
 
