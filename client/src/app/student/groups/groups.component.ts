@@ -359,7 +359,6 @@ export class GroupsComponent implements OnInit, OnDestroy {
 
   /**
    * Metodo usato per fare una proposta per un determinato team 
-   * 
    */
   onSubmit() {
 
