@@ -49,7 +49,7 @@ export class HomeworkContainerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    
+
     this.courseSub = this.activatedRoute.params.subscribe((params) => {
       if (params['course_name']) {
         this.routeStateService.updatePathParamState(params['course_name'])
@@ -239,6 +239,7 @@ export class HomeworkContainerComponent implements OnInit, OnDestroy {
           } else {
             this.isAllLoaded = true
           }
+
         }, error => {
           this.router.navigate(['PageNotFound'])
         });

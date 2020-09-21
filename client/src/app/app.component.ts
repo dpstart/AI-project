@@ -208,7 +208,7 @@ export class AppComponent implements OnInit, OnDestroy {
           if (data.length != 0 && this.selectedCourse == "Home") {
             this.sidenav.open()
           }
-          this.courses = data;
+          this.courses = data.sort((a, b) => a.name.localeCompare(b.name));
         })
       else // Se è uno studente
         // Ottengo corsi studente
@@ -219,7 +219,7 @@ export class AppComponent implements OnInit, OnDestroy {
           if (data.length != 0 && this.selectedCourse == "Home") {
             this.sidenav.open()
           }
-          this.courses = data;
+          this.courses = data.sort((a, b) => a.name.localeCompare(b.name));
         })
     }
   }

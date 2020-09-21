@@ -69,7 +69,7 @@
                 </h6>
                 <div class="inlineDiv">
                     <form [formGroup]="courseVmModelForm">
-                        <mat-form-field>
+                        <mat-form-field class="inputStudentField">
                             <mat-label>Vm Model</mat-label>
                             <mat-select formControlName="vmmodel" required>
                                 <mat-option *ngFor="let model of vmModels" [value]="model.name">{{model.name}}
