@@ -57,13 +57,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
   @ViewChild(MatSidenav) sidenav: MatSidenav;
 
-  // Subscription
+  // Subscriptions
   routerEventSub: Subscription;
   courseSub: Subscription;
   profileCardSub: Subscription;
   profileImageSub: Subscription;
   clickTeacherTabSub: Subscription;
   clickStudentTabSub: Subscription;
+  courseListSub: Subscription;
 
 
   constructor(
@@ -181,7 +182,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
     // Quando il corso viene rimosso, rimuovo dalla lista dei corsi.
-    this.teacherService.getCourseList$().subscribe((removedCourse: string) => {
+    this.courseListSub = this.teacherService.getCourseList$().subscribe((removedCourse: string) => {
 
       this.courses = this.courses.filter(course => course.name != removedCourse)
     })
@@ -193,6 +194,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.profileImageSub.unsubscribe()
     this.clickTeacherTabSub.unsubscribe()
     this.clickStudentTabSub.unsubscribe()
+    this.courseListSub.unsubscribe()
   }
 
 

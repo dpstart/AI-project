@@ -37,17 +37,8 @@ export class TeacherService {
     //tabs of the teacher 
     private navTeacherLinks: NavTeacherLinks[];
 
+    // Subject usata per comunicazione tra componenti estranei nel momento in cui viene rimosso un corso. 
     private _courseList$: Subject<string>;
-    public get courseList$(): Subject<string> {
-        return this._courseList$;
-    }
-    public set courseList$(value: Subject<string>) {
-        this._courseList$ = value;
-    }
-
-    public getCourseList$(): Observable<string> {
-        return this._courseList$.asObservable();
-    }
 
     URL = "http://localhost:4200/API"
 
@@ -64,6 +55,19 @@ export class TeacherService {
     }
 
 
+
+    // Getter and setter
+
+    public get courseList$(): Subject<string> {
+        return this._courseList$;
+    }
+    public set courseList$(value: Subject<string>) {
+        this._courseList$ = value;
+    }
+    // Condivisione con componenti che possono solo osservare
+    public getCourseList$(): Observable<string> {
+        return this._courseList$.asObservable();
+    }
 
     //***********************************************CREATE******************************************************//
 
