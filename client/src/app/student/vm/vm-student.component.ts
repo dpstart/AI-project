@@ -88,6 +88,8 @@ export class VmStudentComponent implements OnInit, OnDestroy {
     this.courseSub.unsubscribe()
   }
 
+
+  // Fill data structures for current view
   getData() {
     // Voglio sempre e solo una sub
     if (this.courseSub) this.courseSub.unsubscribe()
@@ -105,6 +107,7 @@ export class VmStudentComponent implements OnInit, OnDestroy {
 
         this.team = team;
 
+        // If there;s a team, get the resource utilization and the vms
         if (team) {
           this.teamId = team.id
 
@@ -160,6 +163,8 @@ export class VmStudentComponent implements OnInit, OnDestroy {
     this.dataSourceVm.sort = this.sort;
   }
 
+
+  // Open VM  Creation dialog
   createVm(event) {
     this.message = ""
     this.alertType = ""
@@ -182,6 +187,7 @@ export class VmStudentComponent implements OnInit, OnDestroy {
   }
 
 
+  // Open VM deletion dialog
   deleteVm(vm: Vm) {
 
     const dialogRef = this.dialog.open(DeleteComponent, {
@@ -211,6 +217,9 @@ export class VmStudentComponent implements OnInit, OnDestroy {
     })
   }
 
+
+  // This is a mock that should simulate che connection to a VM.
+  // For now, it just opens the image in a new tab
   openVmImage(vm: Vm) {
     this.message = ""
     this.alertType = ""
@@ -229,6 +238,7 @@ export class VmStudentComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Open dialog to share ownership of the VM
   openShareDialog(vm: Vm) {
     this.message = ""
     this.alertType = ""
@@ -248,6 +258,7 @@ export class VmStudentComponent implements OnInit, OnDestroy {
     })
   }
 
+  // Open dialog to edit vm settings.
   openEditDialog(element, event) {
     this.message = ""
     this.alertType = ""
@@ -265,8 +276,8 @@ export class VmStudentComponent implements OnInit, OnDestroy {
     event.stopPropagation();
   }
 
+  // Check if current user is in the vm owner group
   isOwner(vm: Vm) {
-
     if (vm["owners"].includes(this.auth.getId())) return true;
   }
 

@@ -31,6 +31,8 @@ interface teamResources {
 })
 export class VMComponent implements OnInit, OnDestroy {
 
+
+    // Currently selected course
     selectedCourse: string
 
     message: string | null;
@@ -49,6 +51,7 @@ export class VMComponent implements OnInit, OnDestroy {
     private sort: MatSort;
 
 
+    // The team element expanded from the table
     expandedElement: Team | null;
 
     isAllLoaded: boolean
@@ -92,6 +95,8 @@ export class VMComponent implements OnInit, OnDestroy {
     }
 
 
+
+    // Fill component data structures with relevant data
     getData() {
 
         // Voglio sempre e solo una sub
@@ -109,6 +114,7 @@ export class VMComponent implements OnInit, OnDestroy {
                 this.teacherService.getTeams(this.selectedCourse).subscribe((data: Team[]) => {
 
 
+                    // For every team, the resources and vms
                     data.forEach((team, i) => {
                         team['position'] = i + 1
 

@@ -142,7 +142,6 @@ export class CourseManagementComponent implements OnInit {
   public set studentsNotInCourse(value: Student[]) {
     // Aggiorno source studenti not in course e relativi suggerimenti nell'autocomplete
     this._studentsNotInCourse = value;
-    console.log(this.studentsNotInCourse);
 
     this.filteredOptions = this.addStudentForm.get("studentControl").valueChanges.pipe(
       startWith(''),

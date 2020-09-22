@@ -87,17 +87,6 @@ export class CourseManagementContainerComponent implements OnInit {
           // Ritiro gli studenti del corso in questione
           this.teacherService.getStudentsInCourse(this.selectedCourse).subscribe(enrolledStudents => {
 
-            // enrolledStudents.forEach(student => {
-
-
-            //   let link = student.links.find(x => x.rel == "teams").href
-
-
-            //   if (link)
-            //     this.teacherService.getResourceByUrl(link).subscribe(res => console.log(res));
-
-            // })
-
             // Setto gli studenti che sono iscritti al corso
 
             enrolledStudents.forEach((student, i) => {
