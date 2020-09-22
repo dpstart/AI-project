@@ -53,7 +53,6 @@ public class Image {
     }
 
     public void setPicByte(byte[] picByte) {
-        System.out.println(picByte.length);
         this.picByte = picByte;
     }
 }

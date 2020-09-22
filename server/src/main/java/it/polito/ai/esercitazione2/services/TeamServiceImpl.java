@@ -57,9 +57,6 @@ import java.util.zip.Inflater;
  *             * Courses: operation;
  *             * Courses: getters;
  *             * Utilities (compressByte, decompressByte, checkExpirated);
- *
- *
- *
  */
 
 
