@@ -219,16 +219,16 @@
 
         <mat-card>
 
-            <h2 class="mat-h2 tabtitle">Team members</h2>
+            <h2 class="mat-h2 tabtitle">{{title}}</h2>
 
             <table #table mat-table [dataSource]="dataSourceStudentInTeam" matSort #matSortInTeam=matSort>
 
                 <!-- Group Column -->
                 <!-- Groups are not modelled yet, providing a default value. -->
-                <ng-container matColumnDef="group">
+                <!--<ng-container matColumnDef="group">
                     <th mat-header-cell mat-sort-header *matHeaderCellDef> Team </th>
                     <td mat-cell *matCellDef="let student"> {{(student.group) || "---"}} </td>
-                </ng-container>
+                </ng-container>-->
 
                 <!-- ID Column -->
                 <ng-container matColumnDef="id">

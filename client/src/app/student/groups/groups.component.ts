@@ -64,6 +64,8 @@ export class GroupsComponent implements OnInit, OnDestroy {
   message: string
   alertType: string
 
+  title: string
+
   // flag used to upload different pages
   isInTeam: boolean
 
@@ -112,7 +114,7 @@ export class GroupsComponent implements OnInit, OnDestroy {
         //proposals table
         this.dataSourceProposals = new MatTableDataSource()
         this.displayedColumnsProposals = ['idCreator', 'groupName', 'name', 'firstName'];
-        this.displayedColumnsInTeam = ['group', 'id', 'name', 'firstName']
+        this.displayedColumnsInTeam = ['id', 'name', 'firstName']
 
         //inner members table
         this.dataSourceMembersProposal = []
@@ -220,6 +222,7 @@ export class GroupsComponent implements OnInit, OnDestroy {
                     element["group"] = teams.name
                   });
                   this.dataSourceStudentInTeam.data = [...students]
+                  this.title = teams.name
                 })
               }
             })
